@@ -9,7 +9,7 @@ void Framework::Initialize()
 
 	// ゲームウィンドウの生成
 	window = new Window;
-	window->Create(L"Engine",1280,720);
+	window->Create(L"Engine-submodule-test",1280,720);
 
 	// DirectX初期化処理
 	dxBase = DirectXBase::GetInstance();
