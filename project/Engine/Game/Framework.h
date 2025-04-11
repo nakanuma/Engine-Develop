@@ -31,7 +31,7 @@
 #include "SceneManager.h"
 #include "AbstractSceneFactory.h"
 
-#include "Application/GlobalVariables/GlobalVariables.h"
+#include "GlobalVariables.h"
 
 class Framework
 {
