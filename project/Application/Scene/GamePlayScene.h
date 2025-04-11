@@ -41,5 +41,7 @@ private:
 	ModelManager::ModelData model_;
 	// 3Dオブジェクト
 	std::unique_ptr<Object3D> object_;
+
+	uint32_t dummy_;
 };
 
