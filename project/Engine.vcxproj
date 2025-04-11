@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Application\GlobalVariables\GlobalVariables.cpp" />
     <ClCompile Include="Engine\Math\Float2.cpp" />
     <ClCompile Include="Engine\Math\Float3.cpp" />
     <ClCompile Include="Engine\Scene\BaseScene.cpp" />
@@ -30,7 +29,6 @@
     <ClCompile Include="Engine\Debugger\Logger.cpp" />
     <ClCompile Include="Engine\Input\Input.cpp" />
     <ClCompile Include="Engine\Game\Framework.cpp" />
-    <ClCompile Include="Application\Scene\GamePlayScene.cpp" />
     <ClCompile Include="Engine\3D\LightManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Engine\Math\Matrix.cpp" />
@@ -53,11 +51,9 @@
     <ClCompile Include="Engine\Scene\SceneManager.cpp" />
     <ClCompile Include="Engine\Sound\SoundManager.cpp" />
     <ClCompile Include="Engine\Texture\SRVManager.cpp" />
-    <ClCompile Include="Application\Scene\TitleScene.cpp" />
     <ClCompile Include="Engine\DirectX\RTVManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application\GlobalVariables\GlobalVariables.h" />
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h" />
     <ClInclude Include="Engine\Scene\BaseScene.h" />
     <ClInclude Include="Engine\DirectX\ConstBuffer.h" />
@@ -92,7 +88,6 @@
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\2D\SpriteCommon.h" />
     <ClInclude Include="Engine\Game\Framework.h" />
-    <ClInclude Include="Application\Scene\GamePlayScene.h" />
     <ClInclude Include="Engine\Game\MyGame.h" />
     <ClInclude Include="Engine\Particle\ParticleEmitter.h" />
     <ClInclude Include="Engine\Particle\ParticleManager.h" />
@@ -103,7 +98,6 @@
     <ClInclude Include="Engine\Sound\SoundManager.h" />
     <ClInclude Include="Engine\Texture\SRVManager.h" />
     <ClInclude Include="Engine\Util\StructuredBuffer.h" />
-    <ClInclude Include="Application\Scene\TitleScene.h" />
     <ClInclude Include="Engine\DirectX\RTVManager.h" />
     <ClInclude Include="Engine\3D\LightManager.h" />
   </ItemGroup>
@@ -179,6 +173,9 @@
     <Text Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Application\Application\Application.vcxproj">
+      <Project>{354e3563-aa30-42a8-8529-49569143a17c}</Project>
+    </ProjectReference>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
       <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
     </ProjectReference>
@@ -226,12 +223,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir);$(ProjectDir)Engine;$(ProjectDir)Engine\3D;$(ProjectDir)Engine\Debugger;$(ProjectDir)Engine\DirectX;$(ProjectDir)Engine\Math;$(ProjectDir)Engine\Model;$(ProjectDir)Engine\Texture;$(ProjectDir)Engine\Util;$(ProjectDir)Engine\Window;$(ProjectDir)Engine\Wrapper;$(ProjectDir)..\External\nlohmann;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)Engine;$(SolutionDir)Engine\3D;$(SolutionDir)Engine\Debugger;$(SolutionDir)Engine\DirectX;$(SolutionDir)Engine\Math;$(SolutionDir)Engine\Model;$(SolutionDir)Engine\Texture;$(SolutionDir)Engine\Util;$(SolutionDir)Engine\Window;$(SolutionDir)Engine\Wrapper;$(SolutionDir)..\External\nlohmann;$(SolutionDir)../../Application/Application/GlobalVariables;$(SolutionDir)Engine\Scene;$(SolutionDir)Engine\2D;$(SolutionDir)../../Application/Application/Scene;$(SolutionDir)../../Application/Application;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir);$(ProjectDir)Engine;$(ProjectDir)Engine\3D;$(ProjectDir)Engine\Debugger;$(ProjectDir)Engine\DirectX;$(ProjectDir)Engine\Math;$(ProjectDir)Engine\Model;$(ProjectDir)Engine\Texture;$(ProjectDir)Engine\Util;$(ProjectDir)Engine\Window;$(ProjectDir)Engine\Wrapper;$(ProjectDir)..\External\nlohmann;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)Engine;$(SolutionDir)Engine\3D;$(SolutionDir)Engine\Debugger;$(SolutionDir)Engine\DirectX;$(SolutionDir)Engine\Math;$(SolutionDir)Engine\Model;$(SolutionDir)Engine\Texture;$(SolutionDir)Engine\Util;$(SolutionDir)Engine\Window;$(SolutionDir)Engine\Wrapper;$(SolutionDir)..\External\nlohmann;$(SolutionDir)../../Application/Application/GlobalVariables;$(SolutionDir)Engine\Scene;$(SolutionDir)Engine\2D;$(SolutionDir)../../Application/Application/Scene;$(SolutionDir)../../Application/Application;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -245,7 +242,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2D;$(ProjectDir)engine\3D;$(ProjectDir)engine\Input;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Particle;$(ProjectDir)engine\Sound;$(ProjectDir)engine\Game;$(ProjectDir)engine\Scene;$(ProjectDir)application\Scene;$(ProjectDir)application\GlobalVariables;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)engine\2D;$(SolutionDir)engine\3D;$(SolutionDir)engine\Input;$(SolutionDir)externals\assimp\include;$(SolutionDir)engine\Particle;$(SolutionDir)engine\Sound;$(SolutionDir)engine\Game;$(SolutionDir)engine\Scene;$(SolutionDir)application\Scene;$(SolutionDir)application\GlobalVariables;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -277,7 +274,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2D;$(ProjectDir)engine\3D;$(ProjectDir)engine\Input;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Particle;$(ProjectDir)engine\Sound;$(ProjectDir)engine\Game;$(ProjectDir)engine\Scene;$(ProjectDir)application\Scene;$(ProjectDir)application\GlobalVariables;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)engine\2D;$(SolutionDir)engine\3D;$(SolutionDir)engine\Input;$(SolutionDir)externals\assimp\include;$(SolutionDir)engine\Particle;$(SolutionDir)engine\Sound;$(SolutionDir)engine\Game;$(SolutionDir)engine\Scene;$(SolutionDir)application\Scene;$(SolutionDir)application\GlobalVariables;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
