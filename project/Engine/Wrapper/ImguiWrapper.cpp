@@ -10,6 +10,7 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 
 	// フォントの変更
 	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.Fonts->AddFontFromFileTTF("resources/Fonts/FiraMono-Regular.ttf", 16.0f);
 
 	unsigned char* pixels;
@@ -74,7 +75,7 @@ void ImGuiUtil::ImageWindow(std::string windowName, int32_t textureHandle) {
 	ImVec2 topLeft = {(wndSize.x - finalImageSize.x) * 0.5f + cntRegionMin.x, (wndSize.y - finalImageSize.y) * 0.5f + cntRegionMin.y};
 	ImGui::SetCursorPos(topLeft);
 
-	ImGui::Image(reinterpret_cast<ImTextureID>(SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(textureHandle).ptr), finalImageSize);
+	ImGui::Image((SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(textureHandle).ptr), finalImageSize);
 
 	ImGui::End();
 }
@@ -105,7 +106,7 @@ void ImGuiUtil::DepthWindow(std::string windowName, int32_t textureHandle) {
 	ImVec2 topLeft = {(wndSize.x - finalImageSize.x) * 0.5f + cntRegionMin.x, (wndSize.y - finalImageSize.y) * 0.5f + cntRegionMin.y};
 	ImGui::SetCursorPos(topLeft);
 
-	ImGui::Image(reinterpret_cast<ImTextureID>(SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(RTVManager::GetDepthSRVHandle(textureHandle)).ptr), finalImageSize);
+	ImGui::Image((SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(textureHandle).ptr), finalImageSize);
 
 	ImGui::End();
 }
