@@ -31,8 +31,6 @@
 #include "SceneManager.h"
 #include "AbstractSceneFactory.h"
 
-#include "GlobalVariables.h"
-
 class Framework
 {
 public:

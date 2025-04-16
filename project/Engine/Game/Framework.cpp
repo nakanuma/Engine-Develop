@@ -39,8 +39,6 @@ void Framework::Initialize()
 	// SoundManagerの生成と初期化
 	soundManager = new SoundManager;
 	soundManager->Initialize();
-
-	GlobalVariables::getInstance()->LoadAllFile();
 }
 
 void Framework::Finalize()
