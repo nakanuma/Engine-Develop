@@ -9,6 +9,8 @@ public:
 
 	void Update(std::string name, bool isEmit);
 	void Emit(std::string name);
+
+	Transform transform; //!< エミッタのTransform
 private:
 	ParticleManager* particleManager = nullptr;
 
@@ -18,7 +20,6 @@ private:
 	// Δtを定義
 	const float kDeltaTime = 1.0f / 60.0f;
 
-	Transform transform; //!< エミッタのTransform
 	uint32_t count; //!< 発生数
 	float frequency; //!< 発生頻度
 	float frequencyTime; // !< 頻度用時刻

@@ -58,6 +58,8 @@ public:
 	static Matrix RotationY(float rad);
 	static Matrix RotationZ(float rad);
 
+	static Matrix Rotation(const Float3& eulerAngles);
+
 	static Matrix Pitch(float rad);
 	static Matrix Yaw(float rad);
 	static Matrix Roll(float rad);

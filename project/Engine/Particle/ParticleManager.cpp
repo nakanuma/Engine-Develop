@@ -84,7 +84,14 @@ void ParticleManager::Update()
 				continue;
 			}
 
-			Matrix worldMatrix = particleIterator->transform.MakeAffineMatrix();
+			/*Matrix worldMatrix = particleIterator->transform.MakeAffineMatrix();*/
+			Transform transform = particleIterator->transform;
+			Matrix worldMatrix = { // ビルボード行列を適用した行列を作成
+				Matrix::Scaling(transform.scale) * 
+				Matrix::Rotation(transform.rotate) *
+				billboardMatrix * 
+				Matrix::Translation(transform.translate)
+			};
 			Matrix viewProjectionMatrix = viewMatrix * projectionMatrix;
 			Matrix worldViewProjectionMatrix = worldMatrix * billboardMatrix * viewProjectionMatrix;
 
@@ -100,9 +107,9 @@ void ParticleManager::Update()
 			}
 
 			// Fieldの範囲内のParticleには加速度を適用する
-			if (IsCollision(accelerationField.area, particleIterator->transform.translate)) {
+			/*if (IsCollision(accelerationField.area, particleIterator->transform.translate)) {
 				particleIterator->velocity += accelerationField.acceleration * kDeltaTime;
-			}
+			}*/
 
 			// Particleの更新処理
 			particleIterator->transform.translate += particleIterator->velocity * kDeltaTime;
@@ -133,21 +140,17 @@ void ParticleManager::Emit(const std::string name, const Float3& position, uint3
 	for (uint32_t i = 0; i < count; ++i) {
 		std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
 		Particle particle;
-		particle.transform.scale = { 1.0f, 1.0f, 1.0f };
-		particle.transform.rotate = { 0.0f, 0.0f, 0.0f };
-		particle.transform.translate = { distribution(randomEngine), distribution(randomEngine), distribution(randomEngine) };
-		particle.velocity = { distribution(randomEngine), distribution(randomEngine), distribution(randomEngine) };
 
-		Float3 randomTranslate{ distribution(randomEngine), distribution(randomEngine), distribution(randomEngine) };
-		particle.transform.translate = position + randomTranslate;
+		std::uniform_real_distribution<float> distScale(0.4f, 1.5f);
+		particle.transform.scale = {0.05f, distScale(randomEngine), 1.0f}; // 横に潰す
 
-		// 色をランダムに初期化
-		std::uniform_real_distribution<float> distColor(0.0f, 1.0f);
-		particle.color = { distColor(randomEngine), distColor(randomEngine), distColor(randomEngine), 1.0f };
+		std::uniform_real_distribution<float> distRotate(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
+		particle.transform.rotate = {0.0f, 0.0f, distRotate(randomEngine)};
 
-		// 生存可能時間と経過時間を初期化
-		std::uniform_real_distribution<float> distTime(1.0f, 3.0f);
-		particle.lifeTime = distTime(randomEngine);
+		particle.transform.translate = position;
+		particle.velocity = { 0.0f, 0.0f, 0.0f }; // 動かない
+		particle.color = {1.0f, 1.0f, 1.0f, 1.0f};
+		particle.lifeTime = 1.0f;
 		particle.currentTime = 0;
 
 		// 新たなパーティクルをパーティクルグループに追加

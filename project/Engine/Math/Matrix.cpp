@@ -302,7 +302,14 @@ Matrix Matrix::RotationY(float rad)
 
 Matrix Matrix::RotationZ(float rad)
 {
-	return Roll(rad);
+	return Roll(rad); }
+
+Matrix Matrix::Rotation(const Float3& eulerAngles) { 
+	Matrix rotationZ = RotationZ(eulerAngles.z); 
+	Matrix rotationY = RotationZ(eulerAngles.y);
+	Matrix rotationX = RotationZ(eulerAngles.x);
+
+	return rotationZ * rotationY * rotationX;
 }
 
 Matrix Matrix::Pitch(float rad)
