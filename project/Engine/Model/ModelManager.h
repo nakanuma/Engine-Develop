@@ -57,6 +57,12 @@ public:
 		Node rootNode;
 	};
 
+	///
+	///	Primitive
+	/// 
+
+	// リングの生成
+	static ModelData CreateRingModel(ID3D12Device* device);
 
 	///
 	/// Animation

@@ -42,6 +42,14 @@ void Object3D::UpdateMatrix()
 	wvpCB_.data_->WorldInverseTranspose = worldInverseTransposeMatrix;
 }
 
+void Object3D::ScaleUV(float scaleU) {
+	// UV変換行列を作成する（U方向にスケール）
+	Matrix uvScaleMatrix = Matrix::Scaling({scaleU, 1.0f, 1.0f});
+
+	// マテリアルのUV変換行列にスケールを適用
+	materialCB_.data_->uvTransform = uvScaleMatrix;
+}
+
 void Object3D::Draw()
 {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
