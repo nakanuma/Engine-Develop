@@ -141,17 +141,28 @@ void ParticleManager::Emit(const std::string name, const Float3& position, uint3
 		std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
 		Particle particle;
 
-		std::uniform_real_distribution<float> distScale(0.4f, 1.5f);
-		particle.transform.scale = {0.05f, distScale(randomEngine), 1.0f}; // 横に潰す
+		if (name == "particle") {
+			std::uniform_real_distribution<float> distScale(0.4f, 1.5f);
+			particle.transform.scale = {0.05f, distScale(randomEngine), 1.0f}; // 横に潰す
 
-		std::uniform_real_distribution<float> distRotate(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
-		particle.transform.rotate = {0.0f, 0.0f, distRotate(randomEngine)};
+			std::uniform_real_distribution<float> distRotate(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
+			particle.transform.rotate = {0.0f, 0.0f, distRotate(randomEngine)};
 
-		particle.transform.translate = position;
-		particle.velocity = { 0.0f, 0.0f, 0.0f }; // 動かない
-		particle.color = {1.0f, 1.0f, 1.0f, 1.0f};
-		particle.lifeTime = 1.0f;
-		particle.currentTime = 0;
+			particle.transform.translate = position;
+			particle.velocity = {0.0f, 0.0f, 0.0f}; // 動かない
+			particle.color = {1.0f, 1.0f, 1.0f, 1.0f};
+			particle.lifeTime = 1.0f;
+			particle.currentTime = 0;
+		} else if (name == "effect") {
+			particle.transform.scale = {1.0f, 1.0f, 1.0f};
+			particle.transform.rotate = {0.0f, 0.0f, 0.0f};
+
+			particle.transform.translate = position;
+			particle.velocity = {0.0f, 0.0f, 0.0f}; // 動かない
+			particle.color = {1.0f, 1.0f, 1.0f, 1.0f};
+			particle.lifeTime = 1.0f;
+			particle.currentTime = 0;
+		}
 
 		// 新たなパーティクルをパーティクルグループに追加
 		group.particles.push_back(particle);

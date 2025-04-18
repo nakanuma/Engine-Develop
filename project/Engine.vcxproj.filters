@@ -159,6 +159,7 @@
     <ClCompile Include="Engine\Wrapper\ImguiWrapper.cpp">
       <Filter>External</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3D\DebugCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
@@ -299,6 +300,7 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h">
       <Filter>External</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3D\DebugCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">

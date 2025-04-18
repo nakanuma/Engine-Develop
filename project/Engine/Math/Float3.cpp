@@ -24,6 +24,13 @@ Float3& Float3::operator-=(const Float3& other) {
 	return *this;
 }
 
+Float3& Float3::operator*=(float scalar) {
+	x *= scalar;
+	y *= scalar;
+	z *= scalar;
+	return *this;
+}
+
 float Float3::Length(const Float3& v) { 
 	return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
 }

@@ -30,6 +30,7 @@ struct Float3
 
     Float3& operator+=(const Float3& other);
 	Float3& operator-=(const Float3& other);
+	Float3& operator*=(float scalar);
 
     // 長さ（ノルム）
 	static float Length(const Float3& v);
