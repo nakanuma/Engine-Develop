@@ -31,6 +31,7 @@
     <ClCompile Include="Engine\Input\Input.cpp" />
     <ClCompile Include="Engine\Game\Framework.cpp" />
     <ClCompile Include="Engine\3D\LightManager.cpp" />
+    <ClCompile Include="Engine\Util\LineDrawer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Engine\Math\Matrix.cpp" />
     <ClCompile Include="Engine\Math\Matrix3x3.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="Engine\Util\StructuredBuffer.h" />
     <ClInclude Include="Engine\DirectX\RTVManager.h" />
     <ClInclude Include="Engine\3D\LightManager.h" />
+    <ClInclude Include="Engine\Util\LineDrawer.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">

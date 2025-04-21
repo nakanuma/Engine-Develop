@@ -160,6 +160,7 @@
       <Filter>External</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3D\DebugCamera.cpp" />
+    <ClCompile Include="Engine\Util\LineDrawer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
@@ -301,6 +302,7 @@
       <Filter>External</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3D\DebugCamera.h" />
+    <ClInclude Include="Engine\Util\LineDrawer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">
