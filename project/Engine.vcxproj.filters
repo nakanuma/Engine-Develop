@@ -161,6 +161,7 @@
     </ClCompile>
     <ClCompile Include="Engine\3D\DebugCamera.cpp" />
     <ClCompile Include="Engine\Util\LineDrawer.cpp" />
+    <ClCompile Include="Engine\Math\Float4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">

@@ -223,6 +223,15 @@ Matrix& Matrix::operator*=(const Matrix& m)
 	return *this;
 }
 
+Float4 Matrix::operator*(const Float4& vec) { 
+	return Float4(
+	    r[0][0] * vec.x + r[0][1] * vec.y + r[0][2] * vec.z + r[0][3] * vec.w, 
+		r[1][0] * vec.x + r[1][1] * vec.y + r[1][2] * vec.z + r[1][3] * vec.w,
+	    r[2][0] * vec.x + r[2][1] * vec.y + r[2][2] * vec.z + r[2][3] * vec.w, 
+		r[3][0] * vec.x + r[3][1] * vec.y + r[3][2] * vec.z + r[3][3] * vec.w
+	);
+}
+
 Matrix Matrix::Identity()
 {
 	return Matrix();

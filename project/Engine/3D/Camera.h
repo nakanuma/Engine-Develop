@@ -24,6 +24,9 @@ public:
 
 	static void Set(Camera* camera) { current_ = camera; }
 	static Camera* GetCurrent() { return current_; }
+
+	Matrix GetViewProjectionMatrix() { return MakeViewMatrix() * MakePerspectiveFovMatrix(); }
+
 private:
 	inline static Camera* current_;
 

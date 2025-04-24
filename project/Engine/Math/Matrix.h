@@ -36,6 +36,8 @@ public:
 	Matrix& operator -= (const Matrix& m);
 	Matrix& operator *= (const Matrix& m);
 
+	Float4 operator*(const Float4& vec);
+
 	/// 
 	/// Functions
 	/// 
