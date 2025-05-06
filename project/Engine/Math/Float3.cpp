@@ -1,5 +1,6 @@
 #include "Float3.h"
 #include "algorithm"
+#include "Matrix.h"
 
 Float3 Float3::operator+(const Float3& other) const { 
 	return {x + other.x, y + other.y, z + other.z}; }
@@ -46,6 +47,26 @@ Float3 Float3::Lerp(const Float3& a, const Float3& b, float t) {
 	    a.y * (1.0f - t) + b.y * t,
 	    a.z * (1.0f - t) + b.z * t,
 	};
+}
+
+Float3 Float3::Transform(const Float3& v, const Matrix& m)
+{
+	Float3 result;
+
+	result.x = v.x * m.r[0][0] + v.y * m.r[1][0] + v.z * m.r[2][0] + m.r[3][0];
+	result.y = v.x * m.r[0][1] + v.y * m.r[1][1] + v.z * m.r[2][1] + m.r[3][1];
+	result.z = v.x * m.r[0][2] + v.y * m.r[1][2] + v.z * m.r[2][2] + m.r[3][2];
+
+	float w = v.x * m.r[0][3] + v.y * m.r[1][3] + v.z * m.r[2][3] + m.r[3][3];
+
+	// 同次座標 w で割って正規化（透視変換対応）
+	if (w != 0.0f) {
+		result.x /= w;
+		result.y /= w;
+		result.z /= w;
+	}
+
+	return result;
 }
 
 Float3 Float3::CatmullRomInterplation(const Float3& p0, const Float3& p1, const Float3& p2, const Float3& p3, float t) { 
