@@ -20,6 +20,11 @@ public:
 	void Register(Collider* collider);
 
 	/// <summary>
+	/// コライダーの登録を解除
+	/// </summary>
+	void Unregister(Collider* collider);
+
+	/// <summary>
 	/// 全ての衝突判定を行う
 	/// </summary>
 	void Update();
