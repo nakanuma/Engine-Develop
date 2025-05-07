@@ -57,6 +57,7 @@
     <ClCompile Include="Engine\Sound\SoundManager.cpp" />
     <ClCompile Include="Engine\Texture\SRVManager.cpp" />
     <ClCompile Include="Engine\DirectX\RTVManager.cpp" />
+    <ClCompile Include="Engine\DirectX\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Collider\CollisionManager.h" />
@@ -109,6 +110,7 @@
     <ClInclude Include="Engine\DirectX\RTVManager.h" />
     <ClInclude Include="Engine\3D\LightManager.h" />
     <ClInclude Include="Engine\Util\LineDrawer.h" />
+    <ClInclude Include="Engine\DirectX\ShaderManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">

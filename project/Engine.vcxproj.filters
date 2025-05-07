@@ -164,6 +164,7 @@
     <ClCompile Include="Engine\Math\Float4.cpp" />
     <ClCompile Include="Engine\Collider\Collider.cpp" />
     <ClCompile Include="Engine\Collider\CollisionManager.cpp" />
+    <ClCompile Include="Engine\DirectX\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
@@ -308,6 +309,7 @@
     <ClInclude Include="Engine\Util\LineDrawer.h" />
     <ClInclude Include="Engine\Collider\Collider.h" />
     <ClInclude Include="Engine\Collider\CollisionManager.h" />
+    <ClInclude Include="Engine\DirectX\ShaderManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">

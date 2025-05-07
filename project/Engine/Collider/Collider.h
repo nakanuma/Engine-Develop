@@ -36,6 +36,9 @@ protected:
 	ICollisionCallback* owner_;
 };
 
+/// <summary>
+/// 球体コライダー
+/// </summary>
 class SphereCollider : public Collider {
 public:
 	Float3 center_;
@@ -44,6 +47,10 @@ public:
 	bool CheckCollision(Collider* other) override;
 	std::string GetType() const override { return "Sphere"; }
 
+	/// <summary>
+	/// 球体との衝突判定
+	/// </summary>
 	bool CheckCollisionWithSphere(SphereCollider* other);
+
 	// OBBなどとの判定は後で追加可能
 };

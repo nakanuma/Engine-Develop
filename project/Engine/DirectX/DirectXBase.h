@@ -15,6 +15,7 @@
 // MyClass
 #include "MyWindow.h"
 #include "DescriptorHeap.h"
+#include <DirectX/ShaderManager.h>
 
 // リソースリークチェック
 struct D3DResourceLeakChecker {
@@ -61,9 +62,6 @@ public:
 		// フェンス生成
 		CreateFence();
 
-		// DXC初期化
-		InitializeDXC();
-
 		// RootSignature生成
 		CreateRootSignature();
 		// RootSignature生成(Particle用)
@@ -83,6 +81,8 @@ public:
 		// RasterizerStateの設定
 		SetRasterizerState();
 
+		// ShaderManagerの初期化（Shaderコンパイル前に必ず行う）
+		ShaderManager::GetInstance()->Initialize();
 		// Shaderをコンパイル
 		ShaderCompile();
 
@@ -106,8 +106,6 @@ public:
 	void CreateFinalRenderTargets();
 	// フェンス生成
 	void CreateFence();
-	// DXC初期化
-	void InitializeDXC();
 	// RootSignature生成
 	void CreateRootSignature();
 	// RootSignature生成(Particle用)
@@ -195,9 +193,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_;
 	uint64_t fenceValue_;
 	HANDLE fenceEvent_;
-	IDxcUtils* dxcUtils_;
-	IDxcCompiler3* dxcCompiler_;
-	IDxcIncludeHandler* includeHandler_;
 	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob_;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob_;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
@@ -221,15 +216,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSobelFilter_;
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
-	// 通常
-	IDxcBlob* vertexShaderBlob_;
-	IDxcBlob* pixelShaderBlob_;
-	// パーティクル用
-	IDxcBlob* vertexShaderBlobParticle_;
-	IDxcBlob* pixelShaderBlobParticle_;
-	// ソベルフィルター用
-	IDxcBlob* vertexShaderBlobSobel_;
-	IDxcBlob* pixelShaderBlobSobel_;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateOutline_;

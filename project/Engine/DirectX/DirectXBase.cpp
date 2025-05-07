@@ -10,13 +10,6 @@
 DirectXBase::~DirectXBase()
 {
 	CloseHandle(fenceEvent_);
-	dxcUtils_->Release();
-	dxcCompiler_->Release();
-	includeHandler_->Release();
-	vertexShaderBlob_->Release();
-	pixelShaderBlob_->Release();
-	vertexShaderBlobParticle_->Release();
-	pixelShaderBlobParticle_->Release();
 
 	Log("Released DirectXBase\n");
 }
@@ -197,24 +190,6 @@ void DirectXBase::CreateFence()
 	// FenceのSignalを待つためのイベントを作成する
 	fenceEvent_ = CreateEvent(NULL, FALSE, FALSE, NULL);
 	assert(fenceEvent_ != nullptr);
-}
-
-void DirectXBase::InitializeDXC()
-{
-	HRESULT result = S_FALSE;
-
-	// dxcCompilerを初期化
-	dxcUtils_ = nullptr;
-	dxcCompiler_ = nullptr;
-	result = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils_));
-	assert(SUCCEEDED(result));
-	result = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler_));
-	assert(SUCCEEDED(result));
-
-	// 現時点でincludeはしないが、includeに対応するための設定を行っておく
-	includeHandler_ = nullptr;
-	result = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);
-	assert(SUCCEEDED(result));
 }
 
 void DirectXBase::CreateRootSignature()
@@ -513,37 +488,45 @@ D3D12_RASTERIZER_DESC DirectXBase::SetRasterizerState()
 
 void DirectXBase::ShaderCompile()
 {
-	// Shaderをコンパイルする
-	vertexShaderBlob_ = CompileShader(L"resources/Shaders/Object3D.VS.hlsl", L"vs_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-	assert(vertexShaderBlob_ != nullptr);
+	ShaderManager* shaderManager = ShaderManager::GetInstance();
 
-	pixelShaderBlob_ = CompileShader(L"resources/Shaders/Object3D.PS.hlsl", L"ps_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-	assert(pixelShaderBlob_ != nullptr);
+	///
+	///	シェーダーのコンパイル
+	/// 
 
-	// Particle用Shader
-	vertexShaderBlobParticle_ = CompileShader(L"resources/Shaders/Particle.VS.hlsl", L"vs_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-	assert(vertexShaderBlobParticle_ != nullptr);
+	// Object3D
+	shaderManager->LoadShader("Object3D_VS", L"resources/Shaders/Object3D.VS.hlsl", L"vs_6_0");
+	shaderManager->LoadShader("Object3D_PS", L"resources/Shaders/Object3D.PS.hlsl", L"ps_6_0");
 
-	pixelShaderBlobParticle_ = CompileShader(L"resources/Shaders/Particle.PS.hlsl", L"ps_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-	assert(pixelShaderBlobParticle_ != nullptr);
+	// Particle
+	shaderManager->LoadShader("Particle_VS", L"resources/Shaders/Particle.VS.hlsl", L"vs_6_0");
+	shaderManager->LoadShader("Particle_PS", L"resources/Shaders/Particle.PS.hlsl", L"ps_6_0");
 
-	// SobelFilter用Shader
-	vertexShaderBlobSobel_ = CompileShader(L"resources/Shaders/SobelFilter.VS.hlsl", L"vs_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-	assert(vertexShaderBlob_ != nullptr);
-
-	pixelShaderBlobSobel_ = CompileShader(L"resources/Shaders/SobelFilter.PS.hlsl", L"ps_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-	assert(pixelShaderBlob_ != nullptr);
+	// SobelFilter
+	shaderManager->LoadShader("SobelFilter_VS", L"resources/Shaders/SobelFilter.VS.hlsl", L"vs_6_0");
+	shaderManager->LoadShader("SobelFilter_PS", L"resources/Shaders/SobelFilter.PS.hlsl", L"ps_6_0");
 }
 
 void DirectXBase::CreatePipelineStateObject()
 {
 	HRESULT result = S_FALSE;
 
+	ShaderManager* shaderManager = ShaderManager::GetInstance();
+
+	///
+	///	デフォルトのPSOを生成
+	/// 
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	graphicsPipelineStateDesc.pRootSignature = rootSignature_.Get(); // RootSignature
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc_; // InputLayout
-	graphicsPipelineStateDesc.VS = { vertexShaderBlob_->GetBufferPointer(), vertexShaderBlob_->GetBufferSize() }; // VertexShader
-	graphicsPipelineStateDesc.PS = { pixelShaderBlob_->GetBufferPointer(), pixelShaderBlob_->GetBufferSize() }; // PixelShader
+
+	auto vs = shaderManager->GetShader("Object3D_VS");
+	auto ps = shaderManager->GetShader("Object3D_PS");
+
+	graphicsPipelineStateDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() }; // VertexShader
+	graphicsPipelineStateDesc.PS = { ps->GetBufferPointer(), ps->GetBufferSize() }; // PixelShader
+
 	graphicsPipelineStateDesc.BlendState = blendDesc_; // BlendState
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc_; // RasterizerState
 	// 書き込むRTVの情報
@@ -562,7 +545,7 @@ void DirectXBase::CreatePipelineStateObject()
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState_));
 	assert(SUCCEEDED(result));
 
-	// デフォルトを保存
+	// デフォルトのPSOを保存
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDefault = graphicsPipelineStateDesc;
 	D3D12_DEPTH_STENCIL_DESC depthStencilDescDefault = depthStencilDesc_;
 
@@ -614,20 +597,35 @@ void DirectXBase::CreatePipelineStateObject()
 	graphicsPipelineStateNoCulling_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateNoculling, IID_PPV_ARGS(&graphicsPipelineStateNoCulling_));
 
-	// パーティクル用PSOを作成
+	///
+	/// パーティクル用PSOを作成
+	/// 
+	
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateParticleDesc = graphicsPipelineStateDefault;
 	graphicsPipelineStateParticleDesc.BlendState = blendDescAdd_;
 	graphicsPipelineStateParticleDesc.pRootSignature = rootSignatureParticle_.Get(); // RootSignature
-	graphicsPipelineStateParticleDesc.VS = { vertexShaderBlobParticle_->GetBufferPointer(), vertexShaderBlobParticle_->GetBufferSize() }; // VertexShader
-	graphicsPipelineStateParticleDesc.PS = { pixelShaderBlobParticle_->GetBufferPointer(), pixelShaderBlobParticle_->GetBufferSize() }; // PixelShader
+
+	auto vsParticle = shaderManager->GetShader("Particle_VS");
+	auto psParticle = shaderManager->GetShader("Particle_PS");
+
+	graphicsPipelineStateParticleDesc.VS = {vsParticle->GetBufferPointer(), vsParticle->GetBufferSize()};                             // VertexShader
+	graphicsPipelineStateParticleDesc.PS = {psParticle->GetBufferPointer(), psParticle->GetBufferSize()}; // PixelShader
 	// 生成
 	graphicsPipelineStateParticle_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateParticleDesc, IID_PPV_ARGS(&graphicsPipelineStateParticle_));
 
-	// ソベルフィルターのPSOを作成
+	///
+	///	SobelFilterのPSOを生成
+	/// 
+	
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateSobelDesc = graphicsPipelineStateDefault;
-	graphicsPipelineStateSobelDesc.VS = {vertexShaderBlobSobel_->GetBufferPointer(), vertexShaderBlobSobel_->GetBufferSize()}; // VertexShader
-	graphicsPipelineStateSobelDesc.PS = {pixelShaderBlobSobel_->GetBufferPointer(), pixelShaderBlobSobel_->GetBufferSize()};   // PixelShader
+
+	auto vsSobel = shaderManager->GetShader("SobelFilter_VS");
+	auto psSobel = shaderManager->GetShader("SobelFilter_PS");
+
+	graphicsPipelineStateSobelDesc.VS = {vsSobel->GetBufferPointer(), vsSobel->GetBufferSize()};
+	graphicsPipelineStateSobelDesc.PS = {psSobel->GetBufferPointer(), psSobel->GetBufferSize()};
+
 	// 生成
 	graphicsPipelineStateSobelFilter_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSobelDesc, IID_PPV_ARGS(&graphicsPipelineStateSobelFilter_));
