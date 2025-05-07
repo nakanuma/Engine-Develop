@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <dxcapi.h>
 #include <dxgidebug.h>
-#include <chrono>
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -16,6 +15,7 @@
 #include "MyWindow.h"
 #include "DescriptorHeap.h"
 #include <DirectX/ShaderManager.h>
+#include <Util/FPSController.h>
 
 // リソースリークチェック
 struct D3DResourceLeakChecker {
@@ -42,7 +42,7 @@ public:
 	void Initialize()
 	{
 		// FPS固定初期化
-		InitializeFixFPS();
+		FPSController::GetInstance()->InitializeFixFPS();
 
 		// DXGIデバイス初期化
 		InitializeDXGIDevice();
@@ -81,10 +81,8 @@ public:
 		// RasterizerStateの設定
 		SetRasterizerState();
 
-		// ShaderManagerの初期化（Shaderコンパイル前に必ず行う）
+		// ShaderManagerの初期化（PSO作成前に必ず行う）
 		ShaderManager::GetInstance()->Initialize();
-		// Shaderをコンパイル
-		ShaderCompile();
 
 		// PipelineStateObjectの生成
 		CreatePipelineStateObject();
@@ -121,8 +119,6 @@ public:
 	D3D12_BLEND_DESC SetBlendStateScreen();
 	// RasterizerStateの設定
 	D3D12_RASTERIZER_DESC SetRasterizerState();
-	// Shaderのコンパイル
-	void ShaderCompile();
 	// PSO生成
 	void CreatePipelineStateObject();
 	// Viewportの設定
@@ -227,13 +223,4 @@ private:
 	DescriptorHeap dsvDescriptorHeap_;
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc_;
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc_;
-
-	// FPS固定初期化
-	void InitializeFixFPS();
-	// FPS固定更新
-	void UpdateFixFPS();
-
-	// 記録時間(FPS固定用)
-	std::chrono::steady_clock::time_point reference_;
 };
-

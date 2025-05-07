@@ -160,11 +160,11 @@
       <Filter>External</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3D\DebugCamera.cpp" />
-    <ClCompile Include="Engine\Util\LineDrawer.cpp" />
     <ClCompile Include="Engine\Math\Float4.cpp" />
     <ClCompile Include="Engine\Collider\Collider.cpp" />
     <ClCompile Include="Engine\Collider\CollisionManager.cpp" />
     <ClCompile Include="Engine\DirectX\ShaderManager.cpp" />
+    <ClCompile Include="Engine\Util\FPSController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
@@ -306,10 +306,10 @@
       <Filter>External</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3D\DebugCamera.h" />
-    <ClInclude Include="Engine\Util\LineDrawer.h" />
     <ClInclude Include="Engine\Collider\Collider.h" />
     <ClInclude Include="Engine\Collider\CollisionManager.h" />
     <ClInclude Include="Engine\DirectX\ShaderManager.h" />
+    <ClInclude Include="Engine\Util\FPSController.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">

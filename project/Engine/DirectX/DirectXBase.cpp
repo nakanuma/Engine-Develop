@@ -1,6 +1,5 @@
 #include "DirectXBase.h" 
 #include <cassert>
-#include <thread>
 // MyClass
 #include "Logger.h"
 #include "StringUtil.h"
@@ -486,27 +485,6 @@ D3D12_RASTERIZER_DESC DirectXBase::SetRasterizerState()
 	return rasterizerDesc_;
 }
 
-void DirectXBase::ShaderCompile()
-{
-	ShaderManager* shaderManager = ShaderManager::GetInstance();
-
-	///
-	///	シェーダーのコンパイル
-	/// 
-
-	// Object3D
-	shaderManager->LoadShader("Object3D_VS", L"resources/Shaders/Object3D.VS.hlsl", L"vs_6_0");
-	shaderManager->LoadShader("Object3D_PS", L"resources/Shaders/Object3D.PS.hlsl", L"ps_6_0");
-
-	// Particle
-	shaderManager->LoadShader("Particle_VS", L"resources/Shaders/Particle.VS.hlsl", L"vs_6_0");
-	shaderManager->LoadShader("Particle_PS", L"resources/Shaders/Particle.PS.hlsl", L"ps_6_0");
-
-	// SobelFilter
-	shaderManager->LoadShader("SobelFilter_VS", L"resources/Shaders/SobelFilter.VS.hlsl", L"vs_6_0");
-	shaderManager->LoadShader("SobelFilter_PS", L"resources/Shaders/SobelFilter.PS.hlsl", L"ps_6_0");
-}
-
 void DirectXBase::CreatePipelineStateObject()
 {
 	HRESULT result = S_FALSE;
@@ -761,7 +739,7 @@ void DirectXBase::PostDraw()
 	commandQueue_->ExecuteCommandLists(1, commandLists);
 	
 	// FPS固定
-	UpdateFixFPS();
+	FPSController::GetInstance()->UpdateFixFPS();
 }
 
 ID3D12Device* DirectXBase::GetDevice()
@@ -808,37 +786,6 @@ ID3D12PipelineState* DirectXBase::GetPipelineStateNoCulling()
 DescriptorHeap* DirectXBase::GetDSVHeap() 
 { 
 	return &dsvDescriptorHeap_;
-}
-
-void DirectXBase::InitializeFixFPS()
-{
-	// 現在時間を記録する
-	reference_ = std::chrono::steady_clock::now();
-}
-
-void DirectXBase::UpdateFixFPS()
-{
-	// 1/60秒ぴったりの時間
-	const std::chrono::microseconds kMinTime(uint64_t(1000000.0f / 60.0f));
-	// 1/60秒よりわずかに短い時間
-	const std::chrono::microseconds kMinCheckTime(uint64_t(1000000.0f / 65.0f));
-
-	// 現在時間を取得する
-	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-	// 前回記録からの経過時間を取得する
-	std::chrono::microseconds elapsed =
-		std::chrono::duration_cast<std::chrono::microseconds>(now - reference_);
-
-	// 1/60秒（よりわずかに短い時間）経っていない場合
-	if (elapsed < kMinTime) {
-		// 1/60秒経過するまで微小なスリープを繰り返す
-		while (std::chrono::steady_clock::now() - reference_ < kMinTime) {
-			// 1マイクロ秒スリープ
-			std::this_thread::sleep_for(std::chrono::microseconds(1));
-		}
-	}
-	// 現在の時間を記録する
-	reference_ = std::chrono::steady_clock::now();
 }
 
 D3DResourceLeakChecker::~D3DResourceLeakChecker()

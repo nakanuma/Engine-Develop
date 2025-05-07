@@ -27,6 +27,22 @@ void ShaderManager::Initialize() {
 	includeHandler_ = nullptr;
 	result = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);
 	assert(SUCCEEDED(result));
+
+	///
+	///	各シェーダーのコンパイル
+	/// 
+	
+	// Object3D
+	LoadShader("Object3D_VS", L"resources/Shaders/Object3D.VS.hlsl", L"vs_6_0");
+	LoadShader("Object3D_PS", L"resources/Shaders/Object3D.PS.hlsl", L"ps_6_0");
+
+	// Particle
+	LoadShader("Particle_VS", L"resources/Shaders/Particle.VS.hlsl", L"vs_6_0");
+	LoadShader("Particle_PS", L"resources/Shaders/Particle.PS.hlsl", L"ps_6_0");
+
+	// SobelFilter
+	LoadShader("SobelFilter_VS", L"resources/Shaders/SobelFilter.VS.hlsl", L"vs_6_0");
+	LoadShader("SobelFilter_PS", L"resources/Shaders/SobelFilter.PS.hlsl", L"ps_6_0");
 }
 
 void ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) { 
