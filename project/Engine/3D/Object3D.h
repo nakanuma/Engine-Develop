@@ -35,6 +35,7 @@ public:
 
 	// UVスケーリング
 	void ScaleUV(float scaleU);
+
 	// 親オブジェクトを設定
 	void SetParent(Object3D* parent) { parent_ = parent; }
 

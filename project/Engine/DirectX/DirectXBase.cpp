@@ -562,7 +562,9 @@ void DirectXBase::CreatePipelineStateObject()
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState_));
 	assert(SUCCEEDED(result));
 
+	// デフォルトを保存
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDefault = graphicsPipelineStateDesc;
+	D3D12_DEPTH_STENCIL_DESC depthStencilDescDefault = depthStencilDesc_;
 
 	///
 	/// BlendMode変更用のPSOを生成
@@ -598,10 +600,19 @@ void DirectXBase::CreatePipelineStateObject()
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateOutline_));
 
 	// カリングを行わないPSOを作成
-	graphicsPipelineStateDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateNoculling = graphicsPipelineStateDefault;
+	graphicsPipelineStateNoculling.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+
+	D3D12_DEPTH_STENCIL_DESC depthStencilDescNoCulling = depthStencilDescDefault;
+	depthStencilDescNoCulling.DepthEnable = true;
+	depthStencilDescNoCulling.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDescNoCulling.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+	graphicsPipelineStateNoculling.DepthStencilState = depthStencilDescNoCulling;
+
 	// 生成
 	graphicsPipelineStateNoCulling_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateNoCulling_));
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateNoculling, IID_PPV_ARGS(&graphicsPipelineStateNoCulling_));
 
 	// パーティクル用PSOを作成
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateParticleDesc = graphicsPipelineStateDefault;
