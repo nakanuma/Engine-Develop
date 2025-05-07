@@ -1,5 +1,8 @@
 #include "CollisionManager.h"
 
+// Externals
+#include <ImguiWrapper.h>
+
 CollisionManager* CollisionManager::GetInstance()
 {
 	static CollisionManager instance;
@@ -29,4 +32,48 @@ void CollisionManager::Update()
 			}
 		}
 	}
+}
+
+void CollisionManager::Debug()
+{
+	if (ImGui::Begin("Colliders")) {
+		ImGui::Text("Total Colliders: %zu", colliders_.size());
+		ImGui::Separator();
+
+		for (size_t i = 0; i < colliders_.size(); ++i) {
+			Collider* collider = colliders_[i];
+			if (!collider) continue;
+
+			std::string label = "Collider[" + std::to_string(i) + "] (" + collider->GetTag() + ")";
+			if (ImGui::TreeNode(label.c_str())) {
+				///
+				///	各項目の表示
+				/// 
+
+				// タイプ
+				ImGui::Text("Type : %s", collider->GetType().c_str());
+				
+				// タグ
+				ImGui::Text("Tag : %s", collider->GetTag().c_str());
+
+				///
+				/// パラメーター表示
+				/// 
+				
+				// SphereCollider
+				if (collider->GetType() == "Sphere") {
+					if (auto sphere = dynamic_cast<SphereCollider*>(collider)) {
+						ImGui::Text("Center : (%.2f, %.2f, %.2f)", sphere->center_.x, sphere->center_.y, sphere->center_.z);
+						ImGui::Text("Radius : %.2f", sphere->radius_);
+					}
+				}
+
+				// ここに追加
+
+				ImGui::TreePop();
+			}
+		}
+	}
+
+	ImGui::End();
 }
