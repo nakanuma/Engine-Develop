@@ -36,8 +36,18 @@ int TextureManager::Load(const std::string& filePath, ID3D12Device* device)
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Format = metadata.format;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
-	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+	// metadataからcubemapかどうかを取得できるので利用して分岐
+	if (metadata.IsCubemap()) {
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MostDetailedMip = 0; // unionがtextureCubeになったが、内部パラメータの意味はTexture2dと変わらない
+		srvDesc.TextureCube.MipLevels = UINT_MAX;
+		srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+		
+	// 今まで通り2d textureの設定を行う
+	} else {
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
+		srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+	}
 
 	// テクスチャデータを追加して書き込む
 	TextureData& textureData = GetInstance().textureDatas[filePath];
@@ -141,12 +151,20 @@ DirectX::ScratchImage TextureManager::LoadTexture(const std::string& filePath)
 	// テクスチャファイルを読み込んでプログラムで扱えるようにする 
 	DirectX::ScratchImage image{};
 	std::wstring filePathW = ConvertString(filePath);
-	result = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
+	if (filePathW.ends_with(L".dds")) { // .ddsで終わっていたらddsとみなす
+		result = DirectX::LoadFromDDSFile(filePathW.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image);
+	} else {
+		result = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
+	}
 	assert(SUCCEEDED(result));
 
 	// ミップマップの作成
 	DirectX::ScratchImage mipImages{};
-	result = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
+	if (DirectX::IsCompressed(image.GetMetadata().format)) { // 圧縮フォーマットかどうかを調べる
+		mipImages = std::move(image); // 圧縮フォーマットならそのまま使うのでmoveする
+	} else {
+		result = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
+	}
 	assert(SUCCEEDED(result));
 
 	// ミップマップ付きのデータを返す

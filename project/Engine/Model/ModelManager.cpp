@@ -191,6 +191,95 @@ ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) 
 	return modelData;
 }
 
+ModelManager::ModelData ModelManager::CreateSkyBoxModel(ID3D12Device* device) {
+	ModelManager::ModelData modelData;
+
+	// 頂点データとインデックスデータのコンテナ
+	std::vector<VertexData> vertices(24);
+	std::vector<uint32_t> indices;
+
+	// SkyBoxの頂点データを生成
+	// 右面
+	vertices[0].position = {1.0f, 1.0f, 1.0f, 1.0f};
+	vertices[1].position = {1.0f, 1.0f, -1.0f, 1.0f};
+	vertices[2].position = {1.0f, -1.0f, 1.0f, 1.0f};
+	vertices[3].position = {1.0f, -1.0f, -1.0f, 1.0f};
+	// 左面
+	vertices[4].position = {-1.0f, 1.0f, -1.0f, 1.0f};
+	vertices[5].position = {-1.0f, 1.0f, 1.0f, 1.0f};
+	vertices[6].position = {-1.0f, -1.0f, -1.0f, 1.0f};
+	vertices[7].position = {-1.0f, -1.0f, 1.0f, 1.0f};
+	// 前面
+	vertices[8].position = {-1.0f, 1.0f, 1.0f, 1.0f};
+	vertices[9].position = {1.0f, 1.0f, 1.0f, 1.0f};
+	vertices[10].position = {-1.0f, -1.0f, 1.0f, 1.0f};
+	vertices[11].position = {1.0f, -1.0f, 1.0f, 1.0f};
+	// 後面
+	vertices[12].position = {1.0f, 1.0f, -1.0f, 1.0f};
+	vertices[13].position = {-1.0f, 1.0f, -1.0f, 1.0f};
+	vertices[14].position = {1.0f, -1.0f, -1.0f, 1.0f};
+	vertices[15].position = {-1.0f, -1.0f, -1.0f, 1.0f};
+	// 上面
+	vertices[16].position = {-1.0f, 1.0f, -1.0f, 1.0f};
+	vertices[17].position = {1.0f, 1.0f, -1.0f, 1.0f};
+	vertices[18].position = {-1.0f, 1.0f, 1.0f, 1.0f};
+	vertices[19].position = {1.0f, 1.0f, 1.0f, 1.0f};
+	// 下面
+	vertices[20].position = {-1.0f, -1.0f, 1.0f, 1.0f};
+	vertices[21].position = {1.0f, -1.0f, 1.0f, 1.0f};
+	vertices[22].position = {-1.0f, -1.0f, -1.0f, 1.0f};
+	vertices[23].position = {1.0f, -1.0f, -1.0f, 1.0f};
+
+	// texcoord, normalは適当に埋める
+	for (auto& v : vertices) {
+		v.texcoord = {0.0f, 0.0f};
+		v.normal = {0.0f, 1.0f, 0.0f};
+	}
+
+	// 各面のインデックス（内側を向くように
+	for (uint32_t i = 0; i < 6; ++i) {
+		uint32_t base = i * 4;
+		indices.push_back(base + 0);
+		indices.push_back(base + 1);
+		indices.push_back(base + 2);
+		indices.push_back(base + 2);
+		indices.push_back(base + 1);
+		indices.push_back(base + 3);
+	}
+
+	modelData.vertices = vertices;
+	modelData.indices = indices;
+
+	// 頂点バッファリソースを作成
+	modelData.vertexResource = CreateBufferResource(device, sizeof(ModelManager::VertexData) * vertices.size());
+
+	// 頂点バッファビューを設定
+	modelData.vertexBufferView;
+	modelData.vertexBufferView.BufferLocation = modelData.vertexResource->GetGPUVirtualAddress();
+	modelData.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * vertices.size());
+	modelData.vertexBufferView.StrideInBytes = sizeof(VertexData);
+
+	// 頂点データをコピー
+	VertexData* vertexData = nullptr;
+	modelData.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	std::memcpy(vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
+
+	// インデックスバッファリソースを作成
+	modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * indices.size());
+
+	// インデックスバッファビューを設定
+	modelData.indexBufferView.BufferLocation = modelData.indexResource->GetGPUVirtualAddress();
+	modelData.indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * indices.size());
+	modelData.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+
+	// インデックスデータをコピー
+	uint32_t* indexData = nullptr;
+	modelData.indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+	std::memcpy(indexData, indices.data(), sizeof(uint32_t) * indices.size());
+
+	return modelData;
+}
+
 ModelManager::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, const std::string& filename, ID3D12Device* device) {
 	// 1. 中で必要となる変数の宣言
 	ModelData modelData;           // 構築するModelData
