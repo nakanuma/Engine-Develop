@@ -29,6 +29,11 @@ public:
 	/// </summary>
 	void Update();
 
+	/// <summary>
+	/// デバッグ表示
+	/// </summary>
+	void Debug();
+
 private:
 	// コライダーのコンテナ
 	std::vector<Collider*> colliders_;
