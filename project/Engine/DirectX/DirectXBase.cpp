@@ -607,6 +607,31 @@ void DirectXBase::CreatePipelineStateObject()
 	// 生成
 	graphicsPipelineStateSobelFilter_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSobelDesc, IID_PPV_ARGS(&graphicsPipelineStateSobelFilter_));
+
+	///
+	/// SkyboxのPSOを作成
+	/// 
+	
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateSkyboxDesc = graphicsPipelineStateDefault;
+
+	// 適用するShaderの設定
+	auto vsSkybox = shaderManager->GetShader("Skybox_VS");
+	auto psSkybox = shaderManager->GetShader("Skybox_PS");
+
+	graphicsPipelineStateSkyboxDesc.VS = {vsSkybox->GetBufferPointer(), vsSkybox->GetBufferSize()};
+	graphicsPipelineStateSkyboxDesc.PS = {psSkybox->GetBufferPointer(), psSkybox->GetBufferSize()};
+
+	// 適用するDepthStencilStateの設定
+	D3D12_DEPTH_STENCIL_DESC depthStencilDescSkybox = depthStencilDescDefault;
+	depthStencilDescSkybox.DepthEnable = true; // 比較はするのでDepth自体は有効
+	depthStencilDescSkybox.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 全ピクセルがz=1に出力されるので、わざわざ書き込む必要がない
+	depthStencilDescSkybox.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; // 今までと同様に比較
+
+	graphicsPipelineStateSkyboxDesc.DepthStencilState = depthStencilDescSkybox;
+
+	// 生成
+	graphicsPipelineStateSkybox_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSkyboxDesc, IID_PPV_ARGS(&graphicsPipelineStateSkybox_));
 }
 
 void DirectXBase::SetViewport()

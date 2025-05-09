@@ -43,6 +43,10 @@ void ShaderManager::Initialize() {
 	// SobelFilter
 	LoadShader("SobelFilter_VS", L"resources/Shaders/SobelFilter.VS.hlsl", L"vs_6_0");
 	LoadShader("SobelFilter_PS", L"resources/Shaders/SobelFilter.PS.hlsl", L"ps_6_0");
+
+	// Skybox
+	LoadShader("Skybox_VS", L"Application/Skybox.VS.hlsl", L"vs_6_0");
+	LoadShader("Skybox_PS", L"Application/Skybox.PS.hlsl", L"ps_6_0");
 }
 
 void ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) { 

@@ -1,19 +1,14 @@
 #include "SceneFactory.h"
 
 // TopDown-Shooting
-#include "TestScene/TestScene.h"
-#include "src/Game/Scene/TitleScene.h"
-#include "src/Game/Scene/GamePlayScene.h"
+//#include "TestScene/TestScene.h"
+//#include "src/Game/Scene/TitleScene.h"
+//#include "src/Game/Scene/GamePlayScene.h"
 
 // CG4
 #include "TestScene/TestScene.h"
 #include "TitleScene.h"
 #include "GamePlayScene.h"
-
-// CG5
-//#include "TestScene.h"
-//#include "TitleScene.h"
-//#include "GamePlayScene.h"
 
 // CG5
 //#include "TestScene.h"
