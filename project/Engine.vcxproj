@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\Collider\CollisionMath.cpp" />
     <ClCompile Include="Engine\Collider\CollisionManager.cpp" />
     <ClCompile Include="Engine\Collider\Collider.cpp" />
     <ClCompile Include="Engine\3D\DebugCamera.cpp" />
@@ -60,6 +61,7 @@
     <ClCompile Include="Engine\DirectX\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\Collider\CollisionMath.h" />
     <ClInclude Include="Engine\Collider\CollisionManager.h" />
     <ClInclude Include="Engine\Collider\Collider.h" />
     <ClInclude Include="Engine\3D\DebugCamera.h" />

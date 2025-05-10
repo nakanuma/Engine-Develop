@@ -1,22 +1,82 @@
 #include "Collider.h"
 
+// Engine
+#include <Collider/CollisionMath.h>
+
+// ---------------------------------------------------------
+// Sphereコライダーの衝突判定
+// ---------------------------------------------------------
 bool SphereCollider::CheckCollision(Collider* other)
 {
-    // 衝突したコライダーがSphereだった場合の処理
+    // vs Sphere
     if (other->GetType() == "Sphere") {
-        return CheckCollisionWithSphere(static_cast<SphereCollider*>(other));
+        auto* sphere = dynamic_cast<SphereCollider*>(other);
+        return CollisionMath::CheckSphereToSphere(this, sphere);
     }
 
-    // 他のコライダーとの衝突処理を追加
+    // vs AABB
+    if (other->GetType() == "AABB") {
+        auto* aabb = dynamic_cast<AABBCollider*>(other);
+        return CollisionMath::CheckSphereToAABB(this, aabb);
+    }
 
+    // vs OBB
+    if (other->GetType() == "OBB") {
+        auto* obb = dynamic_cast<OBBCollider*>(other);
+        return CollisionMath::CheckOBBToSphere(obb, this);
+    }
 
     return false;
 }
 
-bool SphereCollider::CheckCollisionWithSphere(SphereCollider* other)
+// ---------------------------------------------------------
+// AABBコライダーの衝突判定
+// ---------------------------------------------------------
+bool AABBCollider::CheckCollision(Collider* other)
 {
-    float distance = Float3::Length(this->center_ - other->center_);
-    float radiusSum = this->radius_ + other->radius_;
+    // vs Sphere
+    if (other->GetType() == "Sphere") {
+        auto* sphere = dynamic_cast<SphereCollider*>(other);
+        return CollisionMath::CheckSphereToAABB(sphere, this);
+    }
 
-    return distance <= radiusSum;
+    // vs AABB
+    if (other->GetType() == "AABB") {
+        auto* aabb = dynamic_cast<AABBCollider*>(other);
+        return CollisionMath::CheckAABBToAABB(this, aabb);
+    }
+
+    // bs OBB
+    if (other->GetType() == "OBB") {
+        auto* obb = dynamic_cast<OBBCollider*>(other);
+        return CollisionMath::CheckAABBToOBB(this, obb);
+    }
+
+    return false;
+}
+
+// ---------------------------------------------------------
+// OBBコライダーの衝突判定
+// ---------------------------------------------------------
+bool OBBCollider::CheckCollision(Collider* other)
+{
+    // vs Sphere
+    if (other->GetType() == "Sphere") {
+        auto* sphere = dynamic_cast<SphereCollider*>(other);
+        return CollisionMath::CheckOBBToSphere(this, sphere);
+    }
+
+    // vs AABB
+    if (other->GetType() == "AABB") {
+        auto* aabb = dynamic_cast<AABBCollider*>(other);
+        return CollisionMath::CheckAABBToOBB(aabb, this);
+    }
+
+    // vs OBB
+    if (other->GetType() == "OBB") {
+        auto* obb = dynamic_cast<OBBCollider*>(other);
+        return CollisionMath::CheckOBBToOBB(this, obb);
+    }
+
+    return false;
 }

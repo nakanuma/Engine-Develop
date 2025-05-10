@@ -8,6 +8,9 @@
 
 class Collider;
 
+/// <summary>
+/// 衝突コールバックインターフェース
+/// </summary>
 class ICollisionCallback {
 public:
 	virtual ~ICollisionCallback() = default;
@@ -32,7 +35,9 @@ public:
 	ICollisionCallback* GetOwner() { return owner_; }
 
 protected:
+	// コライダー識別用タグ
 	std::string tag_;
+	// コライダーの所属オブジェクトへのポインタ
 	ICollisionCallback* owner_;
 };
 
@@ -46,11 +51,29 @@ public:
 
 	bool CheckCollision(Collider* other) override;
 	std::string GetType() const override { return "Sphere"; }
+};
 
-	/// <summary>
-	/// 球体との衝突判定
-	/// </summary>
-	bool CheckCollisionWithSphere(SphereCollider* other);
+/// <summary>
+/// AABBコライダー
+/// </summary>
+class AABBCollider : public Collider {
+public:
+	Float3 min_;
+	Float3 max_;
 
-	// OBBなどとの判定は後で追加可能
+	bool CheckCollision(Collider* other) override;
+	std::string GetType() const override { return "AABB"; }
+};
+
+/// <summary>
+/// OBBコライダー
+/// </summary>
+class OBBCollider : public Collider {
+public:
+	Float3 center_;
+	Float3 halfSize_;
+	Float3 axes_[3];
+
+	bool CheckCollision(Collider* other) override;
+	std::string GetType() const override { return "OBB"; }
 };

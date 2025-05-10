@@ -69,6 +69,11 @@ Float3 Float3::Transform(const Float3& v, const Matrix& m)
 	return result;
 }
 
+float Float3::Dot(const Float3& a, const Float3& b)
+{
+	return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
 Float3 Float3::CatmullRomInterplation(const Float3& p0, const Float3& p1, const Float3& p2, const Float3& p3, float t) { 
 	const float s = 0.5f;
 
