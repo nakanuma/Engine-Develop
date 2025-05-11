@@ -43,7 +43,7 @@ void SceneManager::Update()
 		nextScene_ = nullptr;
 
 		// 次シーンを初期化する
-		scene_->Initialize();
+		/*scene_->Initialize();*/
 	}
 
 	// 実行中シーンを更新する

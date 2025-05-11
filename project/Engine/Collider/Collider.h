@@ -42,7 +42,7 @@ protected:
 };
 
 /// <summary>
-/// 球体コライダー
+/// Sphereコライダー
 /// </summary>
 class SphereCollider : public Collider {
 public:
@@ -63,17 +63,4 @@ public:
 
 	bool CheckCollision(Collider* other) override;
 	std::string GetType() const override { return "AABB"; }
-};
-
-/// <summary>
-/// OBBコライダー
-/// </summary>
-class OBBCollider : public Collider {
-public:
-	Float3 center_;
-	Float3 halfSize_;
-	Float3 axes_[3];
-
-	bool CheckCollision(Collider* other) override;
-	std::string GetType() const override { return "OBB"; }
 };

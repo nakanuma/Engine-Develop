@@ -1,5 +1,8 @@
 #include "CollisionManager.h"
 
+// C++
+#include <iostream>
+
 // Externals
 #include <ImguiWrapper.h>
 
@@ -11,6 +14,10 @@ CollisionManager* CollisionManager::GetInstance()
 
 void CollisionManager::Register(Collider* collider)
 {
+	if (collider == nullptr) {
+		return;
+	}
+
 	colliders_.push_back(collider);
 }
 
@@ -75,14 +82,6 @@ void CollisionManager::Debug()
 						ImGui::Text("Center : (%.2f, %.2f, %.2f)", center.x, center.y, center.z);
 						ImGui::Text("Min : (%.2f, %.2f, %.2f)", aabb->min_.x, aabb->min_.y, aabb->min_.z);
 						ImGui::Text("Max : (%.2f, %.2f, %.2f)", aabb->max_.x, aabb->max_.y, aabb->max_.z);
-					}
-				}
-
-				// OBBCollider
-				if (collider->GetType() == "OBB") {
-					if (auto obb = dynamic_cast<OBBCollider*>(collider)) {
-						ImGui::Text("Center : (%.2f, %.2f, %.2f)", obb->center_.x, obb->center_.y, obb->center_.z);
-						ImGui::Text("HalfSize : (%.2f, %.2f, %.2f)", obb->halfSize_.x, obb->halfSize_.y, obb->halfSize_.z);
 					}
 				}
 
