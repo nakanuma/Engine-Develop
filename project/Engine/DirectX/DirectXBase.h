@@ -172,6 +172,8 @@ public:
 	ID3D12PipelineState* GetPipelineStateSobelFilter() { return graphicsPipelineStateSobelFilter_.Get(); }
 	// Skybox用PSOを取得
 	ID3D12PipelineState* GetPipelineStateSkybox() { return graphicsPipelineStateSkybox_.Get(); }
+	// Skinning用PSOを取得
+	ID3D12PipelineState* GetPipelineStateSkinning() { return graphicsPipelineStateSkinning_.Get(); }
 
 	friend RTVManager;
 private:
@@ -210,10 +212,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeSubtract_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeMultiply_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeScreen_;
+
 	// ポストエフェクト用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSobelFilter_;
 	// Skybox用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkybox_;
+	// Skinning用PSO
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkinning_;
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 

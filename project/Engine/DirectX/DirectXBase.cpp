@@ -632,6 +632,23 @@ void DirectXBase::CreatePipelineStateObject()
 	// 生成
 	graphicsPipelineStateSkybox_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSkyboxDesc, IID_PPV_ARGS(&graphicsPipelineStateSkybox_));
+
+	///
+	///	Skinning用PSOを作成
+	/// 
+	
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateSkinningDesc = graphicsPipelineStateDefault;
+
+	// 適用するShaderの設定
+	auto vsSkinningObject3D = shaderManager->GetShader("SkinningObject3D_VS");
+	auto psObject3D = shaderManager->GetShader("Object3D_PS");
+
+	graphicsPipelineStateSkinningDesc.VS = {vsSkinningObject3D->GetBufferPointer(), vsSkinningObject3D->GetBufferSize()};
+	graphicsPipelineStateSkinningDesc.PS = {psObject3D->GetBufferPointer(), psObject3D->GetBufferSize()};
+
+	// 生成
+	graphicsPipelineStateSkinning_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSkinningDesc, IID_PPV_ARGS(&graphicsPipelineStateSkinning_));
 }
 
 void DirectXBase::SetViewport()

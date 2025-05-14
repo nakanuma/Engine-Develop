@@ -47,6 +47,9 @@ void ShaderManager::Initialize() {
 	// Skybox
 	LoadShader("Skybox_VS", L"resources/Shaders/Skybox.VS.hlsl", L"vs_6_0");
 	LoadShader("Skybox_PS", L"resources/Shaders/Skybox.PS.hlsl", L"ps_6_0");
+
+	// Skinning
+	LoadShader("SkinningObject3D_VS", L"resources/Shaders/SkinningObject3D.VS.hlsl", L"vs_6_0");
 }
 
 void ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) { 
