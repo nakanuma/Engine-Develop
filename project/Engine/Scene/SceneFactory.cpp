@@ -6,14 +6,14 @@
 //#include "src/Game/Scene/GamePlayScene.h"
 
 // CG4
-#include "TestScene/TestScene.h"
-#include "TitleScene.h"
-#include "GamePlayScene.h"
-
-// CG5
-//#include "TestScene.h"
+//#include "TestScene/TestScene.h"
 //#include "TitleScene.h"
 //#include "GamePlayScene.h"
+
+// CG5, TL1
+#include "TestScene.h"
+#include "TitleScene.h"
+#include "GamePlayScene.h"
 
 BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
 {

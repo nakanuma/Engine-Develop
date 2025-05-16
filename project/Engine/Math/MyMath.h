@@ -47,3 +47,5 @@ static Float3 TransformMatrix(const Float3& vector, const Matrix& matrix) {
 
     return result;
 }
+
+static float DegToRad(const float degree) { return degree * (PIf / 180.0f); }
