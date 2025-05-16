@@ -14,6 +14,9 @@ public:
 	static void Finalize();
 	static void NewFrame();
 	static void Render(ID3D12GraphicsCommandList* commandList);
+
+private:
+	static void ShowMainDockSpace();
 };
 
 class ImGuiUtil {

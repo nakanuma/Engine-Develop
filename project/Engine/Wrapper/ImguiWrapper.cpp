@@ -41,12 +41,48 @@ void ImguiWrapper::NewFrame()
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+
+	ShowMainDockSpace(); // ドックスペースの描画
 }
 
 void ImguiWrapper::Render(ID3D12GraphicsCommandList* commandList)
 {
 	ImGui::Render();
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+}
+
+void ImguiWrapper::ShowMainDockSpace() { 
+	ImGuiIO& io = ImGui::GetIO();
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::GetStyle().DisplaySafeAreaPadding = ImVec2(0, 0);
+
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGuiWindowFlags host_window_flags = 
+		ImGuiWindowFlags_NoTitleBar | 
+		ImGuiWindowFlags_NoCollapse | 
+		ImGuiWindowFlags_NoResize | 
+		ImGuiWindowFlags_NoMove | 
+		ImGuiWindowFlags_NoBringToFrontOnFocus |
+		ImGuiWindowFlags_NoNavFocus | 
+		ImGuiWindowFlags_NoBackground | 
+		ImGuiWindowFlags_NoDocking;
+
+	ImGui::Begin("MainDockSpaceHost", nullptr, host_window_flags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), 
+		ImGuiDockNodeFlags_PassthruCentralNode
+	);
+
+	ImGui::End();
 }
 
 void ImGuiUtil::ImageWindow(std::string windowName, int32_t textureHandle) {
