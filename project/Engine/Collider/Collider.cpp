@@ -67,3 +67,24 @@ Float3 AABBCollider::GetPushBackVector(const AABBCollider& other) const
 		return {0.0f, 0.0f, (delta.z > 0 ? overlap.z : -overlap.z)};
     }
 }
+
+// ---------------------------------------------------------
+// SphereとAABBの接触面の法線を取得
+// ---------------------------------------------------------
+Float3 AABBCollider::GetContactNormalFromSphere(const Float3& sphereCenter) const
+{
+    Float3 clamped;
+    clamped.x = std::max(min_.x, std::min(sphereCenter.x, max_.x));
+    clamped.y = std::max(min_.y, std::min(sphereCenter.y, max_.y));
+    clamped.z = std::max(min_.z, std::min(sphereCenter.z, max_.z));
+
+    Float3 delta = sphereCenter - clamped;
+
+    if (std::abs(delta.x) > std::abs(delta.y) && std::abs(delta.x) > std::abs(delta.z)) {
+        return { delta.x > 0 ? 1.0f : -1.0f, 0.0f, 0.0f };
+    } else if (std::abs(delta.y) > std::abs(delta.z)) {
+        return { 0.0f, delta.y > 0 ? 1.0f : -1.0f, 0.0f };
+    } else {
+        return { 0.0f, 0.0f, delta.z > 0 ? 1.0f : -1.0f };
+    }
+}

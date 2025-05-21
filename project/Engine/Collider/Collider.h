@@ -64,8 +64,14 @@ public:
 	bool CheckCollision(Collider* other) override;
 	std::string GetType() const override { return "AABB"; }
 
+public:
 	/// <summary>
 	/// AABB同士の最小押し戻しベクトルを取得
 	/// </summary>
 	Float3 GetPushBackVector(const AABBCollider& other) const;
+
+	/// <summary>
+	/// SphereとAABBの接触面の法線を取得
+	/// </summary>
+	Float3 GetContactNormalFromSphere(const Float3& sphereCenter) const;
 };
