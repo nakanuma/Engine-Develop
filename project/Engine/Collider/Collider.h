@@ -63,4 +63,9 @@ public:
 
 	bool CheckCollision(Collider* other) override;
 	std::string GetType() const override { return "AABB"; }
+
+	/// <summary>
+	/// AABB同士の最小押し戻しベクトルを取得
+	/// </summary>
+	Float3 GetPushBackVector(const AABBCollider& other) const;
 };
