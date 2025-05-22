@@ -166,6 +166,7 @@
     <ClCompile Include="Engine\DirectX\ShaderManager.cpp" />
     <ClCompile Include="Engine\Util\FPSController.cpp" />
     <ClCompile Include="Engine\Collider\CollisionMath.cpp" />
+    <ClCompile Include="Engine\3D\InstancedObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
@@ -312,6 +313,7 @@
     <ClInclude Include="Engine\DirectX\ShaderManager.h" />
     <ClInclude Include="Engine\Util\FPSController.h" />
     <ClInclude Include="Engine\Collider\CollisionMath.h" />
+    <ClInclude Include="Engine\3D\InstancedObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">

@@ -36,6 +36,7 @@
     <ClCompile Include="Engine\Game\Framework.cpp" />
     <ClCompile Include="Engine\3D\LightManager.cpp" />
     <ClCompile Include="Engine\Util\FPSController.cpp" />
+    <ClCompile Include="Engine\3D\InstancedObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Engine\Math\Matrix.cpp" />
     <ClCompile Include="Engine\Math\Matrix3x3.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="Engine\3D\LightManager.h" />
     <ClInclude Include="Engine\DirectX\ShaderManager.h" />
     <ClInclude Include="Engine\Util\FPSController.h" />
+    <ClInclude Include="Engine\3D\InstancedObject.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">

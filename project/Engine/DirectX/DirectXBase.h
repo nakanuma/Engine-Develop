@@ -66,6 +66,8 @@ public:
 		CreateRootSignature();
 		// RootSignature生成(Particle用)
 		CreateRootSignatureParticle();
+		// RootSignature生成（InstancedObject用）
+		CreateRootSignatureInstancedObject();
 
 		// InputLayoutの設定
 		SetInputLayout();
@@ -108,6 +110,8 @@ public:
 	void CreateRootSignature();
 	// RootSignature生成(Particle用)
 	void CreateRootSignatureParticle();
+	// RootSignature生成（InstancedObject用）
+	void CreateRootSignatureInstancedObject();
 	// InputLayoutの設定
 	void SetInputLayout();
 	// BlendStateの設定
@@ -165,6 +169,9 @@ public:
 
 	// Particle用ルートシグネチャを取得
 	ID3D12RootSignature* GetRootSignatureParticle() { return rootSignatureParticle_.Get(); }
+	// InstancedObject用ルートシグネチャを取得
+	ID3D12RootSignature* GetRootSignatureInstancedObject() { return rootSignatureInstancedObject_.Get(); }
+
 	// Particle用PSOを取得
 	ID3D12PipelineState* GetPipelineStateParticle() { return graphicsPipelineStateParticle_.Get(); };
 
@@ -174,6 +181,8 @@ public:
 	ID3D12PipelineState* GetPipelineStateSkybox() { return graphicsPipelineStateSkybox_.Get(); }
 	// Skinning用PSOを取得
 	ID3D12PipelineState* GetPipelineStateSkinning() { return graphicsPipelineStateSkinning_.Get(); }
+	// InstancedObject用PSOを取得
+	ID3D12PipelineState* GetPipelineStateInstancedObject() { return graphicsPipelineStateInstancedObject_.Get(); }
 
 	friend RTVManager;
 private:
@@ -195,8 +204,11 @@ private:
 	HANDLE fenceEvent_;
 	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob_;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob_;
+
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureParticle_;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureInstancedObject_;
+
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[5];
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc_;
 
@@ -219,6 +231,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkybox_;
 	// Skinning用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkinning_;
+	// InstancedObject用PSO
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObject_;
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 

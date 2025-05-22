@@ -28,6 +28,13 @@ public:
 		Float4 color;
 	};
 
+	struct InstancingObject {
+		Matrix WVP;
+		Matrix World;
+		Matrix WorldInverseTranspose;
+		Float4 color;
+	};
+
 	Object3D();
 
 	// マトリックス情報の更新

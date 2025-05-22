@@ -50,6 +50,10 @@ void ShaderManager::Initialize() {
 
 	// Skinning
 	LoadShader("SkinningObject3D_VS", L"resources/Shaders/SkinningObject3D.VS.hlsl", L"vs_6_0");
+
+	// InstancedObject
+	LoadShader("InstancedObject_VS", L"resources/Shaders/InstancedObject.VS.hlsl", L"vs_6_0");
+	LoadShader("InstancedObject_PS", L"resources/Shaders/InstancedObject.PS.hlsl", L"ps_6_0");
 }
 
 void ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) { 
