@@ -60,8 +60,10 @@
     <ClCompile Include="Engine\Texture\SRVManager.cpp" />
     <ClCompile Include="Engine\DirectX\RTVManager.cpp" />
     <ClCompile Include="Engine\DirectX\ShaderManager.cpp" />
+    <ClCompile Include="Engine\ParticleEffect\ParticleEffectManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\ParticleEffect\BaseParticleEffect.h" />
     <ClInclude Include="Engine\Collider\CollisionMath.h" />
     <ClInclude Include="Engine\Collider\CollisionManager.h" />
     <ClInclude Include="Engine\Collider\Collider.h" />
@@ -115,6 +117,8 @@
     <ClInclude Include="Engine\DirectX\ShaderManager.h" />
     <ClInclude Include="Engine\Util\FPSController.h" />
     <ClInclude Include="Engine\3D\InstancedObject.h" />
+    <ClInclude Include="Engine\ParticleEffect\IParticleEffect.h" />
+    <ClInclude Include="Engine\ParticleEffect\ParticleEffectManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">
