@@ -57,18 +57,26 @@ public:
 	}
 
 protected:
-	static constexpr uint32_t kMaxParticles = 10;
+	static constexpr uint32_t kMaxParticles = 100;
 	std::vector<ParticleType> particles_;
 	InstancedObject object_;
 
+	/// <summary>
+	/// パーティクル固有の生成処理
+	/// </summary>
 	virtual ParticleType CreateParticle(const Float3& pos) = 0;
+
+	/// <summary>
+	/// パーティクル固有の更新処理
+	/// </summary>
 	virtual void UpdateParticle(ParticleType& particle, float dt) = 0;
 
 	void UpdateInstanceMatrices() {
 		Matrix view = Camera::GetCurrent()->MakeViewMatrix();
 		Matrix projection = Camera::GetCurrent()->MakePerspectiveFovMatrix();
 
-		for (size_t i = 0; i < particles_.size(); ++i) {
+		size_t numParticles = particles_.size();
+		for (size_t i = 0; i < numParticles; ++i) {
 			const auto& p = particles_[i];
 
 			Matrix world = Matrix::Scaling({-p.transform.scale.x, p.transform.scale.y, p.transform.scale.z}) *
@@ -81,7 +89,7 @@ protected:
 		}
 
 		// 残りの unused instance をクリア（透明に）
-		for (size_t i = particles_.size(); i < kMaxParticles; ++i) {
+		for (size_t i = numParticles; i < kMaxParticles; ++i) {
 			object_.gTransformationMatrices.data_[i].WVP = Matrix();
 			object_.gTransformationMatrices.data_[i].World = Matrix();
 			object_.gTransformationMatrices.data_[i].WorldInverseTranspose = Matrix();

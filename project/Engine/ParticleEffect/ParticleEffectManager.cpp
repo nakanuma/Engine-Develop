@@ -21,7 +21,7 @@ void ParticleEffectManager::Register(const std::string& name, std::shared_ptr<IP
 // ---------------------------------------------------------
 void ParticleEffectManager::Emit(const std::string& name, const Float3& pos, uint32_t count) {
 	if (effects_.count(name)) {
-		effects_[name]->Emit(pos);
+		effects_[name]->Emit(pos, count);
 	}
 }
 
