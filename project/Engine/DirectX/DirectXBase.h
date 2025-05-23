@@ -183,6 +183,13 @@ public:
 	ID3D12PipelineState* GetPipelineStateSkinning() { return graphicsPipelineStateSkinning_.Get(); }
 	// InstancedObject用PSOを取得
 	ID3D12PipelineState* GetPipelineStateInstancedObject() { return graphicsPipelineStateInstancedObject_.Get(); }
+	// InstancedObject用PSO（各BlendMode）を取得
+	ID3D12PipelineState* GetPipelineStateInstancedObjectNone() { return graphicsPipelineStateInstancedObjectNone_.Get(); }
+	ID3D12PipelineState* GetPipelineStateInstancedObjectNormal() { return graphicsPipelineStateInstancedObjectNormal_.Get(); }
+	ID3D12PipelineState* GetPipelineStateInstancedObjectAdd() { return graphicsPipelineStateInstancedObjectAdd_.Get(); }
+	ID3D12PipelineState* GetPipelineStateInstancedObjectSubtract() { return graphicsPipelineStateInstancedObjectSubtract_.Get(); }
+	ID3D12PipelineState* GetPipelineStateInstancedObjectMultiply() { return graphicsPipelineStateInstancedObjectMultiply_.Get(); }
+	ID3D12PipelineState* GetPipelineStateInstancedObjectScreen() { return graphicsPipelineStateInstancedObjectScreen_.Get(); }
 
 	friend RTVManager;
 private:
@@ -233,6 +240,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkinning_;
 	// InstancedObject用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObject_;
+	// InstancedObject用PSO（各BlendMode）
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectNone_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectNormal_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectAdd_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectSubtract_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectMultiply_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectScreen_;
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 

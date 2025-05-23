@@ -6,6 +6,18 @@
 #include <Engine/ParticleEffect/IParticleEffect.h>
 
 /// <summary>
+/// ブレンドモード
+/// </summary>
+enum BlendMode { 
+	None, 
+	Normal, 
+	Add, 
+	Subtract, 
+	Multiply, 
+	Screen 
+};
+
+/// <summary>
 /// パーティクル共通の基本処理
 /// </summary>
 template<typename ParticleType> class BaseParticleEffect : public IParticleEffect {
@@ -46,18 +58,39 @@ public:
 	/// </summary>
 	void Draw() override {
 		auto* dx = DirectXBase::GetInstance();
-		dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObject());
+		// ブレンドモードに応じてPSOを変更
+		if (blendMode_ == BlendMode::None) 
+		{
+			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectNone());
+		} 
+		else if (blendMode_ == BlendMode::Normal) 
+		{
+			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectNormal());
+		} 
+		else if (blendMode_ == BlendMode::Add) 
+		{
+			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectAdd());
+		} 
+		else if (blendMode_ == BlendMode::Subtract) 
+		{
+			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectSubtract());
+		} 
+		else if (blendMode_ == BlendMode::Multiply) 
+		{
+			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectMultiply());
+		} 
+		else if (blendMode_ == BlendMode::Screen) 
+		{
+			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectScreen());
+		}
+
+		// オブジェクト描画
 		object_.InstancedDraw();
+
 		dx->GetCommandList()->SetPipelineState(dx->GetPipelineState());
 	}
 
 protected:
-	static constexpr uint32_t kMaxParticles = 1024;
-	std::vector<ParticleType> particles_;
-	InstancedObject object_;
-	Matrix billboardMatrix_;
-	std::array<bool, 3> isBillboard_ = {false, false, false};
-
 	/// <summary>
 	/// パーティクル固有の生成処理
 	/// </summary>
@@ -122,4 +155,20 @@ protected:
 
 		object_.UpdateMatrix();
 	}
+
+protected:
+	// パーティクル最大数（共通）
+	static constexpr uint32_t kMaxParticles = 1024;
+	// オブジェクトデータ
+	InstancedObject object_;
+	// 各回転軸のビルボード適用フラグ
+	std::array<bool, 3> isBillboard_ = {false, false, false};
+	// ブレンドモード
+	BlendMode blendMode_ = BlendMode::None;
+
+private:
+	// パーティクルのコンテナ
+	std::vector<ParticleType> particles_;
+	// ビルボード行列
+	Matrix billboardMatrix_;
 };
