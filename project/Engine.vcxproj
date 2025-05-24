@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\Math\Easing.cpp" />
     <ClCompile Include="Engine\Collider\CollisionMath.cpp" />
     <ClCompile Include="Engine\Collider\CollisionManager.cpp" />
     <ClCompile Include="Engine\Collider\Collider.cpp" />
@@ -63,6 +64,7 @@
     <ClCompile Include="Engine\ParticleEffect\ParticleEffectManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\Math\Easing.h" />
     <ClInclude Include="Engine\ParticleEffect\BaseParticleEffect.h" />
     <ClInclude Include="Engine\Collider\CollisionMath.h" />
     <ClInclude Include="Engine\Collider\CollisionManager.h" />
