@@ -79,6 +79,7 @@ public:
 		SetBlendStateSubtract();
 		SetBlendStateMultiply();
 		SetBlendStateScreen();
+		SetBlendStateAlpha();
 
 		// RasterizerStateの設定
 		SetRasterizerState();
@@ -121,6 +122,7 @@ public:
 	D3D12_BLEND_DESC SetBlendStateSubtract();
 	D3D12_BLEND_DESC SetBlendStateMultiply();
 	D3D12_BLEND_DESC SetBlendStateScreen();
+	D3D12_BLEND_DESC SetBlendStateAlpha();
 	// RasterizerStateの設定
 	D3D12_RASTERIZER_DESC SetRasterizerState();
 	// PSO生成
@@ -190,6 +192,7 @@ public:
 	ID3D12PipelineState* GetPipelineStateInstancedObjectSubtract() { return graphicsPipelineStateInstancedObjectSubtract_.Get(); }
 	ID3D12PipelineState* GetPipelineStateInstancedObjectMultiply() { return graphicsPipelineStateInstancedObjectMultiply_.Get(); }
 	ID3D12PipelineState* GetPipelineStateInstancedObjectScreen() { return graphicsPipelineStateInstancedObjectScreen_.Get(); }
+	ID3D12PipelineState* GetPipelineStateInstancedObjectAlpha() { return graphicsPipelineStateInstancedObjectAlpha_.Get(); }
 
 	friend RTVManager;
 private:
@@ -225,6 +228,7 @@ private:
 	D3D12_BLEND_DESC blendDescSubtract_; // kBlendModeSubtract
 	D3D12_BLEND_DESC blendDescMultiply_; // kBlendModeMultiply
 	D3D12_BLEND_DESC blendDescScreen_; // kBlendModeScreen
+	D3D12_BLEND_DESC blendDescAlpha_; // kBlendModeAlpha
 	// BlendMode変更用のPSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeNone_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeAdd_;
@@ -247,6 +251,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectSubtract_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectMultiply_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectScreen_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectAlpha_;
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 

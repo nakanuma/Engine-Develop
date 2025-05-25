@@ -565,6 +565,20 @@ D3D12_BLEND_DESC DirectXBase::SetBlendStateScreen()
 	return blendDescScreen_;
 }
 
+D3D12_BLEND_DESC DirectXBase::SetBlendStateAlpha()
+{
+	blendDescAlpha_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDescAlpha_.RenderTarget[0].BlendEnable = TRUE;
+	blendDescAlpha_.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDescAlpha_.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDescAlpha_.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDescAlpha_.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDescAlpha_.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDescAlpha_.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+
+	return blendDescAlpha_;
+}
+
 D3D12_RASTERIZER_DESC DirectXBase::SetRasterizerState()
 {
 	// 裏面（時計回り）を表示しない
@@ -791,6 +805,11 @@ void DirectXBase::CreatePipelineStateObject()
 	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateScreen();
 	graphicsPipelineStateInstancedObjectScreen_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectScreen_));
+
+	/*Alpha*/
+	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateAlpha();
+	graphicsPipelineStateInstancedObjectAlpha_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectAlpha_));
 }
 
 void DirectXBase::SetViewport()

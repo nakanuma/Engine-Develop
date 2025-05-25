@@ -14,7 +14,8 @@ enum BlendMode {
 	Add, 
 	Subtract, 
 	Multiply, 
-	Screen 
+	Screen,
+	Alpha
 };
 
 /// <summary>
@@ -82,6 +83,10 @@ public:
 		else if (blendMode_ == BlendMode::Screen) 
 		{
 			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectScreen());
+		}
+		else if (blendMode_ == BlendMode::Alpha) 
+		{
+			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectAlpha());
 		}
 
 		// オブジェクト描画
