@@ -713,6 +713,70 @@ void DirectXBase::CreatePipelineStateObject()
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSobelDesc, IID_PPV_ARGS(&graphicsPipelineStateSobelFilter_));
 
 	///
+	///	GrayscaleのPSOを生成
+	/// 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateGrayscaleDesc = graphicsPipelineStateDefault;
+
+	auto vsGrayscale = shaderManager->GetShader("Grayscale_VS");
+	auto psGrayscale = shaderManager->GetShader("Grayscale_PS");
+
+	graphicsPipelineStateGrayscaleDesc.VS = {vsGrayscale->GetBufferPointer(), vsGrayscale->GetBufferSize()};
+	graphicsPipelineStateGrayscaleDesc.PS = {psGrayscale->GetBufferPointer(), psGrayscale->GetBufferSize()};
+
+	// 生成
+	graphicsPipelineStateGrayscale_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGrayscaleDesc, IID_PPV_ARGS(&graphicsPipelineStateGrayscale_));
+
+	///
+	///	VignetteのPSOを生成
+	/// 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateVignetteDesc = graphicsPipelineStateDefault;
+
+	auto vsVignette = shaderManager->GetShader("Vignette_VS");
+	auto psVignette = shaderManager->GetShader("Vignette_PS");
+
+	graphicsPipelineStateVignetteDesc.VS = {vsVignette->GetBufferPointer(), vsVignette->GetBufferSize()};
+	graphicsPipelineStateVignetteDesc.PS = {psVignette->GetBufferPointer(), psVignette->GetBufferSize()};
+
+	// 生成
+	graphicsPipelineStateVignette_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateVignetteDesc, IID_PPV_ARGS(&graphicsPipelineStateVignette_));
+
+	///
+	///	BoxFilterのPSOを生成
+	///		
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateBoxFilterDesc = graphicsPipelineStateDefault;
+
+	auto vsBoxFilter = shaderManager->GetShader("BoxFilter_VS");
+	auto psBoxFilter = shaderManager->GetShader("BoxFilter_PS");
+
+	graphicsPipelineStateBoxFilterDesc.VS = {vsBoxFilter->GetBufferPointer(), vsBoxFilter->GetBufferSize()};
+	graphicsPipelineStateBoxFilterDesc.PS = {psBoxFilter->GetBufferPointer(), psBoxFilter->GetBufferSize()};
+
+	// 生成
+	graphicsPipelineStateBoxFilter_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBoxFilterDesc, IID_PPV_ARGS(&graphicsPipelineStateBoxFilter_));
+
+	///
+	///	GaussianFilterのPSOを生成
+	/// 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateGaussianFilterDesc = graphicsPipelineStateDefault;
+
+	auto vsGaussianFillter = shaderManager->GetShader("GaussianFilter_VS");
+	auto psGaussianFillter = shaderManager->GetShader("GaussianFilter_PS");
+
+	graphicsPipelineStateGaussianFilterDesc.VS = {vsGaussianFillter->GetBufferPointer(), vsGaussianFillter->GetBufferSize()};
+	graphicsPipelineStateGaussianFilterDesc.PS = {psGaussianFillter->GetBufferPointer(), psGaussianFillter->GetBufferSize()};
+
+	// 生成
+	graphicsPipelineStateGaussianFilter_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGaussianFilterDesc, IID_PPV_ARGS(&graphicsPipelineStateGaussianFilter_));
+
+	///
 	/// SkyboxのPSOを作成
 	/// 
 	

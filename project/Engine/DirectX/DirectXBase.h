@@ -178,7 +178,12 @@ public:
 	ID3D12PipelineState* GetPipelineStateParticle() { return graphicsPipelineStateParticle_.Get(); };
 
 	// ポストエフェクト用PSOを取得
-	ID3D12PipelineState* GetPipelineStateSobelFilter() { return graphicsPipelineStateSobelFilter_.Get(); }
+	ID3D12PipelineState* GetPipelineStateSobelFilter() { return graphicsPipelineStateSobelFilter_.Get(); } // Outline（SobelFilter）
+	ID3D12PipelineState* GetPipelineStateGrayscale() { return graphicsPipelineStateGrayscale_.Get(); } // Grayscale
+	ID3D12PipelineState* GetPipelineStateVignette() { return graphicsPipelineStateVignette_.Get(); } // Vignette
+	ID3D12PipelineState* GetPipelineStateBoxFilter() { return graphicsPipelineStateBoxFilter_.Get(); } // Smooting（BoxFilter）
+	ID3D12PipelineState* GetPipelineStateGaussianFilter() { return graphicsPipelineStateGaussianFilter_.Get(); } // Smooting（GaussianFilter）
+
 	// Skybox用PSOを取得
 	ID3D12PipelineState* GetPipelineStateSkybox() { return graphicsPipelineStateSkybox_.Get(); }
 	// Skinning用PSOを取得
@@ -237,7 +242,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeScreen_;
 
 	// ポストエフェクト用PSO
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSobelFilter_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSobelFilter_; // Outline（SobelFilter）
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateGrayscale_; // Grayscale
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateVignette_;   // Vignette
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBoxFilter_;  // Smooting（BoxFilter）
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateGaussianFilter_;  // Smooting（GaussianFilter）
+
 	// Skybox用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkybox_;
 	// Skinning用PSO

@@ -44,6 +44,22 @@ void ShaderManager::Initialize() {
 	LoadShader("SobelFilter_VS", L"resources/Shaders/SobelFilter.VS.hlsl", L"vs_6_0");
 	LoadShader("SobelFilter_PS", L"resources/Shaders/SobelFilter.PS.hlsl", L"ps_6_0");
 
+	// Grayscale
+	LoadShader("Grayscale_VS", L"resources/Shaders/Grayscale.VS.hlsl", L"vs_6_0");
+	LoadShader("Grayscale_PS", L"resources/Shaders/Grayscale.PS.hlsl", L"ps_6_0");
+
+	// Vignette
+	LoadShader("Vignette_VS", L"resources/Shaders/Vignette.VS.hlsl", L"vs_6_0");
+	LoadShader("Vignette_PS", L"resources/Shaders/Vignette.PS.hlsl", L"ps_6_0");
+
+	// BoxFilter
+	LoadShader("BoxFilter_VS", L"resources/Shaders/BoxFilter.VS.hlsl", L"vs_6_0");
+	LoadShader("BoxFilter_PS", L"resources/Shaders/BoxFilter.PS.hlsl", L"ps_6_0");
+
+	// GaussianFilter
+	LoadShader("GaussianFilter_VS", L"resources/Shaders/GaussianFilter.VS.hlsl", L"vs_6_0");
+	LoadShader("GaussianFilter_PS", L"resources/Shaders/GaussianFilter.PS.hlsl", L"ps_6_0");
+
 	// Skybox
 	LoadShader("Skybox_VS", L"resources/Shaders/Skybox.VS.hlsl", L"vs_6_0");
 	LoadShader("Skybox_PS", L"resources/Shaders/Skybox.PS.hlsl", L"ps_6_0");
