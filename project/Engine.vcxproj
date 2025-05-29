@@ -62,6 +62,7 @@
     <ClCompile Include="Engine\DirectX\RTVManager.cpp" />
     <ClCompile Include="Engine\DirectX\ShaderManager.cpp" />
     <ClCompile Include="Engine\ParticleEffect\ParticleEffectManager.cpp" />
+    <ClCompile Include="Engine\Util\TimeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Math\Easing.h" />
@@ -121,6 +122,7 @@
     <ClInclude Include="Engine\3D\InstancedObject.h" />
     <ClInclude Include="Engine\ParticleEffect\IParticleEffect.h" />
     <ClInclude Include="Engine\ParticleEffect\ParticleEffectManager.h" />
+    <ClInclude Include="Engine\Util\TimeManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">
