@@ -60,6 +60,10 @@ void ShaderManager::Initialize() {
 	LoadShader("GaussianFilter_VS", L"resources/Shaders/GaussianFilter.VS.hlsl", L"vs_6_0");
 	LoadShader("GaussianFilter_PS", L"resources/Shaders/GaussianFilter.PS.hlsl", L"ps_6_0");
 
+	// RadialBlur
+	LoadShader("RadialBlur_VS", L"resources/Shaders/RadialBlur.VS.hlsl", L"vs_6_0");
+	LoadShader("RadialBlur_PS", L"resources/Shaders/RadialBlur.PS.hlsl", L"ps_6_0");
+
 	// Skybox
 	LoadShader("Skybox_VS", L"resources/Shaders/Skybox.VS.hlsl", L"vs_6_0");
 	LoadShader("Skybox_PS", L"resources/Shaders/Skybox.PS.hlsl", L"ps_6_0");
