@@ -1,0 +1,43 @@
+#pragma once
+
+// C++
+#include <random>
+
+// Engine
+#include <Math/MyMath.h>
+
+/// <summary>
+/// ランダム数字生成
+/// </summary>
+class RandomGenerator 
+{
+public:
+	/// <summary>
+	/// インスタンスの取得
+	/// </summary>
+	static RandomGenerator* GetInstance();
+
+	/// <summary>
+	/// float
+	/// </summary>
+	float RandomValue(float min, float max);
+
+	/// <summary>
+	/// int
+	/// </summary>
+	int RandomValue(int min, int max);
+
+	/// <summary>
+	/// Float2
+	/// </summary>
+	Float2 RandomValue(const Float2& min, const Float2& max);
+
+	/// <summary>
+	/// Float3
+	/// </summary>
+	Float3 RandomValue(const Float3& min, const Float3& max);
+
+private:
+	RandomGenerator();
+	std::mt19937 rng_;
+};

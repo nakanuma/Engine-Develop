@@ -170,6 +170,7 @@
     <ClCompile Include="Engine\ParticleEffect\ParticleEffectManager.cpp" />
     <ClCompile Include="Engine\Math\Easing.cpp" />
     <ClCompile Include="Engine\Util\TimeManager.cpp" />
+    <ClCompile Include="Engine\Util\RandomGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
@@ -322,6 +323,7 @@
     <ClInclude Include="Engine\ParticleEffect\ParticleEffectManager.h" />
     <ClInclude Include="Engine\Math\Easing.h" />
     <ClInclude Include="Engine\Util\TimeManager.h" />
+    <ClInclude Include="Engine\Util\RandomGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">
