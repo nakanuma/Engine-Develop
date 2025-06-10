@@ -64,6 +64,7 @@
     <ClCompile Include="Engine\ParticleEffect\ParticleEffectManager.cpp" />
     <ClCompile Include="Engine\Util\TimeManager.cpp" />
     <ClCompile Include="Engine\Util\RandomGenerator.cpp" />
+    <ClCompile Include="Engine\Util\ParameterSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Math\Easing.h" />
@@ -125,6 +126,7 @@
     <ClInclude Include="Engine\ParticleEffect\ParticleEffectManager.h" />
     <ClInclude Include="Engine\Util\TimeManager.h" />
     <ClInclude Include="Engine\Util\RandomGenerator.h" />
+    <ClInclude Include="Engine\Util\ParameterSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">
