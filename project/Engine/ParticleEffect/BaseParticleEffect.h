@@ -58,6 +58,9 @@ public:
 	/// 描画処理
 	/// </summary>
 	void Draw() override {
+		// パーティクルが無ければ早期リターン
+		if (particles_.empty()) return;
+
 		auto* dx = DirectXBase::GetInstance();
 		// ブレンドモードに応じてPSOを変更
 		if (blendMode_ == BlendMode::None) 
@@ -114,6 +117,9 @@ protected:
 		billboardMatrix_ = Matrix::Inverse(view);
 
 		size_t numParticles = particles_.size();
+		// パーティクルが無ければ早期リターン
+		if (numParticles == 0) return;
+
 		for (size_t i = 0; i < numParticles; ++i) {
 			const auto& p = particles_[i];
 
@@ -150,13 +156,17 @@ protected:
 			object_.gTransformationMatrices.data_[i].color = p.color;
 		}
 
-		// 残りの unused instance をクリア（透明に）
-		for (size_t i = numParticles; i < kMaxParticles; ++i) {
+		// 前フレームとのパーティクル数の差分を取って必要な無効化だけを行う
+		static size_t prevNumParticles = 0;
+		if(numParticles < prevNumParticles)
+		// 不要分を無効化
+		for (size_t i = numParticles; i < prevNumParticles; ++i) {
 			object_.gTransformationMatrices.data_[i].WVP = Matrix();
 			object_.gTransformationMatrices.data_[i].World = Matrix();
 			object_.gTransformationMatrices.data_[i].WorldInverseTranspose = Matrix();
 			object_.gTransformationMatrices.data_[i].color = {0.0f, 0.0f, 0.0f, 0.0f};
 		}
+		prevNumParticles = numParticles;
 
 		object_.UpdateMatrix();
 	}
