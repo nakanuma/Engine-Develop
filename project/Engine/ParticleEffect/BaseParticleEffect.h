@@ -115,6 +115,9 @@ protected:
 		
 		// ビルボード行列を計算
 		billboardMatrix_ = Matrix::Inverse(view);
+		billboardMatrix_.r[3][0] = 0.0f;
+		billboardMatrix_.r[3][1] = 0.0f;
+		billboardMatrix_.r[3][2] = 0.0f;
 
 		size_t numParticles = particles_.size();
 		// パーティクルが無ければ早期リターン
