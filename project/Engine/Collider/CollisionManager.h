@@ -6,6 +6,13 @@
 // Engine
 #include <Collider/Collider.h>
 
+struct RayCastHit
+{
+	bool isHit = false;
+	Float3 hitPoint;
+	Collider* hitCollider = nullptr;
+};
+
 class CollisionManager
 {
 public:
@@ -33,6 +40,11 @@ public:
 	/// デバッグ表示
 	/// </summary>
 	void Debug();
+
+	/// <summary>
+	/// レイキャスト
+	/// </summary>
+	bool RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit);
 
 private:
 	// コライダーのコンテナ

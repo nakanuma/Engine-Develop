@@ -19,6 +19,9 @@ struct Float3
 	Float3 operator+(const Float3& other) const;
     // 減算
 	Float3 operator-(const Float3& other) const;
+	// 乗算
+	Float3 operator*(const Float3& other) const;
+
     // 右辺のスカラーと乗算
 	Float3 operator*(float scalar) const;
     // 左辺のスカラーと乗算
@@ -44,6 +47,10 @@ struct Float3
     static float Dot(const Float3& a, const Float3& b);
     // クロス積
     static Float3 Cross(const Float3& a, const Float3& b);
+    // 最大値
+	static Float3 Max(const Float3& a, const Float3& b);
+    // 最小値
+	static Float3 Min(const Float3& a, const Float3& b);
 
     // CatmullRom補間
 	static Float3 CatmullRomInterplation(const Float3& p0, const Float3& p1, const Float3& p2, const Float3& p3, float t);

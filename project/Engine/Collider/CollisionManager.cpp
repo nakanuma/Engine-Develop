@@ -1,17 +1,25 @@
+#define NOMINMAX
 #include "CollisionManager.h"
 
 // C++
 #include <iostream>
+#include <limits>
 
 // Externals
 #include <ImguiWrapper.h>
 
+// ---------------------------------------------------------
+// インスタンスの取得
+// ---------------------------------------------------------
 CollisionManager* CollisionManager::GetInstance()
 {
 	static CollisionManager instance;
 	return &instance;
 }
 
+// ---------------------------------------------------------
+// コライダーの登録
+// ---------------------------------------------------------
 void CollisionManager::Register(Collider* collider)
 {
 	if (collider == nullptr) {
@@ -21,6 +29,9 @@ void CollisionManager::Register(Collider* collider)
 	colliders_.push_back(collider);
 }
 
+// ---------------------------------------------------------
+// コライダーの登録を解除
+// ---------------------------------------------------------
 void CollisionManager::Unregister(Collider* collider)
 {
 	auto it = std::remove(colliders_.begin(), colliders_.end(), collider);
@@ -29,6 +40,9 @@ void CollisionManager::Unregister(Collider* collider)
 	}
 }
 
+// ---------------------------------------------------------
+// 全ての衝突判定を行う
+// ---------------------------------------------------------
 void CollisionManager::Update()
 {
 	for (size_t i = 0; i < colliders_.size(); ++i) {
@@ -41,6 +55,9 @@ void CollisionManager::Update()
 	}
 }
 
+// ---------------------------------------------------------
+// デバッグ表示
+// ---------------------------------------------------------
 void CollisionManager::Debug()
 {
 	if (ImGui::Begin("Colliders")) {
@@ -91,4 +108,60 @@ void CollisionManager::Debug()
 	}
 
 	ImGui::End();
+}
+
+// ---------------------------------------------------------
+// レイキャスト
+// ---------------------------------------------------------
+bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit) 
+{
+	bool hitAny = false;
+	float closestDistance = maxDistance;
+	Collider* closestCollider = nullptr;
+	Float3 hitPoint{};
+
+	for (auto* collider : colliders_) 
+	{
+		if (collider->GetType() == "AABB") 
+		{
+			AABBCollider* aabb = static_cast<AABBCollider*>(collider);
+
+			Float3 invDir = 
+			{
+			    direction.x != 0.0f ? 1.0f / direction.x : std::numeric_limits<float>::infinity(),
+			    direction.y != 0.0f ? 1.0f / direction.y : std::numeric_limits<float>::infinity(),
+			    direction.z != 0.0f ? 1.0f / direction.z : std::numeric_limits<float>::infinity(),
+			};
+
+			Float3 t1 = (aabb->min_ - origin) * invDir;
+			Float3 t2 = (aabb->max_ - origin) * invDir;
+
+			Float3 tmin = Float3::Min(t1, t2);
+			Float3 tmax = Float3::Max(t1, t2);
+
+			float tNear = std::max({tmin.x, tmin.y, tmin.z});
+			float tFar = std::min({tmax.x, tmax.y, tmax.z});
+
+			if (tNear <= tFar && tNear >= 0.0f && tNear < closestDistance)
+			{
+				hitAny = true;
+				closestDistance = tNear;
+				closestCollider = collider;
+				hitPoint = origin + direction * tNear;
+			}
+		}
+		// 他のコライダーとの衝突判定
+
+
+
+	}
+
+	if (hitAny && outHit) 
+	{
+		outHit->isHit = true;
+		outHit->hitPoint = hitPoint;
+		outHit->hitCollider = closestCollider;
+	}
+
+	return hitAny;
 }
