@@ -37,6 +37,11 @@ public:
 	/// </summary>
 	Float3 RandomValue(const Float3& min, const Float3& max);
 
+	/// <summary>
+	/// bool
+	/// </summary>
+	bool RandomValueBool();
+
 private:
 	RandomGenerator();
 	std::mt19937 rng_;

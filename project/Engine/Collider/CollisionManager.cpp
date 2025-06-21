@@ -120,12 +120,15 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 	Collider* closestCollider = nullptr;
 	Float3 hitPoint{};
 
+	// 全てのコライダーとの判定
 	for (auto* collider : colliders_) 
 	{
+		// vs AABBCollider
 		if (collider->GetType() == "AABB") 
 		{
 			AABBCollider* aabb = static_cast<AABBCollider*>(collider);
 
+			// レイ方向の逆数を計算
 			Float3 invDir = 
 			{
 			    direction.x != 0.0f ? 1.0f / direction.x : std::numeric_limits<float>::infinity(),
@@ -136,12 +139,14 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 			Float3 t1 = (aabb->min_ - origin) * invDir;
 			Float3 t2 = (aabb->max_ - origin) * invDir;
 
+			// 全体の交差区間に変換
 			Float3 tmin = Float3::Min(t1, t2);
 			Float3 tmax = Float3::Max(t1, t2);
 
-			float tNear = std::max({tmin.x, tmin.y, tmin.z});
-			float tFar = std::min({tmax.x, tmax.y, tmax.z});
+			float tNear = std::max({tmin.x, tmin.y, tmin.z}); // レイがAABBに入る時刻
+			float tFar = std::min({tmax.x, tmax.y, tmax.z}); // レイがAABBから出る時刻
 
+			// レイとAABBの交差判定
 			if (tNear <= tFar && tNear >= 0.0f && tNear < closestDistance)
 			{
 				hitAny = true;
@@ -150,12 +155,11 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 				hitPoint = origin + direction * tNear;
 			}
 		}
-		// 他のコライダーとの衝突判定
-
-
+		// 他の種類のコライダーとの衝突判定
 
 	}
 
+	// outHitに結果を格納
 	if (hitAny && outHit) 
 	{
 		outHit->isHit = true;
