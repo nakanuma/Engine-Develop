@@ -37,9 +37,9 @@ Float3 RandomGenerator::RandomValue(const Float3& min, const Float3& max)
 	};
 }
 
-bool RandomGenerator::RandomValueBool()
+bool RandomGenerator::RandomValueBool(float trueProbability)
 {
-	return RandomValue(0, 1);
+	return RandomValue(0.0f, 1.0f) < trueProbability;
 }
 
 RandomGenerator::RandomGenerator()

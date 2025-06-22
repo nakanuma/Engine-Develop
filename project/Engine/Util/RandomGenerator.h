@@ -40,7 +40,9 @@ public:
 	/// <summary>
 	/// bool
 	/// </summary>
-	bool RandomValueBool();
+	/// <param name="trueProbability">trueを返す確率（0.0f ~ 1.0fで設定）</param>
+	/// <returns></returns>
+	bool RandomValueBool(float trueProbability = 0.5f);
 
 private:
 	RandomGenerator();
