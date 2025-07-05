@@ -11,9 +11,12 @@ public:
 	struct Material {
 		Float4 color;
 		int32_t enableLighting;
-		float padding[3];
+		int32_t useEnvironmentMap;
+		float padding[2];
 		Matrix uvTransform;
 		float shininess;
+		float environmentStrength;
+		float padding2[2];
 	};
 
 	struct TransformationMatrix {

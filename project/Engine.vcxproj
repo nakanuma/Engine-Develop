@@ -65,6 +65,7 @@
     <ClCompile Include="Engine\Util\TimeManager.cpp" />
     <ClCompile Include="Engine\Util\RandomGenerator.cpp" />
     <ClCompile Include="Engine\Util\ParameterSystem.cpp" />
+    <ClCompile Include="Engine\Model\SkyBoxManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Math\Easing.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="Engine\Util\TimeManager.h" />
     <ClInclude Include="Engine\Util\RandomGenerator.h" />
     <ClInclude Include="Engine\Util\ParameterSystem.h" />
+    <ClInclude Include="Engine\Model\SkyBoxManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">

@@ -14,10 +14,14 @@ Object3D::Object3D()
 	materialCB_.data_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	// ライティング有効化
 	materialCB_.data_->enableLighting = true;
+	// 環境マップ有効化フラグ（CubeMapをバインドしてない場合には有効化できない）
+	materialCB_.data_->useEnvironmentMap = false;
 	// 単位行列で初期化
 	materialCB_.data_->uvTransform = Matrix::Identity();
 	// 光沢を初期化
 	materialCB_.data_->shininess = 50.0f;
+	// 環境反射の強度を初期化
+	materialCB_.data_->environmentStrength = 1.0f;
 }
 
 void Object3D::UpdateMatrix()
