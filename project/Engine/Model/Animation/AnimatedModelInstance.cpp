@@ -32,10 +32,15 @@ bool AnimatedModelInstance::Load(const std::string& directory, const std::string
 // ---------------------------------------------------------
 // 更新
 // ---------------------------------------------------------
-void AnimatedModelInstance::Update(float deltaTime) {
+void AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {
 	// アニメーション更新
-	animationTime_ += deltaTime;
-	animationTime_ = std::fmod(animationTime_, animation_.duration);
+	if (isPlaying) {
+		animationTime_ += deltaTime * playbackSpeed_;
+	}
+	// ループ再生
+	if (loop_ && animation_.duration > 0.0f) {
+		animationTime_ = std::fmod(animationTime_, animation_.duration);
+	}
 
 	// アニメーション -> スケルトン -> スキンクラスターの更新
 	skeleton_.ApplyAnimation(animation_, animationTime_);
@@ -56,4 +61,12 @@ void AnimatedModelInstance::Draw() {
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateSkinning());
 	object_->Draw(skinCluster_);
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+}
+
+// ---------------------------------------------------------
+// アニメーションのセット
+// ---------------------------------------------------------
+void AnimatedModelInstance::SetAnimation(const AnimationLoader::Animation& animation) { 
+	animation_ = animation;
+	animationTime_ = 0.0f;
 }
