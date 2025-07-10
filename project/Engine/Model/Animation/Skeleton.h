@@ -46,6 +46,10 @@ public:
 	/// </summary>
 	void ApplyAnimation(const AnimationLoader::Animation& animation, float animationTime);
 
+	/// <summary>
+	/// AnimationBlend
+	/// </summary>
+	void ApplyBlendedAnimation(const AnimationLoader::Animation& a, const AnimationLoader::Animation& b, float timeA, float timeB, float blendRate);
 
 
 	int32_t root_;                            // RootJointのIndex

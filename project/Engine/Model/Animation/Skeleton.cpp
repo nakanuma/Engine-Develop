@@ -65,3 +65,29 @@ void Skeleton::ApplyAnimation(const AnimationLoader::Animation& animation, float
 		}
 	}
 }
+
+// ---------------------------------------------------------
+// AnimationBlend
+// ---------------------------------------------------------
+void Skeleton::ApplyBlendedAnimation(const AnimationLoader::Animation& a, const AnimationLoader::Animation& b, float timeA, float timeB, float blendRate) { 
+	for (auto& joint : joints_) {
+		const std::string& name = joint.name;
+		QuaternionTransform poseA = joint.transform;
+		QuaternionTransform poseB = joint.transform;
+
+		if (auto it = a.nodeAnimations.find(name); it != a.nodeAnimations.end()) {
+			poseA.translate = AnimationLoader::CalculateValue(it->second.translate, timeA);
+			poseA.rotate = AnimationLoader::CalculateValue(it->second.rotate, timeA);
+			poseA.scale = AnimationLoader::CalculateValue(it->second.scale, timeA);
+		}
+		if (auto it = b.nodeAnimations.find(name); it != b.nodeAnimations.end()) {
+			poseB.translate = AnimationLoader::CalculateValue(it->second.translate, timeB);
+			poseB.rotate = AnimationLoader::CalculateValue(it->second.rotate, timeB);
+			poseB.scale = AnimationLoader::CalculateValue(it->second.scale, timeB);
+		}
+
+		joint.transform.translate = Float3::Lerp(poseA.translate, poseB.translate, blendRate);
+		joint.transform.rotate = Quaternion::Slerp(poseA.rotate, poseB.rotate, blendRate);
+		joint.transform.scale = Float3::Lerp(poseA.scale, poseB.scale, blendRate);
+	}
+}
