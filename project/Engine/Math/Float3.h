@@ -57,4 +57,8 @@ struct Float3
     // CatmullRomスプライン曲線上の座標を得る
 	static Float3 CatmullRomPosition(const std::vector<Float3>& points, float t);
 
+    // 行列からオイラー角の抽出
+    static Float3 MatrixToEulerAngles(const Matrix& m);
+    // 行列からスケールの抽出
+    static Float3 ExtractScale(const Matrix& m);
 };

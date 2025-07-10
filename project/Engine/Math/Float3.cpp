@@ -169,6 +169,27 @@ Float3 Float3::CatmullRomPosition(const std::vector<Float3>& points, float t) {
 	return CatmullRomInterplation(p0, p1, p2, p3, t_2);
 }
 
+Float3 Float3::MatrixToEulerAngles(const Matrix& m)
+{
+	Float3 euler;
+
+	// Y -> X -> Z
+	euler.y = std::atan2(m.r[0][2], m.r[2][2]); // yaw
+	euler.x = std::asin(-m.r[1][2]); // pitch
+	euler.z = std::atan2(m.r[1][0], m.r[1][1]); // roll
+
+	return euler;
+}
+
+Float3 Float3::ExtractScale(const Matrix& m)
+{
+	Float3 scale;
+	scale.x = std::sqrt(m.r[0][0] * m.r[0][0] + m.r[0][1] * m.r[0][1] + m.r[0][2] * m.r[0][2]);
+	scale.y = std::sqrt(m.r[1][0] * m.r[1][0] + m.r[1][1] * m.r[1][1] + m.r[1][2] * m.r[1][2]);
+	scale.z = std::sqrt(m.r[2][0] * m.r[2][0] + m.r[2][1] * m.r[2][1] + m.r[2][2] * m.r[2][2]);
+	return scale;
+}
+
 Float3 operator*(float scalar, const Float3& vec) { 
 	return {vec.x * scalar, vec.y * scalar, vec.z * scalar};
 }
