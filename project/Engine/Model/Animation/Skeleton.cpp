@@ -86,6 +86,7 @@ void Skeleton::ApplyBlendedAnimation(const AnimationLoader::Animation& a, const 
 			poseB.scale = AnimationLoader::CalculateValue(it->second.scale, timeB);
 		}
 
+		// BlendRate : 0.0f ~ 1.0f（0.0f -> アニメーションAの姿勢、0.5f -> 中間の姿勢、1.0f -> アニメーションBの姿勢 に補間）
 		joint.transform.translate = Float3::Lerp(poseA.translate, poseB.translate, blendRate);
 		joint.transform.rotate = Quaternion::Slerp(poseA.rotate, poseB.rotate, blendRate);
 		joint.transform.scale = Float3::Lerp(poseA.scale, poseB.scale, blendRate);
