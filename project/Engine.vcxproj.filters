@@ -173,6 +173,10 @@
     <ClCompile Include="Engine\Util\RandomGenerator.cpp" />
     <ClCompile Include="Engine\Util\ParameterSystem.cpp" />
     <ClCompile Include="Engine\Model\SkyBoxManager.cpp" />
+    <ClCompile Include="Engine\Model\Animation\AnimationLoader.cpp" />
+    <ClCompile Include="Engine\Model\Animation\Skeleton.cpp" />
+    <ClCompile Include="Engine\Model\Animation\SkinCluster.cpp" />
+    <ClCompile Include="Engine\Model\Animation\AnimatedModelInstance.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
@@ -328,6 +332,10 @@
     <ClInclude Include="Engine\Util\RandomGenerator.h" />
     <ClInclude Include="Engine\Util\ParameterSystem.h" />
     <ClInclude Include="Engine\Model\SkyBoxManager.h" />
+    <ClInclude Include="Engine\Model\Animation\AnimationLoader.h" />
+    <ClInclude Include="Engine\Model\Animation\Skeleton.h" />
+    <ClInclude Include="Engine\Model\Animation\SkinCluster.h" />
+    <ClInclude Include="Engine\Model\Animation\AnimatedModelInstance.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">

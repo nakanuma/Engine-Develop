@@ -4,6 +4,7 @@
 #include "TextureManager.h"
 #include "ConstBuffer.h"
 #include "StructuredBuffer.h"
+#include <Model/Animation/SkinCluster.h>
 
 class Object3D
 {
@@ -54,7 +55,7 @@ public:
 
 	void Draw(const int TextureHandle);
 
-	void Draw(ModelManager::SkinCluster skinCluster);
+	void Draw(SkinCluster skinCluster);
 
 	void DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer, uint32_t numInstance, const uint32_t TextureHandle);
 

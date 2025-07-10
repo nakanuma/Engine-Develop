@@ -90,13 +90,13 @@ void Object3D::Draw(const int TextureHandle)
 	dxBase->GetCommandList()->DrawInstanced(UINT(model_->vertices.size()), 1, 0, 0);
 }
 
-void Object3D::Draw(ModelManager::SkinCluster skinCluster)
+void Object3D::Draw(SkinCluster skinCluster)
 {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
 		model_->vertexBufferView, // VertexDataのVBV
-		skinCluster.influenceBufferView // InfluenceのVBV
+		skinCluster.influenceBufferView_ // InfluenceのVBV
 	};
 
 	// 配列を渡す（開始Slot番号、使用Slot番号、VBV配列へのポインタ）
@@ -112,7 +112,7 @@ void Object3D::Draw(ModelManager::SkinCluster skinCluster)
 	// SRVのDescriptorTableの先頭を設定（Textureの設定）
 	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
 	// PaletteのSRVを設定
-	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(5, skinCluster.paletteSrvHandle.second);
+	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(5, skinCluster.paletteSrvHandle_.second);
 	// 描画を行う（DrawCall/ドローコール）
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }

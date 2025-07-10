@@ -25,7 +25,7 @@ public:
 	void Update();
 
 	/// <summary>
-	/// 描画処理
+	/// 描画処理（必ず環境マップ適用モデル描画前に描画）
 	/// </summary>
 	void Draw();
 
