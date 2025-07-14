@@ -70,6 +70,7 @@
     <ClCompile Include="Engine\Model\SkyBoxManager.cpp" />
     <ClCompile Include="Engine\Model\Animation\Skeleton.cpp" />
     <ClCompile Include="Engine\Model\Animation\SkinCluster.cpp" />
+    <ClCompile Include="Engine\Texture\PostEffectManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Model\Animation\AnimatedModelInstance.h" />
@@ -137,6 +138,7 @@
     <ClInclude Include="Engine\Model\SkyBoxManager.h" />
     <ClInclude Include="Engine\Model\Animation\Skeleton.h" />
     <ClInclude Include="Engine\Model\Animation\SkinCluster.h" />
+    <ClInclude Include="Engine\Texture\PostEffectManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">
