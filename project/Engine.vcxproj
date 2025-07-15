@@ -262,12 +262,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir);$(SolutionDir)Engine;$(SolutionDir)Engine\3D;$(SolutionDir)Engine\Debugger;$(SolutionDir)Engine\DirectX;$(SolutionDir)Engine\Math;$(SolutionDir)Engine\Model;$(SolutionDir)Engine\Texture;$(SolutionDir)Engine\Util;$(SolutionDir)Engine\Window;$(SolutionDir)Engine\Wrapper;$(SolutionDir)..\External\nlohmann;$(SolutionDir)../../Application/Application/GlobalVariables;$(SolutionDir)Engine\Scene;$(SolutionDir)Engine\2D;$(SolutionDir)../../Application/Application/Scene;$(SolutionDir)../../Application/Application;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)Engine;$(SolutionDir)Engine\3D;$(SolutionDir)Engine\Debugger;$(SolutionDir)Engine\DirectX;$(SolutionDir)Engine\Math;$(SolutionDir)Engine\Model;$(SolutionDir)Engine\Texture;$(SolutionDir)Engine\Util;$(SolutionDir)Engine\Window;$(SolutionDir)Engine\Wrapper;$(SolutionDir)..\External\nlohmann;$(SolutionDir)Engine\Scene;$(SolutionDir)Engine\2D;$(SolutionDir)../../Application/Application/Scene;$(SolutionDir)../../Application/Application;$(SolutionDir)../../Application/Application/src/Game/Scene;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir);$(SolutionDir)Engine;$(SolutionDir)Engine\3D;$(SolutionDir)Engine\Debugger;$(SolutionDir)Engine\DirectX;$(SolutionDir)Engine\Math;$(SolutionDir)Engine\Model;$(SolutionDir)Engine\Texture;$(SolutionDir)Engine\Util;$(SolutionDir)Engine\Window;$(SolutionDir)Engine\Wrapper;$(SolutionDir)..\External\nlohmann;$(SolutionDir)../../Application/Application/GlobalVariables;$(SolutionDir)Engine\Scene;$(SolutionDir)Engine\2D;$(SolutionDir)../../Application/Application/Scene;$(SolutionDir)../../Application/Application;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)Engine;$(SolutionDir)Engine\3D;$(SolutionDir)Engine\Debugger;$(SolutionDir)Engine\DirectX;$(SolutionDir)Engine\Math;$(SolutionDir)Engine\Model;$(SolutionDir)Engine\Texture;$(SolutionDir)Engine\Util;$(SolutionDir)Engine\Window;$(SolutionDir)Engine\Wrapper;$(SolutionDir)..\External\nlohmann;$(SolutionDir)Engine\Scene;$(SolutionDir)Engine\2D;$(SolutionDir)../../Application/Application/Scene;$(SolutionDir)../../Application/Application;$(SolutionDir)../../Application/Application/src/Game/Scene;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
