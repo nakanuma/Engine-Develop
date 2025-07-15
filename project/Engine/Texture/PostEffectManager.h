@@ -3,6 +3,7 @@
 // Engine
 #include <DirectXBase.h>
 #include <Object3D.h>
+#include <Sprite.h>
 
 enum class PostEffectType {
 	RadialBlur,
@@ -49,6 +50,24 @@ public:
 	/// </summary>
 	PostEffectType GetEffectType() const { return effectType_; }
 
+	/// <summary>
+	/// アウトライン適用
+	/// </summary>
+	void ApplyOutline();
+	/// <summary>
+	/// アウトライン描画
+	/// </summary>
+	void DrawOutline();
+
+	/// <summary>
+	/// Bloom適用
+	/// </summary>
+	void ApplyBloom();
+	/// <summary>
+	/// Bloom描画
+	/// </summary>
+	void DrawBloom();
+
 private:
 	PostEffectType effectType_ = PostEffectType::RadialBlur;
 
@@ -64,5 +83,13 @@ private:
 
 	Object3D::TransformationMatrix* transformMap_ = nullptr;
 	Object3D::Material* materialMap_ = nullptr;
+
+	// Outline
+	uint32_t outlineGH_ = 0;
+	ConstBuffer<Sprite::Material> outlineMaterial_;
+public:
+	// Bloom
+	uint32_t bloomExtractGH_ = 0;
+	uint32_t bloomBlurGH_ = 0;
 };
 

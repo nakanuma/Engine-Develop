@@ -64,6 +64,10 @@ void ShaderManager::Initialize() {
 	LoadShader("RadialBlur_VS", L"resources/Shaders/RadialBlur.VS.hlsl", L"vs_6_0");
 	LoadShader("RadialBlur_PS", L"resources/Shaders/RadialBlur.PS.hlsl", L"ps_6_0");
 
+	// BloomExtract
+	LoadShader("BloomExtract_VS", L"resources/Shaders/BloomExtract.VS.hlsl", L"vs_6_0");
+	LoadShader("BloomExtract_PS", L"resources/Shaders/BloomExtract.PS.hlsl", L"ps_6_0");
+
 	// Skybox
 	LoadShader("Skybox_VS", L"resources/Shaders/Skybox.VS.hlsl", L"vs_6_0");
 	LoadShader("Skybox_PS", L"resources/Shaders/Skybox.PS.hlsl", L"ps_6_0");

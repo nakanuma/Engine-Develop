@@ -184,6 +184,7 @@ public:
 	ID3D12PipelineState* GetPipelineStateBoxFilter() { return graphicsPipelineStateBoxFilter_.Get(); } // Smooting（BoxFilter）
 	ID3D12PipelineState* GetPipelineStateGaussianFilter() { return graphicsPipelineStateGaussianFilter_.Get(); } // Smooting（GaussianFilter）
 	ID3D12PipelineState* GetPipelineStateRadialBlur() { return graphicsPipelineStateRadialBlur_.Get(); }
+	ID3D12PipelineState* GetPipelineStateBloomExtract() { return graphicsPipelineStateBloomExtract_.Get(); }
 
 	// Skybox用PSOを取得
 	ID3D12PipelineState* GetPipelineStateSkybox() { return graphicsPipelineStateSkybox_.Get(); }
@@ -249,6 +250,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBoxFilter_;  // Smooting（BoxFilter）
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateGaussianFilter_;  // Smooting（GaussianFilter）
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateRadialBlur_; // RadialBlur
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBloomExtract_; // BloomExtract
 
 	// Skybox用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkybox_;
