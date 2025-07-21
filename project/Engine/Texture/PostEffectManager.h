@@ -51,6 +51,19 @@ public:
 	PostEffectType GetEffectType() const { return effectType_; }
 
 	/// <summary>
+	/// パーティクル描画開始
+	/// </summary>
+	void BeginRenderToParticleTexture();
+	/// <summary>
+	/// パーティクルテクスチャの描画
+	/// </summary>
+	void DrawParticleTexture();
+
+	/// <summary>
+	/// アウトライン描画開始
+	/// </summary>
+	void BeginRenderToOutlineTexture();
+	/// <summary>
 	/// アウトライン適用
 	/// </summary>
 	void ApplyOutline();
@@ -84,10 +97,15 @@ private:
 	Object3D::TransformationMatrix* transformMap_ = nullptr;
 	Object3D::Material* materialMap_ = nullptr;
 
-	// Outline
-	uint32_t outlineGH_ = 0;
-	ConstBuffer<Sprite::Material> outlineMaterial_;
 public:
+	// Particle
+	uint32_t particleRT_ = 0; // パーティクルのみ描画する用
+
+	// Outline
+	uint32_t outlineRT_ = 0; // アウトライン適用オブジェクトのみ描画する用
+	uint32_t outlineGH_ = 0; // アウトライン適用後のテクスチャ
+	ConstBuffer<Sprite::Material> outlineMaterial_;
+
 	// Bloom
 	uint32_t bloomExtractGH_ = 0;
 	uint32_t bloomBlurGH_ = 0;

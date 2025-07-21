@@ -48,10 +48,15 @@ void PostEffectManager::Initialize()
 	materialMap_->enableLighting = false;
 	materialMap_->uvTransform = Matrix::Identity();
 
+
+	/* パーティクル */
+	particleRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
 	
 	/*アウトライン*/
 
+
 	// レンダーテクスチャ
+	outlineRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
 	outlineGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), { 0.0f, 0.0f, 0.0f, 0.0f });
 
 	// Outline Material
@@ -108,8 +113,31 @@ void PostEffectManager::ApplyEffect()
 	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
-void PostEffectManager::ApplyOutline()
-{
+void PostEffectManager::BeginRenderToParticleTexture() {
+	RTVManager::SetRenderTarget(particleRT_);
+	RTVManager::ClearRTV(particleRT_, {0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+void PostEffectManager::DrawParticleTexture() {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = dxBase->GetCommandList();
+
+	cmd->SetPipelineState(dxBase->GetPipelineState());
+	cmd->IASetVertexBuffers(0, 1, &vbView_);
+	cmd->IASetIndexBuffer(&ibView_);
+	cmd->SetGraphicsRootConstantBufferView(0, materialCB_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(2, cmd, particleRT_);
+
+	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
+}
+
+void PostEffectManager::BeginRenderToOutlineTexture() { 
+	RTVManager::SetRenderTarget(outlineRT_); 
+	RTVManager::ClearRTV(outlineRT_, {0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+void PostEffectManager::ApplyOutline() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
@@ -122,7 +150,7 @@ void PostEffectManager::ApplyOutline()
 	cmd->IASetIndexBuffer(&ibView_);
 	cmd->SetGraphicsRootConstantBufferView(0, outlineMaterial_.resource_->GetGPUVirtualAddress());
 	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(2, cmd, RTVManager::GetDepthSRVHandle(renderTextureHandle_));
+	TextureManager::SetDescriptorTable(2, cmd, RTVManager::GetDepthSRVHandle(outlineRT_));
 
 	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
 #pragma endregion

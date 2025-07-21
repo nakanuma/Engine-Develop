@@ -10,7 +10,7 @@ class RTVManager final {
 public:
 	static RTVManager& GetInstance();
 
-	static int32_t CreateRenderTargetTexture(uint32_t width, uint32_t height, Float4 clearColor = {0.0f, 0.0f, 0.0f, 1.0f});
+	static int32_t CreateRenderTargetTexture(uint32_t width, uint32_t height, Float4 clearColor = {0.1f, 0.25f, 0.5f, 1.0f});
 
 	static void SetRenderTarget(int32_t textureHandle);
 
@@ -18,7 +18,7 @@ public:
 
 	static void ResetResourceBarrier();
 
-	static void ClearRTV(int32_t textureHandle, Float4 clearColor = {0.0f, 0.0f, 0.0f, 1.0f});
+	static void ClearRTV(int32_t textureHandle, Float4 clearColor = {0.1f, 0.25f, 0.5f, 1.0f});
 
 	static int32_t GetDepthSRVHandle(int32_t textureHandle);
 
