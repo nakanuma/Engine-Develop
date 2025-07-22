@@ -71,6 +71,19 @@ bool CollisionMath::CheckOBBToOBB(const OBBCollider* a, const OBBCollider* b)
 // OBB vs Sphere
 // ---------------------------------------------------------
 bool CollisionMath::CheckOBBToSphere(const OBBCollider* obb, const SphereCollider* sphere)
-{
-    return false;
+{ 
+    // 球の中心をOBB空間に射影
+    Float3 d = sphere->center_ - obb->center_; 
+
+    // 各軸への投影距離を箱の半サイズ以内で計算
+	Float3 closestPoint = obb->center_;
+
+    closestPoint += obb->xAxis_ * std::clamp(Float3::Dot(d, obb->xAxis_), -obb->size_.x, obb->size_.x);
+	closestPoint += obb->yAxis_ * std::clamp(Float3::Dot(d, obb->yAxis_), -obb->size_.y, obb->size_.y);
+	closestPoint += obb->zAxis_ * std::clamp(Float3::Dot(d, obb->zAxis_), -obb->size_.z, obb->size_.z);
+
+    Float3 vecToSphere = sphere->center_ - closestPoint;
+	float distSq = Float3::Length(vecToSphere);
+
+    return distSq <= sphere->radius_ * sphere->radius_;
 }

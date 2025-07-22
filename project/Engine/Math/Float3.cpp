@@ -42,7 +42,10 @@ Float3& Float3::operator*=(float scalar) {
 }
 
 float Float3::Length(const Float3& v) { 
-	return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+	return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z); }
+
+float Float3::LengthSq(const Float3& v) { 
+	return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
 Float3 Float3::Normalize(const Float3& a) { 

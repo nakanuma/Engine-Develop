@@ -18,6 +18,11 @@ bool SphereCollider::CheckCollision(Collider* other)
         auto* aabb = dynamic_cast<AABBCollider*>(other);
         return CollisionMath::CheckSphereToAABB(this, aabb);
     }
+    // vs OBB
+	else if (other->GetType() == "OBB") {
+		auto* obb = dynamic_cast<OBBCollider*>(other);
+		return CollisionMath::CheckOBBToSphere(obb, this);
+    }
 
     return false;
 }
@@ -37,6 +42,7 @@ bool AABBCollider::CheckCollision(Collider* other)
         auto* aabb = dynamic_cast<AABBCollider*>(other);
         return CollisionMath::CheckAABBToAABB(this, aabb);
     }
+    // vs OBB
 
     return false;
 }
@@ -87,4 +93,20 @@ Float3 AABBCollider::GetContactNormalFromSphere(const Float3& sphereCenter) cons
     } else {
         return { 0.0f, 0.0f, delta.z > 0 ? 1.0f : -1.0f };
     }
+}
+
+// ---------------------------------------------------------
+// OBBコライダーの衝突判定
+// ---------------------------------------------------------
+bool OBBCollider::CheckCollision(Collider* other) {
+    // vs Sphere
+	if (other->GetType() == "Sphere") {
+		auto* sphere = dynamic_cast<SphereCollider*>(other);
+		return CollisionMath::CheckOBBToSphere(this, sphere);
+	}
+	// vs AABB
+
+    // vs OBB
+
+    return false;
 }

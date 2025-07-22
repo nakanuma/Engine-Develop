@@ -75,3 +75,18 @@ public:
 	/// </summary>
 	Float3 GetContactNormalFromSphere(const Float3& sphereCenter) const;
 };
+
+/// <summary>
+/// OBBコライダー
+/// </summary>
+class OBBCollider : public Collider {
+public:
+	Float3 center_;
+	Float3 size_;
+	Float3 xAxis_;
+	Float3 yAxis_;
+	Float3 zAxis_;
+
+	bool CheckCollision(Collider* other) override;
+	std::string GetType() const override { return "OBB"; }
+};
