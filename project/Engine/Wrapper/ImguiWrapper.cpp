@@ -3,6 +3,9 @@
 #include "TextureManager.h"
 #include "RTVManager.h"
 
+// Externals
+#include <externals/nlohmann/json.hpp>
+
 void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT rtvFormat, ID3D12DescriptorHeap* srvHeap)
 {
 	IMGUI_CHECKVERSION();
@@ -27,6 +30,12 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 		srvHeap->GetCPUDescriptorHandleForHeapStart(), 
 		srvHeap->GetGPUDescriptorHandleForHeapStart()
 	);
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowBorderSize = 0.0f;
+	style.FrameBorderSize = 1.0f;
+
+	ImGuiUtil::LoadImGuiStyleFromJson("resources/Configs/ImGui/imguiConfig.json");
 }
 
 void ImguiWrapper::Finalize()
@@ -145,4 +154,56 @@ void ImGuiUtil::DepthWindow(std::string windowName, int32_t textureHandle) {
 	ImGui::Image((SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(textureHandle).ptr), finalImageSize);
 
 	ImGui::End();
+}
+
+void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) { 
+	ImGuiStyle& style = ImGui::GetStyle(); 
+	nlohmann::json j;
+
+	for (size_t i = 0; i < ImGuiCol_COUNT; ++i) {
+		ImVec4 col = style.Colors[i];
+		j["Colors"][i] = {col.x, col.y, col.z, col.w};
+	}
+
+	j["WindowRounding"] = style.WindowRounding;
+	j["FrameRounding"] = style.FrameRounding;
+	j["GrabRounding"] = style.GrabRounding;
+	j["ScrollbarRounding"] = style.ScrollbarRounding;
+	j["Alpha"] = style.Alpha;
+
+	std::ofstream file(filepath);
+	if (file.is_open()) {
+		file << j.dump(4);
+	}
+}
+
+void ImGuiUtil::LoadImGuiStyleFromJson(const std::string& filepath) { 
+	std::ifstream file(filepath);
+	if (!file.is_open()) 
+		return;
+
+	nlohmann::json j;
+	file >> j;
+
+	ImGuiStyle& style = ImGui::GetStyle();
+
+	if (j.contains("Colors")) {
+		for (size_t i = 0; i < ImGuiCol_COUNT; ++i) {
+			if (i < j["Colors"].size()) {
+				auto& col = j["Colors"][i];
+				style.Colors[i] = ImVec4(col[0], col[1], col[2], col[3]);
+			}
+		}
+	}
+
+	if (j.contains("WindowRounding"))
+		style.WindowRounding = j["WindowRounding"];
+	if (j.contains("FrameRounding"))
+		style.FrameRounding = j["FrameRounding"];
+	if (j.contains("GrabRounding"))
+		style.GrabRounding = j["GrabRounding"];
+	if (j.contains("ScrollbarRounding"))
+		style.ScrollbarRounding = j["ScrollbarRounding"];
+	if (j.contains("Alpha"))
+		style.Alpha = j["Alpha"];
 }

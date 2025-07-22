@@ -3,7 +3,10 @@
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
 #include "MyWindow.h"
+
+// C++
 #include <string>
+#include <fstream>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -23,5 +26,8 @@ class ImGuiUtil {
 public:
 	static void ImageWindow(std::string windowName, int32_t textureHandle);
 	static void DepthWindow(std::string windowName, int32_t textureHandle);
+
+	static void SaveImGuiStyleToJson(const std::string& filepath);
+	static void LoadImGuiStyleFromJson(const std::string& filepath);
 };
 
