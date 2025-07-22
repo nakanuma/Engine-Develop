@@ -6,3 +6,4 @@ D:\k023g0121\TopDown-Shooting\Engine-Develop\project\externals\DirectXTex\Bin\De
 C:\school\TopDown-Shooting\Engine-Develop\project\externals\DirectXTex\Bin\Desktop_2022_Win10\x64\Release\DirectXTex.lib
 C:\school\SetUp\Engine-Develop\project\externals\DirectXTex\Bin\Desktop_2022_Win10\x64\Release\DirectXTex.lib
 D:\k023g0121\SetUpRepository\ApplicationSetUp\Engine-Develop\project\externals\DirectXTex\Bin\Desktop_2022_Win10\x64\Release\DirectXTex.lib
+C:\school\TopDownShooting\Engine-Develop\project\externals\DirectXTex\Bin\Desktop_2022_Win10\x64\Release\DirectXTex.lib

@@ -16,12 +16,12 @@
 class ParameterManager;
 
 /// <summary>
-/// 値変更履歴
+/// パラメーター変更前後の値を記録する構造体
 /// </summary>
 struct ParameterChange {
-	std::string name;
-	nlohmann::json beforeValue;
-	nlohmann::json afterValue;
+	std::string name; // パラメーター名
+	nlohmann::json beforeValue; // 変更前の値を格納
+	nlohmann::json afterValue; // 変更後の値を格納
 };
 
 /// <summary>
@@ -29,13 +29,36 @@ struct ParameterChange {
 /// </summary>
 class ParameterBase {
 public:
-	std::string name; // パラメーター名
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
 	ParameterBase(const std::string& name_) : name(name_) {}
+
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	virtual ~ParameterBase() = default;
 
+	/// <summary>
+	/// パラメーターをImGui上で表示
+	/// </summary>
 	virtual void Draw() = 0;
-	virtual void Save(nlohmann::json& j) const = 0; // パラメーター保存
-	virtual void Load(const nlohmann::json& j) = 0; // パラメーター読み込み
+
+	/// <summary>
+	/// パラメーターの値をJSONへ保存
+	/// </summary>
+	virtual void Save(nlohmann::json& j) const = 0;
+
+	/// <summary>
+	/// JSONからパラメーターの値を読み込み
+	/// </summary>
+	virtual void Load(const nlohmann::json& j) = 0;
+
+public:
+	/// <summary>
+	/// パラメーター名
+	/// </summary>
+	std::string name;
 };
 
 /// <summary>
@@ -43,15 +66,13 @@ public:
 /// </summary>
 template<typename T> class Parameter : public ParameterBase {
 public:
-	T* ptr;             // パラメーターのポインタ
-	T minV, maxV, step; // パラメーターの最低値、最大値、ドラッグの増加量
-	ParameterManager& mgr;
-	T beforeValue{}; // 直前の値を保持（履歴登録用）
-
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
 	Parameter(const std::string& name, T* p, T minV, T maxV, T step, ParameterManager& manager) : ParameterBase(name), ptr(p), minV(minV), maxV(maxV), step(step), mgr(manager), beforeValue(*p) {}
 
 	/// <summary>
-	/// スライダー表示
+	/// パラメーターをImGui上で表示（スライダー）
 	/// </summary>
 	void Draw() override {
 		bool changed = false;
@@ -79,14 +100,41 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// パラメーターの値をJSONへ保存
+	/// </summary>
 	void Save(nlohmann::json& j) const override { j[name] = *ptr; }
 
+	/// <summary>
+	/// JSONからパラメーターの値を読み込み
+	/// </summary>
 	void Load(const nlohmann::json& j) override {
 		if (j.contains(name)) {
 			*ptr = j.at(name).get<T>();
 			beforeValue = *ptr; // Load後の値を基準にする
 		}
 	}
+
+public:
+	/// <summary>
+	/// パラメーターのポインタ
+	/// </summary>
+	T* ptr;
+
+	/// <summary>
+	/// パラメーターの最低値、最大値、ドラッグの増加量
+	/// </summary>
+	T minV, maxV, step;
+
+	/// <summary>
+	/// パラメーター一括管理クラス
+	/// </summary>
+	ParameterManager& mgr;
+
+	/// <summary>
+	/// パラメーター変更履歴（ドラッグ前の値を保持）
+	/// </summary>
+	T beforeValue{};
 };
 
 /// <summary>
@@ -95,33 +143,65 @@ public:
 class ParameterManager {
 public:
 	/// <summary>
-	/// パラメーター追加
+	/// 新しいパラメーターを追加
 	/// </summary>
 	template<typename T> void Add(const std::string& name, T* ptr, T minV, T maxV, T step = (T)1) { params.emplace_back(std::make_unique<Parameter<T>>(name, ptr, minV, maxV, step, *this)); }
 
-	void DrawAll() {
-		for (auto& p : params)
-			p->Draw();
-	}
+	/// <summary>
+	/// 登録されたすべてのパラメーターをGUI上に描画
+	/// </summary>
+	void DrawAll();
 
+	/// <summary>
+	/// パラメーターの値をJSONへ保存
+	/// </summary>
 	bool SaveToFile(const std::string& filename);
+
+	/// <summary>
+	/// JSONからパラメーターの値を読み込み
+	/// </summary>
 	bool LoadFromFile(const std::string& filename);
 
+	/// <summary>
+	/// 変更履歴の追加（値変更時に呼び出される）
+	/// </summary>
 	void PushHistory(const ParameterChange& change);
+
+	/// <summary>
+	/// パラメーター変更前に戻す
+	/// </summary>
 	void Undo();
+
+	/// <summary>
+	/// パラメーター変更後に戻す
+	/// </summary>
 	void Redo();
 
-	bool NeedsSave() const { return needsSave_; } // セーブを行うかどうかを確認
-	void ClearNeedsSave() { needsSave_ = false; } // セーブするかの状態をクリア
+	/// <summary>
+	/// パラメーターの変更があったかどうかを確認（自動保存処理に使用）
+	/// </summary>
+	bool NeedsSave() const { return needsSave_; }
+
+	/// <summary>
+	/// 自動保存処理後に呼び出してフラグリセット
+	/// </summary>
+	void ClearNeedsSave() { needsSave_ = false; }
 
 private:
-	// パラメーターを一括管理
+	/// <summary>
+	/// 登録された全てのパラメーター
+	/// </summary>
 	std::vector<std::unique_ptr<ParameterBase>> params;
 
+	/// <summary>
+	/// 操作履歴
+	/// </summary>
 	std::vector<ParameterChange> undoStack;
 	std::vector<ParameterChange> redoStack;
 
-	// セーブを行うかのフラグ
+	/// <summary>
+	/// パラメーター変更時の自動保存フラグ
+	/// </summary>
 	bool needsSave_ = false;
 
 	friend class ParameterBase;
@@ -132,18 +212,17 @@ private:
 /// </summary>
 class IConfigurable {
 protected:
-	ParameterManager mgr;
-	const std::string basePath = "resources/Configs/"; // 共通のパス
-	std::string subPath = "untitled.json";             // 固有のパス（SetConfigPath関数で設定）
-
-	bool isLoaded_ = false; // 自動読み込みフラグ
-
 	/// <summary>
 	/// 調整パラメーター登録
 	/// </summary>
 	template<typename T> void RegisterParam(const std::string& name, T* ptr, T minV, T maxV, T step = (T)1) { mgr.Add(name, ptr, minV, maxV, step); }
 
 public:
+	/// <summary>
+	/// 初期化処理
+	/// </summary>
+	void InitConfig();
+
 	/// <summary>
 	/// jsonの保存/読み込み先のファイルパス設定
 	/// </summary>
@@ -152,42 +231,30 @@ public:
 	/// <summary>
 	/// ウインドウを表示
 	/// </summary>
-	void DrawConfigWindow(const char* title) {
-		if (ImGui::Begin(title)) {
-			// 初回だけ読み込み
-			if (!isLoaded_) {
-				LoadConfig(basePath + subPath);
-				isLoaded_ = true;
-			}
-
-			// 調整項目を全て描画
-			mgr.DrawAll();
-
-			// パラメーター変更されたら自動保存
-			if (mgr.NeedsSave()) {
-				SaveConfig(basePath + subPath);
-				mgr.ClearNeedsSave();
-			}
-
-			if (Input::GetInstance()->PushKey(DIK_LCONTROL) && Input::GetInstance()->TriggerKey(DIK_Z)) {
-				mgr.Undo();
-			}
-			if (Input::GetInstance()->PushKey(DIK_LCONTROL) && Input::GetInstance()->TriggerKey(DIK_Y)) {
-				mgr.Redo();
-			}
-
-			if (ImGui::Button("Undo")) {
-				mgr.Undo();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Redo")) {
-				mgr.Redo();
-			}
-		}
-		ImGui::End();
-	}
+	void DrawConfigWindow(const char* title);
 
 private:
 	bool SaveConfig(const std::string& path) { return mgr.SaveToFile(path); }
 	bool LoadConfig(const std::string& path) { return mgr.LoadFromFile(path); }
+
+public:
+	/// <summary>
+	/// パラメーター管理クラス
+	/// </summary>
+	ParameterManager mgr;
+
+	/// <summary>
+	/// コンフィグファイルのルートディレクトリ
+	/// </summary>
+	const std::string basePath = "resources/Configs/";
+
+	/// <summary>
+	/// 各派生クラスが設定する相対パス（SetConfigPath関数で設定）
+	/// </summary>
+	std::string subPath = "untitled.json";
+
+	/// <summary>
+	/// 初回自動読み込みフラグ
+	/// </summary>
+	bool isLoaded_ = false;
 };

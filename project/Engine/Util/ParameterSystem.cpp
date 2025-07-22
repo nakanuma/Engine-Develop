@@ -1,7 +1,17 @@
 #include "ParameterSystem.h"
 
-bool ParameterManager::SaveToFile(const std::string& filename)
-{
+// ---------------------------------------------------------
+// 登録されたすべてのパラメーターをGUI上に描画
+// ---------------------------------------------------------
+void ParameterManager::DrawAll() {
+	for (auto& p : params)
+		p->Draw();
+}
+
+// ---------------------------------------------------------
+// パラメーターの値をJSONへ保存
+// ---------------------------------------------------------
+bool ParameterManager::SaveToFile(const std::string& filename) {
 	nlohmann::json j;
 
 	for (auto& p : params)
@@ -21,6 +31,9 @@ bool ParameterManager::SaveToFile(const std::string& filename)
 	return true;
 }
 
+// ---------------------------------------------------------
+// JSONからパラメーターの値を読み込み
+// ---------------------------------------------------------
 bool ParameterManager::LoadFromFile(const std::string& filename)
 {
 	std::ifstream ifs(filename);
@@ -41,12 +54,18 @@ bool ParameterManager::LoadFromFile(const std::string& filename)
 	return true;
 }
 
+// ---------------------------------------------------------
+// 変更履歴の追加（値変更時に呼び出される
+// ---------------------------------------------------------
 void ParameterManager::PushHistory(const ParameterChange& change) { 
 	undoStack.push_back(change);
 	redoStack.clear();
 	needsSave_ = true;
 }
 
+// ---------------------------------------------------------
+// パラメーター変更前に戻す
+// ---------------------------------------------------------
 void ParameterManager::Undo() {
 	if (undoStack.empty())
 		return;
@@ -69,6 +88,9 @@ void ParameterManager::Undo() {
 	needsSave_ = true;
 }
 
+// ---------------------------------------------------------
+// パラメーター変更後に戻す
+// ---------------------------------------------------------
 void ParameterManager::Redo() {
 	if (redoStack.empty())
 		return;
@@ -89,4 +111,48 @@ void ParameterManager::Redo() {
 
 	// セーブフラグを立てる
 	needsSave_ = true;
+}
+
+// ---------------------------------------------------------
+// 初期化処理
+// ---------------------------------------------------------
+void IConfigurable::InitConfig() {
+	// 初回だけ読み込み
+	if (!isLoaded_) {
+		LoadConfig(basePath + subPath);
+		isLoaded_ = true;
+	}
+}
+
+// ---------------------------------------------------------
+// ウインドウを表示
+// ---------------------------------------------------------
+void IConfigurable::DrawConfigWindow(const char* title) {
+	if (ImGui::Begin(title)) {
+		// 調整項目を全て描画
+		mgr.DrawAll();
+
+		// パラメーター変更されたら自動保存を行う
+		if (mgr.NeedsSave()) {
+			SaveConfig(basePath + subPath);
+			mgr.ClearNeedsSave();
+		}
+
+		// Undo/Redoのショートカット
+		if (Input::GetInstance()->PushKey(DIK_LCONTROL) && Input::GetInstance()->TriggerKey(DIK_Z)) {
+			mgr.Undo();
+		}
+		if (Input::GetInstance()->PushKey(DIK_LCONTROL) && Input::GetInstance()->TriggerKey(DIK_Y)) {
+			mgr.Redo();
+		}
+		// わかりやすさのためにボタン配置
+		if (ImGui::Button("Undo")) {
+			mgr.Undo();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Redo")) {
+			mgr.Redo();
+		}
+	}
+	ImGui::End();
 }
