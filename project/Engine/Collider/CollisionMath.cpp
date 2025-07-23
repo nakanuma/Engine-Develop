@@ -83,7 +83,7 @@ bool CollisionMath::CheckOBBToSphere(const OBBCollider* obb, const SphereCollide
 	closestPoint += obb->zAxis_ * std::clamp(Float3::Dot(d, obb->zAxis_), -obb->size_.z, obb->size_.z);
 
     Float3 vecToSphere = sphere->center_ - closestPoint;
-	float distSq = Float3::Length(vecToSphere);
+	float distSq = Float3::LengthSq(vecToSphere);
 
     return distSq <= sphere->radius_ * sphere->radius_;
 }

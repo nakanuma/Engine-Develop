@@ -301,24 +301,42 @@ Matrix Matrix::Translation(Float3 translation)
 
 Matrix Matrix::RotationX(float rad)
 {
-	return Pitch(rad);
+	Matrix result = Matrix();
+
+	result.r[1][1] = cosf(rad);
+	result.r[2][1] = -sinf(rad);
+	result.r[1][2] = sinf(rad);
+	result.r[2][2] = cosf(rad);
+
+	return result;
 }
 
 Matrix Matrix::RotationY(float rad)
 {
-	return Yaw(rad);
+	Matrix result = Matrix();
+
+	result.r[0][0] = cosf(rad);
+	result.r[0][2] = sinf(rad);
+	result.r[2][0] = -sinf(rad);
+	result.r[2][2] = cosf(rad);
+
+	return result;
 }
 
 Matrix Matrix::RotationZ(float rad)
 {
-	return Roll(rad); }
+	Matrix result = Matrix();
+
+	result.r[0][0] = cosf(rad);
+	result.r[1][0] = -sinf(rad);
+	result.r[0][1] = sinf(rad);
+	result.r[1][1] = cosf(rad);
+
+	return result;
+}
 
 Matrix Matrix::Rotation(const Float3& eulerAngles) { 
-	Matrix rotationZ = RotationZ(eulerAngles.z); 
-	Matrix rotationY = RotationZ(eulerAngles.y);
-	Matrix rotationX = RotationZ(eulerAngles.x);
-
-	return rotationZ * rotationY * rotationX;
+	return RotationY(eulerAngles.y) * RotationX(eulerAngles.x) * RotationZ(eulerAngles.z);
 }
 
 Matrix Matrix::Pitch(float rad)

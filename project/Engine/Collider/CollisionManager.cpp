@@ -102,6 +102,23 @@ void CollisionManager::Debug()
 					}
 				}
 
+				// OBBCollider
+				if (collider->GetType() == "OBB") {
+					if (auto obb = dynamic_cast<OBBCollider*>(collider)) {
+						Float3 center = obb->center_;
+						Float3 size = obb->size_;
+						Float3 xAxis = obb->xAxis_;
+						Float3 yAxis = obb->yAxis_;
+						Float3 zAxis = obb->zAxis_;
+
+						ImGui::Text("Center : (%.2f, %.2f, %.2f)", center.x, center.y, center.z);
+						ImGui::Text("Size : (%.2f, %.2f, %.2f)", size.x, size.y, size.z);
+						ImGui::Text("xAxis : (%.2f, %.2f, %.2f)", xAxis.x, xAxis.y, xAxis.z);
+						ImGui::Text("yAxis : (%.2f, %.2f, %.2f)", yAxis.x, yAxis.y, yAxis.z);
+						ImGui::Text("zAxis : (%.2f, %.2f, %.2f)", zAxis.x, zAxis.y, zAxis.z);
+					}
+				}
+
 				ImGui::TreePop();
 			}
 		}
