@@ -4,7 +4,6 @@
 #include <algorithm>
 
 // Engine
-#include <MyMath.h>
 #include <Collider/Collider.h>
 
 // ---------------------------------------------------------
@@ -64,7 +63,34 @@ bool CollisionMath::CheckAABBToOBB(const AABBCollider* aabb, const OBBCollider* 
 // ---------------------------------------------------------
 bool CollisionMath::CheckOBBToOBB(const OBBCollider* a, const OBBCollider* b)
 {
-    return false;
+    // 軸候補（分離軸）15本
+	Float3 axis[15] = {
+	    // Aのローカル軸
+	    a->xAxis_, a->yAxis_, a->zAxis_,
+	    // Bのローカル軸
+	    b->xAxis_, b->yAxis_, b->zAxis_,
+	    // A x B（外積軸）
+	    Float3::Cross(a->xAxis_, b->xAxis_),
+	    Float3::Cross(a->xAxis_, b->yAxis_),
+	    Float3::Cross(a->xAxis_, b->zAxis_),
+
+        Float3::Cross(a->yAxis_, b->xAxis_),
+	    Float3::Cross(a->yAxis_, b->yAxis_),
+	    Float3::Cross(a->yAxis_, b->zAxis_),
+
+        Float3::Cross(a->zAxis_, b->xAxis_),
+	    Float3::Cross(a->zAxis_, b->yAxis_),
+	    Float3::Cross(a->zAxis_, b->zAxis_),
+	};
+
+    for (size_t i = 0; i < 15; ++i) {
+		if (IsSeparatedByAxis(axis[i], a, b)) {
+			return false;
+        }
+    }
+
+    // すべての軸で分離していなければ衝突している
+	return true;
 }
 
 // ---------------------------------------------------------
@@ -86,4 +112,30 @@ bool CollisionMath::CheckOBBToSphere(const OBBCollider* obb, const SphereCollide
 	float distSq = Float3::LengthSq(vecToSphere);
 
     return distSq <= sphere->radius_ * sphere->radius_;
+}
+
+bool CollisionMath::IsSeparatedByAxis(const Float3& axis, const OBBCollider* obbA, const OBBCollider* obbB) {
+    // 軸がゼロベクトルでないことを確認
+	if (Float3::LengthSq(axis) < 1e-6f) {
+		return false; // 分離軸ではない
+    }
+
+    Float3 normAxis = Float3::Normalize(axis);
+
+    // 投影中心間距離
+	float centerDist = fabsf(Float3::Dot(normAxis, obbB->center_ - obbA->center_));
+
+    // Aの半径投影
+	float rA = 
+        fabsf(Float3::Dot(normAxis, obbA->xAxis_) * obbA->size_.x) + 
+        fabsf(Float3::Dot(normAxis, obbA->yAxis_) * obbA->size_.y) +
+	    fabsf(Float3::Dot(normAxis, obbA->zAxis_) * obbA->size_.z);
+    // Bの半径投影
+    float rB = 
+        fabsf(Float3::Dot(normAxis, obbB->xAxis_) * obbB->size_.x) + 
+        fabsf(Float3::Dot(normAxis, obbB->yAxis_) * obbB->size_.y) +
+	    fabsf(Float3::Dot(normAxis, obbB->zAxis_) * obbB->size_.z);
+
+    // 分離軸が存在すればfalse
+	return centerDist > (rA + rB);
 }

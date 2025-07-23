@@ -1,5 +1,8 @@
 #pragma once
 
+// Engine
+#include <MyMath.h>
+
 // 前方宣言
 class SphereCollider;
 class AABBCollider;
@@ -40,5 +43,10 @@ public:
 	/// OBB vs Sphere
 	/// </summary>
 	static bool CheckOBBToSphere(const OBBCollider* obb, const SphereCollider* sphere);
+
+	/// <summary>
+	/// 分離軸確認用
+	/// </summary>
+	static bool IsSeparatedByAxis(const Float3& axis, const OBBCollider* obbA, const OBBCollider* obbB);
 };
 

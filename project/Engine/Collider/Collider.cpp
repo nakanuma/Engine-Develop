@@ -107,6 +107,10 @@ bool OBBCollider::CheckCollision(Collider* other) {
 	// vs AABB
 
     // vs OBB
+	if (other->GetType() == "OBB") {
+		auto* obb = dynamic_cast<OBBCollider*>(other);
+		return CollisionMath::CheckOBBToOBB(this, obb);
+    }
 
     return false;
 }
