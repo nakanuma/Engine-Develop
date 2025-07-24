@@ -11,6 +11,8 @@ enum class PostEffectType {
 	Vignette,
 	BoxFilter,
 	GaussianFilter,
+	InvertColor,
+
 };
 
 /// <summary>

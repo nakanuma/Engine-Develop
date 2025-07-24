@@ -99,6 +99,11 @@ void PostEffectManager::ApplyEffect()
 	case PostEffectType::GaussianFilter:
 		cmd->SetPipelineState(dxBase->GetPipelineStateGaussianFilter());
 		break;
+	
+	case PostEffectType::InvertColor:
+		cmd->SetPipelineState(dxBase->GetPipelineStateInvertColor());
+		break;
+
 	}
 
 	cmd->IASetVertexBuffers(0, 1, &vbView_);

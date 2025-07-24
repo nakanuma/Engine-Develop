@@ -836,6 +836,20 @@ void DirectXBase::CreatePipelineStateObject()
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBloomExtractDesc, IID_PPV_ARGS(&graphicsPipelineStateBloomExtract_));
 
 	///
+	///	InvertColorのPSOを生成
+	/// 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateInvertColorDesc = graphicsPipelineStateDefault;
+
+	auto psInvertColor = shaderManager->GetShader("InvertColor_PS");
+
+	graphicsPipelineStateInvertColorDesc.PS = {psInvertColor->GetBufferPointer(), psInvertColor->GetBufferSize()};
+
+	// 生成
+	graphicsPipelineStateInvertColor_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInvertColorDesc, IID_PPV_ARGS(&graphicsPipelineStateInvertColor_));
+
+	///
 	/// SkyboxのPSOを作成
 	/// 
 	
@@ -1003,8 +1017,8 @@ void DirectXBase::BeginFrame()
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_.GetCPUHandle(0);
 	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
 	// 指定した色で画面全体をクリアする
-	float clearColor[] = {0.247f, 0.3f, 0.372f, 1.0f};
-	/*float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };*/
+	/*float clearColor[] = {0.247f, 0.3f, 0.372f, 1.0f};*/
+	float clearColor[] = {0.1f, 0.25f, 0.5f, 1.0f};
 	commandList_->ClearRenderTargetView(rtvHandles_[backBufferIndex], clearColor, 0, nullptr);
 	// 指定した深度で画面全体をクリアする
 	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
