@@ -62,12 +62,34 @@ void PostEffectManager::Initialize()
 	outlineMaterial_.data_->uvTransform = Matrix::Identity();
 
 	/*Bloom*/
-	bloomExtractGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
+	bloomExtractGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
 	bloomBlurGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), { 0.0f, 0.0f, 0.0f, 0.0f });
+
+	/*WaveDistortion*/
+	waveCB_.data_->gTime = 0.0f;
+	waveCB_.data_->amplitude = 0.02f;
+	waveCB_.data_->frequency = 10.0f;
+	waveCB_.data_->speed = 1.5f;
+
+	/*GlitchEffect*/
+	glitchCB_.data_->gTime = 0.0f;
+	glitchCB_.data_->intensity = 1.0f;
+	glitchCB_.data_->speed = 0.5f;
+}
+
+void PostEffectManager::TransfarConstantBuffer() { 
+	/*WaveDistrotion*/
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(9, waveCB_.resource_->GetGPUVirtualAddress());
+	/*GlitchEffect*/
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(10, glitchCB_.resource_->GetGPUVirtualAddress());
 }
 
 void PostEffectManager::BeginRenderToTexture()
 {
+	if (effectType_ == PostEffectType::None) {
+		return;
+	}
+
 	RTVManager::SetRenderTarget(renderTextureHandle_);
 	RTVManager::ClearRTV(renderTextureHandle_);
 }
@@ -78,6 +100,10 @@ void PostEffectManager::ApplyEffect()
 	auto cmd = dxBase->GetCommandList();
 
 	RTVManager::SetRTtoBB();
+
+	if (effectType_ == PostEffectType::None) {
+		return;
+	}
 
 	switch (effectType_) {
 	case PostEffectType::RadialBlur:
@@ -102,6 +128,42 @@ void PostEffectManager::ApplyEffect()
 	
 	case PostEffectType::InvertColor:
 		cmd->SetPipelineState(dxBase->GetPipelineStateInvertColor());
+		break;
+
+	case PostEffectType::Sepia:
+		cmd->SetPipelineState(dxBase->GetPipelineStateSepia());
+		break;
+
+	case PostEffectType::Posterize:
+		cmd->SetPipelineState(dxBase->GetPipelineStatePosterize());
+		break;
+
+	case PostEffectType::Emboss:
+		cmd->SetPipelineState(dxBase->GetPipelineStateEmboss());
+		break;
+
+	case PostEffectType::Sharpen:
+		cmd->SetPipelineState(dxBase->GetPipelineStateSharpen());
+		break;
+
+	case PostEffectType::ColorAberration:
+		cmd->SetPipelineState(dxBase->GetPipelineStateColorAberration());
+		break;
+
+	case PostEffectType::BarrelDistortion:
+		cmd->SetPipelineState(dxBase->GetPipelineStateBarrelDistortion());
+		break;
+
+	case PostEffectType::WaveDistortion:
+		cmd->SetPipelineState(dxBase->GetPipelineStateWaveDistortion());
+		break;
+
+	case PostEffectType::Pixelation:
+		cmd->SetPipelineState(dxBase->GetPipelineStatePixelation());
+		break;
+
+	case PostEffectType::GlitchEffect:
+		cmd->SetPipelineState(dxBase->GetPipelineStateGlitchEffect());
 		break;
 
 	}
@@ -169,14 +231,13 @@ void PostEffectManager::DrawOutline()
 #pragma endregion
 }
 
-void PostEffectManager::ApplyBloom()
-{
+void PostEffectManager::ApplyBloom() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 	
 #pragma region 明るい部分の抽出
 	RTVManager::SetRenderTarget(bloomExtractGH_);
-	RTVManager::ClearRTV(bloomExtractGH_);
+	RTVManager::ClearRTV(bloomExtractGH_, {0.0f, 0.0f, 0.0f, 0.0f});
 
 	cmd->SetPipelineState(dxBase->GetPipelineStateBloomExtract());
 	cmd->IASetVertexBuffers(0, 1, &vbView_);

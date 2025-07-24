@@ -45,31 +45,52 @@ void ShaderManager::Initialize() {
 	LoadShader("SobelFilter_PS", L"resources/Shaders/SobelFilter.PS.hlsl", L"ps_6_0");
 
 	// Grayscale
-	LoadShader("Grayscale_VS", L"resources/Shaders/Grayscale.VS.hlsl", L"vs_6_0");
 	LoadShader("Grayscale_PS", L"resources/Shaders/Grayscale.PS.hlsl", L"ps_6_0");
 
 	// Vignette
-	LoadShader("Vignette_VS", L"resources/Shaders/Vignette.VS.hlsl", L"vs_6_0");
 	LoadShader("Vignette_PS", L"resources/Shaders/Vignette.PS.hlsl", L"ps_6_0");
 
 	// BoxFilter
-	LoadShader("BoxFilter_VS", L"resources/Shaders/BoxFilter.VS.hlsl", L"vs_6_0");
 	LoadShader("BoxFilter_PS", L"resources/Shaders/BoxFilter.PS.hlsl", L"ps_6_0");
 
 	// GaussianFilter
-	LoadShader("GaussianFilter_VS", L"resources/Shaders/GaussianFilter.VS.hlsl", L"vs_6_0");
 	LoadShader("GaussianFilter_PS", L"resources/Shaders/GaussianFilter.PS.hlsl", L"ps_6_0");
 
 	// RadialBlur
-	LoadShader("RadialBlur_VS", L"resources/Shaders/RadialBlur.VS.hlsl", L"vs_6_0");
 	LoadShader("RadialBlur_PS", L"resources/Shaders/RadialBlur.PS.hlsl", L"ps_6_0");
 
 	// BloomExtract
-	LoadShader("BloomExtract_VS", L"resources/Shaders/BloomExtract.VS.hlsl", L"vs_6_0");
 	LoadShader("BloomExtract_PS", L"resources/Shaders/BloomExtract.PS.hlsl", L"ps_6_0");
 
 	// InvertColor
 	LoadShader("InvertColor_PS", L"resources/Shaders/InvertColor.PS.hlsl", L"ps_6_0");
+
+	// Sepia
+	LoadShader("Sepia_PS", L"resources/Shaders/Sepia.PS.hlsl", L"ps_6_0");
+
+	// Posterize
+	LoadShader("Posterize_PS", L"resources/Shaders/Posterize.PS.hlsl", L"ps_6_0");
+
+	// Emboss
+	LoadShader("Emboss_PS", L"resources/Shaders/Emboss.PS.hlsl", L"ps_6_0");
+
+	// Sharpen
+	LoadShader("Sharpen_PS", L"resources/Shaders/Sharpen.PS.hlsl", L"ps_6_0");
+
+	// ColorAberration
+	LoadShader("ColorAberration_PS", L"resources/Shaders/ColorAberration.PS.hlsl", L"ps_6_0");
+
+	// BarrelDistortion
+	LoadShader("BarrelDistortion_PS", L"resources/Shaders/BarrelDistortion.PS.hlsl", L"ps_6_0");
+
+	// WaveDistortion
+	LoadShader("WaveDistortion_PS", L"resources/Shaders/WaveDistortion.PS.hlsl", L"ps_6_0");
+
+	// Pixelation
+	LoadShader("Pixelation_PS", L"resources/Shaders/Pixelation.PS.hlsl", L"ps_6_0");
+
+	// GlitchEffect
+	LoadShader("GlitchEffect_PS", L"resources/Shaders/GlitchEffect.PS.hlsl", L"ps_6_0");
 
 	// Skybox
 	LoadShader("Skybox_VS", L"resources/Shaders/Skybox.VS.hlsl", L"vs_6_0");

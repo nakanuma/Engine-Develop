@@ -186,6 +186,15 @@ public:
 	ID3D12PipelineState* GetPipelineStateRadialBlur() { return graphicsPipelineStateRadialBlur_.Get(); }
 	ID3D12PipelineState* GetPipelineStateBloomExtract() { return graphicsPipelineStateBloomExtract_.Get(); }
 	ID3D12PipelineState* GetPipelineStateInvertColor() { return graphicsPipelineStateInvertColor_.Get(); }
+	ID3D12PipelineState* GetPipelineStateSepia() { return graphicsPipelineStateSepia_.Get(); }
+	ID3D12PipelineState* GetPipelineStatePosterize() { return graphicsPipelineStatePosterize_.Get(); }
+	ID3D12PipelineState* GetPipelineStateEmboss() { return graphicsPipelineStateEmboss_.Get(); }
+	ID3D12PipelineState* GetPipelineStateSharpen() { return graphicsPipelineStateSharpen_.Get(); }
+	ID3D12PipelineState* GetPipelineStateColorAberration() { return graphicsPipelineStateColorAberration_.Get(); }
+	ID3D12PipelineState* GetPipelineStateBarrelDistortion() { return graphicsPipelineStateBarrelDistortion_.Get(); }
+	ID3D12PipelineState* GetPipelineStateWaveDistortion() { return graphicsPipelineStateWaveDistortion_.Get(); }
+	ID3D12PipelineState* GetPipelineStatePixelation() { return graphicsPipelineStatePixelation_.Get(); }
+	ID3D12PipelineState* GetPipelineStateGlitchEffect() { return graphicsPipelineStateGlitchEffect_.Get(); }
 
 	// Skybox用PSOを取得
 	ID3D12PipelineState* GetPipelineStateSkybox() { return graphicsPipelineStateSkybox_.Get(); }
@@ -253,6 +262,15 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateRadialBlur_; // RadialBlur
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBloomExtract_; // BloomExtract
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInvertColor_; // InvertColor
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSepia_;  // Sepia
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStatePosterize_; // Posterize
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateEmboss_; // Emboss
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSharpen_; // Sharpen
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateColorAberration_; // Aberration
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBarrelDistortion_; // BarrelDistortion
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateWaveDistortion_; // WaveDistortion
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStatePixelation_; // Pixelation
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateGlitchEffect_; // GlitchEffect
 
 	// Skybox用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkybox_;

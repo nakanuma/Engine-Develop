@@ -5,14 +5,37 @@
 #include <Object3D.h>
 #include <Sprite.h>
 
+struct WaveCBData {
+	float gTime;
+	float amplitude;
+	float frequency;
+	float speed;
+};
+
+struct GlitchCBData {
+	float gTime;
+	float intensity;
+	float speed;
+	float padding;
+};
+
 enum class PostEffectType {
+	None,
 	RadialBlur,
 	GrayScale,
 	Vignette,
 	BoxFilter,
 	GaussianFilter,
 	InvertColor,
-
+	Sepia,
+	Posterize,
+	Emboss,
+	Sharpen,
+	ColorAberration,
+	BarrelDistortion,
+	WaveDistortion,
+	Pixelation,
+	GlitchEffect,
 };
 
 /// <summary>
@@ -25,6 +48,11 @@ public:
 	/// 初期化処理
 	/// </summary>
 	void Initialize();
+
+	/// <summary>
+	/// コンスタントバッファ送信
+	/// </summary>
+	void TransfarConstantBuffer();
 
 	/// <summary>
 	/// 描画開始
@@ -91,6 +119,9 @@ private:
 	Object3D::Material* materialMap_ = nullptr;
 
 public:
+	ConstBuffer<WaveCBData> waveCB_;
+	ConstBuffer<GlitchCBData> glitchCB_;
+
 	// Outline
 	uint32_t outlineRT_ = 0; // アウトライン適用オブジェクトのみ描画する用
 	uint32_t outlineGH_ = 0; // アウトライン適用後のテクスチャ
