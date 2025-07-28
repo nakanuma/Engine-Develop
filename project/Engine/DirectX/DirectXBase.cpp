@@ -410,7 +410,7 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 	cubeMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// RootParameter作成。複数設定できるので配列。
-	D3D12_ROOT_PARAMETER rootParameters[9] = {};
+	D3D12_ROOT_PARAMETER rootParameters[11] = {};
 	// Material（CBV）
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;    // CBVを使う
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
@@ -454,6 +454,16 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 	rootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[8].DescriptorTable.pDescriptorRanges = &cubeMapRange;
 	rootParameters[8].DescriptorTable.NumDescriptorRanges = 1;
+
+	// WaveDistoration（CBV）
+	rootParameters[9].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[9].Descriptor.ShaderRegister = 5;
+
+	// GlitchEffect（CBV）
+	rootParameters[10].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[10].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[10].Descriptor.ShaderRegister = 6;
 
 	descriptionRootSignature.pParameters = rootParameters;             // ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ

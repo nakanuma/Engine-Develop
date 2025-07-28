@@ -23,6 +23,7 @@ public:
 	struct TransformationMatrix {
 		Matrix WVP;
 		Matrix World;
+		Matrix WorldInverseTranspose;
 	};
 
 	// 初期化
