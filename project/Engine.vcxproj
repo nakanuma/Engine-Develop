@@ -73,6 +73,8 @@
     <ClCompile Include="Engine\Texture\PostEffectManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\BehaviourTree\BehaviorTree.h" />
+    <ClInclude Include="Engine\BehaviourTree\BehaviorNode.h" />
     <ClInclude Include="Engine\Model\Animation\AnimatedModelInstance.h" />
     <ClInclude Include="Engine\Model\Animation\AnimationLoader.h" />
     <ClInclude Include="Engine\Math\Easing.h" />
@@ -139,6 +141,7 @@
     <ClInclude Include="Engine\Model\Animation\Skeleton.h" />
     <ClInclude Include="Engine\Model\Animation\SkinCluster.h" />
     <ClInclude Include="Engine\Texture\PostEffectManager.h" />
+    <ClInclude Include="Engine\BehaviourTree\IBehaviorAgent.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">

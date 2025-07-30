@@ -338,6 +338,9 @@
     <ClInclude Include="Engine\Model\Animation\SkinCluster.h" />
     <ClInclude Include="Engine\Model\Animation\AnimatedModelInstance.h" />
     <ClInclude Include="Engine\Texture\PostEffectManager.h" />
+    <ClInclude Include="Engine\BehaviourTree\IBehaviorAgent.h" />
+    <ClInclude Include="Engine\BehaviourTree\BehaviorNode.h" />
+    <ClInclude Include="Engine\BehaviourTree\BehaviorTree.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">
