@@ -4,6 +4,12 @@
 #include <vector>
 #include <functional>
 
+enum class BehaviorStatus {
+	Success, // 成功
+	Failure, // 失敗
+	Running, // 実行中
+};
+
 /// <summary>
 /// ノードの基底クラス
 /// </summary>
@@ -16,12 +22,6 @@ public:
 	/// ノードの状態を返す
 	/// </summary>
 	virtual BehaviorStatus Tick(AgentType* agent, float deltaTime) = 0;
-};
-
-enum class BehaviorStatus {
-	Success, // 成功
-	Failure, // 失敗
-	Running, // 実行中
 };
 
 /*---------------------------------------------------------------------------------*/
@@ -37,13 +37,13 @@ public:
 	/// <summary>
 	/// 子ノードをリストへ追加
 	/// </summary>
-	void AddChild(BehaviorNode<AgentType>* node) { children_.push_back(node); }
+	void AddChild(std::unique_ptr<BehaviorNode<AgentType>> node) { children_.push_back(std::move(node)); }
 
 protected:
 	/// <summary>
 	/// 子ノードのリスト
 	/// </summary>
-	std::vector<BehaviorNode<AgentType>*> children_;
+	std::vector<std::unique_ptr<BehaviorNode<AgentType>>> children_;
 };
 
 /// <summary>
@@ -56,7 +56,7 @@ public:
 	/// </summary>
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
 		// 登録されている子ノードを先頭から順に評価
-		for (auto child : this->children_) {
+		for (auto& child : this->children_) {
 			BehaviorStatus status = child->Tick(agent, deltaTime);
 			// SuccessまたはRunningを返した子ノードが採用される
 			if (status != BehaviorStatus::Failure) {
@@ -78,7 +78,7 @@ public:
 	/// </summary>
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
 		// 登録されている子ノードを先頭から順に評価
-		for (auto child : this->children_) {
+		for (auto& child : this->children_) {
 			BehaviorStatus status = child->Tick(agent, deltaTime);
 			// Success以外を返した時点で、その結果を返す
 			if (status != BehaviorStatus::Success) {
@@ -115,7 +115,7 @@ public:
 	/// </summary>
 	BehaviorStatus Tick(AgentType* agent, float) override { 
 		// trueならSuccessを返し、falseならFailureを返す
-		return conditionFunc_(agent) ? BehaviorStatus::Success : BehaviorStatus::Failure
+		return conditionFunc_(agent) ? BehaviorStatus::Success : BehaviorStatus::Failure;
 	}
 
 private:

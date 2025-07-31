@@ -9,7 +9,7 @@ public:
 	/// <summary>
 	/// ルートノードをコンストラクタで受け取る
 	/// </summary>
-	BehaviorTree(BehaviorNode<AgentType>* root) : root_(root) {}
+	BehaviorTree(std::unique_ptr<BehaviorNode<AgentType>> root) : root_(std::move(root)) {}
 
 	/// <summary>
 	/// ノードの状態を返す
@@ -22,5 +22,5 @@ public:
 
 private:
 	// ルートノードのリスト
-	BehaviorNode<AgentType*> root_;
+	std::unique_ptr<BehaviorNode<AgentType>> root_;
 };
