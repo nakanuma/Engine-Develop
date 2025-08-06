@@ -16,8 +16,12 @@ public:
 	struct Material {
 		Float4 color;
 		int32_t enableLighting;
-		float padding[3];
+		float shininess;
+		float ratio;
+		float padding;
 		Matrix uvTransform;
+		int32_t useCircleMask;
+		Float3 padding2;
 	};
 
 	struct TransformationMatrix {
@@ -65,6 +69,7 @@ public:
 	const Float2& GetTextureSize() const { return textureSize_; }
 	void SetTextureSize(const Float2& textureSize) { this->textureSize_ = textureSize; }
 
+	Material* materialData_ = nullptr;
 private:
 	SpriteCommon* spriteCommon = nullptr;
 
@@ -79,7 +84,6 @@ private:
 	// バッファリソース内のデータを指すポインタ
 	VertexData* vertexData_ = nullptr;
 	uint32_t* indexData_ = nullptr;
-	Material* materialData_ = nullptr;
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 	// バッファリソースの使い道を補足するバッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;

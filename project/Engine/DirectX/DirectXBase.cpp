@@ -744,6 +744,16 @@ void DirectXBase::CreatePipelineStateObject()
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateParticleDesc, IID_PPV_ARGS(&graphicsPipelineStateParticle_));
 
 	///
+	/// Zバッファ無効用PSOを生成
+	/// 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDisableZBufferDesc = graphicsPipelineStateDefault;
+	graphicsPipelineStateDisableZBufferDesc.DepthStencilState.DepthEnable = false;
+
+	graphicsPipelineStateDisableZBuffer_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDisableZBufferDesc, IID_PPV_ARGS(&graphicsPipelineStateDisableZBuffer_));
+
+	///
 	///	SobelFilterのPSOを生成
 	/// 
 	

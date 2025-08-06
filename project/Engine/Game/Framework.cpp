@@ -32,10 +32,6 @@ void Framework::Initialize()
 	// ImGuiの初期化
 	ImguiWrapper::Initialize(dxBase->GetDevice(),dxBase->GetSwapChainDesc().BufferCount,dxBase->GetRtvDesc().Format,srvManager->descriptorHeap.heap_.Get());
 
-	// ParticleManagerの生成と初期化
-	particleManager = new ParticleManager;
-	particleManager->Initialize(dxBase,srvManager);
-
 	// SoundManagerの生成と初期化
 	soundManager = new SoundManager;
 	soundManager->Initialize();
@@ -45,8 +41,6 @@ void Framework::Finalize()
 {
 	// シーンファクトリ開放
 	delete sceneFactory_;
-	// ParticleManager開放
-	delete particleManager;
 	// スプライト共通処理開放
 	delete spriteCommon;
 	// SoundManager開放
@@ -71,10 +65,6 @@ void Framework::Update()
 	Input::GetInstance()->Update();
 	// フレーム開始処理
 	dxBase->BeginFrame();
-	// パーティクルマネージャの更新
-	particleManager->Update();
-
-
 
 	// SceneManagerの更新
 	SceneManager::GetInstance()->Update();

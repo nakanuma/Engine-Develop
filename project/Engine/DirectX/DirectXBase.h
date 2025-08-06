@@ -177,6 +177,9 @@ public:
 	// Particle用PSOを取得
 	ID3D12PipelineState* GetPipelineStateParticle() { return graphicsPipelineStateParticle_.Get(); };
 
+	// Zバッファ無効用PSOを取得
+	ID3D12PipelineState* GetPipelineStateDisableZBuffer() { return graphicsPipelineStateDisableZBuffer_.Get(); }
+
 	// ポストエフェクト用PSOを取得
 	ID3D12PipelineState* GetPipelineStateSobelFilter() { return graphicsPipelineStateSobelFilter_.Get(); } // Outline（SobelFilter）
 	ID3D12PipelineState* GetPipelineStateGrayscale() { return graphicsPipelineStateGrayscale_.Get(); } // Grayscale
@@ -252,6 +255,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeSubtract_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeMultiply_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeScreen_;
+
+	// Zバッファ無効パイプライン
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateDisableZBuffer_;
 
 	// ポストエフェクト用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSobelFilter_; // Outline（SobelFilter）

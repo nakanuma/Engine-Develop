@@ -62,7 +62,7 @@ public:
 	/// 
 
 	// リングの生成
-	static ModelData CreateRingModel(ID3D12Device* device);
+	static ModelData CreateRingModel(ID3D12Device* device, float outerRadius = 1.0f, float innerRadius = 0.2f);
 	// シリンダーの生成（memo : このモデルを描画する際はPSOをNoCullingに設定）
 	static ModelData CreateCylinderModel(ID3D12Device* device);
 	// スカイボックスの生成

@@ -7,12 +7,10 @@
 
 #include <SRVManager.h>
 
-ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device) {
+ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device, float outerRadius, float innerRadius) {
     ModelManager::ModelData modelData;
 
     const uint32_t kRingDevide = 32; // 分割数
-    const float kOuterRadius = 1.0f; // 外径
-    const float kInnerRadius = 0.2f; // 内径
     const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kRingDevide);
 
     // 頂点データとインデックスデータのコンテナ
@@ -30,22 +28,22 @@ ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device) {
 
         // 頂点の定義
         vertices.push_back({
-            {-sin * kOuterRadius, 0.0f, cos * kOuterRadius, 1.0f}, // 外側1
+            {-sin * outerRadius, 0.0f, cos * outerRadius, 1.0f}, // 外側1
             {u, 0.0f}, // UV
             {0.0f, 1.0f, 0.0f} // 法線
         });
         vertices.push_back({
-            {-sinNext * kOuterRadius, 0.0f, cosNext * kOuterRadius, 1.0f}, // 外側2
+            {-sinNext * outerRadius, 0.0f, cosNext * outerRadius, 1.0f}, // 外側2
             {uNext, 0.0f}, // UV
             {0.0f, 1.0f, 0.0f} // 法線
         });
         vertices.push_back({
-            {-sin * kInnerRadius, 0.0f, cos * kInnerRadius, 1.0f}, // 内側1
+            {-sin * innerRadius, 0.0f, cos * innerRadius, 1.0f}, // 内側1
             {u, 1.0f}, // UV
             {0.0f, 1.0f, 0.0f} // 法線
         });
         vertices.push_back({
-            {-sinNext * kInnerRadius, 0.0f, cosNext * kInnerRadius, 1.0f}, // 内側2
+            {-sinNext * innerRadius, 0.0f, cosNext * innerRadius, 1.0f}, // 内側2
             {uNext, 1.0f}, // UV
             {0.0f, 1.0f, 0.0f} // 法線
         });

@@ -93,12 +93,6 @@
     <ClCompile Include="Engine\3D\OutlinedObject.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Particle\ParticleEmitter.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Particle\ParticleManager.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Math\Quaternion.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
@@ -246,12 +240,6 @@
     <ClInclude Include="Engine\3D\OutlinedObject.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Particle\ParticleEmitter.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Particle\ParticleManager.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Math\Quaternion.h">
       <Filter>Engine</Filter>
     </ClInclude>
@@ -338,7 +326,6 @@
     <ClInclude Include="Engine\Model\Animation\SkinCluster.h" />
     <ClInclude Include="Engine\Model\Animation\AnimatedModelInstance.h" />
     <ClInclude Include="Engine\Texture\PostEffectManager.h" />
-    <ClInclude Include="Engine\BehaviourTree\IBehaviorAgent.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorNode.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorTree.h" />
   </ItemGroup>

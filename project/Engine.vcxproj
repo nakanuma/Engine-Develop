@@ -53,8 +53,6 @@
     <ClCompile Include="Engine\2D\Sprite.cpp" />
     <ClCompile Include="Engine\2D\SpriteCommon.cpp" />
     <ClCompile Include="Engine\Game\MyGame.cpp" />
-    <ClCompile Include="Engine\Particle\ParticleEmitter.cpp" />
-    <ClCompile Include="Engine\Particle\ParticleManager.cpp" />
     <ClCompile Include="Engine\Math\Quaternion.cpp" />
     <ClCompile Include="Engine\Math\QuaternionTransform.cpp" />
     <ClCompile Include="Engine\Scene\SceneFactory.cpp" />
@@ -118,8 +116,6 @@
     <ClInclude Include="Engine\2D\SpriteCommon.h" />
     <ClInclude Include="Engine\Game\Framework.h" />
     <ClInclude Include="Engine\Game\MyGame.h" />
-    <ClInclude Include="Engine\Particle\ParticleEmitter.h" />
-    <ClInclude Include="Engine\Particle\ParticleManager.h" />
     <ClInclude Include="Engine\Math\Quaternion.h" />
     <ClInclude Include="Engine\Math\QuaternionTransform.h" />
     <ClInclude Include="Engine\Scene\SceneFactory.h" />
@@ -141,7 +137,6 @@
     <ClInclude Include="Engine\Model\Animation\Skeleton.h" />
     <ClInclude Include="Engine\Model\Animation\SkinCluster.h" />
     <ClInclude Include="Engine\Texture\PostEffectManager.h" />
-    <ClInclude Include="Engine\BehaviourTree\IBehaviorAgent.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">

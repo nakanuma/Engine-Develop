@@ -50,14 +50,15 @@ public:
 	// 親オブジェクトを設定
 	void SetParent(Object3D* parent) { parent_ = parent; }
 
-	// 描画（モデル内のテクスチャを参照 / テクスチャを指定して描画）
+	// 描画
 	void Draw();
-
-	void Draw(const int TextureHandle);
 
 	void Draw(SkinCluster skinCluster);
 
 	void DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer, uint32_t numInstance, const uint32_t TextureHandle);
+
+	// 部分的に描画
+	void DrawPartial(uint32_t indexCount);
 
 	// マテリアルの定数バッファ
 	ConstBuffer<Material>materialCB_;

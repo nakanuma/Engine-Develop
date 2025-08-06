@@ -45,6 +45,9 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex)
 	materialData_->color = Float4(1.0f, 1.0f, 1.0f, 1.0f);
 	materialData_->enableLighting = false;
 	materialData_->uvTransform = Matrix::Identity();
+	materialData_->shininess = 0.0f;
+	materialData_->ratio = 1.0f;
+	materialData_->useCircleMask = false;
 
 	// TransformationResourceにデータを書き込むためのアドレスを取得してtransformationMatrixDataに割り当てる
 	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));

@@ -74,22 +74,6 @@ void Object3D::Draw()
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::Draw(const int TextureHandle)
-{
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-
-	// commandListにVBVを設定
-	dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &model_->vertexBufferView);
-	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialCB_.resource_->GetGPUVirtualAddress());
-	// wvp用のCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpCB_.resource_->GetGPUVirtualAddress());
-	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), TextureHandle); // 指定したテクスチャを使用する
-	// 描画を行う（DrawCall/ドローコール）
-	dxBase->GetCommandList()->DrawInstanced(UINT(model_->vertices.size()), 1, 0, 0);
-}
-
 void Object3D::Draw(SkinCluster skinCluster)
 {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
@@ -135,4 +119,24 @@ void Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer
 	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), TextureHandle); // 引数で指定したテクスチャを使用する
 	// 描画を行う（DrawCall/ドローコール）
 	dxBase->GetCommandList()->DrawInstanced(UINT(model_->vertices.size()), numInstance, 0, 0);
+}
+
+void Object3D::DrawPartial(uint32_t indexCount)
+{
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+
+	// commandListにVBVを設定
+	dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &model_->vertexBufferView);
+	// commandListにIBVを設定
+	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
+	// プリミティブトポロジーの設定
+	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// マテリアルCBufferの場所を設定
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialCB_.resource_->GetGPUVirtualAddress());
+	// wvp用のCBufferの場所を設定
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpCB_.resource_->GetGPUVirtualAddress());
+	// SRVのDescriptorTableの先頭を設定（Textureの設定）
+	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
+	// 描画を行う（DrawCall/ドローコール）
+	dxBase->GetCommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }

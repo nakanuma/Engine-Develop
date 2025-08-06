@@ -25,8 +25,6 @@
 #include "Sprite.h"
 #include "SRVManager.h"
 #include "StructuredBuffer.h"
-#include "ParticleManager.h"
-#include "ParticleEmitter.h"
 #include "SoundManager.h"
 #include "SceneManager.h"
 #include "AbstractSceneFactory.h"
@@ -64,7 +62,6 @@ protected:
 	SRVManager* srvManager = nullptr;
 	// 汎用機能
 	SpriteCommon* spriteCommon = nullptr;
-	ParticleManager* particleManager = nullptr;
 	SoundManager* soundManager = nullptr;
 	// シーンファクトリー
 	AbstractSceneFactory* sceneFactory_ = nullptr;
