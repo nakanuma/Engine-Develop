@@ -31,10 +31,10 @@ public:
 	/// <summary>
 	/// 生成処理
 	/// </summary>
-	void Emit(const Float3& pos) override {
+	void Emit(const Float3& pos, const Float3& velocity) override {
 		if (particles_.size() >= kMaxParticles)
 			return;
-		particles_.emplace_back(CreateParticle(pos));
+		particles_.emplace_back(CreateParticle(pos, velocity));
 	}
 
 	/// <summary>
@@ -102,7 +102,7 @@ protected:
 	/// <summary>
 	/// パーティクル固有の生成処理
 	/// </summary>
-	virtual ParticleType CreateParticle(const Float3& pos) = 0;
+	virtual ParticleType CreateParticle(const Float3& pos, const Float3& velicity) = 0;
 
 	/// <summary>
 	/// パーティクル固有の更新処理
@@ -127,7 +127,7 @@ protected:
 			const auto& p = particles_[i];
 
 			Matrix sclMat = Matrix::Scaling({-p.transform.scale.x, p.transform.scale.y, p.transform.scale.z});
-			Matrix rotMat = Matrix::RotationRollPitchYaw(p.transform.rotate.x, p.transform.rotate.y, p.transform.rotate.z);
+			Matrix rotMat = Matrix::Rotation(p.transform.rotate);
 			Matrix tlsMat = Matrix::Translation(p.transform.translate);
 
 			// 各軸に対してビルボード行列を使用するかチェック
@@ -155,7 +155,7 @@ protected:
 
 			object_.gTransformationMatrices.data_[i].WVP = world * view * projection;
 			object_.gTransformationMatrices.data_[i].World = world;
-			object_.gTransformationMatrices.data_[i].WorldInverseTranspose = Matrix::Inverse(world);
+			object_.gTransformationMatrices.data_[i].WorldInverseTranspose = Matrix::Transpose(Matrix::Inverse(world));
 			object_.gTransformationMatrices.data_[i].color = p.color;
 		}
 

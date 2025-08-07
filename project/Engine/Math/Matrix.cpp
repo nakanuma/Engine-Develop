@@ -375,6 +375,41 @@ Matrix Matrix::Roll(float rad)
 	return result;
 }
 
+Matrix Matrix::LookRotation(const Float3& forward_, const Float3& up_)
+{
+	Float3 forward = Float3::Normalize(forward_);
+	Float3 right = Float3::Normalize(Float3::Cross(up_, forward_));
+	Float3 up = Float3::Cross(forward_, right);
+
+	Matrix result = Matrix();
+
+	// X軸（右方向）
+	result.r[0][0] = right.x;
+	result.r[1][0] = right.y;
+	result.r[2][0] = right.z;
+	result.r[3][0] = 0.0f;
+
+	// Y軸（上方向）
+	result.r[0][1] = up.x;
+	result.r[1][1] = up.y;
+	result.r[2][1] = up.z;
+	result.r[3][1] = 0.0f;
+
+	// Z軸（前方向）
+	result.r[0][2] = forward.x;
+	result.r[1][2] = forward.y;
+	result.r[2][2] = forward.z;
+	result.r[3][2] = 0.0f;
+
+	// 平行移動
+	result.r[0][3] = 0.0f;
+	result.r[1][3] = 0.0f;
+	result.r[2][3] = 0.0f;
+	result.r[3][3] = 1.0f;
+
+	return result;
+}
+
 Matrix Matrix::RotationRollPitchYaw(float roll, float pitch, float yaw)
 {
 	Matrix result = Matrix::Identity() * Roll(roll) * Pitch(pitch) * Yaw(yaw);

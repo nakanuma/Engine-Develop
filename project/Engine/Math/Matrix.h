@@ -66,6 +66,8 @@ public:
 	static Matrix Yaw(float rad);
 	static Matrix Roll(float rad);
 
+	static Matrix LookRotation(const Float3& forward, const Float3& up);
+
 	static Matrix RotationRollPitchYaw(float roll, float pitch, float yaw);
 
 	static Matrix QuaternionToRotation(Quaternion q);

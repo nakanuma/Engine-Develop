@@ -19,9 +19,10 @@ void ParticleEffectManager::Register(const std::string& name, std::shared_ptr<IP
 // ---------------------------------------------------------
 // 発生処理
 // ---------------------------------------------------------
-void ParticleEffectManager::Emit(const std::string& name, const Float3& pos, uint32_t count) {
+void ParticleEffectManager::Emit(const std::string& name, const Float3& pos, uint32_t count, const Float3& velocity)
+{
 	if (effects_.count(name)) {
-		effects_[name]->Emit(pos, count);
+		effects_[name]->Emit(pos, count, velocity);
 	}
 }
 

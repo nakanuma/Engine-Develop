@@ -10,12 +10,14 @@ class IParticleEffect {
 public:
 	virtual ~IParticleEffect() = default;
 	
-	virtual void Emit(const Float3& pos) = 0;
-	virtual void Emit(const Float3& pos, uint32_t count) { 
+	// デフォルト
+	virtual void Emit(const Float3& pos, const Float3& velocity) = 0;
+	virtual void Emit(const Float3& pos, uint32_t count, const Float3& velocity) {
 		for (uint32_t i = 0; i < count; ++i) {
-			Emit(pos);
+			Emit(pos, velocity);
 		}
 	}
+
 	virtual void Update(float deltaTime) = 0;
 	virtual void Draw() = 0;
 };
