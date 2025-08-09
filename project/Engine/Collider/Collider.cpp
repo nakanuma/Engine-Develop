@@ -43,6 +43,10 @@ bool AABBCollider::CheckCollision(Collider* other)
         return CollisionMath::CheckAABBToAABB(this, aabb);
     }
     // vs OBB
+    else if (other->GetType() == "OBB") {
+        auto* obb = dynamic_cast<OBBCollider*>(other);
+        return CollisionMath::CheckAABBToOBB(this, obb);
+    }
 
     return false;
 }
@@ -105,7 +109,10 @@ bool OBBCollider::CheckCollision(Collider* other) {
 		return CollisionMath::CheckOBBToSphere(this, sphere);
 	}
 	// vs AABB
-
+    if (other->GetType() == "AABB") {
+        auto* aabb = dynamic_cast<AABBCollider*>(other);
+        return CollisionMath::CheckAABBToOBB(aabb, this);
+    }
     // vs OBB
 	if (other->GetType() == "OBB") {
 		auto* obb = dynamic_cast<OBBCollider*>(other);

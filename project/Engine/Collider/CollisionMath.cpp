@@ -55,7 +55,22 @@ bool CollisionMath::CheckAABBToAABB(const AABBCollider* a, const AABBCollider* b
 // ---------------------------------------------------------
 bool CollisionMath::CheckAABBToOBB(const AABBCollider* aabb, const OBBCollider* obb)
 {
-    return false;
+    // AABBの中心と半サイズ
+    Float3 aabbCenter = (aabb->min_ + aabb->max_) * 0.5f;
+    Float3 aabbHalfSize = (aabb->max_ - aabb->min_) * 0.5f;
+
+    // AABBをOBBの形に変換
+    OBBCollider aabbAsOBB;
+    aabbAsOBB.center_ = aabbCenter;
+    aabbAsOBB.size_ = aabbHalfSize;
+
+    // ワールド軸に平行な軸をセット
+    aabbAsOBB.xAxis_ = { 1.0f, 0.0f, 0.0f };
+    aabbAsOBB.yAxis_ = { 0.0f, 1.0f, 0.0f };
+    aabbAsOBB.zAxis_ = { 0.0f, 0.0f, 1.0f };
+
+    // OBBvsOBBを行う
+    return CheckOBBToOBB(&aabbAsOBB, obb);
 }
 
 // ---------------------------------------------------------
