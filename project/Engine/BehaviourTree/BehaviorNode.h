@@ -5,6 +5,9 @@
 #include <memory>
 #include <functional>
 
+// Engine
+#include <Engine/Util/RandomGenerator.h>
+
 enum class BehaviorStatus {
 	Success, // 成功
 	Failure, // 失敗
@@ -88,6 +91,43 @@ public:
 		}
 		// 全ての子ノードがSuccessを返した場合、Successを返す
 		return BehaviorStatus::Success;
+	}
+};
+
+/// <summary>
+/// パラレル(平行)ノード : 全ての子ノードを同時に実行する
+/// </summary>
+template<typename AgentType> class ParallelNode : public CompositeNodeBase<AgentType> {
+public:
+	/// <summary>
+	/// ノードの状態を返す
+	/// </summary>
+	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
+		bool allSuccess = true;
+		bool anyRunning = false;
+
+		for (auto& child : this->children_) {
+			BehaviorStatus status = child->Tick(agent, deltaTime);
+
+			if (status == BehaviorStatus::Failure) {
+				// 1つでも失敗したら即Failureを返す
+				return BehaviorStatus::Failure;
+			} else if (status == BehaviorStatus::Running) {
+				anyRunning = true;
+				allSuccess = false;
+			} else if (status == BehaviorStatus::Success) {
+				// Successの場合は継続チェック
+			}
+		}
+
+		if (allSuccess) {
+			return BehaviorStatus::Success;
+		}
+		if (anyRunning) {
+			return BehaviorStatus::Running;
+		}
+
+		return BehaviorStatus::Failure;
 	}
 };
 
@@ -246,4 +286,44 @@ public:
 
 private: 
 	ActionFunc actionFunc_;
+};
+
+/// <summary>
+/// 待機ノード : 指定秒待つ
+/// </summary>
+/// <typeparam name="AgentType"></typeparam>
+template<typename AgentType>
+class WaitNode : public BehaviorNode<AgentType> {
+public:
+	/// <summary>
+	/// コンストラクタで待機時間を受け取る
+	/// </summary>
+	WaitNode(float minWaitTime, float maxWaitTime) : minWaitTime_(minWaitTime), maxWaitTime_(maxWaitTime), elapsedTime_(0.0f), isWaiting_(false) {}
+
+	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
+		// 評価時に引数で受け取った値か
+		if (!isWaiting_) {
+			waitTime_ = RandomGenerator::GetInstance()->RandomValue(minWaitTime_, maxWaitTime_);
+			elapsedTime_ = 0.0f;
+			isWaiting_ = true;
+		}
+
+		elapsedTime_ += deltaTime;
+
+		if (elapsedTime_ >= waitTime_) {
+			// 次の評価時に備えてリセット
+			isWaiting_ = false;
+			return BehaviorStatus::Success;
+		}
+		return BehaviorStatus::Running;
+	}
+
+private:
+	float minWaitTime_;
+	float maxWaitTime_;
+
+	float waitTime_; // 待機時間
+	float elapsedTime_; // 経過時間
+
+	bool isWaiting_;
 };
