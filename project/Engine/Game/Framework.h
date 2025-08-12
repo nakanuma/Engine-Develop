@@ -28,6 +28,7 @@
 #include "SoundManager.h"
 #include "SceneManager.h"
 #include "AbstractSceneFactory.h"
+#include "Engine/Util/TimeManager.h"
 
 class Framework
 {

@@ -68,6 +68,8 @@ void Framework::Update()
 
 	// SceneManagerの更新
 	SceneManager::GetInstance()->Update();
+	// TimeManagerの更新
+	TimeManager::GetInstance()->Update();
 }
 
 void Framework::Run()
