@@ -40,6 +40,7 @@
     <ClCompile Include="Engine\3D\LightManager.cpp" />
     <ClCompile Include="Engine\Util\FPSController.cpp" />
     <ClCompile Include="Engine\3D\InstancedObject.cpp" />
+    <ClCompile Include="externals\imnodes\imnodes.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Engine\Math\Matrix.cpp" />
     <ClCompile Include="Engine\Math\Matrix3x3.cpp" />
@@ -137,6 +138,8 @@
     <ClInclude Include="Engine\Model\Animation\Skeleton.h" />
     <ClInclude Include="Engine\Model\Animation\SkinCluster.h" />
     <ClInclude Include="Engine\Texture\PostEffectManager.h" />
+    <ClInclude Include="externals\imnodes\imnodes.h" />
+    <ClInclude Include="externals\imnodes\imnodes_internal.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shaders\Particle.PS.hlsl">
@@ -218,6 +221,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="externals\imnodes\LICENSE.md" />
     <None Include="resources\Shaders\Particle.hlsli" />
     <None Include="resources\Shaders\Object3d.hlsli" />
     <None Include="resources\Shaders\Toon.hlsli" />

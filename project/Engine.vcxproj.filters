@@ -172,6 +172,7 @@
     <ClCompile Include="Engine\Model\Animation\SkinCluster.cpp" />
     <ClCompile Include="Engine\Model\Animation\AnimatedModelInstance.cpp" />
     <ClCompile Include="Engine\Texture\PostEffectManager.cpp" />
+    <ClCompile Include="externals\imnodes\imnodes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
@@ -328,6 +329,8 @@
     <ClInclude Include="Engine\Texture\PostEffectManager.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorNode.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorTree.h" />
+    <ClInclude Include="externals\imnodes\imnodes.h" />
+    <ClInclude Include="externals\imnodes\imnodes_internal.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">
@@ -345,6 +348,7 @@
     <None Include="resources\Shaders\Object3d.hlsli">
       <Filter>Shader</Filter>
     </None>
+    <None Include="externals\imnodes\LICENSE.md" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">

@@ -37,6 +37,11 @@ public:
 	void Update();
 
 	/// <summary>
+	/// リストのクリア
+	/// </summary>
+	void Clear() { colliders_.clear(); }
+
+	/// <summary>
 	/// デバッグ表示
 	/// </summary>
 	void Debug();

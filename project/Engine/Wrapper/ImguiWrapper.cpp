@@ -11,6 +11,9 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
+	// imnodes
+	ImNodes::CreateContext();
+
 	// フォントの変更
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -40,6 +43,9 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 
 void ImguiWrapper::Finalize()
 {
+	// imnodes
+	ImNodes::DestroyContext();
+
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
