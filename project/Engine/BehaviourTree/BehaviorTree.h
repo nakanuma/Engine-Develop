@@ -20,6 +20,13 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// ルートノードへの参照を取得
+	/// </summary>
+	BehaviorNode<AgentType>* GetRoot() {
+		return root_.get();
+	}
+
 private:
 	// ルートノードのリスト
 	std::unique_ptr<BehaviorNode<AgentType>> root_;

@@ -26,6 +26,14 @@ public:
 	/// ノードの状態を返す
 	/// </summary>
 	virtual BehaviorStatus Tick(AgentType* agent, float deltaTime) = 0;
+
+	/// <summary>
+	/// ノード名を取得
+	/// </summary>
+	const std::string& GetName() const { return name_; }
+
+protected:
+	std::string name_ = "";
 };
 
 /*---------------------------------------------------------------------------------*/
@@ -38,10 +46,17 @@ public:
 template<typename AgentType> 
 class CompositeNodeBase : public BehaviorNode<AgentType> {
 public:
+	CompositeNodeBase(const std::string& name = "") { this->name_ = name; }
+
 	/// <summary>
 	/// 子ノードをリストへ追加
 	/// </summary>
 	void AddChild(std::unique_ptr<BehaviorNode<AgentType>> node) { children_.push_back(std::move(node)); }
+
+	/// <summary>
+	/// 子ノードを取得
+	/// </summary>
+	const std::vector<std::unique_ptr<BehaviorNode<AgentType>>>& GetChildren() const { return children_; }
 
 protected:
 	/// <summary>
@@ -55,6 +70,8 @@ protected:
 /// </summary>
 template<typename AgentType> class SelectorNode : public CompositeNodeBase<AgentType> {
 public:
+	SelectorNode(const std::string& name = "") : CompositeNodeBase<AgentType>(name) {}
+
 	/// <summary>
 	/// ノードの状態を返す
 	/// </summary>
@@ -77,6 +94,8 @@ public:
 /// </summary>
 template<typename AgentType> class SequenceNode : public CompositeNodeBase<AgentType> {
 public:
+	SequenceNode(const std::string& name = "") : CompositeNodeBase<AgentType>(name) {}
+
 	/// <summary>
 	/// ノードの状態を返す
 	/// </summary>
@@ -99,6 +118,8 @@ public:
 /// </summary>
 template<typename AgentType> class ParallelNode : public CompositeNodeBase<AgentType> {
 public:
+	ParallelNode(const std::string& name = "") : CompositeNodeBase<AgentType>(name) {}
+
 	/// <summary>
 	/// ノードの状態を返す
 	/// </summary>
@@ -135,99 +156,99 @@ public:
 /*----------------------------------DecoratorNode----------------------------------*/
 /*---------------------------------------------------------------------------------*/
 
-/// <summary>
-/// デコレーターノード : 1つのみ子ノードを持ち、そのノードの実行結果の変化や制限を行う（※動作未確認）
-/// </summary>
-template<typename AgentType> 
-class DecoratorNodeBase : public BehaviorNode<AgentType> {
-public:
-	/// <summary>
-	/// 子ノードをセット
-	/// </summary>
-	void SetChild(std::unique_ptr<BehaviorNode<AgentType>> child) { child_ = std::move(child); }
-
-	/// <summary>
-	/// 子ノードの状態を返す
-	/// </summary>
-	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
-		if (child_) {
-			return child_->Tick(agent, deltaTime);
-		}
-		// 子ノードが設定されていなければ失敗
-		return BehaviorStatus::Failure;
-	}
-
-protected:
-	/// <summary>
-	/// 子ノード（1つのみ）
-	/// </summary>
-	std::unique_ptr<BehaviorNode<AgentType>> child_;
-};
-
-/// <summary>
-/// インバーター(反転)ノード（※動作未確認）
-/// </summary>
-template<typename AgentType> 
-class InverterNode : public DecoratorNodeBase<AgentType> {
-public:
-	/// <summary>
-	/// ノードの状態を返す
-	/// </summary>
-	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
-		// 子ノードの状態を取得し、SuccessならFailure, FailureならSuccessを返す
-		BehaviorStatus status = DecoratorNodeBase<AgentType>::Tick(agent, deltaTime); // これできるか怪しい
-		return (status == BehaviorStatus::Success) ? BehaviorStatus::Failure : BehaviorStatus::Success;
-	}
-};
-
-/// <summary>
-/// リピーター(繰り返し)ノード（※動作未確認）
-/// </summary>
-template<typename AgentType> 
-class RepeaterNode : public DecoratorNodeBase<AgentType> {
-public:
-	/// <summary>
-	/// ノードの状態を返す
-	/// </summary>
-	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
-		// 子ノードを繰り返し実行し、常に実行中を返す
-		DecoratorNodeBase<AgentType>::Tick(agent, deltaTime); // これできるか怪しい
-		return BehaviorStatus::Running;
-	}
-
-private:
-	/// <summary>
-	/// 繰り返し回数のカウンター（現在は未使用）
-	/// </summary>
-	uint32_t repeatCount = 0;
-};
-
-/// <summary>
-/// アンティルサクセス(成功するまで)ノード（※動作未確認）
-/// </summary>
-template<typename AgentType> 
-class UntilSuccessNode : public DecoratorNodeBase<AgentType> {
-public:
-	/// <summary>
-	/// ノードの状態を返す
-	/// </summary>
-	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
-		while (true) {
-			// 子ノードを実行し、成功するまで繰り返す
-			BehaviorStatus status = DecoratorNodeBase<AgentType>::Tick(agent, deltaTime); // これできるか怪しい
-			// Successなら終了
-			if (status == BehaviorStatus::Success) {
-				return BehaviorStatus::Success;
-			}
-			// Failureなら再度実行
-			if (status == BehaviorStatus::Failure) {
-				continue;
-			}
-			// Runningならそのまま返す
-			return BehaviorStatus::Running;
-		}
-	}
-};
+///// <summary>
+///// デコレーターノード : 1つのみ子ノードを持ち、そのノードの実行結果の変化や制限を行う（※動作未確認）
+///// </summary>
+//template<typename AgentType> 
+//class DecoratorNodeBase : public BehaviorNode<AgentType> {
+//public:
+//	/// <summary>
+//	/// 子ノードをセット
+//	/// </summary>
+//	void SetChild(std::unique_ptr<BehaviorNode<AgentType>> child) { child_ = std::move(child); }
+//
+//	/// <summary>
+//	/// 子ノードの状態を返す
+//	/// </summary>
+//	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
+//		if (child_) {
+//			return child_->Tick(agent, deltaTime);
+//		}
+//		// 子ノードが設定されていなければ失敗
+//		return BehaviorStatus::Failure;
+//	}
+//
+//protected:
+//	/// <summary>
+//	/// 子ノード（1つのみ）
+//	/// </summary>
+//	std::unique_ptr<BehaviorNode<AgentType>> child_;
+//};
+//
+///// <summary>
+///// インバーター(反転)ノード（※動作未確認）
+///// </summary>
+//template<typename AgentType> 
+//class InverterNode : public DecoratorNodeBase<AgentType> {
+//public:
+//	/// <summary>
+//	/// ノードの状態を返す
+//	/// </summary>
+//	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
+//		// 子ノードの状態を取得し、SuccessならFailure, FailureならSuccessを返す
+//		BehaviorStatus status = DecoratorNodeBase<AgentType>::Tick(agent, deltaTime); // これできるか怪しい
+//		return (status == BehaviorStatus::Success) ? BehaviorStatus::Failure : BehaviorStatus::Success;
+//	}
+//};
+//
+///// <summary>
+///// リピーター(繰り返し)ノード（※動作未確認）
+///// </summary>
+//template<typename AgentType> 
+//class RepeaterNode : public DecoratorNodeBase<AgentType> {
+//public:
+//	/// <summary>
+//	/// ノードの状態を返す
+//	/// </summary>
+//	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
+//		// 子ノードを繰り返し実行し、常に実行中を返す
+//		DecoratorNodeBase<AgentType>::Tick(agent, deltaTime); // これできるか怪しい
+//		return BehaviorStatus::Running;
+//	}
+//
+//private:
+//	/// <summary>
+//	/// 繰り返し回数のカウンター（現在は未使用）
+//	/// </summary>
+//	uint32_t repeatCount = 0;
+//};
+//
+///// <summary>
+///// アンティルサクセス(成功するまで)ノード（※動作未確認）
+///// </summary>
+//template<typename AgentType> 
+//class UntilSuccessNode : public DecoratorNodeBase<AgentType> {
+//public:
+//	/// <summary>
+//	/// ノードの状態を返す
+//	/// </summary>
+//	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
+//		while (true) {
+//			// 子ノードを実行し、成功するまで繰り返す
+//			BehaviorStatus status = DecoratorNodeBase<AgentType>::Tick(agent, deltaTime); // これできるか怪しい
+//			// Successなら終了
+//			if (status == BehaviorStatus::Success) {
+//				return BehaviorStatus::Success;
+//			}
+//			// Failureなら再度実行
+//			if (status == BehaviorStatus::Failure) {
+//				continue;
+//			}
+//			// Runningならそのまま返す
+//			return BehaviorStatus::Running;
+//		}
+//	}
+//};
 
 /*---------------------------------------------------------------------------------*/
 /*------------------------------------LeafNode------------------------------------*/
@@ -247,7 +268,10 @@ public:
 	/// <summary>
 	/// 条件判定関数をコンストラクタで受け取って保持
 	/// </summary>
-	ConditionNode(ConditionFunc func) : conditionFunc_(func) {}
+	ConditionNode(ConditionFunc func, const std::string& name = "") : conditionFunc_(func) 
+	{
+		this->name_ = name;
+	}
 
 	/// <summary>
 	/// ノードの状態を返す
@@ -275,7 +299,10 @@ public:
 	/// <summary>
 	/// 行動関数をコンストラクタで受け取って保持
 	/// </summary>
-	ActionNode(ActionFunc func) : actionFunc_(func) {}
+	ActionNode(ActionFunc func, const std::string& name = "") : actionFunc_(func)
+	{
+		this->name_ = name;
+	}
 
 	/// <summary>
 	/// ノードの状態を返す
@@ -298,7 +325,10 @@ public:
 	/// <summary>
 	/// コンストラクタで待機時間を受け取る
 	/// </summary>
-	WaitNode(float minWaitTime, float maxWaitTime) : minWaitTime_(minWaitTime), maxWaitTime_(maxWaitTime), elapsedTime_(0.0f), isWaiting_(false) {}
+	WaitNode(float minWaitTime, float maxWaitTime, const std::string& name = "") : minWaitTime_(minWaitTime), maxWaitTime_(maxWaitTime), elapsedTime_(0.0f), isWaiting_(false)
+	{
+		this->name_ = name;
+	}
 
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
 		// 評価時に引数で受け取った値か

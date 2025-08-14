@@ -72,6 +72,7 @@
     <ClCompile Include="Engine\Texture\PostEffectManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\BehaviourTree\BehaviorTreeEditor.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorTree.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorNode.h" />
     <ClInclude Include="Engine\Model\Animation\AnimatedModelInstance.h" />
