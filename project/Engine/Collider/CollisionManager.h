@@ -2,6 +2,7 @@
 
 // C++
 #include <vector>
+#include <unordered_set>
 
 // Engine
 #include <Collider/Collider.h>
@@ -49,7 +50,13 @@ public:
 	/// <summary>
 	/// レイキャスト
 	/// </summary>
-	bool RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit);
+	bool RayCast(
+		const Float3& origin, 
+		const Float3& direction, 
+		float maxDistance, 
+		RayCastHit* outHit,
+		const std::unordered_set<std::string>& ignoreTags = {}
+	);
 
 private:
 	// コライダーのコンテナ

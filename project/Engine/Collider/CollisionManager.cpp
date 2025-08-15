@@ -4,6 +4,7 @@
 // C++
 #include <iostream>
 #include <limits>
+#include <algorithm>
 
 // Externals
 #include <ImguiWrapper.h>
@@ -130,7 +131,7 @@ void CollisionManager::Debug()
 // ---------------------------------------------------------
 // レイキャスト
 // ---------------------------------------------------------
-bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit) 
+bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit, const std::unordered_set<std::string>& ignoreTags)
 {
 	bool hitAny = false;
 	float closestDistance = maxDistance;
@@ -143,6 +144,11 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 		// vs AABBCollider
 		if (collider->GetType() == "AABB") 
 		{
+			// 無視タグに含まれるコライダーはスキップ
+			if (!ignoreTags.empty() && ignoreTags.count(collider->GetTag()) > 0) {
+				continue;
+			}
+
 			AABBCollider* aabb = static_cast<AABBCollider*>(collider);
 
 			// レイ方向の逆数を計算
