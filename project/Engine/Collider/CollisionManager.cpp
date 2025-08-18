@@ -9,6 +9,9 @@
 // Externals
 #include <ImguiWrapper.h>
 
+// Engine
+#include <Engine/Collider/CollisionMath.h>
+
 // ---------------------------------------------------------
 // インスタンスの取得
 // ---------------------------------------------------------
@@ -191,4 +194,39 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 	}
 
 	return hitAny;
+}
+
+// ---------------------------------------------------------
+// Sphereと特定タグを持ったコライダーとの衝突判定
+// ---------------------------------------------------------
+bool CollisionManager::CheckSphereCollisionWithTag(const Float3& center, float radius, const std::unordered_set<std::string>& targetTags)
+{
+	// 疑似SphereColliderを作成
+	SphereCollider tempSphere;
+	tempSphere.center_ = center;
+	tempSphere.radius_ = radius;
+
+	for (auto* collider : colliders_) {
+		// 引数で受け取ったタグを持ったコライダー以外は弾く
+		if (!targetTags.empty() && targetTags.count(collider->GetTag()) == 0) {
+			continue;
+		}
+
+		// Sphere vs Sphere（必要になったら）
+		if (collider->GetType() == "Sphere") {
+			return false;
+		}
+		// Sphere vs AABB
+		else if (collider->GetType() == "AABB") {
+			if (CollisionMath::CheckSphereToAABB(&tempSphere, static_cast<AABBCollider*>(collider))) {
+				return true;
+			}
+		}
+		// Sphere vs OBB（必要になったら）
+		else if (collider->GetType() == "OBB") {
+			return false;
+		}
+	}
+
+	return false;
 }

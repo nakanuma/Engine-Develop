@@ -36,6 +36,10 @@ void ShaderManager::Initialize() {
 	LoadShader("Object3D_VS", L"resources/Shaders/Object3D.VS.hlsl", L"vs_6_0");
 	LoadShader("Object3D_PS", L"resources/Shaders/Object3D.PS.hlsl", L"ps_6_0");
 
+	// Sprite
+	LoadShader("Sprite_VS", L"resources/Shaders/Sprite.VS.hlsl", L"vs_6_0");
+	LoadShader("Sprite_PS", L"resources/Shaders/Sprite.PS.hlsl", L"ps_6_0");
+
 	// Particle
 	LoadShader("Particle_VS", L"resources/Shaders/Particle.VS.hlsl", L"vs_6_0");
 	LoadShader("Particle_PS", L"resources/Shaders/Particle.PS.hlsl", L"ps_6_0");

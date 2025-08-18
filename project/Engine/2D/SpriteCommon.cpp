@@ -14,8 +14,6 @@ void SpriteCommon::Initialize(DirectXBase* dxBase)
 	SetInputLayout();
 	// DXC初期化
 	InitializeDXC();
-	// Shaderのコンパイル
-	ShaderCompile();
 	// RasterizerStateの設定
 	SetRasterizerState();
 	// 深度バッファ生成
@@ -113,11 +111,15 @@ void SpriteCommon::CreateGraphicsPipeline()
 {
 	HRESULT result = S_FALSE;
 
+	ShaderManager* shaderManager = ShaderManager::GetInstance();
+	auto vs = shaderManager->GetShader("Sprite_VS");
+	auto ps = shaderManager->GetShader("Sprite_PS");
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	graphicsPipelineStateDesc.pRootSignature = rootSignature_.Get(); // RootSignature
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc_; // InputLayout
-	graphicsPipelineStateDesc.VS = { vertexShaderBlob_->GetBufferPointer(), vertexShaderBlob_->GetBufferSize() }; // VertexShader
-	graphicsPipelineStateDesc.PS = { pixelShaderBlob_->GetBufferPointer(), pixelShaderBlob_->GetBufferSize() }; // PixelShader
+	graphicsPipelineStateDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() }; // VertexShader
+	graphicsPipelineStateDesc.PS = { ps->GetBufferPointer(), ps->GetBufferSize() }; // PixelShader
 	graphicsPipelineStateDesc.BlendState = blendDesc_; // BlendState
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc_; // RasterizerState
 	// 書き込むRTVの情報
@@ -196,16 +198,6 @@ void SpriteCommon::InitializeDXC()
 	includeHandler_ = nullptr;
 	result = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);
 	assert(SUCCEEDED(result));
-}
-
-void SpriteCommon::ShaderCompile()
-{
-	// Shaderをコンパイルする
-	vertexShaderBlob_ = CompileShader(L"resources/Shaders/Sprite.VS.hlsl", L"vs_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-	assert(vertexShaderBlob_ != nullptr);
-
-	pixelShaderBlob_ = CompileShader(L"resources/Shaders/Sprite.PS.hlsl", L"ps_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-	assert(pixelShaderBlob_ != nullptr);
 }
 
 D3D12_RASTERIZER_DESC SpriteCommon::SetRasterizerState()

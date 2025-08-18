@@ -28,8 +28,6 @@ private:
 	void SetInputLayout();
 	// DXC初期化
 	void InitializeDXC();
-	// Shaderのコンパイル
-	void ShaderCompile();
 	// RasterizerStateの設定
 	D3D12_RASTERIZER_DESC SetRasterizerState();
 	// 深度バッファ生成

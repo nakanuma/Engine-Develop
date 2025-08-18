@@ -58,6 +58,11 @@ public:
 		const std::unordered_set<std::string>& ignoreTags = {}
 	);
 
+	/// <summary>
+	/// Sphereと特定タグを持ったコライダーとの衝突判定
+	/// </summary>
+	bool CheckSphereCollisionWithTag(const Float3& center, float radius, const std::unordered_set<std::string>& targetTags);
+
 private:
 	// コライダーのコンテナ
 	std::vector<Collider*> colliders_;
