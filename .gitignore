@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 */x64/
+project/externals/DirectXTex/Bin/
 
 # User-specific files
 *.rsuser
