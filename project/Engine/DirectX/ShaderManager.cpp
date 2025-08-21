@@ -40,6 +40,10 @@ void ShaderManager::Initialize() {
 	LoadShader("Sprite_VS", L"resources/Shaders/Sprite.VS.hlsl", L"vs_6_0");
 	LoadShader("Sprite_PS", L"resources/Shaders/Sprite.PS.hlsl", L"ps_6_0");
 
+	// LineDrawer
+	LoadShader("LineDrawer_VS", L"resources/Shaders/LineDrawer.VS.hlsl", L"vs_6_0");
+	LoadShader("LineDrawer_PS", L"resources/Shaders/LineDrawer.PS.hlsl", L"ps_6_0");
+
 	// Particle
 	LoadShader("Particle_VS", L"resources/Shaders/Particle.VS.hlsl", L"vs_6_0");
 	LoadShader("Particle_PS", L"resources/Shaders/Particle.PS.hlsl", L"ps_6_0");

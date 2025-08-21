@@ -35,6 +35,9 @@ void Framework::Initialize()
 	// SoundManagerの生成と初期化
 	soundManager = new SoundManager;
 	soundManager->Initialize();
+
+	// LineDrawer初期化
+	LineDrawer::GetInstance()->Initialize();
 }
 
 void Framework::Finalize()

@@ -173,6 +173,7 @@
     <ClCompile Include="Engine\Model\Animation\AnimatedModelInstance.cpp" />
     <ClCompile Include="Engine\Texture\PostEffectManager.cpp" />
     <ClCompile Include="externals\imnodes\imnodes.cpp" />
+    <ClCompile Include="Engine\3D\LineDrawer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
@@ -332,6 +333,7 @@
     <ClInclude Include="externals\imnodes\imnodes.h" />
     <ClInclude Include="externals\imnodes\imnodes_internal.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorTreeEditor.h" />
+    <ClInclude Include="Engine\3D\LineDrawer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\Shaders\Toon.hlsli">

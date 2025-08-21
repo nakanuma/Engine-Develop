@@ -26,6 +26,7 @@ void MyGame::Initialize()
 	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 }
 
+
 void MyGame::Finalize()
 {
 	///

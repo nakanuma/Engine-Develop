@@ -28,7 +28,8 @@
 #include "SoundManager.h"
 #include "SceneManager.h"
 #include "AbstractSceneFactory.h"
-#include "Engine/Util/TimeManager.h"
+#include "TimeManager.h"
+#include "LineDrawer.h"
 
 class Framework
 {
