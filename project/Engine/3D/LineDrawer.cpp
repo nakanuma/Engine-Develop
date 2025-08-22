@@ -52,9 +52,9 @@ void LineDrawer::Initialize()
 }
 
 // ---------------------------------------------------------
-// 線の描画
+// 線の登録
 // ---------------------------------------------------------
-void LineDrawer::DrawLine(const Float3& start, const Float3& end, const Float4& color)
+void LineDrawer::RegisterLine(const Float3& start, const Float3& end, const Float4& color)
 {
 	vertices_.push_back({ start, color });
 	vertices_.push_back({ end, color });

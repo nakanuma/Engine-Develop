@@ -38,6 +38,11 @@ public:
 	void Update();
 
 	/// <summary>
+	/// コライダーの描画を行う（デバッグ用）
+	/// </summary>
+	void Draw();
+
+	/// <summary>
 	/// リストのクリア
 	/// </summary>
 	void Clear() { colliders_.clear(); }

@@ -32,7 +32,7 @@ public:
 	/// <summary>
 	/// 線を追加
 	/// </summary>
-	void DrawLine(const Float3& start, const Float3& end, const Float4& color);
+	void RegisterLine(const Float3& start, const Float3& end, const Float4& color);
 
 	/// <summary>
 	/// 蓄積した線を描画

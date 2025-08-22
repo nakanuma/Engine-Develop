@@ -11,6 +11,7 @@
 
 // Engine
 #include <Engine/Collider/CollisionMath.h>
+#include <Engine/3D/LineDrawer.h>
 
 // ---------------------------------------------------------
 // インスタンスの取得
@@ -54,6 +55,120 @@ void CollisionManager::Update()
 			if (colliders_[i]->CheckCollision(colliders_[j])) {
 				colliders_[i]->GetOwner()->OnCollision(colliders_[j]);
 				colliders_[j]->GetOwner()->OnCollision(colliders_[i]);
+			}
+		}
+	}
+}
+
+// ---------------------------------------------------------
+// コライダーの描画を行う（デバッグ用）
+// ---------------------------------------------------------
+void CollisionManager::Draw()
+{
+	auto drawer = LineDrawer::GetInstance();
+
+	for (auto* collider : colliders_) {
+		///
+		///	Sphere
+		/// 
+		if (collider->GetType() == "Sphere") {
+			auto* sphere = static_cast<SphereCollider*>(collider);
+			
+			const uint32_t kSubdivision = 8; // 分割数
+			const float kLonEvery = (PIf * 2.0f) / kSubdivision;
+			const float kLatEvery = PIf / kSubdivision;
+
+			for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
+				float lat = -PIf / 2.0f + kLatEvery * latIndex;
+
+				for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
+					float lon = lonIndex * kLonEvery;
+
+					// 頂点a, b, cを求める
+					Float3 a = {
+						cosf(lat) * cosf(lon) * sphere->radius_,
+						sinf(lat) * sphere->radius_,
+						cosf(lat) * sinf(lon) * sphere->radius_,
+					};
+					Float3 b = {
+						cosf(lat + kLatEvery) * cosf(lon) * sphere->radius_,
+						sinf(lat + kLatEvery) * sphere->radius_,
+						cosf(lat + kLatEvery) * sinf(lon) * sphere->radius_,
+					};
+					Float3 c = {
+						cosf(lat) * cosf(lon + kLonEvery) * sphere->radius_,
+						sinf(lat) * sphere->radius_,
+						cosf(lat) * sinf(lon + kLonEvery) * sphere->radius_,
+					};
+
+					// ワールド座標に移動
+					a = a + sphere->center_;
+					b = b + sphere->center_;
+					c = c + sphere->center_;
+
+					drawer->RegisterLine(a, b, { 1.0f, 1.0f, 1.0f, 1.0f });
+					drawer->RegisterLine(a, c, { 1.0f, 1.0f, 1.0f, 1.0f });
+				}
+			}
+
+		}
+		///
+		///	AABB
+		/// 
+		else if (collider->GetType() == "AABB") {
+			auto* aabb = static_cast<AABBCollider*>(collider);
+
+			// AABBの8頂点から12本の辺を描画
+			Float3 min = aabb->min_;
+			Float3 max = aabb->max_;
+
+			Float3 corners[8] = {
+			   {min.x, min.y, min.z}, {max.x, min.y, min.z},
+			   {min.x, max.y, min.z}, {max.x, max.y, min.z},
+			   {min.x, min.y, max.z}, {max.x, min.y, max.z},
+			   {min.x, max.y, max.z}, {max.x, max.y, max.z},
+			};
+
+			int edges[12][2] = {
+				{0,1},{1,3},{3,2},{2,0}, // 前面
+				{4,5},{5,7},{7,6},{6,4}, // 背面
+				{0,4},{1,5},{2,6},{3,7}  // 側面
+			};
+
+			for (auto& e : edges) {
+				drawer->RegisterLine(corners[e[0]], corners[e[1]], { 1.0f, 1.0f, 1.0f, 1.0f });
+			}
+		}
+		///
+		///	OBB
+		/// 
+		else if (collider->GetType() == "OBB") {
+			auto* obb = static_cast<OBBCollider*>(collider);
+
+			// OBBのローカル8頂点を計算
+			Float3 halfX = obb->xAxis_ * (obb->size_.x * 1.0f);
+			Float3 halfY = obb->yAxis_ * (obb->size_.y * 1.0f);
+			Float3 halfZ = obb->zAxis_ * (obb->size_.z * 1.0f);
+
+			Float3 corners[8] = {
+				obb->center_ + halfX + halfY + halfZ,  // 0
+				obb->center_ - halfX + halfY + halfZ,  // 1
+				obb->center_ - halfX - halfY + halfZ,  // 2
+				obb->center_ + halfX - halfY + halfZ,  // 3
+				obb->center_ + halfX + halfY - halfZ,  // 4
+				obb->center_ - halfX + halfY - halfZ,  // 5
+				obb->center_ - halfX - halfY - halfZ,  // 6
+				obb->center_ + halfX - halfY - halfZ   // 7
+			};
+
+			int edges[12][2] = {
+				{0,1},{1,2},{2,3},{3,0}, // 前面
+				{4,5},{5,6},{6,7},{7,4}, // 背面
+				{0,4},{1,5},{2,6},{3,7}  // 側面
+			};
+
+			for (auto& e : edges) {
+				drawer->RegisterLine(corners[e[0]], corners[e[1]], { 1.0f, 1.0f, 1.0f, 1.0f });
 			}
 		}
 	}
@@ -129,6 +244,12 @@ void CollisionManager::Debug()
 	}
 
 	ImGui::End();
+
+	///
+	///	コライダーの描画
+	/// 
+	
+	Draw();
 }
 
 // ---------------------------------------------------------
