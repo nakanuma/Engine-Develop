@@ -17,8 +17,16 @@ template<typename AgentType>
 class BehaviorTreeEditor
 {
 public:
-	BehaviorTreeEditor() = default;
-	~BehaviorTreeEditor() = default;
+	BehaviorTreeEditor() {
+		context_ = ImNodes::CreateContext();
+	}
+
+	~BehaviorTreeEditor() {
+		if (context_) {
+			ImNodes::DestroyContext(context_);
+			context_ = nullptr;
+		}
+	}
 
 	/// <summary>
 	/// 内部ノードデータの生成
@@ -36,6 +44,7 @@ public:
 	/// 描画
 	/// </summary>
 	void Draw() {
+		ImNodes::SetCurrentContext(context_);
 
 		ImNodes::BeginNodeEditor();
 
@@ -134,6 +143,7 @@ private:
 	// 対象のツリー
 	BehaviorTree<AgentType>* tree_ = nullptr;
 
+	ImNodesContext* context_ = nullptr;
 	std::string defaultDir_ = "resources/Configs/BehaviorTree/";
 	std::string fileName_ = "";
 

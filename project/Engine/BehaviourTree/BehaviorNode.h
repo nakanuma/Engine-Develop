@@ -94,23 +94,34 @@ public:
 /// </summary>
 template<typename AgentType> class SequenceNode : public CompositeNodeBase<AgentType> {
 public:
-	SequenceNode(const std::string& name = "") : CompositeNodeBase<AgentType>(name) {}
+	SequenceNode(const std::string& name = "") : CompositeNodeBase<AgentType>(name), currentIndex_(0) {}
 
 	/// <summary>
 	/// ノードの状態を返す
 	/// </summary>
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
-		// 登録されている子ノードを先頭から順に評価
-		for (auto& child : this->children_) {
-			BehaviorStatus status = child->Tick(agent, deltaTime);
-			// Success以外を返した時点で、その結果を返す
-			if (status != BehaviorStatus::Success) {
-				return status;
+		while (currentIndex_ < this->children_.size()) {
+			BehaviorStatus status = this->children_[currentIndex_]->Tick(agent, deltaTime);
+
+			if (status == BehaviorStatus::Running) {
+				return BehaviorStatus::Running; // 今の子で止める
 			}
+			if (status == BehaviorStatus::Failure) {
+				currentIndex_ = 0; // リセット
+				return BehaviorStatus::Failure;
+			}
+
+			// successなら次の子へ
+			currentIndex_++;
 		}
-		// 全ての子ノードがSuccessを返した場合、Successを返す
+
+		// 全部成功したら
+		currentIndex_ = 0;
 		return BehaviorStatus::Success;
 	}
+
+private:
+	size_t currentIndex_;
 };
 
 /// <summary>
