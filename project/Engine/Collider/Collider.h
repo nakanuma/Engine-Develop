@@ -34,11 +34,16 @@ public:
 	void SetOwner(ICollisionCallback* owner) { owner_ = owner; }
 	ICollisionCallback* GetOwner() { return owner_; }
 
+	void SetActive(bool active) { isActive_ = active; }
+	bool IsActive() const { return isActive_; }
+
 protected:
 	// コライダー識別用タグ
 	std::string tag_;
 	// コライダーの所属オブジェクトへのポインタ
 	ICollisionCallback* owner_;
+	// 有効化状態
+	bool isActive_ = true;
 };
 
 /// <summary>

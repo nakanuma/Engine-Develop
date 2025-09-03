@@ -51,7 +51,13 @@ void CollisionManager::Unregister(Collider* collider)
 void CollisionManager::Update()
 {
 	for (size_t i = 0; i < colliders_.size(); ++i) {
+		// コライダーが無効ならスキップ
+		if (!colliders_[i]->IsActive()) continue;
+
 		for (size_t j = i + 1; j < colliders_.size(); ++j) {
+			// コライダーが無効ならスキップ
+			if (!colliders_[j]->IsActive()) continue;
+
 			if (colliders_[i]->CheckCollision(colliders_[j])) {
 				colliders_[i]->GetOwner()->OnCollision(colliders_[j]);
 				colliders_[j]->GetOwner()->OnCollision(colliders_[i]);
@@ -68,6 +74,8 @@ void CollisionManager::Draw()
 	auto drawer = LineDrawer::GetInstance();
 
 	for (auto* collider : colliders_) {
+		if (!collider->IsActive()) continue;
+
 		///
 		///	Sphere
 		/// 
