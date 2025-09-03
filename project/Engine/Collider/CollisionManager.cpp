@@ -188,12 +188,21 @@ void CollisionManager::Draw()
 void CollisionManager::Debug()
 {
 	if (ImGui::Begin("Colliders")) {
-		ImGui::Text("Total Colliders: %zu", colliders_.size());
+
+		// 有効なコライダーの数を数える
+		size_t activeCount = 0;
+		for (auto* c : colliders_) {
+			if (c && c->IsActive()) {
+				++activeCount;
+			}
+		}
+		ImGui::Text("Total Colliders: %zu", activeCount);
 		ImGui::Separator();
 
 		for (size_t i = 0; i < colliders_.size(); ++i) {
 			Collider* collider = colliders_[i];
 			if (!collider) continue;
+			if (!collider->IsActive()) continue;
 
 			std::string label = "Collider[" + std::to_string(i) + "] (" + collider->GetTag() + ")";
 			if (ImGui::TreeNode(label.c_str())) {
