@@ -50,6 +50,9 @@ void CollisionManager::Unregister(Collider* collider)
 // ---------------------------------------------------------
 void CollisionManager::Update()
 {
+	// 今フレームで衝突しているコライダーのペアを一時的に保持
+	std::set<std::pair<Collider*, Collider*>> currentCollisions;
+
 	for (size_t i = 0; i < colliders_.size(); ++i) {
 		// コライダーが無効ならスキップ
 		if (!colliders_[i]->IsActive()) continue;
@@ -59,11 +62,34 @@ void CollisionManager::Update()
 			if (!colliders_[j]->IsActive()) continue;
 
 			if (colliders_[i]->CheckCollision(colliders_[j])) {
+				// 今フレームで衝突しているペアをセットに追加
+				auto pair = std::make_pair(colliders_[i], colliders_[j]);
+				currentCollisions.insert(pair);
+
+				// 前フレームのペアに同じペアが無い場合、ここが衝突した瞬間だと判定
+				if (!previousCollisions_.count(pair)) {
+					// OnCollisionEnter
+					colliders_[i]->GetOwner()->OnCollisionEnter(colliders_[j]);
+					colliders_[j]->GetOwner()->OnCollisionEnter(colliders_[i]);
+				}
+
+				// OnCollision（stay）
 				colliders_[i]->GetOwner()->OnCollision(colliders_[j]);
 				colliders_[j]->GetOwner()->OnCollision(colliders_[i]);
 			}
 		}
 	}
+
+	// 前フレームで衝突していたペアが今フレームでは衝突していない場合、ここが衝突終了した瞬間だと判定
+	for (auto& pair : previousCollisions_) {
+		if (!currentCollisions.count(pair)) {
+			// OnCollisionExit
+			pair.first->GetOwner()->OnCollisionExit(pair.second);
+			pair.second->GetOwner()->OnCollisionExit(pair.first);
+		}
+	}
+
+	previousCollisions_ = currentCollisions;
 }
 
 // ---------------------------------------------------------

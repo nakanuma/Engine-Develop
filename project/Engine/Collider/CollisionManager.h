@@ -3,6 +3,8 @@
 // C++
 #include <vector>
 #include <unordered_set>
+#include <set>
+#include <utility>
 
 // Engine
 #include <Collider/Collider.h>
@@ -71,5 +73,7 @@ public:
 private:
 	// コライダーのコンテナ
 	std::vector<Collider*> colliders_;
+	// 前フレームの衝突ペアを保存
+	std::set<std::pair<Collider*, Collider*>> previousCollisions_;
 };
 

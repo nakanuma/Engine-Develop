@@ -14,7 +14,9 @@ class Collider;
 class ICollisionCallback {
 public:
 	virtual ~ICollisionCallback() = default;
-	virtual void OnCollision(Collider* other) = 0;
+	virtual void OnCollision(Collider* other) {};
+	virtual void OnCollisionEnter(Collider* other) {};
+	virtual void OnCollisionExit(Collider* other) {};
 };
 
 /// <summary>
