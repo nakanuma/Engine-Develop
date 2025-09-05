@@ -52,7 +52,10 @@ public:
 	/// <summary>
 	/// リストのクリア
 	/// </summary>
-	void Clear() { colliders_.clear(); }
+	void Clear() { 
+		colliders_.clear(); 
+		previousCollisions_.clear();
+	}
 
 	/// <summary>
 	/// デバッグ表示
