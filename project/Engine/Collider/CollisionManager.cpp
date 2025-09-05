@@ -45,6 +45,19 @@ void CollisionManager::Unregister(Collider* collider)
 	}
 }
 
+/// <summary>
+/// コライダーの衝突ペアから削除
+/// </summary>
+void CollisionManager::RemoveCollisionPair(Collider* collider) { 
+	for (auto it = previousCollisions_.begin(); it != previousCollisions_.end();) {
+		if (it->first == collider || it->second == collider) {
+			it = previousCollisions_.erase(it);
+		} else {
+			it++;
+		}
+	}
+}
+
 // ---------------------------------------------------------
 // 全ての衝突判定を行う
 // ---------------------------------------------------------
