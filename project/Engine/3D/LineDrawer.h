@@ -35,6 +35,11 @@ public:
 	void RegisterLine(const Float3& start, const Float3& end, const Float4& color);
 
 	/// <summary>
+	/// 扇形（塗りつぶし）の追加
+	/// </summary>
+	void RegisterSector(const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset);
+
+	/// <summary>
 	/// 蓄積した線を描画
 	/// </summary>
 	void Render();
@@ -52,7 +57,8 @@ private:
 	DirectXBase* dxBase_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineStateLine_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineStateTri_;
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[2];
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc_;
@@ -76,13 +82,17 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob_;
 
 	// バッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+	Microsoft::WRL::ComPtr<ID3D12Resource> lineVertexResource_;
+	D3D12_VERTEX_BUFFER_VIEW lineVBV_{};
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> triVertexResource_;
+	D3D12_VERTEX_BUFFER_VIEW triVBV_{};
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> constanceBuffer_;
 	TransformationMatrix* constMap_ = nullptr;
 
 	// 蓄積された線分
-	std::vector<Vertex> vertices_;
+	std::vector<Vertex> lineVertices_;
+	std::vector<Vertex> triVertices_;
 };
 

@@ -56,70 +56,158 @@ void LineDrawer::Initialize()
 // ---------------------------------------------------------
 void LineDrawer::RegisterLine(const Float3& start, const Float3& end, const Float4& color)
 {
-	vertices_.push_back({ start, color });
-	vertices_.push_back({ end, color });
+	lineVertices_.push_back({ start, color });
+	lineVertices_.push_back({ end, color });
+}
+
+// ---------------------------------------------------------
+// 扇形（塗りつぶし）の追加
+// ---------------------------------------------------------
+void LineDrawer::RegisterSector(const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset)
+{
+	if (segments < 1) return;
+
+	Float3 c = center;
+	c.y += yOffset; // 少し浮かせる
+
+	for (uint32_t i = 0; i < segments; ++i) {
+		float t0 = static_cast<float>(i) / segments;
+		float t1 = static_cast<float>(i + 1) / segments;
+
+		float a0 = startAngleRad + (endAngleRad - startAngleRad) * t0;
+		float a1 = startAngleRad + (endAngleRad - startAngleRad) * t1;
+
+		// 内側弧
+		Float3 i0 = { c.x + std::cosf(a0) * innerRadius, c.y, c.z + std::sinf(a0) * innerRadius };
+		Float3 i1 = { c.x + std::cosf(a1) * innerRadius, c.y, c.z + std::sinf(a1) * innerRadius };
+
+		// 外側弧
+		Float3 o0 = { c.x + std::cosf(a0) * outerRadius, c.y, c.z + std::sinf(a0) * outerRadius };
+		Float3 o1 = { c.x + std::cosf(a1) * outerRadius, c.y, c.z + std::sinf(a1) * outerRadius };
+
+		// Quadを三角形2枚で作成
+		triVertices_.push_back({ i0, innerColor });
+		triVertices_.push_back({ o0, outerColor });
+		triVertices_.push_back({ o1, outerColor });
+
+		triVertices_.push_back({ i0, innerColor });
+		triVertices_.push_back({ o1, outerColor });
+		triVertices_.push_back({ i1, innerColor });
+	}
 }
 
 void LineDrawer::Render()
 {
-	if (vertices_.empty()) return;
-
 	auto device = dxBase_->GetDevice();
 	auto cmdList = dxBase_->GetCommandList();
 
-	size_t vbSize = sizeof(Vertex) * vertices_.size();
+	if (lineVertices_.empty() && triVertices_.empty()) return;
 
-	// 頂点バッファ作成
-	D3D12_HEAP_PROPERTIES heapProp = {};
-	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
-
-	D3D12_RESOURCE_DESC resDesc = {};
-	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = vbSize;
-	resDesc.Height = 1;
-	resDesc.DepthOrArraySize = 1;
-	resDesc.MipLevels = 1;
-	resDesc.SampleDesc.Count = 1;
-	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-	HRESULT hr = device->CreateCommittedResource(
-		&heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&resDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&vertexResource_)
-	);
-	assert(SUCCEEDED(hr));
-
-	Vertex* vbData = nullptr;
-	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
-	std::memcpy(vbData, vertices_.data(), vbSize);
-	vertexResource_->Unmap(0, nullptr);
-
-	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-	vertexBufferView_.SizeInBytes = static_cast<UINT>(vbSize);
-	vertexBufferView_.StrideInBytes = sizeof(Vertex);
-
-	// PSOセット
-	cmdList->SetGraphicsRootSignature(rootSignature_.Get());
-	cmdList->SetPipelineState(pipelineState_.Get());
-
-	// トポロジ
-	cmdList->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-
-	// WVP行列を取得
+	// 定数バッファ（VP）
 	Matrix viewMatrix = Camera::GetCurrent()->MakeViewMatrix();
 	Matrix projectionMatrix = Camera::GetCurrent()->MakePerspectiveFovMatrix();
-	Matrix vpMatrix = viewMatrix * projectionMatrix;
-	constMap_->WVP = vpMatrix;
+	constMap_->WVP = viewMatrix * projectionMatrix;
+
+	// 共通セット
+	cmdList->SetGraphicsRootSignature(rootSignature_.Get());
 	cmdList->SetGraphicsRootConstantBufferView(0, constanceBuffer_->GetGPUVirtualAddress());
 
-	// 描画
-	cmdList->DrawInstanced(static_cast<UINT>(vertices_.size()), 1, 0, 0);
+	///
+	///	三角形
+	/// 
 
-	vertices_.clear();
+	if (!triVertices_.empty()) {
+		size_t vbSize = sizeof(Vertex) * triVertices_.size();
+
+		// 頂点バッファ作成
+		D3D12_HEAP_PROPERTIES heapProp = {};
+		heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+		D3D12_RESOURCE_DESC resDesc = {};
+		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resDesc.Width = vbSize;
+		resDesc.Height = 1;
+		resDesc.DepthOrArraySize = 1;
+		resDesc.MipLevels = 1;
+		resDesc.SampleDesc.Count = 1;
+		resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		device->CreateCommittedResource(
+			&heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&resDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&triVertexResource_)
+		);
+
+		Vertex* mapped = nullptr;
+		triVertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mapped));
+		std::memcpy(mapped, triVertices_.data(), vbSize);
+		triVertexResource_->Unmap(0, nullptr);
+
+		triVBV_.BufferLocation = triVertexResource_->GetGPUVirtualAddress();
+		triVBV_.SizeInBytes = static_cast<UINT>(vbSize);
+		triVBV_.StrideInBytes = sizeof(Vertex);
+
+		// PSO + トポロジ
+		cmdList->SetPipelineState(pipelineStateTri_.Get());
+		cmdList->IASetVertexBuffers(0, 1, &triVBV_);
+		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		// 描画
+		cmdList->DrawInstanced(static_cast<UINT>(triVertices_.size()), 1, 0, 0);
+	}
+
+	///
+	/// 線分
+	/// 
+
+	if (!lineVertices_.empty()) {
+		size_t vbSize = sizeof(Vertex) * lineVertices_.size();
+
+		// 頂点バッファ作成
+		D3D12_HEAP_PROPERTIES heapProp = {};
+		heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+		D3D12_RESOURCE_DESC resDesc = {};
+		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resDesc.Width = vbSize;
+		resDesc.Height = 1;
+		resDesc.DepthOrArraySize = 1;
+		resDesc.MipLevels = 1;
+		resDesc.SampleDesc.Count = 1;
+		resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		device->CreateCommittedResource(
+			&heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&resDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&lineVertexResource_)
+		);
+
+		Vertex* vbData = nullptr;
+		lineVertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
+		std::memcpy(vbData, lineVertices_.data(), vbSize);
+		lineVertexResource_->Unmap(0, nullptr);
+
+		lineVBV_.BufferLocation = lineVertexResource_->GetGPUVirtualAddress();
+		lineVBV_.SizeInBytes = static_cast<UINT>(vbSize);
+		lineVBV_.StrideInBytes = sizeof(Vertex);
+
+		// PSO + トポロジ
+		cmdList->SetPipelineState(pipelineStateLine_.Get());
+		cmdList->IASetVertexBuffers(0, 1, &lineVBV_);
+		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		// 描画
+		cmdList->DrawInstanced(static_cast<UINT>(lineVertices_.size()), 1, 0, 0);
+	}
+
+	// クリア
+	triVertices_.clear();
+	lineVertices_.clear();
 }
 
 void LineDrawer::CreateRootSignature()
@@ -151,29 +239,35 @@ void LineDrawer::CreateGraphicsPipeline()
 	auto vs = shaderManager->GetShader("LineDrawer_VS");
 	auto ps = shaderManager->GetShader("LineDrawer_PS");
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-	psoDesc.pRootSignature = rootSignature_.Get();
-	psoDesc.InputLayout = inputLayoutDesc_;
-	psoDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
-	psoDesc.PS = { ps->GetBufferPointer(), ps->GetBufferSize() };
-	psoDesc.BlendState = blendDesc_;
-	psoDesc.RasterizerState = rasterizerDesc_;
-	// 書き込むRTVの情報
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	// 利用するトポロジのタイプ
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-	// どのように画面に色を打ち込むかの設定
-	psoDesc.SampleDesc.Count = 1;
-	psoDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	// DepthStencil
-	psoDesc.DepthStencilState = depthStencilDesc_;
-	psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	auto makeDesk = [&](D3D12_PRIMITIVE_TOPOLOGY_TYPE topo) {
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC d{};
+		d.pRootSignature = rootSignature_.Get();
+		d.InputLayout = inputLayoutDesc_;
+		d.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
+		d.PS = { ps->GetBufferPointer(), ps->GetBufferSize() };
+		d.BlendState = blendDesc_;
+		d.RasterizerState = rasterizerDesc_;
+		// 書き込むRTVの情報
+		d.NumRenderTargets = 1;
+		d.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		// 利用するトポロジのタイプ
+		d.PrimitiveTopologyType = topo;
+		// どのように画面に色を打ち込むかの設定
+		d.SampleDesc.Count = 1;
+		d.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		// DepthStencil
+		d.DepthStencilState = depthStencilDesc_;
+		d.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		return d;
+	};
 
-	// 生成
-	pipelineState_ = nullptr;
-	result = dxBase_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_));
-	assert(SUCCEEDED(result));
+	// 線分用
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC lineDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+	dxBase_->GetDevice()->CreateGraphicsPipelineState(&lineDesc, IID_PPV_ARGS(&pipelineStateLine_));
+
+	// 三角形用
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC triDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+	dxBase_->GetDevice()->CreateGraphicsPipelineState(&triDesc, IID_PPV_ARGS(&pipelineStateTri_));
 }
 
 void LineDrawer::SetInputLayout()
