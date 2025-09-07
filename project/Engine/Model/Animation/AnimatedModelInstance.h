@@ -16,10 +16,22 @@
 /// </summary>
 class AnimatedModelInstance {
 public:
+	struct AnimatedModelData {
+		// モデルデータ
+		ModelManager::ModelData modelData;
+		// アニメーション
+		AnimationLoader::Animation animation;
+		// スケルトン
+		Skeleton skeleton;
+		// スキンクラスター
+		SkinCluster skinCluster;
+	};
+
 	/// <summary>
-	/// Animationモデルのロード
+	/// アニメーションデータのセット
 	/// </summary>
-	bool Load(const std::string& directory, const std::string& filename);
+	/// <param name="data"></param>
+	void SetData(const AnimatedModelData& data);
 
 	/// <summary>
 	/// 更新
@@ -47,17 +59,10 @@ public:
 	void SetPlayBackSpeed(float speed) { playbackSpeed_ = speed; }
 
 
-	// モデルデータ
-	ModelManager::ModelData modelData_;
 	// オブジェクト
 	std::unique_ptr<Object3D> object_;
-
-	// アニメーション
-	AnimationLoader::Animation animation_;
-	// スケルトン
-	Skeleton skeleton_;
-	// スキンクラスター
-	SkinCluster skinCluster_;
+	// アニメーション用データ
+	AnimatedModelData data_;
 
 	// アニメーション時間
 	float animationTime_ = 0.0f;

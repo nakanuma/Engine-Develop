@@ -4,29 +4,18 @@
 #include <TextureManager.h>
 
 // ---------------------------------------------------------
-// Animationモデルのロード
+// アニメーションデータのセット
 // ---------------------------------------------------------
-bool AnimatedModelInstance::Load(const std::string& directory, const std::string& filename) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-
-	// モデル読み込み
-	modelData_ = ModelManager::LoadModelFile(directory, filename, dxBase->GetDevice());
-	modelData_.material.textureHandle = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());
-
-	// アニメーション読み込み
-	animation_ = AnimationLoader::LoadAnimation(directory, filename);
-
-	// スケルトン作成
-	skeleton_.CreateSkeleton(modelData_.rootNode);
-
-	// スキンクラスター作成
-	skinCluster_.CreateSkinCluster(dxBase->GetDevice(), skeleton_, modelData_);
+void AnimatedModelInstance::SetData(const AnimatedModelData& data)
+{
+	data_.modelData = data.modelData;
+	data_.animation = data.animation;
+	data_.skeleton = data.skeleton;
+	data_.skinCluster = data.skinCluster;
 
 	// オブジェクト生成
 	object_ = std::make_unique<Object3D>();
-	object_->model_ = &modelData_;
-
-	return true;
+	object_->model_ = &data_.modelData;
 }
 
 // ---------------------------------------------------------
@@ -38,14 +27,14 @@ void AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {
 		animationTime_ += deltaTime * playbackSpeed_;
 	}
 	// ループ再生
-	if (loop_ && animation_.duration > 0.0f) {
-		animationTime_ = std::fmod(animationTime_, animation_.duration);
+	if (loop_ && data_.animation.duration > 0.0f) {
+		animationTime_ = std::fmod(animationTime_, data_.animation.duration);
 	}
 
 	// アニメーション -> スケルトン -> スキンクラスターの更新
-	skeleton_.ApplyAnimation(animation_, animationTime_);
-	skeleton_.Update();
-	skinCluster_.Update(skeleton_);
+	data_.skeleton.ApplyAnimation(data_.animation, animationTime_);
+	data_.skeleton.Update();
+	data_.skinCluster.Update(data_.skeleton);
 
 	// オブジェクト更新
 	object_->UpdateMatrix();
@@ -59,7 +48,7 @@ void AnimatedModelInstance::Draw() {
 
 	// Skinning用PSOに変更
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateSkinning());
-	object_->Draw(skinCluster_);
+	object_->Draw(data_.skinCluster);
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
 }
 
@@ -67,6 +56,6 @@ void AnimatedModelInstance::Draw() {
 // アニメーションのセット
 // ---------------------------------------------------------
 void AnimatedModelInstance::SetAnimation(const AnimationLoader::Animation& animation) { 
-	animation_ = animation;
+	data_.animation = animation;
 	animationTime_ = 0.0f;
 }
