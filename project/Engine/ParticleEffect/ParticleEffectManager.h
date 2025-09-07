@@ -27,7 +27,7 @@ public:
 	/// <summary>
 	/// 発生処理
 	/// </summary>
-	void Emit(const std::string& name, const Float3& pos, uint32_t count, const Float3& velocity = {0.0f, 0.0f, 0.0f});
+	void Emit(const std::string& name, const Float3& pos, uint32_t count, const Float3& velocity = {0.0f, 0.0f, 0.0f}, const float& angle = 0.0f);
 
 	/// <summary>
 	/// 更新処理

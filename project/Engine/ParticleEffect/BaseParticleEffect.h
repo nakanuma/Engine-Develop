@@ -31,10 +31,10 @@ public:
 	/// <summary>
 	/// 生成処理
 	/// </summary>
-	void Emit(const Float3& pos, const Float3& velocity) override {
+	void Emit(const Float3& pos, const Float3& velocity, const float& angle) override {
 		if (particles_.size() >= kMaxParticles)
 			return;
-		particles_.emplace_back(CreateParticle(pos, velocity));
+		particles_.emplace_back(CreateParticle(pos, velocity, angle));
 	}
 
 	/// <summary>
@@ -102,7 +102,7 @@ protected:
 	/// <summary>
 	/// パーティクル固有の生成処理
 	/// </summary>
-	virtual ParticleType CreateParticle(const Float3& pos, const Float3& velicity) = 0;
+	virtual ParticleType CreateParticle(const Float3& pos, const Float3& velicity, const float& angle) = 0;
 
 	/// <summary>
 	/// パーティクル固有の更新処理
@@ -184,7 +184,7 @@ protected:
 	// ブレンドモード
 	BlendMode blendMode_ = BlendMode::None;
 
-private:
+protected:
 	// パーティクルのコンテナ
 	std::vector<ParticleType> particles_;
 	// ビルボード行列
