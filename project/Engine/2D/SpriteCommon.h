@@ -11,6 +11,8 @@ public:
 	// 共通描画設定
 	void PreDraw();
 
+	void PostDraw();
+
 	// DxBaseのgetter
 	DirectXBase* GetDxBase() const { return dxBase_; }
 

@@ -169,6 +169,8 @@ public:
 	ID3D12PipelineState* GetPipelineStateBlendModeMultiply() { return graphicsPipelineStateBlendModeMultiply_.Get(); };
 	ID3D12PipelineState* GetPipelineStateBlendModeScreen() { return graphicsPipelineStateBlendModeScreen_.Get(); };
 
+	// 通常ルートシグネチャを取得
+	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
 	// Particle用ルートシグネチャを取得
 	ID3D12RootSignature* GetRootSignatureParticle() { return rootSignatureParticle_.Get(); }
 	// InstancedObject用ルートシグネチャを取得

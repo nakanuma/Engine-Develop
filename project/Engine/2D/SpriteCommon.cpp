@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include <cassert>
 #include "DirectXUtil.h"
+#include "SRVManager.h"
 
 void SpriteCommon::Initialize(DirectXBase* dxBase)
 {
@@ -37,6 +38,17 @@ void SpriteCommon::PreDraw()
 	dxBase_->GetCommandList()->SetPipelineState(graphicsPipelineState_.Get());
 	// プリミティブトポロジーをセット
 	dxBase_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+void SpriteCommon::PostDraw() {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+
+	ID3D12DescriptorHeap* descriptorHeaps[] = { SRVManager::GetInstance()->descriptorHeap.heap_.Get() };
+
+	dxBase->GetCommandList()->SetGraphicsRootSignature(dxBase->GetRootSignature());
+	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	dxBase->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
 }
 
 void SpriteCommon::CreateRootSignature()
@@ -226,7 +238,7 @@ void SpriteCommon::CreateDepthBuffer()
 
 	// DepthStencilStateの設定
 	// Depthの機能を有効化する
-	depthStencilDesc_.DepthEnable = true;
+	depthStencilDesc_.DepthEnable = false;
 	// 書き込みします
 	depthStencilDesc_.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	// 比較関数はLessEqual。つまり、近ければ描画される
