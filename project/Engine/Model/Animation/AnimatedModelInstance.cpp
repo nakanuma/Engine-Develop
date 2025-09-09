@@ -11,11 +11,15 @@ void AnimatedModelInstance::SetData(const AnimatedModelData& data)
 	data_.modelData = data.modelData;
 	data_.animation = data.animation;
 	data_.skeleton = data.skeleton;
-	data_.skinCluster = data.skinCluster;
 
-	// オブジェクト生成
-	object_ = std::make_unique<Object3D>();
+	data_.skinCluster = SkinCluster();
+	data_.skinCluster.CreateSkinCluster(DirectXBase::GetInstance()->GetDevice(), data_.skeleton, data_.modelData);
+
+	// モデルのセット
 	object_->model_ = &data_.modelData;
+
+	// 再生時間をリセット
+	animationTime_ = 0.0f;
 }
 
 // ---------------------------------------------------------
