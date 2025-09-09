@@ -1,28 +1,23 @@
 #include "SoundManager.h"
 #include <cassert>
 
-SoundManager* SoundManager::GetInstance()
-{
+SoundManager* SoundManager::GetInstance() {
 	static SoundManager instance;
+	instance.Initialize();
 	return &instance;
 }
 
-SoundManager::~SoundManager()
-{
-	xAudio2.Reset();
+SoundManager::~SoundManager() { xAudio2.Reset(); }
+
+void SoundManager::Initialize() {
+	HRESULT result;
+	result = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	assert(SUCCEEDED(result));
+	result = xAudio2->CreateMasteringVoice(&masterVoice);
+	assert(SUCCEEDED(result));
 }
 
-void SoundManager::Initialize()
-{
-    HRESULT result;
-    result = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-    assert(SUCCEEDED(result));
-    result = xAudio2->CreateMasteringVoice(&masterVoice);
-    assert(SUCCEEDED(result));
-}
-
-SoundManager::SoundData SoundManager::LoadWave(const char* filename)
-{
+SoundManager::SoundData SoundManager::LoadWave(const char* filename) {
 	///
 	/// 1, ファイルオープン
 	///
@@ -108,8 +103,7 @@ SoundManager::SoundData SoundManager::LoadWave(const char* filename)
 	return soundData;
 }
 
-void SoundManager::Unload(SoundData* soundData)
-{
+void SoundManager::Unload(SoundData* soundData) {
 	// バッファのメモリを開放
 	delete[] soundData->pBuffer;
 
@@ -118,13 +112,11 @@ void SoundManager::Unload(SoundData* soundData)
 	soundData->wfex = {};
 }
 
-void SoundManager::PlayWave(const SoundData& soundData)
-{
+void SoundManager::PlayWave(SoundData& soundData, bool loopFlag, float volume) {
 	HRESULT result;
 
 	// 波形フォーマットを元にSourceVoiceの生成
-	IXAudio2SourceVoice* pSourceVoice = nullptr;
-	result = xAudio2->CreateSourceVoice(&pSourceVoice, &soundData.wfex);
+	result = xAudio2->CreateSourceVoice(&soundData.pSourceVoice, &soundData.wfex);
 	assert(SUCCEEDED(result));
 
 	// 再生する波形データの設定
@@ -133,7 +125,21 @@ void SoundManager::PlayWave(const SoundData& soundData)
 	buf.AudioBytes = soundData.bufferSize;
 	buf.Flags = XAUDIO2_END_OF_STREAM;
 
+	// ループ設定
+	buf.LoopCount = loopFlag ? XAUDIO2_LOOP_INFINITE : 0;
+
 	// 波形データの再生
-	result = pSourceVoice->SubmitSourceBuffer(&buf);
-	result = pSourceVoice->Start();
+	result = soundData.pSourceVoice->SubmitSourceBuffer(&buf);
+	result = soundData.pSourceVoice->SetVolume(volume);
+	result = soundData.pSourceVoice->Start();
+}
+
+void SoundManager::StopWave(SoundData& soundData) {
+	if (soundData.pSourceVoice) {
+		// 再生を停止
+		HRESULT result = soundData.pSourceVoice->Stop();
+
+		// 音声バッファをクリア
+		result = soundData.pSourceVoice->FlushSourceBuffers();
+	}
 }
