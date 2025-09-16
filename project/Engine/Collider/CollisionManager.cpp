@@ -39,21 +39,18 @@ void CollisionManager::Register(Collider* collider)
 // ---------------------------------------------------------
 void CollisionManager::Unregister(Collider* collider)
 {
+	// colliders_から削除
 	auto it = std::remove(colliders_.begin(), colliders_.end(), collider);
 	if (it != colliders_.end()) {
 		colliders_.erase(it, colliders_.end());
 	}
-}
 
-/// <summary>
-/// コライダーの衝突ペアから削除
-/// </summary>
-void CollisionManager::RemoveCollisionPair(Collider* collider) { 
-	for (auto it = previousCollisions_.begin(); it != previousCollisions_.end();) {
-		if (it->first == collider || it->second == collider) {
-			it = previousCollisions_.erase(it);
+	// previousCollisions_からも削除
+	for (auto it2 = previousCollisions_.begin(); it2 != previousCollisions_.end();) {
+		if (it2->first == collider || it2->second == collider) {
+			it2 = previousCollisions_.erase(it2);
 		} else {
-			it++;
+			it2++;
 		}
 	}
 }

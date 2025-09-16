@@ -35,11 +35,6 @@ public:
 	void Unregister(Collider* collider);
 
 	/// <summary>
-	/// コライダーの衝突ペアから削除
-	/// </summary>
-	void RemoveCollisionPair(Collider* collider);
-
-	/// <summary>
 	/// 全ての衝突判定を行う
 	/// </summary>
 	void Update();
