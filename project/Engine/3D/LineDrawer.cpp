@@ -96,6 +96,38 @@ void LineDrawer::RegisterSector(const Float3& center, float innerRadius, float o
 	}
 }
 
+// ---------------------------------------------------------
+// トレーサー線の登録
+// ---------------------------------------------------------
+void LineDrawer::RegisterTracer(const Float3& start, const Float3& end, float thickness, const Float4& headColor, const Float4& tailColor)
+{
+	// 方向ベクトルと長さ
+	Float3 dir = end - start;
+	float len = Float3::Length(dir);
+	if (len < 0.001f) return; // 長さ0なら描画しない
+	dir = Float3(dir.x / len, dir.y / len, dir.z / len);
+
+	// カメラに対して垂直なオフセット方向を求める
+	Float3 up = { 0.0f, 1.0f, 0.0f };
+	Float3 side = Float3::Normalize(Float3::Cross(up, dir));
+	Float3 offset = side * (thickness * 0.5f);
+
+	// 四角形の4頂点
+	Float3 v0 = start - offset; // tail left
+	Float3 v1 = start + offset; // tail right
+	Float3 v2 = end + offset; // head right;
+	Float3 v3 = end - offset; // head left;
+
+	// 三角形2毎にして分割して登録
+	triVertices_.push_back({ v0, tailColor });
+	triVertices_.push_back({ v1, tailColor });
+	triVertices_.push_back({ v2, headColor });
+
+	triVertices_.push_back({ v0, tailColor });
+	triVertices_.push_back({ v2, headColor });
+	triVertices_.push_back({ v3, headColor });
+}
+
 void LineDrawer::Render()
 {
 	auto device = dxBase_->GetDevice();

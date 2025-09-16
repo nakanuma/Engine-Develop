@@ -13,4 +13,6 @@ struct Float4
 	Float4& operator/=(float scalar);
 
 	static Float4 Transform(const Float4& v, const Matrix& mat);
+	// 線形補間
+	static Float4 Lerp(const Float4& a, const Float4& b, float t);
 };

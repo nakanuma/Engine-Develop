@@ -29,3 +29,13 @@ Float4 Float4::Transform(const Float4& v, const Matrix& m)
 	result.w = v.x * m.r[0][3] + v.y * m.r[1][3] + v.z * m.r[2][3] + v.w * m.r[3][3];
 	return result;
 }
+
+Float4 Float4::Lerp(const Float4& a, const Float4& b, float t)
+{
+	return {
+		a.x * (1.0f - t) + b.x * t,
+		a.y * (1.0f - t) + b.y * t,
+		a.z * (1.0f - t) + b.z * t,
+		a.w * (1.0f - t) + b.w * t
+	};
+}

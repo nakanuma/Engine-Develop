@@ -40,6 +40,11 @@ public:
 	void RegisterSector(const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset);
 
 	/// <summary>
+	/// トレーサー線の登録
+	/// </summary>
+	void RegisterTracer(const Float3& start, const Float3& end, float thickness, const Float4& headColor, const Float4& tailColor);
+
+	/// <summary>
 	/// 蓄積した線を描画
 	/// </summary>
 	void Render();
