@@ -28,9 +28,13 @@ public:
 	};
 
 	/// <summary>
+	/// 初期化処理
+	/// </summary>
+	void Initialize(const AnimatedModelData& data);
+
+	/// <summary>
 	/// アニメーションデータのセット
 	/// </summary>
-	/// <param name="data"></param>
 	void SetData(const AnimatedModelData& data);
 
 	/// <summary>
@@ -58,6 +62,9 @@ public:
 	/// </summary>
 	void SetPlayBackSpeed(float speed) { playbackSpeed_ = speed; }
 
+	Float3& GetTranslate() { return object_->transform_.translate; }
+	Float3& GetRotate() { return object_->transform_.rotate; }
+	Float3& GetScale() { return object_->transform_.scale; }
 
 	// オブジェクト
 	std::unique_ptr<Object3D> object_;

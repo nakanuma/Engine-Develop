@@ -4,22 +4,35 @@
 #include <TextureManager.h>
 
 // ---------------------------------------------------------
-// アニメーションデータのセット
+// 初期化処理
 // ---------------------------------------------------------
-void AnimatedModelInstance::SetData(const AnimatedModelData& data)
+void AnimatedModelInstance::Initialize(const AnimatedModelData& data)
 {
+	object_ = std::make_unique<Object3D>();
+
 	data_.modelData = data.modelData;
 	data_.animation = data.animation;
 	data_.skeleton = data.skeleton;
 
+	// モデルのセット
+	object_->model_ = &data_.modelData;
+
 	data_.skinCluster = SkinCluster();
 	data_.skinCluster.CreateSkinCluster(DirectXBase::GetInstance()->GetDevice(), data_.skeleton, data_.modelData);
+}
+
+// ---------------------------------------------------------
+// アニメーションデータのセット
+// ---------------------------------------------------------
+void AnimatedModelInstance::SetData(const AnimatedModelData& data)
+{
+	data_.animation = data.animation;
 
 	// モデルのセット
 	object_->model_ = &data_.modelData;
 
 	// 再生時間をリセット
-	animationTime_ = 0.0f;
+	/*animationTime_ = 0.0f;*/
 }
 
 // ---------------------------------------------------------
@@ -30,6 +43,7 @@ void AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {
 	if (isPlaying) {
 		animationTime_ += deltaTime * playbackSpeed_;
 	}
+
 	// ループ再生
 	if (loop_ && data_.animation.duration > 0.0f) {
 		animationTime_ = std::fmod(animationTime_, data_.animation.duration);

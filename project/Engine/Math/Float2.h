@@ -9,4 +9,7 @@ struct Float2
 	Float2 operator-(const Float2& other) const;
 
 	Float2& operator+=(const Float2& other);
+
+	// ドット積
+	static float Dot(const Float2& a, const Float2& b);
 };
