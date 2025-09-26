@@ -1,6 +1,7 @@
 #include "Object3D.h"
 #include "Camera.h"
 #include "SRVManager.h"
+#include <LightCamera.h>
 
 #include <numbers>
 
@@ -44,6 +45,20 @@ void Object3D::UpdateMatrix()
 	Matrix worldInverseTransposeMatrix = Matrix::Transpose(worldInverseMatrix);
 
 	wvpCB_.data_->WorldInverseTranspose = worldInverseTransposeMatrix;
+}
+
+void Object3D::UpdateShadowMatrix()
+{
+	Matrix worldMatrix = transform_.MakeAffineMatrix();
+
+	// 親が存在する場合、親の行列を考慮する
+	if (parent_) {
+		Matrix parentWorldMatrix = parent_->transform_.MakeAffineMatrix(); // 親のワールド行列
+		worldMatrix = worldMatrix * parentWorldMatrix; // 子の行列に親の行列を掛ける
+	}
+
+	shadowWvpCB_.data_->World = worldMatrix;
+	shadowWvpCB_.data_->LightViewProj = LightCamera::GetInstance()->GetViewProj();
 }
 
 void Object3D::ScaleUV(float scaleU) {
@@ -139,4 +154,24 @@ void Object3D::DrawPartial(uint32_t indexCount)
 	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
 	// 描画を行う（DrawCall/ドローコール）
 	dxBase->GetCommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
+}
+
+void Object3D::DrawShadow()
+{
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+
+	// 頂点バッファ・インデックスバッファの設定
+	dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &model_->vertexBufferView);
+	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
+	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// WVP（World * LightViewProj）のみを使う
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(
+		11, shadowWvpCB_.resource_->GetGPUVirtualAddress()
+	);
+
+	// DrawCall
+	dxBase->GetCommandList()->DrawIndexedInstanced(
+		static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0
+	);
 }

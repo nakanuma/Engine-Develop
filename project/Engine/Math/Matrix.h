@@ -52,6 +52,10 @@ public:
 
 	static Matrix Orthographic(float width, float height, float nearClip, float farClip);
 
+	static Matrix OrthographicOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ);
+
+	static Matrix LookAtLH(const Float3& eye, const Float3& target, const Float3& up);
+
 	static Matrix Scaling(Float3 scale);
 
 	static Matrix Translation(Float3 translation);

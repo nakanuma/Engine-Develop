@@ -279,6 +279,63 @@ Matrix Matrix::Orthographic(float width, float height, float nearClip, float far
 	);
 }
 
+Matrix Matrix::OrthographicOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ)
+{
+	Matrix m;
+
+	m.r[0][0] = 2.0f / (right - left);
+	m.r[0][1] = 0.0f;
+	m.r[0][2] = 0.0f;
+	m.r[0][3] = 0.0f;
+
+	m.r[1][0] = 0.0f;
+	m.r[1][1] = 2.0f / (top - bottom);
+	m.r[1][2] = 0.0f;
+	m.r[1][3] = 0.0f;
+
+	m.r[2][0] = 0.0f;
+	m.r[2][1] = 0.0f;
+	m.r[2][2] = 1.0f / (farZ - nearZ);
+	m.r[2][3] = 0.0f;
+
+	m.r[3][0] = (left + right) / (left - right);
+	m.r[3][1] = (top + bottom) / (bottom - top);
+	m.r[3][2] = -nearZ / (farZ - nearZ);
+	m.r[3][3] = 1.0f;
+
+	return m;
+}
+
+Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& up)
+{
+	// forward
+	Float3 zaxis = target - eye;
+	if (Float3::Length(zaxis) < 1e-6f) {
+		zaxis = Float3(0, 0, 1); // 適当な初期値
+	} else {
+		zaxis = Float3::Normalize(zaxis);
+	}
+
+	// right
+	Float3 xaxis = Float3::Cross(zaxis, up);
+	if (Float3::LengthSq(xaxis) < 1e-6f) {
+		// upとzaxisが平行->別のupベクトルに置き換える
+		xaxis = Float3::Cross(Float3(0, 0, 1), zaxis);
+	}
+	xaxis = Float3::Normalize(xaxis);
+
+	// up
+	Float3 yaxis = Float3::Cross(zaxis, xaxis);
+
+	// ビュー行列の構築
+	return Matrix(
+		xaxis.x, yaxis.x, zaxis.x, 0.0f,
+		xaxis.y, yaxis.y, zaxis.y, 0.0f,
+		xaxis.z, yaxis.z, zaxis.z, 0.0f,
+		-Float3::Dot(xaxis, eye), -Float3::Dot(yaxis, eye), -Float3::Dot(zaxis, eye), 1.0f
+	);
+}
+
 Matrix Matrix::Scaling(Float3 scale)
 {
 	Matrix ret = Matrix();

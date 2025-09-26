@@ -26,6 +26,11 @@ public:
 		Matrix WorldInverseTranspose;
 	};
 
+	struct ShadowCB {
+		Matrix World;
+		Matrix LightViewProj;
+	};
+
 	struct ParticleForGPU {
 		Matrix WVP;
 		Matrix World;
@@ -43,6 +48,7 @@ public:
 
 	// マトリックス情報の更新
 	void UpdateMatrix();
+	void UpdateShadowMatrix();
 
 	// UVスケーリング
 	void ScaleUV(float scaleU);
@@ -60,11 +66,16 @@ public:
 	// 部分的に描画
 	void DrawPartial(uint32_t indexCount);
 
+	// シャドウマップ描画用
+	void DrawShadow();
+
 	// マテリアルの定数バッファ
 	ConstBuffer<Material>materialCB_;
 
 	// トランスフォームの定数バッファ
 	ConstBuffer<TransformationMatrix>wvpCB_;
+	// シャドウマップ用の定数バッファ
+	ConstBuffer<ShadowCB>shadowWvpCB_;
 
 	// モデル情報
 	ModelManager::ModelData* model_ = nullptr;

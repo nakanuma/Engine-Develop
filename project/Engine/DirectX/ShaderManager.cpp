@@ -110,6 +110,9 @@ void ShaderManager::Initialize() {
 	// InstancedObject
 	LoadShader("InstancedObject_VS", L"resources/Shaders/InstancedObject.VS.hlsl", L"vs_6_0");
 	LoadShader("InstancedObject_PS", L"resources/Shaders/InstancedObject.PS.hlsl", L"ps_6_0");
+
+	// ShadowMap
+	LoadShader("ShadowMap_VS", L"resources/Shaders/ShadowMap.VS.hlsl", L"vs_6_0");
 }
 
 void ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) { 

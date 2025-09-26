@@ -162,6 +162,8 @@ public:
 	ID3D12PipelineState* GetPipelineStateNoCulling();
 	DescriptorHeap* GetDSVHeap();
 
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle(UINT index);
+
 	// BlendMode変更用PSOのgetter
 	ID3D12PipelineState* GetPipelineStateBlendModeNone() { return graphicsPipelineStateBlendModeNone_.Get(); };
 	ID3D12PipelineState* GetPipelineStateBlendModeAdd() { return graphicsPipelineStateBlendModeAdd_.Get(); };
