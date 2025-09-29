@@ -2,10 +2,6 @@
 
 #include <algorithm>
 
-#include <DirectXMath.h>
-#include <DirectXCollision.h> // BoundingBox 用
-using namespace DirectX;
-
 LightCamera* LightCamera::GetInstance()
 {
 	static LightCamera instance;
@@ -36,15 +32,7 @@ void LightCamera::UpdateViewProjection(const BoundingBox& sceneBB)
 	Float3 up = Float3::Cross(lightDir_, worldUp);
 
 	// ビュー行列
-	/*view_ = Matrix::LookAtLH(pos, center, up);*/
-
-	// DirectXMathテスト
-	XMVECTOR xmPos = XMVectorSet(pos.x, pos.y, pos.z, 1.0f); 
-	XMVECTOR xmCenter = XMVectorSet(center.x, center.y, center.z, 1.0f); 
-	XMVECTOR xmUp = XMVectorSet(up.x, up.y, up.z, 0.0f);
-
-	XMMATRIX xmView = XMMatrixLookAtLH(xmPos, xmCenter, xmUp);
-	XMStoreFloat4x4(reinterpret_cast<XMFLOAT4X4*>(&view_), xmView);
+	view_ = Matrix::LookAtLH(pos, center, up);
 
 	// シーンBBをライト空間に変換
 	Float3 minV(FLT_MAX, FLT_MAX, FLT_MAX);
@@ -64,11 +52,7 @@ void LightCamera::UpdateViewProjection(const BoundingBox& sceneBB)
 	float farZ = maxV.z + 250.0f; // Zレンジが極端に狭くならないよう、マージンを足す
 
 	// 直交射影行列
-	/*proj_ = Matrix::OrthographicOffCenterLH(minV.x, maxV.x, minV.y, maxV.y, nearZ, farZ);*/
-
-	// DirectXMathテスト
-	XMMATRIX xmProj = XMMatrixOrthographicOffCenterLH(minV.x, maxV.x, minV.y, maxV.y, nearZ, farZ);
-	XMStoreFloat4x4(reinterpret_cast<XMFLOAT4X4*>(&proj_), xmProj);
+	proj_ = Matrix::OrthographicOffCenterLH(minV.x, maxV.x, minV.y, maxV.y, nearZ, farZ);
 
 	// 合成行列
 	viewProj_ = view_ * proj_;
