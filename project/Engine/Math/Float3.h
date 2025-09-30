@@ -39,6 +39,8 @@ struct Float3
 	static float Length(const Float3& v);
     // 長さの2乗
     static float LengthSq(const Float3& v);
+    // 距離
+	static float Distance(const Float3& a, const Float3& b);
     // 正規化
 	static Float3 Normalize(const Float3& a);
     // 線形補間

@@ -453,7 +453,7 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 	shadowMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// RootParameter作成。複数設定できるので配列。
-	D3D12_ROOT_PARAMETER rootParameters[13] = {};
+	D3D12_ROOT_PARAMETER rootParameters[14] = {};
 	// Material（CBV）
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;    // CBVを使う
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
@@ -518,6 +518,11 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 	rootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[12].DescriptorTable.pDescriptorRanges = &shadowMapRange;
 	rootParameters[12].DescriptorTable.NumDescriptorRanges = 1;
+
+	// LightViewProj（CBV）
+	rootParameters[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[13].Descriptor.ShaderRegister = 7; // b7
 
 	descriptionRootSignature.pParameters = rootParameters;             // ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ

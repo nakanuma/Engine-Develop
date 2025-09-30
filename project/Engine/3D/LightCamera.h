@@ -17,6 +17,11 @@ public:
 		Float3 Center() const { return (min + max) * 0.5f; }
 		Float3 Extents() const { return (max - min) * 0.5f; }
 
+		void SetCenterExtents(const Float3& center, const Float3& extents) { 
+			min = center - extents;
+			max = center + extents;
+		}
+
 		void GetCorners(Float3 out[8]) const {
 			Float3 e = Extents();
 			Float3 c = Center();

@@ -38,6 +38,9 @@ void Framework::Initialize()
 
 	// LineDrawer初期化
 	LineDrawer::GetInstance()->Initialize();
+
+	// ShadowMapManager初期化
+	ShadowMapManager::GetInstance()->InitializeShadowPSO();
 }
 
 void Framework::Finalize()

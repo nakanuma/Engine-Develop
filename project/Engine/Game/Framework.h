@@ -30,6 +30,7 @@
 #include "AbstractSceneFactory.h"
 #include "TimeManager.h"
 #include "LineDrawer.h"
+#include "ShadowMapManager.h"
 
 class Framework
 {
