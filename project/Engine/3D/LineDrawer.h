@@ -47,7 +47,7 @@ public:
 	/// <summary>
 	/// トレーサー線の登録
 	/// </summary>
-	void RegisterTracer(const Float3& center, const Float3& dir, float thickness, const Float4& color);
+	void RegisterTracer(const Float3& start, const Float3& end, float thickness, const Float4& headColor, const Float4& tailColor);
 
 	/// <summary>
 	/// 蓄積した線を描画
