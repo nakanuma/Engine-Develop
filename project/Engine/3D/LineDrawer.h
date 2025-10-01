@@ -15,6 +15,11 @@ public:
 		Float4 color;
 	};
 
+	struct TrailVertex {
+		Float3 center;
+		Float4 color;
+	};
+
 	struct TransformationMatrix {
 		Matrix WVP;
 	};
@@ -42,7 +47,7 @@ public:
 	/// <summary>
 	/// トレーサー線の登録
 	/// </summary>
-	void RegisterTracer(const Float3& start, const Float3& end, float thickness, const Float4& headColor, const Float4& tailColor);
+	void RegisterTracer(const Float3& center, const Float3& dir, float thickness, const Float4& color);
 
 	/// <summary>
 	/// 蓄積した線を描画
@@ -64,6 +69,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineStateLine_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineStateTri_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineStateTracer_;
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[2];
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc_;
@@ -93,11 +99,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> triVertexResource_;
 	D3D12_VERTEX_BUFFER_VIEW triVBV_{};
 
+	Microsoft::WRL::ComPtr<ID3D12Resource> tracerStripResource_;
+	D3D12_VERTEX_BUFFER_VIEW tracerStripVBV_{};
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> constanceBuffer_;
 	TransformationMatrix* constMap_ = nullptr;
 
 	// 蓄積された線分
 	std::vector<Vertex> lineVertices_;
 	std::vector<Vertex> triVertices_;
+	// トレーサー用頂点バッファ
+	std::vector<TrailVertex> tracerStrip_;
 };
 

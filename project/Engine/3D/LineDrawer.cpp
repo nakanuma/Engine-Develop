@@ -99,33 +99,16 @@ void LineDrawer::RegisterSector(const Float3& center, float innerRadius, float o
 // ---------------------------------------------------------
 // トレーサー線の登録
 // ---------------------------------------------------------
-void LineDrawer::RegisterTracer(const Float3& start, const Float3& end, float thickness, const Float4& headColor, const Float4& tailColor)
-{
-	// 方向ベクトルと長さ
-	Float3 dir = end - start;
-	float len = Float3::Length(dir);
-	if (len < 0.001f) return; // 長さ0なら描画しない
-	dir = Float3(dir.x / len, dir.y / len, dir.z / len);
-
-	// カメラに対して垂直なオフセット方向を求める
-	Float3 up = { 0.0f, 1.0f, 0.0f };
+void LineDrawer::RegisterTracer(const Float3& center, const Float3& dir, float thickness, const Float4& color) { 
+	Float3 up = {0.0f, 1.0f, 0.0f};
 	Float3 side = Float3::Normalize(Float3::Cross(up, dir));
 	Float3 offset = side * (thickness * 0.5f);
 
-	// 四角形の4頂点
-	Float3 v0 = start - offset; // tail left
-	Float3 v1 = start + offset; // tail right
-	Float3 v2 = end + offset; // head right;
-	Float3 v3 = end - offset; // head left;
+	Float3 left = center - offset;
+	Float3 right = center + offset;
 
-	// 三角形2毎にして分割して登録
-	triVertices_.push_back({ v0, tailColor });
-	triVertices_.push_back({ v1, tailColor });
-	triVertices_.push_back({ v2, headColor });
-
-	triVertices_.push_back({ v0, tailColor });
-	triVertices_.push_back({ v2, headColor });
-	triVertices_.push_back({ v3, headColor });
+	tracerStrip_.push_back({left, color});
+	tracerStrip_.push_back({right, color});
 }
 
 void LineDrawer::Render()
@@ -237,9 +220,57 @@ void LineDrawer::Render()
 		cmdList->DrawInstanced(static_cast<UINT>(lineVertices_.size()), 1, 0, 0);
 	}
 
+	///
+	///	トレーサーストリップ（三角形帯）
+	/// 
+
+	if (!tracerStrip_.empty()) {
+		size_t vbSize = sizeof(TrailVertex) * tracerStrip_.size();
+
+		// 頂点バッファ作成
+		D3D12_HEAP_PROPERTIES heapProp = {};
+		heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+		D3D12_RESOURCE_DESC resDesc = {};
+		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resDesc.Width = vbSize;
+		resDesc.Height = 1;
+		resDesc.DepthOrArraySize = 1;
+		resDesc.MipLevels = 1;
+		resDesc.SampleDesc.Count = 1;
+		resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		device->CreateCommittedResource(
+			&heapProp, 
+			D3D12_HEAP_FLAG_NONE, 
+			&resDesc, 
+			D3D12_RESOURCE_STATE_GENERIC_READ, 
+			nullptr, 
+			IID_PPV_ARGS(&tracerStripResource_)
+		);
+
+		TrailVertex* vbData = nullptr;
+		tracerStripResource_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
+		std::memcpy(vbData, tracerStrip_.data(), vbSize);
+		tracerStripResource_->Unmap(0, nullptr);
+
+		tracerStripVBV_.BufferLocation = tracerStripResource_->GetGPUVirtualAddress();
+		tracerStripVBV_.SizeInBytes = static_cast<UINT>(vbSize);
+		tracerStripVBV_.StrideInBytes = sizeof(TrailVertex);
+
+		// PSO + トポロジ
+		cmdList->SetPipelineState(pipelineStateTracer_.Get());
+		cmdList->IASetVertexBuffers(0, 1, &tracerStripVBV_);
+		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+		// 描画
+		cmdList->DrawInstanced(static_cast<UINT>(tracerStrip_.size()), 1, 0, 0);
+	}
+
 	// クリア
 	triVertices_.clear();
 	lineVertices_.clear();
+	tracerStrip_.clear();
 }
 
 void LineDrawer::CreateRootSignature()
@@ -267,16 +298,20 @@ void LineDrawer::CreateGraphicsPipeline()
 {
 	HRESULT result = S_FALSE;
 
-	ShaderManager* shaderManager = ShaderManager::GetInstance();
-	auto vs = shaderManager->GetShader("LineDrawer_VS");
-	auto ps = shaderManager->GetShader("LineDrawer_PS");
-
-	auto makeDesk = [&](D3D12_PRIMITIVE_TOPOLOGY_TYPE topo) {
+	auto makeDesk = [&](D3D12_PRIMITIVE_TOPOLOGY_TYPE topo,
+		const std::string& vsName,
+		const std::string& psName,
+		D3D12_INPUT_LAYOUT_DESC inputLayout) 
+		{
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC d{};
 		d.pRootSignature = rootSignature_.Get();
-		d.InputLayout = inputLayoutDesc_;
-		d.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
-		d.PS = { ps->GetBufferPointer(), ps->GetBufferSize() };
+		d.InputLayout = inputLayout;
+
+		ShaderManager* shaderManager = ShaderManager::GetInstance();
+		auto vs = shaderManager->GetShader(vsName);
+		auto ps = shaderManager->GetShader(psName);
+		d.VS = {vs->GetBufferPointer(), vs->GetBufferSize()};
+		d.PS = {ps->GetBufferPointer(), ps->GetBufferSize()};
 		d.BlendState = blendDesc_;
 		d.RasterizerState = rasterizerDesc_;
 		// 書き込むRTVの情報
@@ -294,12 +329,16 @@ void LineDrawer::CreateGraphicsPipeline()
 	};
 
 	// 線分用
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC lineDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC lineDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE, "LineDrawer_VS", "LineDrawer_PS", inputLayoutDesc_);
 	dxBase_->GetDevice()->CreateGraphicsPipelineState(&lineDesc, IID_PPV_ARGS(&pipelineStateLine_));
 
 	// 三角形用
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC triDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC triDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, "LineDrawer_VS", "LineDrawer_PS", inputLayoutDesc_);
 	dxBase_->GetDevice()->CreateGraphicsPipelineState(&triDesc, IID_PPV_ARGS(&pipelineStateTri_));
+
+	// トレーサー用
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC tracerDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, "LineDrawer_VS", "LineDrawer_PS", inputLayoutDesc_);
+	dxBase_->GetDevice()->CreateGraphicsPipelineState(&tracerDesc, IID_PPV_ARGS(&pipelineStateTracer_));
 }
 
 void LineDrawer::SetInputLayout()
