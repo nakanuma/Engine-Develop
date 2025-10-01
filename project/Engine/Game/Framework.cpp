@@ -40,7 +40,7 @@ void Framework::Initialize()
 	LineDrawer::GetInstance()->Initialize();
 
 	// ShadowMapManager初期化
-	ShadowMapManager::GetInstance()->InitializeShadowPSO();
+	ShadowMapManager::GetInstance()->Initialize();
 }
 
 void Framework::Finalize()

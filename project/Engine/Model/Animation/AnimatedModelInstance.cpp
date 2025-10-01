@@ -71,6 +71,18 @@ void AnimatedModelInstance::Draw() {
 }
 
 // ---------------------------------------------------------
+// 描画（シャドウマップ用）
+// ---------------------------------------------------------
+void AnimatedModelInstance::DrawShadow() { 
+	DirectXBase* dxBase = DirectXBase::GetInstance(); 
+	
+	// 骨行列SRVのバインド
+	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(5, data_.skinCluster.paletteSrvHandle_.second);
+	
+	object_->DrawShadow(data_.skinCluster);
+}
+
+// ---------------------------------------------------------
 // アニメーションのセット
 // ---------------------------------------------------------
 void AnimatedModelInstance::SetAnimation(const AnimationLoader::Animation& animation) { 

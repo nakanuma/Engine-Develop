@@ -175,3 +175,22 @@ void Object3D::DrawShadow()
 		static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0
 	);
 }
+
+void Object3D::DrawShadow(SkinCluster skinCluster) { 
+	DirectXBase* dxBase = DirectXBase::GetInstance(); 
+	
+	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
+		model_->vertexBufferView, 
+		skinCluster.influenceBufferView_
+	};
+
+	dxBase->GetCommandList()->IASetVertexBuffers(0, 2, vbvs);
+	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
+	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// World行列とLightViewProj行列の定数バッファを設定
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(11, shadowWvpCB_.resource_->GetGPUVirtualAddress());
+
+	// DrawCall
+	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
+}

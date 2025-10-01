@@ -39,9 +39,14 @@ public:
 	ID3D12PipelineState* GetShadowPSO() { return shadowPSO_.Get(); }
 
 	/// <summary>
-	/// PSO初期化
+	/// シャドウマップ描画用PSO（Skinning）の取得
 	/// </summary>
-	void InitializeShadowPSO();
+	ID3D12PipelineState* GetShadowSkinnedPSO() { return shadowSkinnedPSO_.Get(); }
+
+	/// <summary>
+	/// 初期化処理
+	/// </summary>
+	void Initialize();
 
 	/// <summary>
 	/// シャドウマップのリソース取得
@@ -59,6 +64,16 @@ private:
 	~ShadowMapManager() = default;
 	ShadowMapManager(const ShadowMapManager&) = delete;
 	ShadowMapManager& operator=(const ShadowMapManager&) = delete;
+
+	/// <summary>
+	/// シャドウマップ描画用PSOの生成
+	/// </summary>
+	void CreateShadowPSO();
+
+	/// <summary>
+	/// スキニング用シャドウマップ描画用PSOの生成
+	/// </summary>
+	void CreateShadowSkinnedPSO();
 
 private:
 	struct ShadowResource {
@@ -78,5 +93,7 @@ private:
 
 	// シャドウマップ用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> shadowPSO_;
+	// スキニング用シャドウマップPSO
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> shadowSkinnedPSO_;
 };
 

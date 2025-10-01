@@ -48,6 +48,11 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// 描画（シャドウマップ用）
+	/// </summary>
+	void DrawShadow();
+
+	/// <summary>
 	/// アニメーションのセット
 	/// </summary>
 	void SetAnimation(const AnimationLoader::Animation& animation);

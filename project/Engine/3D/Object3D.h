@@ -69,6 +69,8 @@ public:
 	// シャドウマップ描画用
 	void DrawShadow();
 
+	void DrawShadow(SkinCluster skinCluster);
+
 	// マテリアルの定数バッファ
 	ConstBuffer<Material>materialCB_;
 

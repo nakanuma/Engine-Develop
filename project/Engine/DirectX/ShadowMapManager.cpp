@@ -96,43 +96,9 @@ void ShadowMapManager::ClearShadowMap(int32_t handle, float clearDepth)
     );
 }
 
-void ShadowMapManager::InitializeShadowPSO()
-{
-    DirectXBase* dxBase = DirectXBase::GetInstance();
-    ID3D12Device* device = dxBase->GetDevice();
-
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
-    ZeroMemory(&psoDesc, sizeof(psoDesc));
-    psoDesc.pRootSignature = dxBase->GetRootSignature();
-
-    D3D12_INPUT_ELEMENT_DESC inputLayout[] =
-    {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
-    };
-    psoDesc.InputLayout = { inputLayout, _countof(inputLayout) };
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-    psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-    psoDesc.DepthStencilState.DepthEnable = TRUE;
-    psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-    psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-    psoDesc.DepthStencilState.StencilEnable = FALSE;
-
-    psoDesc.NumRenderTargets = 0; // カラーターゲットなし
-    for (int i = 0; i < 8; ++i) psoDesc.RTVFormats[i] = DXGI_FORMAT_UNKNOWN;
-    psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-    auto vs = ShaderManager::GetInstance()->GetShader("ShadowMap_VS");
-    psoDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
-    psoDesc.PS = { nullptr, 0 };
-
-    psoDesc.SampleMask = UINT_MAX;
-    psoDesc.SampleDesc.Count = 1;
-
-    HRESULT hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&shadowPSO_));
-    if (FAILED(hr)) {
-        throw std::runtime_error("Failed to create shadow map PSO");
-    }
+void ShadowMapManager::Initialize() { 
+    CreateShadowPSO(); 
+    CreateShadowSkinnedPSO();
 }
 
 ID3D12Resource* ShadowMapManager::GetShadowTexture(int32_t handle) const
@@ -161,4 +127,83 @@ void ShadowMapManager::TransitionShadowResource(ID3D12GraphicsCommandList* cmdLi
         // 状態を更新
         shadow.currentState = newState;
     }
+}
+
+void ShadowMapManager::CreateShadowPSO() {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	ID3D12Device* device = dxBase->GetDevice();
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+	ZeroMemory(&psoDesc, sizeof(psoDesc));
+	psoDesc.pRootSignature = dxBase->GetRootSignature();
+
+	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
+	    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
+    };
+	psoDesc.InputLayout = {inputLayout, _countof(inputLayout)};
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	psoDesc.DepthStencilState.DepthEnable = TRUE;
+	psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	psoDesc.DepthStencilState.StencilEnable = FALSE;
+
+	psoDesc.NumRenderTargets = 0; // カラーターゲットなし
+	for (int i = 0; i < 8; ++i)
+		psoDesc.RTVFormats[i] = DXGI_FORMAT_UNKNOWN;
+	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+
+	auto vs = ShaderManager::GetInstance()->GetShader("ShadowMap_VS");
+	psoDesc.VS = {vs->GetBufferPointer(), vs->GetBufferSize()};
+	psoDesc.PS = {nullptr, 0};
+
+	psoDesc.SampleMask = UINT_MAX;
+	psoDesc.SampleDesc.Count = 1;
+
+	HRESULT hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&shadowPSO_));
+	if (FAILED(hr)) {
+		throw std::runtime_error("Failed to create shadow map PSO");
+	}
+}
+
+void ShadowMapManager::CreateShadowSkinnedPSO() {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	ID3D12Device* device = dxBase->GetDevice();
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+	ZeroMemory(&psoDesc, sizeof(psoDesc));
+	psoDesc.pRootSignature = dxBase->GetRootSignature();
+
+	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
+	    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+        {"WEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+	    {"INDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 1, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
+    };
+
+	psoDesc.InputLayout = {inputLayout, _countof(inputLayout)};
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	psoDesc.DepthStencilState.DepthEnable = TRUE;
+	psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	psoDesc.DepthStencilState.StencilEnable = FALSE;
+
+	psoDesc.NumRenderTargets = 0; // カラーターゲットなし
+	for (int i = 0; i < 8; ++i)
+		psoDesc.RTVFormats[i] = DXGI_FORMAT_UNKNOWN;
+	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+
+	auto vs = ShaderManager::GetInstance()->GetShader("ShadowMapSkinned_VS");
+	psoDesc.VS = {vs->GetBufferPointer(), vs->GetBufferSize()};
+	psoDesc.PS = {nullptr, 0};
+
+	psoDesc.SampleMask = UINT_MAX;
+	psoDesc.SampleDesc.Count = 1;
+
+	HRESULT hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&shadowSkinnedPSO_));
+	if (FAILED(hr)) {
+		throw std::runtime_error("Failed to create shadow map PSO");
+	}
 }

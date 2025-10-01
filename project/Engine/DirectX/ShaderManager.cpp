@@ -113,6 +113,8 @@ void ShaderManager::Initialize() {
 
 	// ShadowMap
 	LoadShader("ShadowMap_VS", L"resources/Shaders/ShadowMap.VS.hlsl", L"vs_6_0");
+	// ShadowMap(Skinning)
+	LoadShader("ShadowMapSkinned_VS", L"resources/Shaders/ShadowMapSkinned.VS.hlsl", L"vs_6_0");
 }
 
 void ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) { 
