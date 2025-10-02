@@ -1,5 +1,7 @@
 #include "Framework.h"
 
+#include <StringUtil.h>
+
 void Framework::Initialize()
 {
 	// リークチェッカー
@@ -7,9 +9,11 @@ void Framework::Initialize()
 	// COMの初期化
 	CoInitializeEx(0,COINIT_MULTITHREADED);
 
+	std::wstring windowTitle = LoadWindowTitle("../Application/resources/Configs/window_title.txt");
+
 	// ゲームウィンドウの生成
 	window = new Window;
-	window->Create(L"Engine",1280,720);
+	window->Create(windowTitle.c_str(), 1280, 720);
 
 	// DirectX初期化処理
 	dxBase = DirectXBase::GetInstance();
