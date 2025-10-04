@@ -45,3 +45,13 @@ void ParticleEffectManager::Draw()
 		effect->Draw();
 	}
 }
+
+// ---------------------------------------------------------
+// クリア処理
+// ---------------------------------------------------------
+void ParticleEffectManager::Clear()
+{
+	for (auto& [_, effect] : effects_) {
+		effect->Clear();
+	}
+}

@@ -39,6 +39,11 @@ public:
 	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// クリア処理
+	/// </summary>
+	void Clear();
+
 private:
 	std::unordered_map<std::string, std::shared_ptr<IParticleEffect>> effects_;
 };

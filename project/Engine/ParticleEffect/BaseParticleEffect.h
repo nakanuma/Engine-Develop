@@ -98,6 +98,14 @@ public:
 		dx->GetCommandList()->SetPipelineState(dx->GetPipelineState());
 	}
 
+	/// <summary>
+	/// クリア処理
+	/// </summary>
+	void Clear() override {
+		particles_.clear();
+		object_.UpdateMatrix();
+	}
+
 protected:
 	/// <summary>
 	/// パーティクル固有の生成処理

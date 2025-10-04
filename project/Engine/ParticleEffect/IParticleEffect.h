@@ -20,4 +20,5 @@ public:
 
 	virtual void Update(float deltaTime) = 0;
 	virtual void Draw() = 0;
+	virtual void Clear() = 0;
 };
