@@ -3,6 +3,7 @@
 #include <DirectXBase.h>
 #include <SRVManager.h>
 #include <TextureManager.h>
+#include <LightCamera.h>
 
 using Microsoft::WRL::ComPtr;
 
@@ -10,6 +11,11 @@ ShadowMapManager* ShadowMapManager::GetInstance()
 {
     static ShadowMapManager instance;
     return &instance;
+}
+
+void ShadowMapManager::Initialize() {
+    CreateShadowPSO();
+    CreateShadowSkinnedPSO();
 }
 
 int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height)
@@ -65,6 +71,74 @@ int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height)
     return srvIndex;
 }
 
+void ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle)
+{
+    DirectXBase* dxBase = DirectXBase::GetInstance();
+
+    // シャドウマップ用PSOをセット
+    dxBase->GetCommandList()->SetPipelineState(ShadowMapManager::GetInstance()->GetShadowPSO());
+
+    // Viewport / Scissor の設定
+    D3D12_VIEWPORT vp{};
+    vp.TopLeftX = 0.0f;
+    vp.TopLeftY = 0.0f;
+    vp.Width = static_cast<float>(Window::GetWidth());
+    vp.Height = static_cast<float>(Window::GetHeight());
+    vp.MinDepth = 0.0f;
+    vp.MaxDepth = 1.0f;
+    dxBase->GetCommandList()->RSSetViewports(1, &vp);
+
+    D3D12_RECT sc{};
+    sc.left = 0;
+    sc.top = 0;
+    sc.right = static_cast<LONG>(Window::GetWidth());
+    sc.bottom = static_cast<LONG>(Window::GetHeight());
+    dxBase->GetCommandList()->RSSetScissorRects(1, &sc);
+
+    // シャドウマップ書き込み前に書き込み状態に遷移
+    TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+    // シャドウマップDSVをセット
+    SetShadowDSV(shadowMapHandle);
+
+    // シャドウマップをクリア
+    ClearShadowMap(shadowMapHandle);
+}
+
+void ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle)
+{
+    DirectXBase* dxBase = DirectXBase::GetInstance();
+
+    // 描画後、SRVとして使えるように遷移
+    ShadowMapManager::GetInstance()->TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    // ShadowMapをバインド
+    TextureManager::SetDescriptorTable(12, dxBase->GetCommandList(), shadowMapHandle);
+    // LightCameraの定数バッファを送信（PixelShader内で使用）
+    LightCamera::GetInstance()->TransferConstantBuffer();
+
+    // バックバッファ用PSOに切り替え
+    dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+    // バックバッファDSVに切り替え
+    UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxBase->GetRTVHandle(backBufferIndex);
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxBase->GetDSVHeap()->GetCPUHandle(0);
+    dxBase->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+}
+
+int32_t ShadowMapManager::GetShadowSRVHandle(int32_t handle)
+{
+    return shadowResources_[handle].srvIndex;
+}
+
+ID3D12Resource* ShadowMapManager::GetShadowTexture(int32_t handle) const
+{
+    auto it = shadowResources_.find(handle);
+    if (it != shadowResources_.end()) {
+        return it->second.resource.Get();
+    }
+    return nullptr;
+}
+
 void ShadowMapManager::SetShadowDSV(int32_t handle)
 {
     DirectXBase* dxBase = DirectXBase::GetInstance();
@@ -73,11 +147,6 @@ void ShadowMapManager::SetShadowDSV(int32_t handle)
     // DSVをセット
     auto& res = shadowResources_[handle];
     cmdList->OMSetRenderTargets(0, nullptr, FALSE, &res.dsvHandle);
-}
-
-int32_t ShadowMapManager::GetShadowSRVHandle(int32_t handle)
-{
-    return shadowResources_[handle].srvIndex;
 }
 
 void ShadowMapManager::ClearShadowMap(int32_t handle, float clearDepth)
@@ -91,23 +160,9 @@ void ShadowMapManager::ClearShadowMap(int32_t handle, float clearDepth)
         D3D12_CLEAR_FLAG_DEPTH,
         clearDepth,
         0,
-        0, 
+        0,
         nullptr
     );
-}
-
-void ShadowMapManager::Initialize() { 
-    CreateShadowPSO(); 
-    CreateShadowSkinnedPSO();
-}
-
-ID3D12Resource* ShadowMapManager::GetShadowTexture(int32_t handle) const
-{
-    auto it = shadowResources_.find(handle);
-    if (it != shadowResources_.end()) {
-        return it->second.resource.Get();
-    }
-    return nullptr;
 }
 
 void ShadowMapManager::TransitionShadowResource(ID3D12GraphicsCommandList* cmdList, int32_t handle, D3D12_RESOURCE_STATES newState)

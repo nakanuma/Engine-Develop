@@ -14,24 +14,29 @@ public:
 	static ShadowMapManager* GetInstance();
 
 	/// <summary>
+	/// 初期化処理
+	/// </summary>
+	void Initialize();
+
+	/// <summary>
 	/// シャドウマップ生成
 	/// </summary>
 	int32_t CreateShadowMap(uint32_t width, uint32_t height);
 
 	/// <summary>
-	/// DSVのセット（シャドウパス用）
+	/// シャドウマップ書き込み開始
 	/// </summary>
-	void SetShadowDSV(int32_t handle);
+	void BeginShadowPass(uint32_t shadowMapHandle);
+
+	/// <summary>
+	/// シャドウマップ書き込み終了
+	/// </summary>
+	void EndShadowPass(uint32_t shadowMapHandle);
 
 	/// <summary>
 	/// SRVハンドル取得（通常描画パスで使用）
 	/// </summary>
 	int32_t GetShadowSRVHandle(int32_t handle);
-
-	/// <summary>
-	/// クリア
-	/// </summary>
-	void ClearShadowMap(int32_t handle, float clearDepth = 1.0f);
 
 	/// <summary>
 	/// シャドウマップ描画用PSOの取得
@@ -44,15 +49,21 @@ public:
 	ID3D12PipelineState* GetShadowSkinnedPSO() { return shadowSkinnedPSO_.Get(); }
 
 	/// <summary>
-	/// 初期化処理
-	/// </summary>
-	void Initialize();
-
-	/// <summary>
 	/// シャドウマップのリソース取得
 	/// </summary>
 	/// <returns></returns>
 	ID3D12Resource* GetShadowTexture(int32_t handle) const;
+
+private:
+	/// <summary>
+	/// DSVのセット（シャドウパス用）
+	/// </summary>
+	void SetShadowDSV(int32_t handle);
+
+	/// <summary>
+	/// クリア
+	/// </summary>
+	void ClearShadowMap(int32_t handle, float clearDepth = 1.0f);
 
 	/// <summary>
 	/// シャドウマップの状態遷移

@@ -52,7 +52,7 @@ public:
 	/// <summary>
 	/// 蓄積した線を描画
 	/// </summary>
-	void Render();
+	void Draw();
 
 private:
 	void CreateRootSignature();

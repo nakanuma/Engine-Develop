@@ -127,7 +127,7 @@ void LineDrawer::RegisterTracer(const Float3& start, const Float3& end, float th
 	triVertices_.push_back({ v3, headColor });
 }
 
-void LineDrawer::Render()
+void LineDrawer::Draw()
 {
 	auto device = dxBase_->GetDevice();
 	auto cmdList = dxBase_->GetCommandList();
