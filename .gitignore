@@ -5,6 +5,7 @@
 
 */x64/
 project/externals/DirectXTex/Bin/
+project/imgui.ini
 
 # User-specific files
 *.rsuser
