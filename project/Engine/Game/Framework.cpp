@@ -9,8 +9,6 @@ void Framework::Initialize()
 	// COMの初期化
 	CoInitializeEx(0,COINIT_MULTITHREADED);
 
-	std::wstring windowTitle = LoadWindowTitle("../Application/resources/Configs/window_title.txt");
-
 	// ゲームウィンドウの生成
 	window = new Window;
 	window->Create(L"ファクトリコイル", 1280, 720);
