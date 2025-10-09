@@ -13,7 +13,7 @@ void Framework::Initialize()
 
 	// ゲームウィンドウの生成
 	window = new Window;
-	window->Create(windowTitle.c_str(), 1280, 720);
+	window->Create(L"ファクトリコイル", 1280, 720);
 
 	// DirectX初期化処理
 	dxBase = DirectXBase::GetInstance();

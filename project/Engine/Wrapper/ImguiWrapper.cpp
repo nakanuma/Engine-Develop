@@ -8,6 +8,8 @@
 
 void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT rtvFormat, ID3D12DescriptorHeap* srvHeap)
 {
+#ifdef _DEBUG
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
@@ -39,34 +41,50 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 	style.FrameBorderSize = 1.0f;
 
 	ImGuiUtil::LoadImGuiStyleFromJson("resources/Configs/ImGui/imguiConfig.json");
+
+#endif
 }
 
 void ImguiWrapper::Finalize()
 {
+#ifdef _DEBUG
+
 	// imnodes
 	ImNodes::DestroyContext();
 
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+
+#endif
 }
 
 void ImguiWrapper::NewFrame()
 {
+#ifdef _DEBUG
+
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
 	ShowMainDockSpace(); // ドックスペースの描画
+
+#endif
 }
 
 void ImguiWrapper::Render(ID3D12GraphicsCommandList* commandList)
 {
+#ifdef _DEBUG
+
 	ImGui::Render();
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+
+#endif
 }
 
 void ImguiWrapper::ShowMainDockSpace() { 
+#ifdef _DEBUG
+
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -98,9 +116,13 @@ void ImguiWrapper::ShowMainDockSpace() {
 	);
 
 	ImGui::End();
+
+#endif
 }
 
 void ImGuiUtil::ImageWindow(std::string windowName, int32_t textureHandle) {
+#ifdef _DEBUG
+
 	ImGui::Begin(windowName.c_str());
 
 	// タブ等を除いたウィンドウのサイズを取得(計算)
@@ -129,9 +151,13 @@ void ImGuiUtil::ImageWindow(std::string windowName, int32_t textureHandle) {
 	ImGui::Image((SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(textureHandle).ptr), finalImageSize);
 
 	ImGui::End();
+
+#endif
 }
 
 void ImGuiUtil::DepthWindow(std::string windowName, int32_t textureHandle) {
+#ifdef _DEBUG
+
 	ImGui::Begin(windowName.c_str());
 
 	// タブ等を除いたウィンドウのサイズを取得(計算)
@@ -160,9 +186,13 @@ void ImGuiUtil::DepthWindow(std::string windowName, int32_t textureHandle) {
 	ImGui::Image((SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(textureHandle).ptr), finalImageSize);
 
 	ImGui::End();
+
+#endif
 }
 
 void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) { 
+#ifdef _DEBUG
+
 	ImGuiStyle& style = ImGui::GetStyle(); 
 	nlohmann::json j;
 
@@ -181,9 +211,13 @@ void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) {
 	if (file.is_open()) {
 		file << j.dump(4);
 	}
+
+#endif
 }
 
 void ImGuiUtil::LoadImGuiStyleFromJson(const std::string& filepath) { 
+#ifdef _DEBUG
+
 	std::ifstream file(filepath);
 	if (!file.is_open()) 
 		return;
@@ -212,4 +246,6 @@ void ImGuiUtil::LoadImGuiStyleFromJson(const std::string& filepath) {
 		style.ScrollbarRounding = j["ScrollbarRounding"];
 	if (j.contains("Alpha"))
 		style.Alpha = j["Alpha"];
+
+#endif
 }
