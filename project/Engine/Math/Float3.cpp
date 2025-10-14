@@ -1,24 +1,14 @@
 #include "Float3.h"
-#include "algorithm"
 #include "Matrix.h"
+#include "algorithm"
 
-Float3 Float3::operator+(const Float3& other) const 
-{ 
-	return {x + other.x, y + other.y, z + other.z}; 
-}
+Float3 Float3::operator+(const Float3& other) const { return {x + other.x, y + other.y, z + other.z}; }
 
-Float3 Float3::operator-(const Float3& other) const 
-{ 
-	return {x - other.x, y - other.y, z - other.z}; 
-}
+Float3 Float3::operator-(const Float3& other) const { return {x - other.x, y - other.y, z - other.z}; }
 
-Float3 Float3::operator*(const Float3& other) const 
-{ 
-	return {x * other.x, y * other.y, z * other.z};
-}
+Float3 Float3::operator*(const Float3& other) const { return {x * other.x, y * other.y, z * other.z}; }
 
-Float3 Float3::operator*(float scalar) const { 
-	return {x * scalar, y * scalar, z * scalar}; }
+Float3 Float3::operator*(float scalar) const { return {x * scalar, y * scalar, z * scalar}; }
 
 Float3& Float3::operator+=(const Float3& other) {
 	x += other.x;
@@ -41,23 +31,21 @@ Float3& Float3::operator*=(float scalar) {
 	return *this;
 }
 
-float Float3::Length(const Float3& v) { 
-	return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z); }
+float Float3::Length(const Float3& v) { return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z); }
 
-float Float3::LengthSq(const Float3& v) { 
-	return v.x * v.x + v.y * v.y + v.z * v.z; }
+float Float3::LengthSq(const Float3& v) { return v.x * v.x + v.y * v.y + v.z * v.z; }
 
-float Float3::Distance(const Float3& a, const Float3& b) { 
+float Float3::Distance(const Float3& a, const Float3& b) {
 	Float3 diff = a - b;
 	return Length(diff);
 }
 
-Float3 Float3::Normalize(const Float3& a) { 
+Float3 Float3::Normalize(const Float3& a) {
 	float length = Length(a);
 	return Float3(a.x / length, a.y / length, a.z / length);
 }
 
-Float3 Float3::Lerp(const Float3& a, const Float3& b, float t) { 
+Float3 Float3::Lerp(const Float3& a, const Float3& b, float t) {
 	return {
 	    a.x * (1.0f - t) + b.x * t,
 	    a.y * (1.0f - t) + b.y * t,
@@ -65,8 +53,7 @@ Float3 Float3::Lerp(const Float3& a, const Float3& b, float t) {
 	};
 }
 
-Float3 Float3::Transform(const Float3& v, const Matrix& m)
-{
+Float3 Float3::Transform(const Float3& v, const Matrix& m) {
 	Float3 result;
 
 	result.x = v.x * m.r[0][0] + v.y * m.r[1][0] + v.z * m.r[2][0] + m.r[3][0];
@@ -85,40 +72,15 @@ Float3 Float3::Transform(const Float3& v, const Matrix& m)
 	return result;
 }
 
-float Float3::Dot(const Float3& a, const Float3& b)
-{
-	return a.x * b.x + a.y * b.y + a.z * b.z;
-}
+float Float3::Dot(const Float3& a, const Float3& b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
 
-Float3 Float3::Cross(const Float3& a, const Float3& b)
-{
-	return Float3{
-		a.y * b.z - a.z * b.y,
-		a.z * b.x - a.x * b.z,
-		a.x * b.y - a.y * b.x
-	}; }
+Float3 Float3::Cross(const Float3& a, const Float3& b) { return Float3{a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x}; }
 
-Float3 Float3::Max(const Float3& a, const Float3& b) 
-{ 
-	return Float3
-	{
-		std::max(a.x, b.x), 
-		std::max(a.y, b.y), 
-		std::max(a.z, b.z)
-	}; 
-}
+Float3 Float3::Max(const Float3& a, const Float3& b) { return Float3{std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)}; }
 
-Float3 Float3::Min(const Float3& a, const Float3& b)
-{ 
-	return Float3
-	{
-		std::min(a.x, b.x), 
-		std::min(a.y, b.y), 
-		std::min(a.z, b.z)
-	}; 
-}
+Float3 Float3::Min(const Float3& a, const Float3& b) { return Float3{std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)}; }
 
-Float3 Float3::CatmullRomInterplation(const Float3& p0, const Float3& p1, const Float3& p2, const Float3& p3, float t) { 
+Float3 Float3::CatmullRomInterplation(const Float3& p0, const Float3& p1, const Float3& p2, const Float3& p3, float t) {
 	const float s = 0.5f;
 
 	float t2 = t * t;  // tの2乗
@@ -132,7 +94,7 @@ Float3 Float3::CatmullRomInterplation(const Float3& p0, const Float3& p1, const 
 	return (e3 * t3 + e2 * t2 + e1 * t + e0) * s;
 }
 
-Float3 Float3::CatmullRomPosition(const std::vector<Float3>& points, float t) { 
+Float3 Float3::CatmullRomPosition(const std::vector<Float3>& points, float t) {
 	assert(points.size() >= 4 && "制御点は4点以上必要です");
 
 	// 区間数は制御点の数-1
@@ -176,20 +138,18 @@ Float3 Float3::CatmullRomPosition(const std::vector<Float3>& points, float t) {
 	return CatmullRomInterplation(p0, p1, p2, p3, t_2);
 }
 
-Float3 Float3::MatrixToEulerAngles(const Matrix& m)
-{
+Float3 Float3::MatrixToEulerAngles(const Matrix& m) {
 	Float3 euler;
 
 	// Y -> X -> Z
 	euler.y = std::atan2(m.r[0][2], m.r[2][2]); // yaw
-	euler.x = std::asin(-m.r[1][2]); // pitch
+	euler.x = std::asin(-m.r[1][2]);            // pitch
 	euler.z = std::atan2(m.r[1][0], m.r[1][1]); // roll
 
 	return euler;
 }
 
-Float3 Float3::ExtractScale(const Matrix& m)
-{
+Float3 Float3::ExtractScale(const Matrix& m) {
 	Float3 scale;
 	scale.x = std::sqrt(m.r[0][0] * m.r[0][0] + m.r[0][1] * m.r[0][1] + m.r[0][2] * m.r[0][2]);
 	scale.y = std::sqrt(m.r[1][0] * m.r[1][0] + m.r[1][1] * m.r[1][1] + m.r[1][2] * m.r[1][2]);
@@ -197,6 +157,4 @@ Float3 Float3::ExtractScale(const Matrix& m)
 	return scale;
 }
 
-Float3 operator*(float scalar, const Float3& vec) { 
-	return {vec.x * scalar, vec.y * scalar, vec.z * scalar};
-}
+Float3 operator*(float scalar, const Float3& vec) { return {vec.x * scalar, vec.y * scalar, vec.z * scalar}; }

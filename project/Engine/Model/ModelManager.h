@@ -1,21 +1,23 @@
 #pragma once
-#include <vector>
-#include <string>
 #include <d3d12.h>
 #include <map>
 #include <optional>
 #include <span>
+#include <string>
+#include <vector>
 
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
 // MyClass
 #include "MyMath.h"
 #include "TextureManager.h"
 
-class ModelManager
-{
+/// <summary>
+/// モデル管理クラス
+/// </summary>
+class ModelManager {
 public:
 	struct VertexData {
 		Float4 position;
@@ -59,7 +61,7 @@ public:
 
 	///
 	///	Primitive
-	/// 
+	///
 
 	// リングの生成
 	static ModelData CreateRingModel(ID3D12Device* device, float outerRadius = 1.0f, float innerRadius = 0.2f);
@@ -70,7 +72,7 @@ public:
 
 	///
 	/// Load
-	/// 
+	///
 
 	// Objファイルの読み込みを行う
 	static ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename, ID3D12Device* device);
@@ -79,4 +81,3 @@ public:
 	// assimpのNodeから、Node構造体に変換
 	static Node ReadNode(aiNode* node);
 };
-

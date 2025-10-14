@@ -29,6 +29,9 @@ public:
 
 class RTVManager;
 
+/// <summary>
+/// DirectX基盤クラス
+/// </summary>
 class DirectXBase
 {
 public:

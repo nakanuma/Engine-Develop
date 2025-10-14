@@ -7,10 +7,9 @@
 #include <Math/MyMath.h>
 
 /// <summary>
-/// ランダム数字生成
+/// ランダム数字生成クラス
 /// </summary>
-class RandomGenerator 
-{
+class RandomGenerator {
 public:
 	/// <summary>
 	/// インスタンスの取得

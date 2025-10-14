@@ -1,14 +1,13 @@
 #pragma once
 
-#include <MyMath.h>
-#include <DirectXBase.h>
 #include <ConstBuffer.h>
+#include <DirectXBase.h>
+#include <MyMath.h>
 
 /// <summary>
-/// シャドウマップ用平行光源視点カメラ
+/// 平行光源視点のカメラ管理クラス（シャドウマップ用）
 /// </summary>
-class LightCamera
-{
+class LightCamera {
 public:
 	struct BoundingBox {
 		Float3 min;
@@ -17,7 +16,7 @@ public:
 		Float3 Center() const { return (min + max) * 0.5f; }
 		Float3 Extents() const { return (max - min) * 0.5f; }
 
-		void SetCenterExtents(const Float3& center, const Float3& extents) { 
+		void SetCenterExtents(const Float3& center, const Float3& extents) {
 			min = center - extents;
 			max = center + extents;
 		}
@@ -26,14 +25,14 @@ public:
 			Float3 e = Extents();
 			Float3 c = Center();
 
-			out[0] = { c.x - e.x, c.y - e.y, c.z - e.z };
-			out[1] = { c.x - e.x, c.y - e.y, c.z + e.z };
-			out[2] = { c.x - e.x, c.y + e.y, c.z - e.z };
-			out[3] = { c.x - e.x, c.y + e.y, c.z + e.z };
-			out[4] = { c.x + e.x, c.y - e.y, c.z - e.z };
-			out[5] = { c.x + e.x, c.y - e.y, c.z + e.z };
-			out[6] = { c.x + e.x, c.y + e.y, c.z - e.z };
-			out[7] = { c.x + e.x, c.y + e.y, c.z + e.z };
+			out[0] = {c.x - e.x, c.y - e.y, c.z - e.z};
+			out[1] = {c.x - e.x, c.y - e.y, c.z + e.z};
+			out[2] = {c.x - e.x, c.y + e.y, c.z - e.z};
+			out[3] = {c.x - e.x, c.y + e.y, c.z + e.z};
+			out[4] = {c.x + e.x, c.y - e.y, c.z - e.z};
+			out[5] = {c.x + e.x, c.y - e.y, c.z + e.z};
+			out[6] = {c.x + e.x, c.y + e.y, c.z - e.z};
+			out[7] = {c.x + e.x, c.y + e.y, c.z + e.z};
 		}
 	};
 
@@ -75,4 +74,3 @@ private:
 
 	ConstBuffer<LightCameraCB> cb_;
 };
-

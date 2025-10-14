@@ -1,9 +1,9 @@
 #include "FPSController.h"
- 
+
 // C++
 #include <thread>
 
-FPSController* FPSController::GetInstance() { 
+FPSController* FPSController::GetInstance() {
 	static FPSController instance;
 	return &instance;
 }

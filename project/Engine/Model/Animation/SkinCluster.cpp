@@ -6,10 +6,7 @@
 // Engine
 #include <DirectXUtil.h>
 
-// ---------------------------------------------------------
-// NodeからJointを作成
-// ---------------------------------------------------------
-void SkinCluster::CreateSkinCluster(const Microsoft::WRL::ComPtr<ID3D12Device>& device, const Skeleton& skeleton, const ModelManager::ModelData& modelData) { 
+void SkinCluster::CreateSkinCluster(const Microsoft::WRL::ComPtr<ID3D12Device>& device, const Skeleton& skeleton, const ModelManager::ModelData& modelData) {
 	SRVManager* srvManager = SRVManager::GetInstance();
 
 	// palette用のResourceを確保
@@ -50,16 +47,16 @@ void SkinCluster::CreateSkinCluster(const Microsoft::WRL::ComPtr<ID3D12Device>& 
 
 	// ModelDataのSkinCluster情報を解析してInfluenceの中身を埋める
 	for (const auto& jointWeight : modelData.skinClusterData) { // ModelのSkinClusterの情報を解析
-		auto it = skeleton.jointMap_.find(jointWeight.first);    // jointWeight.firstはjoint名なので、skeletonに対象となるjointが含まれているか判断
-		if (it == skeleton.jointMap_.end()) {                    // そんな名前のJointは存在しないため、次に回す
+		auto it = skeleton.jointMap_.find(jointWeight.first);   // jointWeight.firstはjoint名なので、skeletonに対象となるjointが含まれているか判断
+		if (it == skeleton.jointMap_.end()) {                   // そんな名前のJointは存在しないため、次に回す
 			continue;
 		}
 		// (*it).secondにはjointのindexが入っているので、該当のindexのinverseBindPoseMatrixを代入
 		inverseBindPoseMatrices_[(*it).second] = jointWeight.second.inverseBindPoseMatrix;
 		for (const auto& vertexWeight : jointWeight.second.vertexWeights) {
 			auto& currentInfluence = mappedInfluence_[vertexWeight.vertexIndex]; // 該当のvertexIndexのinfluence情報を参照しておく
-			for (uint32_t index = 0; index < kNumMaxInfluence; ++index) {                   // 空いているところに入れる
-				if (currentInfluence.weights[index] == 0.0f) {                              // weight == 0 が空いている状態なので、その場所にweightとjointのindexを代入
+			for (uint32_t index = 0; index < kNumMaxInfluence; ++index) {        // 空いているところに入れる
+				if (currentInfluence.weights[index] == 0.0f) {                   // weight == 0 が空いている状態なので、その場所にweightとjointのindexを代入
 					currentInfluence.weights[index] = vertexWeight.weight;
 					currentInfluence.jointIndices[index] = (*it).second;
 					break;
@@ -69,9 +66,6 @@ void SkinCluster::CreateSkinCluster(const Microsoft::WRL::ComPtr<ID3D12Device>& 
 	}
 }
 
-// ---------------------------------------------------------
-// NodeからJointを作成
-// ---------------------------------------------------------
 void SkinCluster::Update(const Skeleton& skeleton) {
 	for (size_t jointIndex = 0; jointIndex < skeleton.joints_.size(); ++jointIndex) {
 		assert(jointIndex < inverseBindPoseMatrices_.size());

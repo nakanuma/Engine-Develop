@@ -4,17 +4,12 @@
 #include <Camera.h>
 #include <ShaderManager.h>
 
-LineDrawer* LineDrawer::GetInstance()
-{
+LineDrawer* LineDrawer::GetInstance() {
 	static LineDrawer instance;
 	return &instance;
 }
 
-// ---------------------------------------------------------
-// 初期化処理
-// ---------------------------------------------------------
-void LineDrawer::Initialize()
-{
+void LineDrawer::Initialize() {
 	dxBase_ = DirectXBase::GetInstance();
 
 	CreateRootSignature();
@@ -38,34 +33,21 @@ void LineDrawer::Initialize()
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	HRESULT hr = dxBase_->GetDevice()->CreateCommittedResource(
-		&heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&resDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&constanceBuffer_)
-	);
+	HRESULT hr = dxBase_->GetDevice()->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&constanceBuffer_));
 	assert(SUCCEEDED(hr));
 
 	constanceBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&constMap_));
 }
 
-// ---------------------------------------------------------
-// 線の登録
-// ---------------------------------------------------------
-void LineDrawer::RegisterLine(const Float3& start, const Float3& end, const Float4& color)
-{
-	lineVertices_.push_back({ start, color });
-	lineVertices_.push_back({ end, color });
+void LineDrawer::RegisterLine(const Float3& start, const Float3& end, const Float4& color) {
+	lineVertices_.push_back({start, color});
+	lineVertices_.push_back({end, color});
 }
 
-// ---------------------------------------------------------
-// 扇形（塗りつぶし）の追加
-// ---------------------------------------------------------
-void LineDrawer::RegisterSector(const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset)
-{
-	if (segments < 1) return;
+void LineDrawer::RegisterSector(
+    const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset) {
+	if (segments < 1)
+		return;
 
 	Float3 c = center;
 	c.y += yOffset; // 少し浮かせる
@@ -78,61 +60,59 @@ void LineDrawer::RegisterSector(const Float3& center, float innerRadius, float o
 		float a1 = startAngleRad + (endAngleRad - startAngleRad) * t1;
 
 		// 内側弧
-		Float3 i0 = { c.x + std::cosf(a0) * innerRadius, c.y, c.z + std::sinf(a0) * innerRadius };
-		Float3 i1 = { c.x + std::cosf(a1) * innerRadius, c.y, c.z + std::sinf(a1) * innerRadius };
+		Float3 i0 = {c.x + std::cosf(a0) * innerRadius, c.y, c.z + std::sinf(a0) * innerRadius};
+		Float3 i1 = {c.x + std::cosf(a1) * innerRadius, c.y, c.z + std::sinf(a1) * innerRadius};
 
 		// 外側弧
-		Float3 o0 = { c.x + std::cosf(a0) * outerRadius, c.y, c.z + std::sinf(a0) * outerRadius };
-		Float3 o1 = { c.x + std::cosf(a1) * outerRadius, c.y, c.z + std::sinf(a1) * outerRadius };
+		Float3 o0 = {c.x + std::cosf(a0) * outerRadius, c.y, c.z + std::sinf(a0) * outerRadius};
+		Float3 o1 = {c.x + std::cosf(a1) * outerRadius, c.y, c.z + std::sinf(a1) * outerRadius};
 
 		// Quadを三角形2枚で作成
-		triVertices_.push_back({ i0, innerColor });
-		triVertices_.push_back({ o0, outerColor });
-		triVertices_.push_back({ o1, outerColor });
+		triVertices_.push_back({i0, innerColor});
+		triVertices_.push_back({o0, outerColor});
+		triVertices_.push_back({o1, outerColor});
 
-		triVertices_.push_back({ i0, innerColor });
-		triVertices_.push_back({ o1, outerColor });
-		triVertices_.push_back({ i1, innerColor });
+		triVertices_.push_back({i0, innerColor});
+		triVertices_.push_back({o1, outerColor});
+		triVertices_.push_back({i1, innerColor});
 	}
 }
 
-// ---------------------------------------------------------
-// トレーサー線の登録
-// ---------------------------------------------------------
 void LineDrawer::RegisterTracer(const Float3& start, const Float3& end, float thickness, const Float4& headColor, const Float4& tailColor) {
 	// 方向ベクトルと長さ
 	Float3 dir = end - start;
 	float len = Float3::Length(dir);
-	if (len < 0.001f) return; // 長さ0なら描画しない
+	if (len < 0.001f)
+		return; // 長さ0なら描画しない
 	dir = Float3(dir.x / len, dir.y / len, dir.z / len);
 
 	// カメラに対して垂直なオフセット方向を求める
-	Float3 up = { 0.0f, 1.0f, 0.0f };
+	Float3 up = {0.0f, 1.0f, 0.0f};
 	Float3 side = Float3::Normalize(Float3::Cross(up, dir));
 	Float3 offset = side * (thickness * 0.5f);
 
 	// 四角形の4頂点
 	Float3 v0 = start - offset; // tail left
 	Float3 v1 = start + offset; // tail right
-	Float3 v2 = end + offset; // head right;
-	Float3 v3 = end - offset; // head left;
+	Float3 v2 = end + offset;   // head right;
+	Float3 v3 = end - offset;   // head left;
 
 	// 三角形2毎にして分割して登録
-	triVertices_.push_back({ v0, tailColor });
-	triVertices_.push_back({ v1, tailColor });
-	triVertices_.push_back({ v2, headColor });
+	triVertices_.push_back({v0, tailColor});
+	triVertices_.push_back({v1, tailColor});
+	triVertices_.push_back({v2, headColor});
 
-	triVertices_.push_back({ v0, tailColor });
-	triVertices_.push_back({ v2, headColor });
-	triVertices_.push_back({ v3, headColor });
+	triVertices_.push_back({v0, tailColor});
+	triVertices_.push_back({v2, headColor});
+	triVertices_.push_back({v3, headColor});
 }
 
-void LineDrawer::Draw()
-{
+void LineDrawer::Draw() {
 	auto device = dxBase_->GetDevice();
 	auto cmdList = dxBase_->GetCommandList();
 
-	if (lineVertices_.empty() && triVertices_.empty()) return;
+	if (lineVertices_.empty() && triVertices_.empty())
+		return;
 
 	// 定数バッファ（VP）
 	Matrix viewMatrix = Camera::GetCurrent()->MakeViewMatrix();
@@ -145,7 +125,7 @@ void LineDrawer::Draw()
 
 	///
 	///	三角形
-	/// 
+	///
 
 	if (!triVertices_.empty()) {
 		size_t vbSize = sizeof(Vertex) * triVertices_.size();
@@ -162,14 +142,7 @@ void LineDrawer::Draw()
 		resDesc.SampleDesc.Count = 1;
 		resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-		device->CreateCommittedResource(
-			&heapProp,
-			D3D12_HEAP_FLAG_NONE,
-			&resDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&triVertexResource_)
-		);
+		device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&triVertexResource_));
 
 		Vertex* mapped = nullptr;
 		triVertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mapped));
@@ -191,7 +164,7 @@ void LineDrawer::Draw()
 
 	///
 	/// 線分
-	/// 
+	///
 
 	if (!lineVertices_.empty()) {
 		size_t vbSize = sizeof(Vertex) * lineVertices_.size();
@@ -209,14 +182,7 @@ void LineDrawer::Draw()
 		resDesc.SampleDesc.Count = 1;
 		resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-		device->CreateCommittedResource(
-			&heapProp,
-			D3D12_HEAP_FLAG_NONE,
-			&resDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&lineVertexResource_)
-		);
+		device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&lineVertexResource_));
 
 		Vertex* vbData = nullptr;
 		lineVertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
@@ -238,7 +204,7 @@ void LineDrawer::Draw()
 
 	///
 	///	トレーサーストリップ（三角形帯）
-	/// 
+	///
 
 	if (!tracerStrip_.empty()) {
 		size_t vbSize = sizeof(TrailVertex) * tracerStrip_.size();
@@ -256,14 +222,7 @@ void LineDrawer::Draw()
 		resDesc.SampleDesc.Count = 1;
 		resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-		device->CreateCommittedResource(
-			&heapProp, 
-			D3D12_HEAP_FLAG_NONE, 
-			&resDesc, 
-			D3D12_RESOURCE_STATE_GENERIC_READ, 
-			nullptr, 
-			IID_PPV_ARGS(&tracerStripResource_)
-		);
+		device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&tracerStripResource_));
 
 		TrailVertex* vbData = nullptr;
 		tracerStripResource_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
@@ -289,8 +248,7 @@ void LineDrawer::Draw()
 	tracerStrip_.clear();
 }
 
-void LineDrawer::CreateRootSignature()
-{
+void LineDrawer::CreateRootSignature() {
 	D3D12_ROOT_PARAMETER rootParams[1] = {};
 	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParams[0].Descriptor.ShaderRegister = 0;
@@ -310,15 +268,10 @@ void LineDrawer::CreateRootSignature()
 	assert(SUCCEEDED(hr));
 }
 
-void LineDrawer::CreateGraphicsPipeline()
-{
+void LineDrawer::CreateGraphicsPipeline() {
 	HRESULT result = S_FALSE;
 
-	auto makeDesk = [&](D3D12_PRIMITIVE_TOPOLOGY_TYPE topo,
-		const std::string& vsName,
-		const std::string& psName,
-		D3D12_INPUT_LAYOUT_DESC inputLayout) 
-		{
+	auto makeDesk = [&](D3D12_PRIMITIVE_TOPOLOGY_TYPE topo, const std::string& vsName, const std::string& psName, D3D12_INPUT_LAYOUT_DESC inputLayout) {
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC d{};
 		d.pRootSignature = rootSignature_.Get();
 		d.InputLayout = inputLayout;
@@ -357,8 +310,7 @@ void LineDrawer::CreateGraphicsPipeline()
 	dxBase_->GetDevice()->CreateGraphicsPipelineState(&tracerDesc, IID_PPV_ARGS(&pipelineStateTracer_));
 }
 
-void LineDrawer::SetInputLayout()
-{
+void LineDrawer::SetInputLayout() {
 	// InputLayout
 	inputElementDescs_[0].SemanticName = "POSITION";
 	inputElementDescs_[0].SemanticIndex = 0;
@@ -374,8 +326,7 @@ void LineDrawer::SetInputLayout()
 	inputLayoutDesc_.NumElements = _countof(inputElementDescs_);
 }
 
-void LineDrawer::InitializeDXC()
-{
+void LineDrawer::InitializeDXC() {
 	HRESULT result = S_FALSE;
 
 	// dxcCompilerを初期化
@@ -388,8 +339,7 @@ void LineDrawer::InitializeDXC()
 	assert(SUCCEEDED(result));
 }
 
-D3D12_RASTERIZER_DESC LineDrawer::SetRasterizerState()
-{
+D3D12_RASTERIZER_DESC LineDrawer::SetRasterizerState() {
 	// 裏面（時計回り）を表示しない
 	rasterizerDesc_.CullMode = D3D12_CULL_MODE_NONE;
 	// 塗りつぶす
@@ -398,8 +348,7 @@ D3D12_RASTERIZER_DESC LineDrawer::SetRasterizerState()
 	return rasterizerDesc_;
 }
 
-void LineDrawer::CreateDepthBuffer()
-{
+void LineDrawer::CreateDepthBuffer() {
 	// DepthStencilTextureをウィンドウのサイズで作成
 	depthStencilResource_ = CreateDepthStencilTextureResource(dxBase_->GetDevice(), Window::GetWidth(), Window::GetHeight(), false);
 
@@ -407,7 +356,7 @@ void LineDrawer::CreateDepthBuffer()
 	dsvDescriptorHeap_.Create(dxBase_->GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
 	// DSVの設定
-	dsvDesc_.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // Format。基本的にはResourceに合わせる
+	dsvDesc_.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;        // Format。基本的にはResourceに合わせる
 	dsvDesc_.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; // 2dTexture;
 	// DSVHeapの先頭にDSVをつくる
 	dxBase_->GetDevice()->CreateDepthStencilView(depthStencilResource_.Get(), &dsvDesc_, dsvDescriptorHeap_.GetCPUHandle(0));
@@ -421,8 +370,7 @@ void LineDrawer::CreateDepthBuffer()
 	depthStencilDesc_.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 }
 
-D3D12_BLEND_DESC LineDrawer::SetBlendState()
-{
+D3D12_BLEND_DESC LineDrawer::SetBlendState() {
 	blendDesc_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDesc_.RenderTarget[0].BlendEnable = TRUE;
 	blendDesc_.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;

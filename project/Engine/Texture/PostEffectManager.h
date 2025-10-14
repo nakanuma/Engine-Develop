@@ -39,10 +39,9 @@ enum class PostEffectType {
 };
 
 /// <summary>
-/// ポストエフェクト管理
+/// ポストエフェクト管理クラス
 /// </summary>
-class PostEffectManager
-{
+class PostEffectManager {
 public:
 	/// <summary>
 	/// 初期化処理
@@ -131,4 +130,3 @@ public:
 	uint32_t bloomExtractGH_ = 0;
 	uint32_t bloomBlurGH_ = 0;
 };
-

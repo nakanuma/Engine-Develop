@@ -1,20 +1,19 @@
 #pragma once
 
 // C++
-#include <string>
-#include <optional>
 #include <map>
+#include <optional>
+#include <string>
 
 // Engine
-#include <MyMath.h>
-#include <ModelManager.h>
 #include <Model/Animation/AnimationLoader.h>
+#include <ModelManager.h>
+#include <MyMath.h>
 
 /// <summary>
-/// ジョイント階層と空間変換の管理
+/// スケルトンクラス（ジョイント階層と空間変換の管理）
 /// </summary>
-class Skeleton 
-{
+class Skeleton {
 public:
 	struct Joint {
 		QuaternionTransform transform; // Transform情報
@@ -30,7 +29,7 @@ public:
 	/// ModelDataのNodeの階層構造からSkeletonを作成
 	/// </summary>
 	void CreateSkeleton(const ModelManager::Node& rootNode);
-	
+
 	/// <summary>
 	/// NodeからJointを作成
 	/// </summary>
@@ -40,7 +39,7 @@ public:
 	/// Skeletonの更新
 	/// </summary>
 	void Update();
-	
+
 	/// <summary>
 	/// Skeletonに対してAnimationの適用
 	/// </summary>
@@ -50,7 +49,6 @@ public:
 	/// AnimationBlend
 	/// </summary>
 	void ApplyBlendedAnimation(const AnimationLoader::Animation& a, const AnimationLoader::Animation& b, float timeA, float timeB, float blendRate);
-
 
 	int32_t root_;                            // RootJointのIndex
 	std::map<std::string, int32_t> jointMap_; // Joint名とIndexとの辞書

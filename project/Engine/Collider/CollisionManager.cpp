@@ -2,31 +2,23 @@
 #include "CollisionManager.h"
 
 // C++
+#include <algorithm>
 #include <iostream>
 #include <limits>
-#include <algorithm>
 
 // Externals
 #include <ImguiWrapper.h>
 
 // Engine
-#include <Engine/Collider/CollisionMath.h>
 #include <Engine/3D/LineDrawer.h>
+#include <Engine/Collider/CollisionMath.h>
 
-// ---------------------------------------------------------
-// インスタンスの取得
-// ---------------------------------------------------------
-CollisionManager* CollisionManager::GetInstance()
-{
+CollisionManager* CollisionManager::GetInstance() {
 	static CollisionManager instance;
 	return &instance;
 }
 
-// ---------------------------------------------------------
-// コライダーの登録
-// ---------------------------------------------------------
-void CollisionManager::Register(Collider* collider)
-{
+void CollisionManager::Register(Collider* collider) {
 	if (collider == nullptr) {
 		return;
 	}
@@ -34,11 +26,7 @@ void CollisionManager::Register(Collider* collider)
 	colliders_.push_back(collider);
 }
 
-// ---------------------------------------------------------
-// コライダーの登録を解除
-// ---------------------------------------------------------
-void CollisionManager::Unregister(Collider* collider)
-{
+void CollisionManager::Unregister(Collider* collider) {
 	// colliders_から削除
 	auto it = std::remove(colliders_.begin(), colliders_.end(), collider);
 	if (it != colliders_.end()) {
@@ -55,21 +43,19 @@ void CollisionManager::Unregister(Collider* collider)
 	}
 }
 
-// ---------------------------------------------------------
-// 全ての衝突判定を行う
-// ---------------------------------------------------------
-void CollisionManager::Update()
-{
+void CollisionManager::Update() {
 	// 今フレームで衝突しているコライダーのペアを一時的に保持
 	std::set<std::pair<Collider*, Collider*>> currentCollisions;
 
 	for (size_t i = 0; i < colliders_.size(); ++i) {
 		// コライダーが無効ならスキップ
-		if (!colliders_[i]->IsActive()) continue;
+		if (!colliders_[i]->IsActive())
+			continue;
 
 		for (size_t j = i + 1; j < colliders_.size(); ++j) {
 			// コライダーが無効ならスキップ
-			if (!colliders_[j]->IsActive()) continue;
+			if (!colliders_[j]->IsActive())
+				continue;
 
 			if (colliders_[i]->CheckCollision(colliders_[j])) {
 				// 今フレームで衝突しているペアをセットに追加
@@ -102,22 +88,19 @@ void CollisionManager::Update()
 	previousCollisions_ = currentCollisions;
 }
 
-// ---------------------------------------------------------
-// コライダーの描画を行う（デバッグ用）
-// ---------------------------------------------------------
-void CollisionManager::Draw()
-{
+void CollisionManager::Draw() {
 	auto drawer = LineDrawer::GetInstance();
 
 	for (auto* collider : colliders_) {
-		if (!collider->IsActive()) continue;
+		if (!collider->IsActive())
+			continue;
 
 		///
 		///	Sphere
-		/// 
+		///
 		if (collider->GetType() == "Sphere") {
 			auto* sphere = static_cast<SphereCollider*>(collider);
-			
+
 			const uint32_t kSubdivision = 8; // 分割数
 			const float kLonEvery = (PIf * 2.0f) / kSubdivision;
 			const float kLatEvery = PIf / kSubdivision;
@@ -130,19 +113,19 @@ void CollisionManager::Draw()
 
 					// 頂点a, b, cを求める
 					Float3 a = {
-						cosf(lat) * cosf(lon) * sphere->radius_,
-						sinf(lat) * sphere->radius_,
-						cosf(lat) * sinf(lon) * sphere->radius_,
+					    cosf(lat) * cosf(lon) * sphere->radius_,
+					    sinf(lat) * sphere->radius_,
+					    cosf(lat) * sinf(lon) * sphere->radius_,
 					};
 					Float3 b = {
-						cosf(lat + kLatEvery) * cosf(lon) * sphere->radius_,
-						sinf(lat + kLatEvery) * sphere->radius_,
-						cosf(lat + kLatEvery) * sinf(lon) * sphere->radius_,
+					    cosf(lat + kLatEvery) * cosf(lon) * sphere->radius_,
+					    sinf(lat + kLatEvery) * sphere->radius_,
+					    cosf(lat + kLatEvery) * sinf(lon) * sphere->radius_,
 					};
 					Float3 c = {
-						cosf(lat) * cosf(lon + kLonEvery) * sphere->radius_,
-						sinf(lat) * sphere->radius_,
-						cosf(lat) * sinf(lon + kLonEvery) * sphere->radius_,
+					    cosf(lat) * cosf(lon + kLonEvery) * sphere->radius_,
+					    sinf(lat) * sphere->radius_,
+					    cosf(lat) * sinf(lon + kLonEvery) * sphere->radius_,
 					};
 
 					// ワールド座標に移動
@@ -150,15 +133,15 @@ void CollisionManager::Draw()
 					b = b + sphere->center_;
 					c = c + sphere->center_;
 
-					drawer->RegisterLine(a, b, { 1.0f, 1.0f, 1.0f, 1.0f });
-					drawer->RegisterLine(a, c, { 1.0f, 1.0f, 1.0f, 1.0f });
+					drawer->RegisterLine(a, b, {1.0f, 1.0f, 1.0f, 1.0f});
+					drawer->RegisterLine(a, c, {1.0f, 1.0f, 1.0f, 1.0f});
 				}
 			}
 
 		}
 		///
 		///	AABB
-		/// 
+		///
 		else if (collider->GetType() == "AABB") {
 			auto* aabb = static_cast<AABBCollider*>(collider);
 
@@ -167,25 +150,38 @@ void CollisionManager::Draw()
 			Float3 max = aabb->max_;
 
 			Float3 corners[8] = {
-			   {min.x, min.y, min.z}, {max.x, min.y, min.z},
-			   {min.x, max.y, min.z}, {max.x, max.y, min.z},
-			   {min.x, min.y, max.z}, {max.x, min.y, max.z},
-			   {min.x, max.y, max.z}, {max.x, max.y, max.z},
+			    {min.x, min.y, min.z},
+                {max.x, min.y, min.z},
+                {min.x, max.y, min.z},
+                {max.x, max.y, min.z},
+                {min.x, min.y, max.z},
+                {max.x, min.y, max.z},
+                {min.x, max.y, max.z},
+                {max.x, max.y, max.z},
 			};
 
 			int edges[12][2] = {
-				{0,1},{1,3},{3,2},{2,0}, // 前面
-				{4,5},{5,7},{7,6},{6,4}, // 背面
-				{0,4},{1,5},{2,6},{3,7}  // 側面
+			    {0, 1},
+                {1, 3},
+                {3, 2},
+                {2, 0}, // 前面
+			    {4, 5},
+                {5, 7},
+                {7, 6},
+                {6, 4}, // 背面
+			    {0, 4},
+                {1, 5},
+                {2, 6},
+                {3, 7}  // 側面
 			};
 
 			for (auto& e : edges) {
-				drawer->RegisterLine(corners[e[0]], corners[e[1]], { 1.0f, 1.0f, 1.0f, 1.0f });
+				drawer->RegisterLine(corners[e[0]], corners[e[1]], {1.0f, 1.0f, 1.0f, 1.0f});
 			}
 		}
 		///
 		///	OBB
-		/// 
+		///
 		else if (collider->GetType() == "OBB") {
 			auto* obb = static_cast<OBBCollider*>(collider);
 
@@ -195,34 +191,39 @@ void CollisionManager::Draw()
 			Float3 halfZ = obb->zAxis_ * (obb->size_.z * 1.0f);
 
 			Float3 corners[8] = {
-				obb->center_ + halfX + halfY + halfZ,  // 0
-				obb->center_ - halfX + halfY + halfZ,  // 1
-				obb->center_ - halfX - halfY + halfZ,  // 2
-				obb->center_ + halfX - halfY + halfZ,  // 3
-				obb->center_ + halfX + halfY - halfZ,  // 4
-				obb->center_ - halfX + halfY - halfZ,  // 5
-				obb->center_ - halfX - halfY - halfZ,  // 6
-				obb->center_ + halfX - halfY - halfZ   // 7
+			    obb->center_ + halfX + halfY + halfZ, // 0
+			    obb->center_ - halfX + halfY + halfZ, // 1
+			    obb->center_ - halfX - halfY + halfZ, // 2
+			    obb->center_ + halfX - halfY + halfZ, // 3
+			    obb->center_ + halfX + halfY - halfZ, // 4
+			    obb->center_ - halfX + halfY - halfZ, // 5
+			    obb->center_ - halfX - halfY - halfZ, // 6
+			    obb->center_ + halfX - halfY - halfZ  // 7
 			};
 
 			int edges[12][2] = {
-				{0,1},{1,2},{2,3},{3,0}, // 前面
-				{4,5},{5,6},{6,7},{7,4}, // 背面
-				{0,4},{1,5},{2,6},{3,7}  // 側面
+			    {0, 1},
+                {1, 2},
+                {2, 3},
+                {3, 0}, // 前面
+			    {4, 5},
+                {5, 6},
+                {6, 7},
+                {7, 4}, // 背面
+			    {0, 4},
+                {1, 5},
+                {2, 6},
+                {3, 7}  // 側面
 			};
 
 			for (auto& e : edges) {
-				drawer->RegisterLine(corners[e[0]], corners[e[1]], { 1.0f, 1.0f, 1.0f, 1.0f });
+				drawer->RegisterLine(corners[e[0]], corners[e[1]], {1.0f, 1.0f, 1.0f, 1.0f});
 			}
 		}
 	}
 }
 
-// ---------------------------------------------------------
-// デバッグ表示
-// ---------------------------------------------------------
-void CollisionManager::Debug()
-{
+void CollisionManager::Debug() {
 	if (ImGui::Begin("Colliders")) {
 
 		// 有効なコライダーの数を数える
@@ -237,25 +238,27 @@ void CollisionManager::Debug()
 
 		for (size_t i = 0; i < colliders_.size(); ++i) {
 			Collider* collider = colliders_[i];
-			if (!collider) continue;
-			if (!collider->IsActive()) continue;
+			if (!collider)
+				continue;
+			if (!collider->IsActive())
+				continue;
 
 			std::string label = "Collider[" + std::to_string(i) + "] (" + collider->GetTag() + ")";
 			if (ImGui::TreeNode(label.c_str())) {
 				///
 				///	各項目の表示
-				/// 
+				///
 
 				// タイプ
 				ImGui::Text("Type : %s", collider->GetType().c_str());
-				
+
 				// タグ
 				ImGui::Text("Tag : %s", collider->GetTag().c_str());
 
 				///
 				/// パラメーター表示
-				/// 
-				
+				///
+
 				// SphereCollider
 				if (collider->GetType() == "Sphere") {
 					if (auto sphere = dynamic_cast<SphereCollider*>(collider)) {
@@ -300,27 +303,21 @@ void CollisionManager::Debug()
 
 	///
 	///	コライダーの描画
-	/// 
-	
+	///
+
 	Draw();
 }
 
-// ---------------------------------------------------------
-// レイキャスト
-// ---------------------------------------------------------
-bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit, const std::unordered_set<std::string>& ignoreTags)
-{
+bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit, const std::unordered_set<std::string>& ignoreTags) {
 	bool hitAny = false;
 	float closestDistance = maxDistance;
 	Collider* closestCollider = nullptr;
 	Float3 hitPoint{};
 
 	// 全てのコライダーとの判定
-	for (auto* collider : colliders_) 
-	{
+	for (auto* collider : colliders_) {
 		// vs AABBCollider
-		if (collider->GetType() == "AABB") 
-		{
+		if (collider->GetType() == "AABB") {
 			// 無視タグに含まれるコライダーはスキップ
 			if (!ignoreTags.empty() && ignoreTags.count(collider->GetTag()) > 0) {
 				continue;
@@ -329,8 +326,7 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 			AABBCollider* aabb = static_cast<AABBCollider*>(collider);
 
 			// レイ方向の逆数を計算
-			Float3 invDir = 
-			{
+			Float3 invDir = {
 			    direction.x != 0.0f ? 1.0f / direction.x : std::numeric_limits<float>::infinity(),
 			    direction.y != 0.0f ? 1.0f / direction.y : std::numeric_limits<float>::infinity(),
 			    direction.z != 0.0f ? 1.0f / direction.z : std::numeric_limits<float>::infinity(),
@@ -344,11 +340,10 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 			Float3 tmax = Float3::Max(t1, t2);
 
 			float tNear = std::max({tmin.x, tmin.y, tmin.z}); // レイがAABBに入る時刻
-			float tFar = std::min({tmax.x, tmax.y, tmax.z}); // レイがAABBから出る時刻
+			float tFar = std::min({tmax.x, tmax.y, tmax.z});  // レイがAABBから出る時刻
 
 			// レイとAABBの交差判定
-			if (tNear <= tFar && tNear >= 0.0f && tNear < closestDistance)
-			{
+			if (tNear <= tFar && tNear >= 0.0f && tNear < closestDistance) {
 				hitAny = true;
 				closestDistance = tNear;
 				closestCollider = collider;
@@ -356,12 +351,10 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 			}
 		}
 		// 他の種類のコライダーとの衝突判定
-
 	}
 
 	// outHitに結果を格納
-	if (hitAny && outHit) 
-	{
+	if (hitAny && outHit) {
 		outHit->isHit = true;
 		outHit->hitPoint = hitPoint;
 		outHit->hitCollider = closestCollider;
@@ -370,11 +363,7 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 	return hitAny;
 }
 
-// ---------------------------------------------------------
-// Sphereと特定タグを持ったコライダーとの衝突判定
-// ---------------------------------------------------------
-bool CollisionManager::CheckSphereCollisionWithTag(const Float3& center, float radius, const std::unordered_set<std::string>& targetTags)
-{
+bool CollisionManager::CheckSphereCollisionWithTag(const Float3& center, float radius, const std::unordered_set<std::string>& targetTags) {
 	// 疑似SphereColliderを作成
 	SphereCollider tempSphere;
 	tempSphere.center_ = center;

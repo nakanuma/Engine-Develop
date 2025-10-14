@@ -1,8 +1,8 @@
 #pragma once
 
 // C++
-#include <string>
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 // Engine
@@ -11,8 +11,7 @@
 /// <summary>
 /// パーティクルエフェクト管理クラス
 /// </summary>
-class ParticleEffectManager 
-{
+class ParticleEffectManager {
 public:
 	/// <summary>
 	/// シングルトンインスタンスの取得

@@ -1,16 +1,18 @@
 #pragma once
-#include <d3d12.h>
-#include "externals/DirectXTex/DirectXTex.h"
-#include "StringUtil.h"
-#include "Logger.h"
 #include "DescriptorHeap.h"
-#include <array>
 #include "Float4.h"
+#include "Logger.h"
 #include "SRVManager.h"
+#include "StringUtil.h"
+#include "externals/DirectXTex/DirectXTex.h"
+#include <array>
+#include <d3d12.h>
 #include <unordered_map>
 
-class TextureManager final
-{
+/// <summary>
+/// テクスチャ管理クラス
+/// </summary>
+class TextureManager final {
 public:
 	struct TextureData {
 		DirectX::TexMetadata metadata;
@@ -43,12 +45,13 @@ public:
 	// SRVインデックスの取得
 	uint32_t GetSRVIndex(const std::string& filePath) { return textureDatas[filePath].srvIndex; }
 	// GPUハンドルの取得
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(const std::string& filePath){return textureDatas[filePath].srvHandleGPU;}
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(const std::string& filePath) { return textureDatas[filePath].srvHandleGPU; }
 
 	TextureManager() = default;
 	~TextureManager() = default;
 	TextureManager(TextureManager&) = delete;
 	TextureManager& operator=(TextureManager&) = delete;
+
 private:
 	// TextureデータをCPUで読む
 	static DirectX::ScratchImage LoadTexture(const std::string& filePath);
@@ -69,4 +72,3 @@ private:
 	// テクスチャデータ
 	std::unordered_map<std::string, TextureData> textureDatas;
 };
-

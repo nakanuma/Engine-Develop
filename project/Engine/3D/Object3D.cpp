@@ -5,14 +5,13 @@
 
 #include <numbers>
 
-Object3D::Object3D()
-{
-	transform_.translate = { 0.0f, 0.0f, 0.0f };
-	transform_.rotate = { 0.0f, 0.0f, 0.0f };
-	transform_.scale = { 1.0f, 1.0f, 1.0f };
+Object3D::Object3D() {
+	transform_.translate = {0.0f, 0.0f, 0.0f};
+	transform_.rotate = {0.0f, 0.0f, 0.0f};
+	transform_.scale = {1.0f, 1.0f, 1.0f};
 
 	// 白を書き込む
-	materialCB_.data_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	materialCB_.data_->color = {1.0f, 1.0f, 1.0f, 1.0f};
 	// ライティング有効化
 	materialCB_.data_->enableLighting = true;
 	// 環境マップ有効化フラグ（CubeMapをバインドしてない場合には有効化できない）
@@ -25,13 +24,12 @@ Object3D::Object3D()
 	materialCB_.data_->environmentStrength = 1.0f;
 }
 
-void Object3D::UpdateMatrix()
-{
+void Object3D::UpdateMatrix() {
 	Matrix worldMatrix = transform_.MakeAffineMatrix();
 	// 親が存在する場合、親の行列を考慮する
 	if (parent_) {
 		Matrix parentWorldMatrix = parent_->transform_.MakeAffineMatrix(); // 親のワールド行列
-		worldMatrix = worldMatrix * parentWorldMatrix; // 子の行列に親の行列を掛ける
+		worldMatrix = worldMatrix * parentWorldMatrix;                     // 子の行列に親の行列を掛ける
 	}
 
 	Matrix viewMatrix = Camera::GetCurrent()->MakeViewMatrix();
@@ -47,14 +45,13 @@ void Object3D::UpdateMatrix()
 	wvpCB_.data_->WorldInverseTranspose = worldInverseTransposeMatrix;
 }
 
-void Object3D::UpdateShadowMatrix()
-{
+void Object3D::UpdateShadowMatrix() {
 	Matrix worldMatrix = transform_.MakeAffineMatrix();
 
 	// 親が存在する場合、親の行列を考慮する
 	if (parent_) {
 		Matrix parentWorldMatrix = parent_->transform_.MakeAffineMatrix(); // 親のワールド行列
-		worldMatrix = worldMatrix * parentWorldMatrix; // 子の行列に親の行列を掛ける
+		worldMatrix = worldMatrix * parentWorldMatrix;                     // 子の行列に親の行列を掛ける
 	}
 
 	shadowWvpCB_.data_->World = worldMatrix;
@@ -69,8 +66,7 @@ void Object3D::ScaleUV(float scaleU) {
 	materialCB_.data_->uvTransform = uvScaleMatrix;
 }
 
-void Object3D::Draw()
-{
+void Object3D::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// commandListにVBVを設定
@@ -89,13 +85,12 @@ void Object3D::Draw()
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::Draw(SkinCluster skinCluster)
-{
+void Object3D::Draw(SkinCluster skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
-		model_->vertexBufferView, // VertexDataのVBV
-		skinCluster.influenceBufferView_ // InfluenceのVBV
+	    model_->vertexBufferView,        // VertexDataのVBV
+	    skinCluster.influenceBufferView_ // InfluenceのVBV
 	};
 
 	// 配列を渡す（開始Slot番号、使用Slot番号、VBV配列へのポインタ）
@@ -116,8 +111,7 @@ void Object3D::Draw(SkinCluster skinCluster)
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer, uint32_t numInstance, const uint32_t TextureHandle)
-{
+void Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer, uint32_t numInstance, const uint32_t TextureHandle) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// パーティクル用ルートシグネチャを設定
@@ -136,8 +130,7 @@ void Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer
 	dxBase->GetCommandList()->DrawInstanced(UINT(model_->vertices.size()), numInstance, 0, 0);
 }
 
-void Object3D::DrawPartial(uint32_t indexCount)
-{
+void Object3D::DrawPartial(uint32_t indexCount) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// commandListにVBVを設定
@@ -156,8 +149,7 @@ void Object3D::DrawPartial(uint32_t indexCount)
 	dxBase->GetCommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }
 
-void Object3D::DrawShadow()
-{
+void Object3D::DrawShadow() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 頂点バッファ・インデックスバッファの設定
@@ -166,23 +158,16 @@ void Object3D::DrawShadow()
 	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// WVP（World * LightViewProj）のみを使う
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(
-		11, shadowWvpCB_.resource_->GetGPUVirtualAddress()
-	);
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(11, shadowWvpCB_.resource_->GetGPUVirtualAddress());
 
 	// DrawCall
-	dxBase->GetCommandList()->DrawIndexedInstanced(
-		static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0
-	);
+	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::DrawShadow(SkinCluster skinCluster) { 
-	DirectXBase* dxBase = DirectXBase::GetInstance(); 
-	
-	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
-		model_->vertexBufferView, 
-		skinCluster.influenceBufferView_
-	};
+void Object3D::DrawShadow(SkinCluster skinCluster) {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+
+	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {model_->vertexBufferView, skinCluster.influenceBufferView_};
 
 	dxBase->GetCommandList()->IASetVertexBuffers(0, 2, vbvs);
 	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);

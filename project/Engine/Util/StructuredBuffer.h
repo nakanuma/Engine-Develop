@@ -1,15 +1,19 @@
 #pragma once
-#include "DirectXUtil.h"
-#include "DirectXBase.h"
 #include "DescriptorHeap.h"
-#include "TextureManager.h"
+#include "DirectXBase.h"
+#include "DirectXUtil.h"
 #include "SRVManager.h"
+#include "TextureManager.h"
 
-template<class Type>class StructuredBuffer {
+/// <summary>
+/// ストラクチャードバッファのラッパークラス
+/// </summary>
+template<class Type> class StructuredBuffer {
 public:
 	// trueを指定した場合には空で生成される
 	StructuredBuffer(uint32_t numInstance, bool isEmpty = false) : numMaxInstance_(numInstance) {
-		if (!isEmpty)Create();
+		if (!isEmpty)
+			Create();
 	};
 
 	void Create() {
@@ -37,14 +41,12 @@ public:
 	StructuredBuffer& operator=(const StructuredBuffer&) = delete;
 	StructuredBuffer& operator=(StructuredBuffer&&) = delete;
 
-
 	uint32_t numMaxInstance_; // インスタンス数 // インスタンス数
 	uint32_t heapIndex_;
 };
 
-template<class Type>
-inline void StructuredBuffer<Type>::CreateSRV()
-{D3D12_SHADER_RESOURCE_VIEW_DESC instancingSrvDesc{};
+template<class Type> inline void StructuredBuffer<Type>::CreateSRV() {
+	D3D12_SHADER_RESOURCE_VIEW_DESC instancingSrvDesc{};
 	instancingSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
 	instancingSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	instancingSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
@@ -55,6 +57,6 @@ inline void StructuredBuffer<Type>::CreateSRV()
 	/*D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU = SRVManager::GetInstance().descriptorHeap.GetCPUHandle(SRVManager::GetInstance().GetIndex());*/
 	D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU = SRVManager::GetInstance()->descriptorHeap.GetCPUHandle(SRVManager::GetInstance()->GetIndex());
 	heapIndex_ = SRVManager::GetInstance()->GetIndex(); // heapのIndexを記録
-	SRVManager::GetInstance()->IncrementIndex(); // indexをインクリメント
+	SRVManager::GetInstance()->IncrementIndex();        // indexをインクリメント
 	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(resource_.Get(), &instancingSrvDesc, instancingSrvHandleCPU);
 }

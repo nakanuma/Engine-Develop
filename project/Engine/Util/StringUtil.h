@@ -1,7 +1,7 @@
 #pragma once
 #include <Windows.h>
-#include <string>
 #include <format>
+#include <string>
 
 // string -> wstring
 std::wstring ConvertString(const std::string& str);

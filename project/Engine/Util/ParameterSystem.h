@@ -19,9 +19,9 @@ class ParameterManager;
 /// パラメーター変更前後の値を記録する構造体
 /// </summary>
 struct ParameterChange {
-	std::string name; // パラメーター名
+	std::string name;           // パラメーター名
 	nlohmann::json beforeValue; // 変更前の値を格納
-	nlohmann::json afterValue; // 変更後の値を格納
+	nlohmann::json afterValue;  // 変更後の値を格納
 };
 
 /// <summary>

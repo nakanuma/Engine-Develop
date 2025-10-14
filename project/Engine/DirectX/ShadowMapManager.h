@@ -1,12 +1,14 @@
 #pragma once
 
 #include <d3d12.h>
-#include <wrl.h>
-#include <unordered_map>
 #include <stdint.h>
+#include <unordered_map>
+#include <wrl.h>
 
-class ShadowMapManager final
-{
+/// <summary>
+/// シャドウマップ管理クラス
+/// </summary>
+class ShadowMapManager final {
 public:
 	/// <summary>
 	/// インスタンス取得
@@ -107,4 +109,3 @@ private:
 	// スキニング用シャドウマップPSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> shadowSkinnedPSO_;
 };
-

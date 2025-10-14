@@ -1,21 +1,18 @@
 #include "SceneManager.h"
 #include <cassert>
 
-SceneManager* SceneManager::GetInstance()
-{
+SceneManager* SceneManager::GetInstance() {
 	static SceneManager instance;
 	return &instance;
 }
 
-SceneManager::~SceneManager()
-{
+SceneManager::~SceneManager() {
 	// 最後のシーンの終了と開放
 	scene_->Finalize();
 	delete scene_;
 }
 
-void SceneManager::ChangeScene(const std::string& sceneName)
-{
+void SceneManager::ChangeScene(const std::string& sceneName) {
 	assert(sceneFactory_);
 	assert(nextScene_ == nullptr);
 
@@ -23,12 +20,11 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 	nextScene_ = sceneFactory_->CreateScene(sceneName);
 }
 
-void SceneManager::Update()
-{
+void SceneManager::Update() {
 	///
 	///	シーン切り替え機構
-	/// 
-	
+	///
+
 	// 次シーンの予約があるなら
 	if (nextScene_) {
 		// 旧シーンの終了
@@ -50,8 +46,7 @@ void SceneManager::Update()
 	scene_->Update();
 }
 
-void SceneManager::Draw()
-{
+void SceneManager::Draw() {
 	// 実行中シーンの描画
 	scene_->Draw();
 }

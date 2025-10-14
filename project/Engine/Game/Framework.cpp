@@ -2,12 +2,11 @@
 
 #include <StringUtil.h>
 
-void Framework::Initialize()
-{
+void Framework::Initialize() {
 	// リークチェッカー
 	D3DResourceLeakChecker::GetInstance();
 	// COMの初期化
-	CoInitializeEx(0,COINIT_MULTITHREADED);
+	CoInitializeEx(0, COINIT_MULTITHREADED);
 
 	// ゲームウィンドウの生成
 	window = new Window;
@@ -29,10 +28,10 @@ void Framework::Initialize()
 	spriteCommon->Initialize(dxBase);
 
 	// TextureManagerの初期化
-	TextureManager::Initialize(dxBase->GetDevice(),srvManager);
+	TextureManager::Initialize(dxBase->GetDevice(), srvManager);
 
 	// ImGuiの初期化
-	ImguiWrapper::Initialize(dxBase->GetDevice(),dxBase->GetSwapChainDesc().BufferCount,dxBase->GetRtvDesc().Format,srvManager->descriptorHeap.heap_.Get());
+	ImguiWrapper::Initialize(dxBase->GetDevice(), dxBase->GetSwapChainDesc().BufferCount, dxBase->GetRtvDesc().Format, srvManager->descriptorHeap.heap_.Get());
 
 	// SoundManagerの生成と初期化
 	soundManager = new SoundManager;
@@ -45,8 +44,7 @@ void Framework::Initialize()
 	ShadowMapManager::GetInstance()->Initialize();
 }
 
-void Framework::Finalize()
-{
+void Framework::Finalize() {
 	// シーンファクトリ開放
 	delete sceneFactory_;
 	// スプライト共通処理開放
@@ -60,11 +58,9 @@ void Framework::Finalize()
 	CoUninitialize();
 }
 
-void Framework::Update()
-{
+void Framework::Update() {
 	// ウィンドウのメッセージを処理して終了リクエストを設定
-	if(window->ProcessMessage())
-	{
+	if (window->ProcessMessage()) {
 		RequestEnd();
 		return;
 	}
@@ -80,18 +76,16 @@ void Framework::Update()
 	TimeManager::GetInstance()->Update();
 }
 
-void Framework::Run()
-{
+void Framework::Run() {
 	// ゲームの初期化
 	Initialize();
 
-	while(true) // ゲームループ
+	while (true) // ゲームループ
 	{
 		// 毎フレーム更新
 		Update();
 		// 終了リクエストが来たら抜ける
-		if(IsEndRequest())
-		{
+		if (IsEndRequest()) {
 			break;
 		}
 		// 描画

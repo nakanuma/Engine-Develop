@@ -9,7 +9,7 @@
 class IParticleEffect {
 public:
 	virtual ~IParticleEffect() = default;
-	
+
 	// デフォルト
 	virtual void Emit(const Float3& pos, const Float3& velocity, const float& angle) = 0;
 	virtual void Emit(const Float3& pos, uint32_t count, const Float3& velocity, const float& angle) {

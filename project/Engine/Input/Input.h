@@ -9,7 +9,9 @@
 
 #include "MyWindow.h"
 
-// 入力
+/// <summary>
+/// 入力管理クラス
+/// </summary>
 class Input {
 public:
 	// namespace省略

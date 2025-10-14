@@ -1,13 +1,12 @@
 #include "ImguiWrapper.h"
-#include <d3d12.h>
-#include "TextureManager.h"
 #include "RTVManager.h"
+#include "TextureManager.h"
+#include <d3d12.h>
 
 // Externals
 #include <externals/nlohmann/json.hpp>
 
-void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT rtvFormat, ID3D12DescriptorHeap* srvHeap)
-{
+void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT rtvFormat, ID3D12DescriptorHeap* srvHeap) {
 #ifdef _DEBUG
 
 	IMGUI_CHECKVERSION();
@@ -27,14 +26,7 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(Window::GetHandle());
-	ImGui_ImplDX12_Init(
-		device, 
-		bufferCount, 
-		rtvFormat, 
-		srvHeap, 
-		srvHeap->GetCPUDescriptorHandleForHeapStart(), 
-		srvHeap->GetGPUDescriptorHandleForHeapStart()
-	);
+	ImGui_ImplDX12_Init(device, bufferCount, rtvFormat, srvHeap, srvHeap->GetCPUDescriptorHandleForHeapStart(), srvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowBorderSize = 0.0f;
@@ -45,8 +37,7 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 #endif
 }
 
-void ImguiWrapper::Finalize()
-{
+void ImguiWrapper::Finalize() {
 #ifdef _DEBUG
 
 	// imnodes
@@ -59,8 +50,7 @@ void ImguiWrapper::Finalize()
 #endif
 }
 
-void ImguiWrapper::NewFrame()
-{
+void ImguiWrapper::NewFrame() {
 #ifdef _DEBUG
 
 	ImGui_ImplDX12_NewFrame();
@@ -72,8 +62,7 @@ void ImguiWrapper::NewFrame()
 #endif
 }
 
-void ImguiWrapper::Render(ID3D12GraphicsCommandList* commandList)
-{
+void ImguiWrapper::Render(ID3D12GraphicsCommandList* commandList) {
 #ifdef _DEBUG
 
 	ImGui::Render();
@@ -82,7 +71,7 @@ void ImguiWrapper::Render(ID3D12GraphicsCommandList* commandList)
 #endif
 }
 
-void ImguiWrapper::ShowMainDockSpace() { 
+void ImguiWrapper::ShowMainDockSpace() {
 #ifdef _DEBUG
 
 	ImGuiIO& io = ImGui::GetIO();
@@ -97,23 +86,14 @@ void ImguiWrapper::ShowMainDockSpace() {
 	ImGui::SetNextWindowSize(viewport->Size);
 	ImGui::SetNextWindowViewport(viewport->ID);
 
-	ImGuiWindowFlags host_window_flags = 
-		ImGuiWindowFlags_NoTitleBar | 
-		ImGuiWindowFlags_NoCollapse | 
-		ImGuiWindowFlags_NoResize | 
-		ImGuiWindowFlags_NoMove | 
-		ImGuiWindowFlags_NoBringToFrontOnFocus |
-		ImGuiWindowFlags_NoNavFocus | 
-		ImGuiWindowFlags_NoBackground | 
-		ImGuiWindowFlags_NoDocking;
+	ImGuiWindowFlags host_window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
+	                                     ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDocking;
 
 	ImGui::Begin("MainDockSpaceHost", nullptr, host_window_flags);
 	ImGui::PopStyleVar(3);
 
 	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), 
-		ImGuiDockNodeFlags_PassthruCentralNode
-	);
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
 	ImGui::End();
 
@@ -190,10 +170,10 @@ void ImGuiUtil::DepthWindow(std::string windowName, int32_t textureHandle) {
 #endif
 }
 
-void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) { 
+void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) {
 #ifdef _DEBUG
 
-	ImGuiStyle& style = ImGui::GetStyle(); 
+	ImGuiStyle& style = ImGui::GetStyle();
 	nlohmann::json j;
 
 	for (size_t i = 0; i < ImGuiCol_COUNT; ++i) {
@@ -215,11 +195,11 @@ void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) {
 #endif
 }
 
-void ImGuiUtil::LoadImGuiStyleFromJson(const std::string& filepath) { 
+void ImGuiUtil::LoadImGuiStyleFromJson(const std::string& filepath) {
 #ifdef _DEBUG
 
 	std::ifstream file(filepath);
-	if (!file.is_open()) 
+	if (!file.is_open())
 		return;
 
 	nlohmann::json j;

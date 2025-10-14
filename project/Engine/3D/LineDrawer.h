@@ -5,10 +5,9 @@
 #include <MyMath.h>
 
 /// <summary>
-/// 線の描画
+/// 線分描画ユーティリティクラス
 /// </summary>
-class LineDrawer
-{
+class LineDrawer {
 public:
 	struct Vertex {
 		Float3 pos;
@@ -42,7 +41,8 @@ public:
 	/// <summary>
 	/// 扇形（塗りつぶし）の追加
 	/// </summary>
-	void RegisterSector(const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset);
+	void RegisterSector(
+	    const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset);
 
 	/// <summary>
 	/// トレーサー線の登録
@@ -77,7 +77,7 @@ private:
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 
 	// DepthStencil
-	Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc_;
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc_;
 	DescriptorHeap dsvDescriptorHeap_;
@@ -111,4 +111,3 @@ private:
 	// トレーサー用頂点バッファ
 	std::vector<TrailVertex> tracerStrip_;
 };
-

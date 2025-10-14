@@ -2,6 +2,9 @@
 #include "Input.h"
 #include "MyMath.h"
 
+/// <summary>
+/// デバッグカメラ管理クラス
+/// </summary>
 class DebugCamera {
 public:
 	/// <summary>

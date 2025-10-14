@@ -1,28 +1,20 @@
 #include "ParameterSystem.h"
 
-// ---------------------------------------------------------
-// 登録されたすべてのパラメーターをGUI上に描画
-// ---------------------------------------------------------
 void ParameterManager::DrawAll() {
 	for (auto& p : params)
 		p->Draw();
 }
 
-// ---------------------------------------------------------
-// パラメーターの値をJSONへ保存
-// ---------------------------------------------------------
 bool ParameterManager::SaveToFile(const std::string& filename) {
 	nlohmann::json j;
 
-	for (auto& p : params)
-	{
+	for (auto& p : params) {
 		p->Save(j);
 	}
 
 	std::ofstream ofs(filename);
 
-	if (!ofs.is_open())
-	{
+	if (!ofs.is_open()) {
 		return false;
 	}
 
@@ -31,41 +23,29 @@ bool ParameterManager::SaveToFile(const std::string& filename) {
 	return true;
 }
 
-// ---------------------------------------------------------
-// JSONからパラメーターの値を読み込み
-// ---------------------------------------------------------
-bool ParameterManager::LoadFromFile(const std::string& filename)
-{
+bool ParameterManager::LoadFromFile(const std::string& filename) {
 	std::ifstream ifs(filename);
 
-	if (!ifs.is_open())
-	{
+	if (!ifs.is_open()) {
 		return false;
 	}
 
 	nlohmann::json j;
 	ifs >> j;
 
-	for (auto& p : params)
-	{
+	for (auto& p : params) {
 		p->Load(j);
 	}
 
 	return true;
 }
 
-// ---------------------------------------------------------
-// 変更履歴の追加（値変更時に呼び出される
-// ---------------------------------------------------------
-void ParameterManager::PushHistory(const ParameterChange& change) { 
+void ParameterManager::PushHistory(const ParameterChange& change) {
 	undoStack.push_back(change);
 	redoStack.clear();
 	needsSave_ = true;
 }
 
-// ---------------------------------------------------------
-// パラメーター変更前に戻す
-// ---------------------------------------------------------
 void ParameterManager::Undo() {
 	if (undoStack.empty())
 		return;
@@ -88,9 +68,6 @@ void ParameterManager::Undo() {
 	needsSave_ = true;
 }
 
-// ---------------------------------------------------------
-// パラメーター変更後に戻す
-// ---------------------------------------------------------
 void ParameterManager::Redo() {
 	if (redoStack.empty())
 		return;
@@ -113,9 +90,6 @@ void ParameterManager::Redo() {
 	needsSave_ = true;
 }
 
-// ---------------------------------------------------------
-// 初期化処理
-// ---------------------------------------------------------
 void IConfigurable::InitConfig() {
 	// 初回だけ読み込み
 	if (!isLoaded_) {
@@ -124,9 +98,6 @@ void IConfigurable::InitConfig() {
 	}
 }
 
-// ---------------------------------------------------------
-// ウインドウを表示
-// ---------------------------------------------------------
 void IConfigurable::DrawConfigWindow(const char* title) {
 	if (ImGui::Begin(title)) {
 		// 調整項目を全て描画

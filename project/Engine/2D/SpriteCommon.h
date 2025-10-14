@@ -1,9 +1,11 @@
 #pragma once
-#include "DirectXBase.h"
 #include "DescriptorHeap.h"
+#include "DirectXBase.h"
 
-class SpriteCommon
-{
+/// <summary>
+/// スプライト描画に関する共通処理をまとめたクラス
+/// </summary>
+class SpriteCommon {
 public:
 	// 初期化
 	void Initialize(DirectXBase* dxBase);
@@ -56,19 +58,17 @@ private:
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 
-	Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc_;
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc_;
 	DescriptorHeap dsvDescriptorHeap_;
 
-
-
-	D3D12_BLEND_DESC blendDesc_; // kBlendModeNormal
-	D3D12_BLEND_DESC blendDescNone_; // kBlendModeNone
-	D3D12_BLEND_DESC blendDescAdd_; // kBlendModeAdd
+	D3D12_BLEND_DESC blendDesc_;         // kBlendModeNormal
+	D3D12_BLEND_DESC blendDescNone_;     // kBlendModeNone
+	D3D12_BLEND_DESC blendDescAdd_;      // kBlendModeAdd
 	D3D12_BLEND_DESC blendDescSubtract_; // kBlendModeSubtract
 	D3D12_BLEND_DESC blendDescMultiply_; // kBlendModeMultiply
-	D3D12_BLEND_DESC blendDescScreen_; // kBlendModeScreen
+	D3D12_BLEND_DESC blendDescScreen_;   // kBlendModeScreen
 	// BlendMode変更用のPSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeNone_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeAdd_;
@@ -76,4 +76,3 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeMultiply_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeScreen_;
 };
-

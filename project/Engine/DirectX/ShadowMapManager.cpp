@@ -1,187 +1,162 @@
 #include "ShadowMapManager.h"
 
 #include <DirectXBase.h>
+#include <LightCamera.h>
 #include <SRVManager.h>
 #include <TextureManager.h>
-#include <LightCamera.h>
 
 using Microsoft::WRL::ComPtr;
 
-ShadowMapManager* ShadowMapManager::GetInstance()
-{
-    static ShadowMapManager instance;
-    return &instance;
+ShadowMapManager* ShadowMapManager::GetInstance() {
+	static ShadowMapManager instance;
+	return &instance;
 }
 
 void ShadowMapManager::Initialize() {
-    CreateShadowPSO();
-    CreateShadowSkinnedPSO();
+	CreateShadowPSO();
+	CreateShadowSkinnedPSO();
 }
 
-int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height)
-{
-    DirectXBase* dxBase = DirectXBase::GetInstance();
-    ID3D12Device* device = dxBase->GetDevice();
+int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height) {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	ID3D12Device* device = dxBase->GetDevice();
 
-    // シャドウマップリソース作成
-    D3D12_RESOURCE_DESC texDesc{};
-    texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    texDesc.Width = width;
-    texDesc.Height = height;
-    texDesc.DepthOrArraySize = 1;
-    texDesc.MipLevels = 1;
-    texDesc.Format = DXGI_FORMAT_R32_TYPELESS; // 深度+SRV用
-    texDesc.SampleDesc.Count = 1;
-    texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	// シャドウマップリソース作成
+	D3D12_RESOURCE_DESC texDesc{};
+	texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	texDesc.Width = width;
+	texDesc.Height = height;
+	texDesc.DepthOrArraySize = 1;
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT_R32_TYPELESS; // 深度+SRV用
+	texDesc.SampleDesc.Count = 1;
+	texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-    D3D12_CLEAR_VALUE clearValue{};
-    clearValue.Format = DXGI_FORMAT_D32_FLOAT;
-    clearValue.DepthStencil.Depth = 1.0f;
-    clearValue.DepthStencil.Stencil = 0;
+	D3D12_CLEAR_VALUE clearValue{};
+	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+	clearValue.DepthStencil.Depth = 1.0f;
+	clearValue.DepthStencil.Stencil = 0;
 
-    ComPtr<ID3D12Resource> shadowTex;
-    D3D12_HEAP_PROPERTIES heapProp = {};
-    heapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
-    device->CreateCommittedResource(
-        &heapProp,
-        D3D12_HEAP_FLAG_NONE,
-        &texDesc,
-        D3D12_RESOURCE_STATE_DEPTH_WRITE,
-        &clearValue,
-        IID_PPV_ARGS(&shadowTex)
-    );
+	ComPtr<ID3D12Resource> shadowTex;
+	D3D12_HEAP_PROPERTIES heapProp = {};
+	heapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
+	device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_PPV_ARGS(&shadowTex));
 
-    // DSV確保
-    DescriptorHeap* dsvHeap = dxBase->GetDSVHeap();
-    uint32_t dsvIndex = dsvUseIndex_++; // このクラスでインデックスを管理
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap->GetCPUHandle(dsvIndex);
+	// DSV確保
+	DescriptorHeap* dsvHeap = dxBase->GetDSVHeap();
+	uint32_t dsvIndex = dsvUseIndex_++; // このクラスでインデックスを管理
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap->GetCPUHandle(dsvIndex);
 
-    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
-    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 
-    device->CreateDepthStencilView(shadowTex.Get(), &dsvDesc, dsvHandle);
+	device->CreateDepthStencilView(shadowTex.Get(), &dsvDesc, dsvHandle);
 
-    // SRV確保
-    uint32_t srvIndex = TextureManager::CreateSRV(shadowTex.Get(), DXGI_FORMAT_R32_FLOAT);
+	// SRV確保
+	uint32_t srvIndex = TextureManager::CreateSRV(shadowTex.Get(), DXGI_FORMAT_R32_FLOAT);
 
-    // 登録
-    shadowResources_[srvIndex] = { shadowTex, dsvHandle, srvIndex, srvIndex };
+	// 登録
+	shadowResources_[srvIndex] = {shadowTex, dsvHandle, srvIndex, srvIndex};
 
-    return srvIndex;
+	return srvIndex;
 }
 
-void ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle)
-{
-    DirectXBase* dxBase = DirectXBase::GetInstance();
+void ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle) {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
 
-    // シャドウマップ用PSOをセット
-    dxBase->GetCommandList()->SetPipelineState(ShadowMapManager::GetInstance()->GetShadowPSO());
+	// シャドウマップ用PSOをセット
+	dxBase->GetCommandList()->SetPipelineState(ShadowMapManager::GetInstance()->GetShadowPSO());
 
-    // Viewport / Scissor の設定
-    D3D12_VIEWPORT vp{};
-    vp.TopLeftX = 0.0f;
-    vp.TopLeftY = 0.0f;
-    vp.Width = static_cast<float>(Window::GetWidth());
-    vp.Height = static_cast<float>(Window::GetHeight());
-    vp.MinDepth = 0.0f;
-    vp.MaxDepth = 1.0f;
-    dxBase->GetCommandList()->RSSetViewports(1, &vp);
+	// Viewport / Scissor の設定
+	D3D12_VIEWPORT vp{};
+	vp.TopLeftX = 0.0f;
+	vp.TopLeftY = 0.0f;
+	vp.Width = static_cast<float>(Window::GetWidth());
+	vp.Height = static_cast<float>(Window::GetHeight());
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	dxBase->GetCommandList()->RSSetViewports(1, &vp);
 
-    D3D12_RECT sc{};
-    sc.left = 0;
-    sc.top = 0;
-    sc.right = static_cast<LONG>(Window::GetWidth());
-    sc.bottom = static_cast<LONG>(Window::GetHeight());
-    dxBase->GetCommandList()->RSSetScissorRects(1, &sc);
+	D3D12_RECT sc{};
+	sc.left = 0;
+	sc.top = 0;
+	sc.right = static_cast<LONG>(Window::GetWidth());
+	sc.bottom = static_cast<LONG>(Window::GetHeight());
+	dxBase->GetCommandList()->RSSetScissorRects(1, &sc);
 
-    // シャドウマップ書き込み前に書き込み状態に遷移
-    TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	// シャドウマップ書き込み前に書き込み状態に遷移
+	TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-    // シャドウマップDSVをセット
-    SetShadowDSV(shadowMapHandle);
+	// シャドウマップDSVをセット
+	SetShadowDSV(shadowMapHandle);
 
-    // シャドウマップをクリア
-    ClearShadowMap(shadowMapHandle);
+	// シャドウマップをクリア
+	ClearShadowMap(shadowMapHandle);
 }
 
-void ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle)
-{
-    DirectXBase* dxBase = DirectXBase::GetInstance();
+void ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle) {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
 
-    // 描画後、SRVとして使えるように遷移
-    ShadowMapManager::GetInstance()->TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    // ShadowMapをバインド
-    TextureManager::SetDescriptorTable(12, dxBase->GetCommandList(), shadowMapHandle);
-    // LightCameraの定数バッファを送信（PixelShader内で使用）
-    LightCamera::GetInstance()->TransferConstantBuffer();
+	// 描画後、SRVとして使えるように遷移
+	ShadowMapManager::GetInstance()->TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	// ShadowMapをバインド
+	TextureManager::SetDescriptorTable(12, dxBase->GetCommandList(), shadowMapHandle);
+	// LightCameraの定数バッファを送信（PixelShader内で使用）
+	LightCamera::GetInstance()->TransferConstantBuffer();
 
-    // バックバッファ用PSOに切り替え
-    dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
-    // バックバッファDSVに切り替え
-    UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxBase->GetRTVHandle(backBufferIndex);
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxBase->GetDSVHeap()->GetCPUHandle(0);
-    dxBase->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+	// バックバッファ用PSOに切り替え
+	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+	// バックバッファDSVに切り替え
+	UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxBase->GetRTVHandle(backBufferIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxBase->GetDSVHeap()->GetCPUHandle(0);
+	dxBase->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
 
-int32_t ShadowMapManager::GetShadowSRVHandle(int32_t handle)
-{
-    return shadowResources_[handle].srvIndex;
+int32_t ShadowMapManager::GetShadowSRVHandle(int32_t handle) { return shadowResources_[handle].srvIndex; }
+
+ID3D12Resource* ShadowMapManager::GetShadowTexture(int32_t handle) const {
+	auto it = shadowResources_.find(handle);
+	if (it != shadowResources_.end()) {
+		return it->second.resource.Get();
+	}
+	return nullptr;
 }
 
-ID3D12Resource* ShadowMapManager::GetShadowTexture(int32_t handle) const
-{
-    auto it = shadowResources_.find(handle);
-    if (it != shadowResources_.end()) {
-        return it->second.resource.Get();
-    }
-    return nullptr;
+void ShadowMapManager::SetShadowDSV(int32_t handle) {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	ID3D12GraphicsCommandList* cmdList = dxBase->GetCommandList();
+
+	// DSVをセット
+	auto& res = shadowResources_[handle];
+	cmdList->OMSetRenderTargets(0, nullptr, FALSE, &res.dsvHandle);
 }
 
-void ShadowMapManager::SetShadowDSV(int32_t handle)
-{
-    DirectXBase* dxBase = DirectXBase::GetInstance();
-    ID3D12GraphicsCommandList* cmdList = dxBase->GetCommandList();
+void ShadowMapManager::ClearShadowMap(int32_t handle, float clearDepth) {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	ID3D12GraphicsCommandList* cmdList = dxBase->GetCommandList();
 
-    // DSVをセット
-    auto& res = shadowResources_[handle];
-    cmdList->OMSetRenderTargets(0, nullptr, FALSE, &res.dsvHandle);
+	auto& res = shadowResources_[handle];
+	cmdList->ClearDepthStencilView(res.dsvHandle, D3D12_CLEAR_FLAG_DEPTH, clearDepth, 0, 0, nullptr);
 }
 
-void ShadowMapManager::ClearShadowMap(int32_t handle, float clearDepth)
-{
-    DirectXBase* dxBase = DirectXBase::GetInstance();
-    ID3D12GraphicsCommandList* cmdList = dxBase->GetCommandList();
+void ShadowMapManager::TransitionShadowResource(ID3D12GraphicsCommandList* cmdList, int32_t handle, D3D12_RESOURCE_STATES newState) {
+	auto& shadow = shadowResources_.at(handle);
+	if (shadow.currentState != newState) {
+		D3D12_RESOURCE_BARRIER barrier = {};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.pResource = shadow.resource.Get();
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.StateBefore = shadow.currentState;
+		barrier.Transition.StateAfter = newState;
 
-    auto& res = shadowResources_[handle];
-    cmdList->ClearDepthStencilView(
-        res.dsvHandle,
-        D3D12_CLEAR_FLAG_DEPTH,
-        clearDepth,
-        0,
-        0,
-        nullptr
-    );
-}
+		cmdList->ResourceBarrier(1, &barrier);
 
-void ShadowMapManager::TransitionShadowResource(ID3D12GraphicsCommandList* cmdList, int32_t handle, D3D12_RESOURCE_STATES newState)
-{
-    auto& shadow = shadowResources_.at(handle);
-    if (shadow.currentState != newState) {
-        D3D12_RESOURCE_BARRIER barrier = {};
-        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        barrier.Transition.pResource = shadow.resource.Get();
-        barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-        barrier.Transition.StateBefore = shadow.currentState;
-        barrier.Transition.StateAfter = newState;
-
-        cmdList->ResourceBarrier(1, &barrier);
-
-        // 状態を更新
-        shadow.currentState = newState;
-    }
+		// 状態を更新
+		shadow.currentState = newState;
+	}
 }
 
 void ShadowMapManager::CreateShadowPSO() {
@@ -231,9 +206,9 @@ void ShadowMapManager::CreateShadowSkinnedPSO() {
 	psoDesc.pRootSignature = dxBase->GetRootSignature();
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
-	    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-        {"WEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-	    {"INDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 1, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
+	    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+	    {"WEIGHT",   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0,  D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+	    {"INDEX",    0, DXGI_FORMAT_R32G32B32A32_SINT,  1, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
     };
 
 	psoDesc.InputLayout = {inputLayout, _countof(inputLayout)};

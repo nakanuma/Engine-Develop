@@ -1,7 +1,9 @@
 #pragma once
 
-struct Float2
-{
+/// <summary>
+/// 2次元ベクトル
+/// </summary>
+struct Float2 {
 	float x;
 	float y;
 

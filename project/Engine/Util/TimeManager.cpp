@@ -1,13 +1,11 @@
 #include "TimeManager.h"
 
-TimeManager* TimeManager::GetInstance() 
-{
+TimeManager* TimeManager::GetInstance() {
 	static TimeManager instance;
 	return &instance;
 }
 
-void TimeManager::Update() 
-{ 
+void TimeManager::Update() {
 	// 現在時刻を取得
 	auto currentTime = Clock::now();
 
@@ -22,7 +20,4 @@ void TimeManager::Update()
 	previousTime_ = currentTime;
 }
 
-float TimeManager::GetDeltaTime() const 
-{ 
-	return deltaTime_; 
-}
+float TimeManager::GetDeltaTime() const { return deltaTime_; }

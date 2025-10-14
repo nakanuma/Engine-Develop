@@ -1,8 +1,10 @@
 #pragma once
 #include "Framework.h"
 
-class MyGame : public Framework
-{
+/// <summary>
+/// ゲーム本体クラス
+/// </summary>
+class MyGame : public Framework {
 public:
 	// 初期化
 	void Initialize() override;
@@ -17,5 +19,4 @@ public:
 	void Draw() override;
 
 private:
-}; 
-
+};

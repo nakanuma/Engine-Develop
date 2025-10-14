@@ -3,11 +3,7 @@
 // Engine
 #include <TextureManager.h>
 
-// ---------------------------------------------------------
-// 初期化処理
-// ---------------------------------------------------------
-void AnimatedModelInstance::Initialize(const AnimatedModelData& data)
-{
+void AnimatedModelInstance::Initialize(const AnimatedModelData& data) {
 	object_ = std::make_unique<Object3D>();
 
 	data_.modelData = data.modelData;
@@ -21,11 +17,7 @@ void AnimatedModelInstance::Initialize(const AnimatedModelData& data)
 	data_.skinCluster.CreateSkinCluster(DirectXBase::GetInstance()->GetDevice(), data_.skeleton, data_.modelData);
 }
 
-// ---------------------------------------------------------
-// アニメーションデータのセット
-// ---------------------------------------------------------
-void AnimatedModelInstance::SetData(const AnimatedModelData& data)
-{
+void AnimatedModelInstance::SetData(const AnimatedModelData& data) {
 	data_.animation = data.animation;
 
 	// モデルのセット
@@ -35,9 +27,6 @@ void AnimatedModelInstance::SetData(const AnimatedModelData& data)
 	/*animationTime_ = 0.0f;*/
 }
 
-// ---------------------------------------------------------
-// 更新
-// ---------------------------------------------------------
 void AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {
 	// アニメーション更新
 	if (isPlaying) {
@@ -58,9 +47,6 @@ void AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {
 	object_->UpdateMatrix();
 }
 
-// ---------------------------------------------------------
-// 描画
-// ---------------------------------------------------------
 void AnimatedModelInstance::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
@@ -70,22 +56,16 @@ void AnimatedModelInstance::Draw() {
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
 }
 
-// ---------------------------------------------------------
-// 描画（シャドウマップ用）
-// ---------------------------------------------------------
-void AnimatedModelInstance::DrawShadow() { 
-	DirectXBase* dxBase = DirectXBase::GetInstance(); 
-	
+void AnimatedModelInstance::DrawShadow() {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+
 	// 骨行列SRVのバインド
 	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(5, data_.skinCluster.paletteSrvHandle_.second);
-	
+
 	object_->DrawShadow(data_.skinCluster);
 }
 
-// ---------------------------------------------------------
-// アニメーションのセット
-// ---------------------------------------------------------
-void AnimatedModelInstance::SetAnimation(const AnimationLoader::Animation& animation) { 
+void AnimatedModelInstance::SetAnimation(const AnimationLoader::Animation& animation) {
 	data_.animation = animation;
 	animationTime_ = 0.0f;
 }

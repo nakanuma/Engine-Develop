@@ -1,8 +1,10 @@
 #pragma once
 #include "Float3.h"
 
-class Quaternion
-{
+/// <summary>
+/// クォータニオン
+/// </summary>
+class Quaternion {
 public:
 	float x = 0.0f;
 	float y = 0.0f;
@@ -15,7 +17,7 @@ public:
 
 	///
 	///	二項演算子のオーバーロード
-	/// 
+	///
 
 	// 加算
 	Quaternion operator+(const Quaternion& other) const;
@@ -28,7 +30,7 @@ public:
 
 	///
 	///	複合代入演算子のオーバーロード
-	/// 
+	///
 
 	Quaternion& operator+=(const Quaternion& other);
 	Quaternion& operator-=(const Quaternion& other);
@@ -38,4 +40,3 @@ public:
 	// 球面線形補間
 	static Quaternion Slerp(const Quaternion& a, const Quaternion& b, float t);
 };
-

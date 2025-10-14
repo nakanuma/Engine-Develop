@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 /// <summary>
-/// シェーダー管理
+/// シェーダー管理クラス
 /// </summary>
 class ShaderManager {
 public:

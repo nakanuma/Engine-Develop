@@ -3,9 +3,10 @@
 // 前方宣言
 class SceneManager;
 
-// シーン基底クラス
-class BaseScene
-{
+/// <summary>
+/// シーン基底クラス
+/// </summary>
+class BaseScene {
 public:
 	virtual ~BaseScene() = default;
 
@@ -23,4 +24,3 @@ public:
 
 public:
 };
-

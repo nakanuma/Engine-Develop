@@ -3,8 +3,7 @@
 
 #pragma comment(lib, "winmm.lib")
 
-void Window::Create(LPCWSTR windowTitle, uint32_t width, uint32_t height)
-{
+void Window::Create(LPCWSTR windowTitle, uint32_t width, uint32_t height) {
 	// システムタイマーの分解能を上げる
 	timeBeginPeriod(1);
 
@@ -25,33 +24,20 @@ void Window::Create(LPCWSTR windowTitle, uint32_t width, uint32_t height)
 	winHeight = height;
 
 	// ウィンドウサイズを表す構造体にクライアント領域をいれる
-	RECT wrc = { 0, 0, static_cast<LONG>(winWidth), static_cast<LONG>(winHeight) };
+	RECT wrc = {0, 0, static_cast<LONG>(winWidth), static_cast<LONG>(winHeight)};
 
 	// クライアント領域を元に実際のサイズにwrcを変更してもらう
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 
 	// ウィンドウの生成
-	hwnd = CreateWindow(
-		wc.lpszClassName,
-		windowTitle,
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		wrc.right - wrc.left,
-		wrc.bottom - wrc.top,
-		nullptr,
-		nullptr,
-		wc.hInstance,
-		nullptr
-	);
+	hwnd = CreateWindow(wc.lpszClassName, windowTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, wrc.right - wrc.left, wrc.bottom - wrc.top, nullptr, nullptr, wc.hInstance, nullptr);
 
 	// ウィンドウを表示する
 	ShowWindow(hwnd, SW_SHOW);
 }
 
-bool Window::ProcessMessage()
-{
-	MSG msg{}; 
+bool Window::ProcessMessage() {
+	MSG msg{};
 
 	// ウィンドウの×ボタンが押されるまでループ
 	// Windowにメッセージが来てたら最優先で処理させる
@@ -63,28 +49,15 @@ bool Window::ProcessMessage()
 	return msg.message == WM_QUIT;
 }
 
-uint32_t const Window::GetWidth()
-{
-	return winWidth;
-}
+uint32_t const Window::GetWidth() { return winWidth; }
 
-uint32_t const Window::GetHeight()
-{
-	return winHeight;
-}
+uint32_t const Window::GetHeight() { return winHeight; }
 
-HWND Window::GetHandle()
-{
-	return hwnd;
-}
+HWND Window::GetHandle() { return hwnd; }
 
-HINSTANCE Window::GetHInstance()
-{
-	return wc.hInstance;
-}
+HINSTANCE Window::GetHInstance() { return wc.hInstance; }
 
-LRESULT Window::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
-{
+LRESULT Window::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	// ImGuiでのマウスの操作を可能にする
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
 		return true;

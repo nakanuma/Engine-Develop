@@ -8,15 +8,7 @@
 /// <summary>
 /// ブレンドモード
 /// </summary>
-enum BlendMode { 
-	None, 
-	Normal, 
-	Add, 
-	Subtract, 
-	Multiply, 
-	Screen,
-	Alpha
-};
+enum BlendMode { None, Normal, Add, Subtract, Multiply, Screen, Alpha };
 
 /// <summary>
 /// パーティクル共通の基本処理
@@ -59,36 +51,24 @@ public:
 	/// </summary>
 	void Draw() override {
 		// パーティクルが無ければ早期リターン
-		if (particles_.empty()) return;
+		if (particles_.empty())
+			return;
 
 		auto* dx = DirectXBase::GetInstance();
 		// ブレンドモードに応じてPSOを変更
-		if (blendMode_ == BlendMode::None) 
-		{
+		if (blendMode_ == BlendMode::None) {
 			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectNone());
-		} 
-		else if (blendMode_ == BlendMode::Normal) 
-		{
+		} else if (blendMode_ == BlendMode::Normal) {
 			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectNormal());
-		} 
-		else if (blendMode_ == BlendMode::Add) 
-		{
+		} else if (blendMode_ == BlendMode::Add) {
 			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectAdd());
-		} 
-		else if (blendMode_ == BlendMode::Subtract) 
-		{
+		} else if (blendMode_ == BlendMode::Subtract) {
 			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectSubtract());
-		} 
-		else if (blendMode_ == BlendMode::Multiply) 
-		{
+		} else if (blendMode_ == BlendMode::Multiply) {
 			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectMultiply());
-		} 
-		else if (blendMode_ == BlendMode::Screen) 
-		{
+		} else if (blendMode_ == BlendMode::Screen) {
 			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectScreen());
-		}
-		else if (blendMode_ == BlendMode::Alpha) 
-		{
+		} else if (blendMode_ == BlendMode::Alpha) {
 			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectAlpha());
 		}
 
@@ -120,7 +100,7 @@ protected:
 	void UpdateInstanceMatrices() {
 		Matrix view = Camera::GetCurrent()->MakeViewMatrix();
 		Matrix projection = Camera::GetCurrent()->MakePerspectiveFovMatrix();
-		
+
 		// ビルボード行列を計算
 		billboardMatrix_ = Matrix::Inverse(view);
 		billboardMatrix_.r[3][0] = 0.0f;
@@ -129,7 +109,8 @@ protected:
 
 		size_t numParticles = particles_.size();
 		// パーティクルが無ければ早期リターン
-		if (numParticles == 0) return;
+		if (numParticles == 0)
+			return;
 
 		for (size_t i = 0; i < numParticles; ++i) {
 			const auto& p = particles_[i];
@@ -169,14 +150,14 @@ protected:
 
 		// 前フレームとのパーティクル数の差分を取って必要な無効化だけを行う
 		static size_t prevNumParticles = 0;
-		if(numParticles < prevNumParticles)
-		// 不要分を無効化
-		for (size_t i = numParticles; i < prevNumParticles; ++i) {
-			object_.gTransformationMatrices.data_[i].WVP = Matrix();
-			object_.gTransformationMatrices.data_[i].World = Matrix();
-			object_.gTransformationMatrices.data_[i].WorldInverseTranspose = Matrix();
-			object_.gTransformationMatrices.data_[i].color = {0.0f, 0.0f, 0.0f, 0.0f};
-		}
+		if (numParticles < prevNumParticles)
+			// 不要分を無効化
+			for (size_t i = numParticles; i < prevNumParticles; ++i) {
+				object_.gTransformationMatrices.data_[i].WVP = Matrix();
+				object_.gTransformationMatrices.data_[i].World = Matrix();
+				object_.gTransformationMatrices.data_[i].WorldInverseTranspose = Matrix();
+				object_.gTransformationMatrices.data_[i].color = {0.0f, 0.0f, 0.0f, 0.0f};
+			}
 		prevNumParticles = numParticles;
 
 		object_.UpdateMatrix();

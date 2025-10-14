@@ -1,12 +1,11 @@
 #include "PostEffectManager.h"
 
 // Engine
+#include <ParticleEffect/ParticleEffectManager.h>
 #include <RTVManager.h>
 #include <Sprite.h>
-#include <ParticleEffect/ParticleEffectManager.h>
 
-void PostEffectManager::Initialize()
-{
+void PostEffectManager::Initialize() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// レンダーテクスチャ作成
@@ -20,10 +19,26 @@ void PostEffectManager::Initialize()
 
 	Sprite::VertexData* vbData = nullptr;
 	vertexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
-	vbData[0] = { {-1, -1, 0, 1}, {0, 1}, {0, 0, -1} };
-	vbData[1] = { {-1, 1, 0, 1}, {0, 0}, {0, 0, -1} };
-	vbData[2] = { {1, -1, 0, 1}, {1, 1}, {0, 0, -1} };
-	vbData[3] = { {1, 1, 0, 1}, {1, 0}, {0, 0, -1} };
+	vbData[0] = {
+	    {-1, -1, 0, 1},
+        {0, 1},
+        {0, 0, -1}
+    };
+	vbData[1] = {
+	    {-1, 1, 0, 1},
+        {0, 0},
+        {0, 0, -1}
+    };
+	vbData[2] = {
+	    {1, -1, 0, 1},
+        {1, 1},
+        {0, 0, -1}
+    };
+	vbData[3] = {
+	    {1, 1, 0, 1},
+        {1, 0},
+        {0, 0, -1}
+    };
 
 	// インデックスバッファ
 	indexBuffer_ = CreateBufferResource(dxBase->GetDevice(), sizeof(uint32_t) * 6);
@@ -33,8 +48,12 @@ void PostEffectManager::Initialize()
 
 	uint32_t* ibData = nullptr;
 	indexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&ibData));
-	ibData[0] = 0; ibData[1] = 1; ibData[2] = 2;
-	ibData[3] = 1; ibData[4] = 3; ibData[5] = 2;
+	ibData[0] = 0;
+	ibData[1] = 1;
+	ibData[2] = 2;
+	ibData[3] = 1;
+	ibData[4] = 3;
+	ibData[5] = 2;
 
 	// Transformation CB
 	transformCB_ = CreateBufferResource(dxBase->GetDevice(), sizeof(Object3D::TransformationMatrix));
@@ -44,26 +63,24 @@ void PostEffectManager::Initialize()
 	// Material CB
 	materialCB_ = CreateBufferResource(dxBase->GetDevice(), sizeof(Object3D::Material));
 	materialCB_->Map(0, nullptr, reinterpret_cast<void**>(&materialMap_));
-	materialMap_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	materialMap_->color = {1.0f, 1.0f, 1.0f, 1.0f};
 	materialMap_->enableLighting = false;
 	materialMap_->uvTransform = Matrix::Identity();
 
-	
 	/*アウトライン*/
-
 
 	// レンダーテクスチャ
 	outlineRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
-	outlineGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), { 0.0f, 0.0f, 0.0f, 0.0f });
+	outlineGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
 
 	// Outline Material
-	outlineMaterial_.data_->color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	outlineMaterial_.data_->color = {0.0f, 0.0f, 0.0f, 1.0f};
 	outlineMaterial_.data_->enableLighting = false;
 	outlineMaterial_.data_->uvTransform = Matrix::Identity();
 
 	/*Bloom*/
 	bloomExtractGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
-	bloomBlurGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), { 0.0f, 0.0f, 0.0f, 0.0f });
+	bloomBlurGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
 
 	/*WaveDistortion*/
 	waveCB_.data_->gTime = 0.0f;
@@ -77,15 +94,14 @@ void PostEffectManager::Initialize()
 	glitchCB_.data_->speed = 0.5f;
 }
 
-void PostEffectManager::TransfarConstantBuffer() { 
+void PostEffectManager::TransfarConstantBuffer() {
 	/*WaveDistrotion*/
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(9, waveCB_.resource_->GetGPUVirtualAddress());
 	/*GlitchEffect*/
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(10, glitchCB_.resource_->GetGPUVirtualAddress());
 }
 
-void PostEffectManager::BeginRenderToTexture()
-{
+void PostEffectManager::BeginRenderToTexture() {
 	if (effectType_ == PostEffectType::None) {
 		return;
 	}
@@ -94,8 +110,7 @@ void PostEffectManager::BeginRenderToTexture()
 	RTVManager::ClearRTV(renderTextureHandle_);
 }
 
-void PostEffectManager::ApplyEffect()
-{
+void PostEffectManager::ApplyEffect() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
@@ -125,7 +140,7 @@ void PostEffectManager::ApplyEffect()
 	case PostEffectType::GaussianFilter:
 		cmd->SetPipelineState(dxBase->GetPipelineStateGaussianFilter());
 		break;
-	
+
 	case PostEffectType::InvertColor:
 		cmd->SetPipelineState(dxBase->GetPipelineStateInvertColor());
 		break;
@@ -165,7 +180,6 @@ void PostEffectManager::ApplyEffect()
 	case PostEffectType::GlitchEffect:
 		cmd->SetPipelineState(dxBase->GetPipelineStateGlitchEffect());
 		break;
-
 	}
 
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
@@ -177,8 +191,8 @@ void PostEffectManager::ApplyEffect()
 	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
-void PostEffectManager::BeginRenderToOutlineTexture() { 
-	RTVManager::SetRenderTarget(outlineRT_); 
+void PostEffectManager::BeginRenderToOutlineTexture() {
+	RTVManager::SetRenderTarget(outlineRT_);
 	RTVManager::ClearRTV(outlineRT_, {0.0f, 0.0f, 0.0f, 0.0f});
 }
 
@@ -188,7 +202,7 @@ void PostEffectManager::ApplyOutline() {
 
 #pragma region 深度値を元にアウトライン生成
 	RTVManager::SetRenderTarget(outlineGH_);
-	RTVManager::ClearRTV(outlineGH_, { 0.0f, 0.0f, 0.0f, 0.0f });
+	RTVManager::ClearRTV(outlineGH_, {0.0f, 0.0f, 0.0f, 0.0f});
 
 	cmd->SetPipelineState(dxBase->GetPipelineStateSobelFilter());
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
@@ -201,8 +215,7 @@ void PostEffectManager::ApplyOutline() {
 #pragma endregion
 }
 
-void PostEffectManager::DrawOutline()
-{
+void PostEffectManager::DrawOutline() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
@@ -234,7 +247,7 @@ void PostEffectManager::DrawOutline()
 void PostEffectManager::ApplyBloom() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
-	
+
 #pragma region 明るい部分の抽出
 	RTVManager::SetRenderTarget(bloomExtractGH_);
 	RTVManager::ClearRTV(bloomExtractGH_, {0.0f, 0.0f, 0.0f, 0.0f});
@@ -253,7 +266,7 @@ void PostEffectManager::ApplyBloom() {
 
 #pragma region ガウスブラー
 	RTVManager::SetRenderTarget(bloomBlurGH_);
-	RTVManager::ClearRTV(bloomBlurGH_, { 0.0f, 0.0f, 0.0f, 0.0f });
+	RTVManager::ClearRTV(bloomBlurGH_, {0.0f, 0.0f, 0.0f, 0.0f});
 
 	cmd->SetPipelineState(dxBase->GetPipelineStateGaussianFilter());
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
@@ -266,8 +279,7 @@ void PostEffectManager::ApplyBloom() {
 #pragma endregion
 }
 
-void PostEffectManager::DrawBloom()
-{
+void PostEffectManager::DrawBloom() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 

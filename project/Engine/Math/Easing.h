@@ -6,8 +6,10 @@
 // Engine
 #include <Engine/Math/MyMath.h>
 
-class Easing
-{
+/// <summary>
+/// イージング関数群
+/// </summary>
+class Easing {
 public:
 	static float Lerp(float start, float end, float t);
 
@@ -53,6 +55,9 @@ public:
 	static float EaseInOutBounce(float t);
 };
 
+/// <summary>
+/// 汎用イージングアニメーション
+/// </summary>
 class SimpleEasing {
 public:
 	using EasingFunction = std::function<float(float)>;

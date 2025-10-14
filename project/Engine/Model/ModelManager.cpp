@@ -8,95 +8,95 @@
 #include <SRVManager.h>
 
 ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device, float outerRadius, float innerRadius) {
-    ModelManager::ModelData modelData;
+	ModelManager::ModelData modelData;
 
-    const uint32_t kRingDevide = 32; // 分割数
-    const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kRingDevide);
+	const uint32_t kRingDevide = 32; // 分割数
+	const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kRingDevide);
 
-    // 頂点データとインデックスデータのコンテナ
-    std::vector<ModelManager::VertexData> vertices;
-    std::vector<uint32_t> indices;
+	// 頂点データとインデックスデータのコンテナ
+	std::vector<ModelManager::VertexData> vertices;
+	std::vector<uint32_t> indices;
 
-    // リング形状の頂点を生成
-    for (uint32_t index = 0; index < kRingDevide; ++index) {
-        float sin = std::sin(index * radianPerDivide);
-        float cos = std::cos(index * radianPerDivide);
-        float sinNext = std::sin((index + 1) * radianPerDivide);
-        float cosNext = std::cos((index + 1) * radianPerDivide);
-        float u = float(index) / float(kRingDevide);
-        float uNext = float(index + 1) / float(kRingDevide);
+	// リング形状の頂点を生成
+	for (uint32_t index = 0; index < kRingDevide; ++index) {
+		float sin = std::sin(index * radianPerDivide);
+		float cos = std::cos(index * radianPerDivide);
+		float sinNext = std::sin((index + 1) * radianPerDivide);
+		float cosNext = std::cos((index + 1) * radianPerDivide);
+		float u = float(index) / float(kRingDevide);
+		float uNext = float(index + 1) / float(kRingDevide);
 
-        // 頂点の定義
-        vertices.push_back({
-            {-sin * outerRadius, 0.0f, cos * outerRadius, 1.0f}, // 外側1
-            {u, 0.0f}, // UV
-            {0.0f, 1.0f, 0.0f} // 法線
-        });
-        vertices.push_back({
-            {-sinNext * outerRadius, 0.0f, cosNext * outerRadius, 1.0f}, // 外側2
-            {uNext, 0.0f}, // UV
-            {0.0f, 1.0f, 0.0f} // 法線
-        });
-        vertices.push_back({
-            {-sin * innerRadius, 0.0f, cos * innerRadius, 1.0f}, // 内側1
-            {u, 1.0f}, // UV
-            {0.0f, 1.0f, 0.0f} // 法線
-        });
-        vertices.push_back({
-            {-sinNext * innerRadius, 0.0f, cosNext * innerRadius, 1.0f}, // 内側2
-            {uNext, 1.0f}, // UV
-            {0.0f, 1.0f, 0.0f} // 法線
-        });
+		// 頂点の定義
+		vertices.push_back({
+		    {-sin * outerRadius, 0.0f, cos * outerRadius, 1.0f}, // 外側1
+		    {u, 0.0f}, // UV
+		    {0.0f, 1.0f, 0.0f}  // 法線
+		});
+		vertices.push_back({
+		    {-sinNext * outerRadius, 0.0f, cosNext * outerRadius, 1.0f}, // 外側2
+		    {uNext, 0.0f}, // UV
+		    {0.0f, 1.0f, 0.0f}  // 法線
+		});
+		vertices.push_back({
+		    {-sin * innerRadius, 0.0f, cos * innerRadius, 1.0f}, // 内側1
+		    {u, 1.0f}, // UV
+		    {0.0f, 1.0f, 0.0f}  // 法線
+		});
+		vertices.push_back({
+		    {-sinNext * innerRadius, 0.0f, cosNext * innerRadius, 1.0f}, // 内側2
+		    {uNext, 1.0f}, // UV
+		    {0.0f, 1.0f, 0.0f}  // 法線
+		});
 
-        // インデックスを生成
-        indices.push_back(4 * index + 0);
-        indices.push_back(4 * index + 2);
-        indices.push_back(4 * index + 1);
-        indices.push_back(4 * index + 1);
-        indices.push_back(4 * index + 2);
-        indices.push_back(4 * index + 3);
-    }
+		// インデックスを生成
+		indices.push_back(4 * index + 0);
+		indices.push_back(4 * index + 2);
+		indices.push_back(4 * index + 1);
+		indices.push_back(4 * index + 1);
+		indices.push_back(4 * index + 2);
+		indices.push_back(4 * index + 3);
+	}
 
 	modelData.vertices = vertices;
 	modelData.indices = indices;
 
-    // 頂点バッファリソースを作成
-    modelData.vertexResource = CreateBufferResource(device, sizeof(ModelManager::VertexData) * vertices.size());
+	// 頂点バッファリソースを作成
+	modelData.vertexResource = CreateBufferResource(device, sizeof(ModelManager::VertexData) * vertices.size());
 
-    // 頂点バッファビューを設定
+	// 頂点バッファビューを設定
 	modelData.vertexBufferView;
-    modelData.vertexBufferView.BufferLocation = modelData.vertexResource->GetGPUVirtualAddress();
-    modelData.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * vertices.size());
-    modelData.vertexBufferView.StrideInBytes = sizeof(VertexData);
+	modelData.vertexBufferView.BufferLocation = modelData.vertexResource->GetGPUVirtualAddress();
+	modelData.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * vertices.size());
+	modelData.vertexBufferView.StrideInBytes = sizeof(VertexData);
 
-    // 頂点データをコピー
-    VertexData* vertexData = nullptr;
-    modelData.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-    std::memcpy(vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
+	// 頂点データをコピー
+	VertexData* vertexData = nullptr;
+	modelData.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	std::memcpy(vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
 
-    // インデックスバッファリソースを作成
-    modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * indices.size());
+	// インデックスバッファリソースを作成
+	modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * indices.size());
 
-    // インデックスバッファビューを設定
-    modelData.indexBufferView.BufferLocation = modelData.indexResource->GetGPUVirtualAddress();
-    modelData.indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * indices.size());
-    modelData.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	// インデックスバッファビューを設定
+	modelData.indexBufferView.BufferLocation = modelData.indexResource->GetGPUVirtualAddress();
+	modelData.indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * indices.size());
+	modelData.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 
-    // インデックスデータをコピー
-    uint32_t* indexData = nullptr;
-    modelData.indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-    std::memcpy(indexData, indices.data(), sizeof(uint32_t) * indices.size());
+	// インデックスデータをコピー
+	uint32_t* indexData = nullptr;
+	modelData.indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+	std::memcpy(indexData, indices.data(), sizeof(uint32_t) * indices.size());
 
-    return modelData;
+	return modelData;
 }
 
-ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) { 
+ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) {
 	ModelManager::ModelData modelData;
-	
+
 	const uint32_t kCylinderDevide = 32; // 分割数
-	const float kTopRadius = 1.0f;		 // 上半径
-	const float kBottomRadius = 1.0f;	 // 下半径
-	const float kHeight = 3.0f;			 // 高さ
+	const float kTopRadius = 1.0f;       // 上半径
+	const float kBottomRadius = 1.0f;    // 下半径
+	const float kHeight = 3.0f;          // 高さ
 	const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kCylinderDevide);
 
 	// 頂点データとインデックスデータのコンテナ
@@ -111,7 +111,7 @@ ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) 
 		float cosNext = std::cos((index + 1) * radianPerDivide);
 		float u = float(index) / float(kCylinderDevide);
 		float uNext = float(index + 1) / float(kCylinderDevide);
-		
+
 		// 頂点の定義 : {position, texcoord(V方向を反転), normal}
 		vertices.push_back({
 		    {-sin * kTopRadius, kHeight, cos * kTopRadius, 1.0f},
@@ -121,30 +121,30 @@ ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) 
 		vertices.push_back({
 		    {-sinNext * kTopRadius, kHeight, cosNext * kTopRadius, 1.0f},
             {uNext, 1.0f - 0.0f},
-		    {-sinNext, 0.0f, cosNext}
-		});
+            {-sinNext, 0.0f, cosNext}
+        });
 
 		vertices.push_back({
 		    {-sin * kBottomRadius, 0.0f, cos * kBottomRadius, 1.0f},
             {u, 1.0f - 1.0f},
-		    {-sin, 0.0f, cos}
-		});
+            {-sin, 0.0f, cos}
+        });
 		vertices.push_back({
 		    {-sin * kBottomRadius, 0.0f, cos * kBottomRadius, 1.0f},
             {u, 1.0f - 1.0f},
-		    {-sin, 0.0f, cos}
-		});
+            {-sin, 0.0f, cos}
+        });
 
 		vertices.push_back({
 		    {-sinNext * kTopRadius, kHeight, cosNext * kTopRadius, 1.0f},
             {uNext, 1.0f - 0.0f},
-		    {-sinNext, 0.0f, cosNext}
-		});
+            {-sinNext, 0.0f, cosNext}
+        });
 		vertices.push_back({
 		    {-sinNext * kBottomRadius, 0.0f, cosNext * kBottomRadius, 1.0f},
             {uNext, 1.0f - 1.0f},
-		    {-sinNext, 0.0f, cosNext}
-		});
+            {-sinNext, 0.0f, cosNext}
+        });
 
 		// インデックスを生成
 		indices.push_back(6 * index + 0);
@@ -160,7 +160,7 @@ ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) 
 
 	// 頂点バッファリソースを作成
 	modelData.vertexResource = CreateBufferResource(device, sizeof(ModelManager::VertexData) * vertices.size());
-	
+
 	// 頂点バッファビューを設定
 	modelData.vertexBufferView;
 	modelData.vertexBufferView.BufferLocation = modelData.vertexResource->GetGPUVirtualAddress();
@@ -171,7 +171,6 @@ ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) 
 	VertexData* vertexData = nullptr;
 	modelData.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 	std::memcpy(vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
-
 
 	// インデックスバッファリソースを作成
 	modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * indices.size());

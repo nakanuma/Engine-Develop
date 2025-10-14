@@ -1,10 +1,11 @@
 #pragma once
-#include "BaseScene.h"
 #include "AbstractSceneFactory.h"
+#include "BaseScene.h"
 
-// シーン管理
-class SceneManager
-{
+/// <summary>
+/// シーン管理クラス
+/// </summary>
+class SceneManager {
 public:
 	static SceneManager* GetInstance();
 
@@ -30,4 +31,3 @@ private:
 	// シーンファクトリー（借りてくる）
 	AbstractSceneFactory* sceneFactory_ = nullptr;
 };
-

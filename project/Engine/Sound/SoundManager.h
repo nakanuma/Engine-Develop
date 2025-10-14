@@ -5,6 +5,9 @@
 
 #pragma comment(lib, "xaudio2.lib")
 
+/// <summary>
+/// サウンド管理クラス
+/// </summary>
 class SoundManager {
 public:
 	// チャンクヘッダ

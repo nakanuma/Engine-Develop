@@ -9,10 +9,9 @@ class AABBCollider;
 class OBBCollider;
 
 /// <summary>
-/// 衝突判定処理
+/// 衝突判定ユーティリティクラス
 /// </summary>
-class CollisionMath
-{
+class CollisionMath {
 public:
 	/// <summary>
 	/// Sphere vs Sphere
@@ -49,4 +48,3 @@ public:
 	/// </summary>
 	static bool IsSeparatedByAxis(const Float3& axis, const OBBCollider* obbA, const OBBCollider* obbB);
 };
-

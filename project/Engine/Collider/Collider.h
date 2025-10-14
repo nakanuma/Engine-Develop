@@ -22,8 +22,7 @@ public:
 /// <summary>
 /// コライダー基底クラス
 /// </summary>
-class Collider
-{
+class Collider {
 public:
 	virtual ~Collider() = default;
 

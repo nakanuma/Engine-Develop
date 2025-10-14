@@ -5,13 +5,13 @@
 #include <span>
 
 // Engine
-#include <MyMath.h>
 #include <DirectXBase.h>
-#include <ModelManager.h>
 #include <Model/Animation/Skeleton.h>
+#include <ModelManager.h>
+#include <MyMath.h>
 
 /// <summary>
-/// スキニング関連データの生成・更新
+/// スキンクラスター（スキニング関連データの生成・更新）
 /// </summary>
 class SkinCluster {
 public:
@@ -32,13 +32,11 @@ public:
 	/// SkinClusterの生成
 	/// </summary>
 	void CreateSkinCluster(const Microsoft::WRL::ComPtr<ID3D12Device>& device, const Skeleton& skeleton, const ModelManager::ModelData& modelData);
-	
+
 	/// <summary>
 	/// SkinClusterの更新
 	/// </summary>
 	void Update(const Skeleton& skeleton);
-
-
 
 	std::vector<Matrix> inverseBindPoseMatrices_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> influenceResource_;

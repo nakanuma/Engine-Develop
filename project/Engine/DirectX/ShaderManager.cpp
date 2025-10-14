@@ -1,8 +1,8 @@
 #include "ShaderManager.h"
 
 // Engine
-#include <StringUtil.h>
 #include <Logger.h>
+#include <StringUtil.h>
 
 // C++
 #include <cassert>
@@ -30,8 +30,8 @@ void ShaderManager::Initialize() {
 
 	///
 	///	各シェーダーのコンパイル
-	/// 
-	
+	///
+
 	// Object3D
 	LoadShader("Object3D_VS", L"resources/Shaders/Object3D.VS.hlsl", L"vs_6_0");
 	LoadShader("Object3D_PS", L"resources/Shaders/Object3D.PS.hlsl", L"ps_6_0");
@@ -117,22 +117,22 @@ void ShaderManager::Initialize() {
 	LoadShader("ShadowMapSkinned_VS", L"resources/Shaders/ShadowMapSkinned.VS.hlsl", L"vs_6_0");
 }
 
-void ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) { 
+void ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) {
 	// シェーダーのコンパイル
-	IDxcBlob* blob = CompileShader(path, profile); 
+	IDxcBlob* blob = CompileShader(path, profile);
 	// コンパイルしたシェーダーを登録
 	shaders_[name] = blob;
 }
 
-IDxcBlob* ShaderManager::GetShader(const std::string& name) const { 
-	auto it = shaders_.find(name); 
+IDxcBlob* ShaderManager::GetShader(const std::string& name) const {
+	auto it = shaders_.find(name);
 	if (it != shaders_.end()) {
 		return it->second.Get();
 	}
 	return nullptr;
 }
 
-IDxcBlob* ShaderManager::CompileShader(const std::wstring& filePath, const wchar_t* profile) { 
+IDxcBlob* ShaderManager::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
 	HRESULT result = S_FALSE;
 
 	// これからシェーダーをコンパイルする旨をログに出す

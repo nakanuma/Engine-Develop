@@ -1,9 +1,10 @@
 #pragma once
 #include "AbstractSceneFactory.h"
 
-// このゲーム用のシーン工場
-class SceneFactory : public AbstractSceneFactory
-{
+/// <summary>
+/// このゲーム用のシーン工場
+/// </summary>
+class SceneFactory : public AbstractSceneFactory {
 public:
 	/// <summary>
 	/// シーン生成
@@ -12,4 +13,3 @@ public:
 	/// <returns>生成したシーン</returns>
 	BaseScene* CreateScene(const std::string& sceneName) override;
 };
-

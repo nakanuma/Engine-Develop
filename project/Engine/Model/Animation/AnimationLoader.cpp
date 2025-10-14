@@ -3,10 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-// ---------------------------------------------------------
-// Animation読み込み
-// ---------------------------------------------------------
-AnimationLoader::Animation AnimationLoader::LoadAnimation(const std::string& directoryPath, const std::string& filename) { 
+AnimationLoader::Animation AnimationLoader::LoadAnimation(const std::string& directoryPath, const std::string& filename) {
 	Animation animation; // 今回作るアニメーション
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
@@ -49,10 +46,7 @@ AnimationLoader::Animation AnimationLoader::LoadAnimation(const std::string& dir
 	return animation;
 }
 
-// ---------------------------------------------------------
-// 任意の時刻の値を取得する : Float3
-// ---------------------------------------------------------
-Float3 AnimationLoader::CalculateValue(const std::vector<KeyframeFloat3>& keyframes, float time) { 
+Float3 AnimationLoader::CalculateValue(const std::vector<KeyframeFloat3>& keyframes, float time) {
 	assert(!keyframes.empty());                               // キーがないものは返す値がわからないのでダメ
 	if (keyframes.size() == 1 || time <= keyframes[0].time) { // キーが1つか、時刻がキーフレーム前なら最初の軸とする
 		return keyframes[0].value;
@@ -71,9 +65,6 @@ Float3 AnimationLoader::CalculateValue(const std::vector<KeyframeFloat3>& keyfra
 	return (*keyframes.rbegin()).value;
 }
 
-// ---------------------------------------------------------
-// 任意の時刻の値を取得する : Quaternion
-// ---------------------------------------------------------
 Quaternion AnimationLoader::CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time) {
 	assert(!keyframes.empty());                               // キーがないものは返す値がわからないのでダメ
 	if (keyframes.size() == 1 || time <= keyframes[0].time) { // キーが1つか、時刻がキーフレーム前なら最初の軸とする

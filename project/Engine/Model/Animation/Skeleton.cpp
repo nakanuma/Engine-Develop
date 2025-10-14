@@ -1,8 +1,5 @@
 #include "Skeleton.h"
 
-// ---------------------------------------------------------
-// ModelDataのNodeの階層構造からSkeletonを作成
-// ---------------------------------------------------------
 void Skeleton::CreateSkeleton(const ModelManager::Node& rootNode) {
 	root_ = CreateJoint(rootNode, {}, joints_);
 
@@ -15,10 +12,7 @@ void Skeleton::CreateSkeleton(const ModelManager::Node& rootNode) {
 	Update();
 }
 
-// ---------------------------------------------------------
-// NodeからJointを作成
-// ---------------------------------------------------------
-int32_t Skeleton::CreateJoint(const ModelManager::Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints) { 
+int32_t Skeleton::CreateJoint(const ModelManager::Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints) {
 	Joint joint;
 	joint.name = node.name;
 	joint.localMatrix = node.localMatrix;
@@ -36,9 +30,6 @@ int32_t Skeleton::CreateJoint(const ModelManager::Node& node, const std::optiona
 	return joint.index;
 }
 
-// ---------------------------------------------------------
-// Skeletonの更新
-// ---------------------------------------------------------
 void Skeleton::Update() {
 	// すべてのJointを更新
 	for (Joint& joint : joints_) {
@@ -51,9 +42,6 @@ void Skeleton::Update() {
 	}
 }
 
-// ---------------------------------------------------------
-// Skeletonに対してAnimationの適用
-// ---------------------------------------------------------
 void Skeleton::ApplyAnimation(const AnimationLoader::Animation& animation, float animationTime) {
 	for (Joint& joint : joints_) {
 		// 対象のJointのAnimationがあれば、他の適用を行う
@@ -66,10 +54,7 @@ void Skeleton::ApplyAnimation(const AnimationLoader::Animation& animation, float
 	}
 }
 
-// ---------------------------------------------------------
-// AnimationBlend
-// ---------------------------------------------------------
-void Skeleton::ApplyBlendedAnimation(const AnimationLoader::Animation& a, const AnimationLoader::Animation& b, float timeA, float timeB, float blendRate) { 
+void Skeleton::ApplyBlendedAnimation(const AnimationLoader::Animation& a, const AnimationLoader::Animation& b, float timeA, float timeB, float blendRate) {
 	for (auto& joint : joints_) {
 		const std::string& name = joint.name;
 		QuaternionTransform poseA = joint.transform;

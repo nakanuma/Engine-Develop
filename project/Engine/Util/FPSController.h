@@ -4,14 +4,13 @@
 #include <chrono>
 
 /// <summary>
-/// FPS固定制御
+/// FPS固定制御クラス
 /// </summary>
 class FPSController {
 public:
 	/// <summary>
 	/// インスタンス取得
 	/// </summary>
-	/// <returns></returns>
 	static FPSController* GetInstance();
 
 	/// <summary>

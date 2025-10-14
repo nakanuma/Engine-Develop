@@ -1,23 +1,24 @@
 #pragma once
 
 // C++
-#include <vector>
-#include <unordered_set>
 #include <set>
+#include <unordered_set>
 #include <utility>
+#include <vector>
 
 // Engine
 #include <Collider/Collider.h>
 
-struct RayCastHit
-{
+struct RayCastHit {
 	bool isHit = false;
 	Float3 hitPoint;
 	Collider* hitCollider = nullptr;
 };
 
-class CollisionManager
-{
+/// <summary>
+/// コライダー管理クラス
+/// </summary>
+class CollisionManager {
 public:
 	/// <summary>
 	/// インスタンスの取得
@@ -47,8 +48,8 @@ public:
 	/// <summary>
 	/// リストのクリア
 	/// </summary>
-	void Clear() { 
-		colliders_.clear(); 
+	void Clear() {
+		colliders_.clear();
 		previousCollisions_.clear();
 	}
 
@@ -60,13 +61,7 @@ public:
 	/// <summary>
 	/// レイキャスト
 	/// </summary>
-	bool RayCast(
-		const Float3& origin, 
-		const Float3& direction, 
-		float maxDistance, 
-		RayCastHit* outHit,
-		const std::unordered_set<std::string>& ignoreTags = {}
-	);
+	bool RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit, const std::unordered_set<std::string>& ignoreTags = {});
 
 	/// <summary>
 	/// Sphereと特定タグを持ったコライダーとの衝突判定
@@ -79,4 +74,3 @@ private:
 	// 前フレームの衝突ペアを保存
 	std::set<std::pair<Collider*, Collider*>> previousCollisions_;
 };
-

@@ -2,8 +2,10 @@
 
 class Matrix;
 
-struct Float4
-{
+/// <summary>
+/// 4次元ベクトル
+/// </summary>
+struct Float4 {
 	float x;
 	float y;
 	float z;

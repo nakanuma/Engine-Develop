@@ -4,8 +4,10 @@
 #include "Float4.h"
 #include "Quaternion.h"
 
-class Matrix
-{
+/// <summary>
+/// 4x4行列
+/// </summary>
+class Matrix {
 public:
 	float r[4][4];
 
@@ -17,30 +19,27 @@ public:
 	Matrix();
 
 	// floatを16個で初期化
-	Matrix(float m00, float m01, float m02, float m03,
-		float m10, float m11, float m12, float m13,
-		float m20, float m21, float m22, float m23,
-		float m30, float m31, float m32, float m33);
+	Matrix(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33);
 
 	///
 	/// Operators
-	/// 
+	///
 
-	Matrix operator - () const;
+	Matrix operator-() const;
 
-	Matrix operator + (const Matrix& m) const;
-	Matrix operator - (const Matrix& m) const;
-	Matrix operator * (const Matrix& m) const;
+	Matrix operator+(const Matrix& m) const;
+	Matrix operator-(const Matrix& m) const;
+	Matrix operator*(const Matrix& m) const;
 
-	Matrix& operator += (const Matrix& m);
-	Matrix& operator -= (const Matrix& m);
-	Matrix& operator *= (const Matrix& m);
+	Matrix& operator+=(const Matrix& m);
+	Matrix& operator-=(const Matrix& m);
+	Matrix& operator*=(const Matrix& m);
 
 	Float4 operator*(const Float4& vec);
 
-	/// 
+	///
 	/// Functions
-	/// 
+	///
 
 	static Matrix Identity();
 
@@ -78,4 +77,3 @@ public:
 
 	static Matrix MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3 translate);
 };
-

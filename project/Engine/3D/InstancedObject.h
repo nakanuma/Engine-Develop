@@ -2,6 +2,9 @@
 #include "Object3D.h"
 #include "StructuredBuffer.h"
 
+/// <summary>
+/// インスタンシング描画用の3Dオブジェクトクラス
+/// </summary>
 class InstancedObject : public Object3D {
 public:
 	InstancedObject();

@@ -1,13 +1,15 @@
 #pragma once
-#include "MyMath.h"
 #include "ConstBuffer.h"
+#include "MyMath.h"
 
 struct CameraCBData {
 	Float3 position;
 };
 
-class Camera
-{
+/// <summary>
+/// 3Dカメラ管理クラス
+/// </summary>
+class Camera {
 public:
 	Camera(Float3 translate, Float3 rotate = Float3(0.0f, 0.0f, 0.0f), float fov = PIf / 2.0f);
 	static void TransferConstantBuffer();
@@ -32,4 +34,3 @@ private:
 
 	ConstBuffer<CameraCBData> cameraCB_;
 };
-

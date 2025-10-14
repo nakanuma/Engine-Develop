@@ -1,14 +1,12 @@
 #include "OutlinedObject.h"
 
-OutlinedObject::OutlinedObject()
-{
+OutlinedObject::OutlinedObject() {
 	// アウトラインの設定
-	outline_.materialCB_.data_->color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	outline_.materialCB_.data_->color = {0.0f, 0.0f, 0.0f, 1.0f};
 	outline_.materialCB_.data_->enableLighting = false;
 }
 
-void OutlinedObject::UpdateMatrix()
-{
+void OutlinedObject::UpdateMatrix() {
 	// 本体のオブジェクト
 	Object3D::UpdateMatrix();
 	// 本体のトランスフォームをコピー
@@ -21,8 +19,7 @@ void OutlinedObject::UpdateMatrix()
 	outline_.UpdateMatrix();
 }
 
-void OutlinedObject::Draw()
-{
+void OutlinedObject::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 本体のオブジェクト

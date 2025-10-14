@@ -2,10 +2,9 @@
 #include "Object3D.h"
 
 /// <summary>
-/// スカイボックス管理
+/// スカイボックス管理クラス
 /// </summary>
-class SkyBoxManager
-{
+class SkyBoxManager {
 public:
 	/// <summary>
 	/// シングルトンインスタンスの取得

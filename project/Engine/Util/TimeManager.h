@@ -3,8 +3,10 @@
 // C++
 #include <chrono>
 
-class TimeManager
-{
+/// <summary>
+/// フレームごとの経過時間を管理するクラス
+/// </summary>
+class TimeManager {
 public:
 	/// <summary>
 	/// インスタンスの取得

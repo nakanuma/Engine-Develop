@@ -1,10 +1,9 @@
 #pragma once
-#include "DirectXBase.h"
 #include "DescriptorHeap.h"
+#include "DirectXBase.h"
 
-// SRV管理
-class SRVManager
-{
+// シェーダーリソースビュー（SRV）管理クラス
+class SRVManager {
 public:
 	static SRVManager* GetInstance();
 
@@ -28,6 +27,7 @@ public:
 
 	// SRV用デスクリプタヒープ
 	DescriptorHeap descriptorHeap;
+
 private:
 	DirectXBase* dxBase = nullptr;
 
@@ -38,4 +38,3 @@ private:
 	// 次に使用するSRVインデックス
 	uint32_t useIndex = 1;
 };
-

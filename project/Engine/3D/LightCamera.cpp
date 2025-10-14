@@ -2,31 +2,28 @@
 
 #include <algorithm>
 
-LightCamera* LightCamera::GetInstance()
-{
+LightCamera* LightCamera::GetInstance() {
 	static LightCamera instance;
 	return &instance;
 }
 
-void LightCamera::SetDirectionalLight(const Float3& dir)
-{
+void LightCamera::SetDirectionalLight(const Float3& dir) {
 	lightDir_ = dir;
 	lightDir_ = Float3::Normalize(lightDir_);
 }
 
-void LightCamera::UpdateViewProjection(const BoundingBox& sceneBB)
-{
+void LightCamera::UpdateViewProjection(const BoundingBox& sceneBB) {
 	// 平行光源位置はシーン中心からライト方向に適度に離す
 	Float3 center = sceneBB.Center();
 	Float3 pos = center - lightDir_ * 50.0f; // 影の範囲による
 
 	Float3 forward = Float3::Normalize(lightDir_ * -1.0f); // ライトの届く方向を視線方向に
 
-	Float3 worldUp = { 0, 1, 0 };
+	Float3 worldUp = {0, 1, 0};
 	Float3 right = Float3::Cross(worldUp, lightDir_);
 	if (Float3::LengthSq(right) < 1e-6f) {
 		// LightDirとworldUpがほぼ平行ならX軸をUpにする
-		worldUp = { 1, 0, 0 };
+		worldUp = {1, 0, 0};
 		right = Float3::Cross(worldUp, lightDir_);
 	}
 	Float3 up = Float3::Cross(lightDir_, worldUp);
@@ -58,8 +55,7 @@ void LightCamera::UpdateViewProjection(const BoundingBox& sceneBB)
 	viewProj_ = view_ * proj_;
 }
 
-void LightCamera::TransferConstantBuffer()
-{
+void LightCamera::TransferConstantBuffer() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	cb_.data_->lightViewProj = viewProj_;

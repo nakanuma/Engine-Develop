@@ -6,6 +6,9 @@
 #include <unordered_map>
 #include <wrl.h>
 
+/// <summary>
+/// レンダーターゲットビュー（RTV）管理クラス
+/// </summary>
 class RTVManager final {
 public:
 	static RTVManager& GetInstance();

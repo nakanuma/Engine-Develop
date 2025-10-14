@@ -1,18 +1,20 @@
 #pragma once
+#include "MyWindow.h"
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
 #include <externals/imnodes/imnodes.h>
-#include "MyWindow.h"
 
 // C++
-#include <string>
 #include <fstream>
+#include <string>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-class ImguiWrapper
-{
+/// <summary>
+/// ImGuiのラッパークラス
+/// </summary>
+class ImguiWrapper {
 public:
 	static void Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT rtvFormat, ID3D12DescriptorHeap* srvHeap);
 	static void Finalize();
@@ -31,4 +33,3 @@ public:
 	static void SaveImGuiStyleToJson(const std::string& filepath);
 	static void LoadImGuiStyleFromJson(const std::string& filepath);
 };
-

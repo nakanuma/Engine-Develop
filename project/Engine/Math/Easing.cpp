@@ -1,9 +1,9 @@
 #include "Easing.h"
 
 // C++
+#include <chrono>
 #include <cmath>
 #include <numbers>
-#include <chrono>
 #include <thread>
 
 const float BACK_S = 1.70158f;
@@ -11,38 +11,19 @@ const float BACK_S = 1.70158f;
 const float ELASTIC_A = 1.0f;
 const float ELASTIC_P = 0.3f;
 
-float Easing::Lerp(float start, float end, float t)
-{
-	return start + (end - start) * t;
-}
+float Easing::Lerp(float start, float end, float t) { return start + (end - start) * t; }
 
-float Easing::EaseInSine(float t)
-{
-	return 1.0f - cosf((t * std::numbers::pi_v<float>) / 2.0f);
-}
+float Easing::EaseInSine(float t) { return 1.0f - cosf((t * std::numbers::pi_v<float>) / 2.0f); }
 
-float Easing::EaseOutSine(float t)
-{
-	return sinf((t * std::numbers::pi_v<float>) / 2.0f);
-}
+float Easing::EaseOutSine(float t) { return sinf((t * std::numbers::pi_v<float>) / 2.0f); }
 
-float Easing::EaseInOutSine(float t)
-{
-	return 0.5f * (1.0f - cosf(std::numbers::pi_v<float> *t));
-}
+float Easing::EaseInOutSine(float t) { return 0.5f * (1.0f - cosf(std::numbers::pi_v<float> * t)); }
 
-float Easing::EaseInCubic(float t)
-{
-	return t * t * t;
-}
+float Easing::EaseInCubic(float t) { return t * t * t; }
 
-float Easing::EaseOutCubic(float t)
-{
-	return (t -= 1.0f) * t * t + 1.0f;
-}
+float Easing::EaseOutCubic(float t) { return (t -= 1.0f) * t * t + 1.0f; }
 
-float Easing::EaseInOutCubic(float t)
-{
+float Easing::EaseInOutCubic(float t) {
 	if (t < 0.5) {
 		return 4.0f * t * t * t;
 	} else {
@@ -50,18 +31,11 @@ float Easing::EaseInOutCubic(float t)
 	}
 }
 
-float Easing::EaseInQuint(float t)
-{
-	return t * t * t * t * t;
-}
+float Easing::EaseInQuint(float t) { return t * t * t * t * t; }
 
-float Easing::EaseOutQuint(float t)
-{
-	return (t -= 1.0f) * t * t * t * t + 1.0f;
-}
+float Easing::EaseOutQuint(float t) { return (t -= 1.0f) * t * t * t * t + 1.0f; }
 
-float Easing::EaseInOutQuint(float t)
-{
+float Easing::EaseInOutQuint(float t) {
 	if (t < 0.5) {
 		return 16.0f * t * t * t * t * t;
 	} else {
@@ -69,18 +43,11 @@ float Easing::EaseInOutQuint(float t)
 	}
 }
 
-float Easing::EaseInCirc(float t)
-{
-	return 1.0f - sqrtf(1.0f - t * t);
-}
+float Easing::EaseInCirc(float t) { return 1.0f - sqrtf(1.0f - t * t); }
 
-float Easing::EaseOutCirc(float t)
-{
-	return sqrtf(1.0f - (t -= 1.0f) * t);
-}
+float Easing::EaseOutCirc(float t) { return sqrtf(1.0f - (t -= 1.0f) * t); }
 
-float Easing::EaseInOutCirc(float t)
-{
+float Easing::EaseInOutCirc(float t) {
 	if (t < 0.5f) {
 		return 0.5f * (1.0f - sqrtf(1.0f - (t * 2.0f) * (t * 2.0f)));
 	} else {
@@ -88,20 +55,24 @@ float Easing::EaseInOutCirc(float t)
 	}
 }
 
-float Easing::EaseInElastic(float t)
-{
-	return (t == 0.0f) ? 0.0f : (t == 1.0f) ? 1.0f : -(ELASTIC_A * powf(2.0f, 10.0f * (t - 1.0f)) * sin((t - 1.0f - (ELASTIC_P / (2.0f * std::numbers::pi_v<float>)) * logf(ELASTIC_A)) * (2.0f * std::numbers::pi_v<float>) / ELASTIC_P));
+float Easing::EaseInElastic(float t) {
+	return (t == 0.0f) ? 0.0f
+	       : (t == 1.0f)
+	           ? 1.0f
+	           : -(ELASTIC_A * powf(2.0f, 10.0f * (t - 1.0f)) * sin((t - 1.0f - (ELASTIC_P / (2.0f * std::numbers::pi_v<float>)) * logf(ELASTIC_A)) * (2.0f * std::numbers::pi_v<float>) / ELASTIC_P));
 }
 
-float Easing::EaseOutElastic(float t)
-{
-	return (t == 0.0f) ? 0.0f : (t == 1.0f) ? 1.0f : ELASTIC_A * powf(2.0f, -10.0f * t) * sinf((t - (ELASTIC_P / (2.0f * std::numbers::pi_v<float>)) * logf(ELASTIC_A)) * (2.0f * std::numbers::pi_v<float>) / ELASTIC_P) + 1.0f;
+float Easing::EaseOutElastic(float t) {
+	return (t == 0.0f)   ? 0.0f
+	       : (t == 1.0f) ? 1.0f
+	                     : ELASTIC_A * powf(2.0f, -10.0f * t) * sinf((t - (ELASTIC_P / (2.0f * std::numbers::pi_v<float>)) * logf(ELASTIC_A)) * (2.0f * std::numbers::pi_v<float>) / ELASTIC_P) + 1.0f;
 }
 
-float Easing::EaseInOutElastic(float t)
-{
-	if (t == 0.0f) return 0.0f;
-	if (t == 1.0f) return 1.0f;
+float Easing::EaseInOutElastic(float t) {
+	if (t == 0.0f)
+		return 0.0f;
+	if (t == 1.0f)
+		return 1.0f;
 
 	if (t < 0.5f) {
 		return -0.5f * (ELASTIC_A * powf(2.0f, 20.0f * t - 10.0f) * sinf((20.0f * t - 11.125f) * (2.0f * std::numbers::pi_v<float>) / ELASTIC_P));
@@ -110,18 +81,11 @@ float Easing::EaseInOutElastic(float t)
 	}
 }
 
-float Easing::EaseInQuad(float t)
-{
-	return t * t;
-}
+float Easing::EaseInQuad(float t) { return t * t; }
 
-float Easing::EaseOutQuad(float t)
-{
-	return 1.0f - (1.0f - t) * (1.0f - t);
-}
+float Easing::EaseOutQuad(float t) { return 1.0f - (1.0f - t) * (1.0f - t); }
 
-float Easing::EaseInOutQuad(float t)
-{
+float Easing::EaseInOutQuad(float t) {
 	if (t < 0.5f) {
 		return 2.0f * t * t;
 	} else {
@@ -129,18 +93,11 @@ float Easing::EaseInOutQuad(float t)
 	}
 }
 
-float Easing::EaseInQuart(float t)
-{
-	return t * t * t * t;
-}
+float Easing::EaseInQuart(float t) { return t * t * t * t; }
 
-float Easing::EaseOutQuart(float t)
-{
-	return 1.0f - powf(1.0f - t, 4.0f);
-}
+float Easing::EaseOutQuart(float t) { return 1.0f - powf(1.0f - t, 4.0f); }
 
-float Easing::EaseInOutQuart(float t)
-{
+float Easing::EaseInOutQuart(float t) {
 	if (t < 0.5f) {
 		return 8.0f * t * t * t * t;
 	} else {
@@ -148,35 +105,23 @@ float Easing::EaseInOutQuart(float t)
 	}
 }
 
-float Easing::EaseInExpo(float t)
-{
-	return (t == 0.0f) ? 0.0f : powf(2.0f, 10.0f * (t - 1.0f));
-}
+float Easing::EaseInExpo(float t) { return (t == 0.0f) ? 0.0f : powf(2.0f, 10.0f * (t - 1.0f)); }
 
-float Easing::EaseOutExpo(float t)
-{
-	return (t == 1.0f) ? 1.0f : 1.0f - powf(2.0f, -10.0f * t);
-}
+float Easing::EaseOutExpo(float t) { return (t == 1.0f) ? 1.0f : 1.0f - powf(2.0f, -10.0f * t); }
 
-float Easing::EaseInOutExpo(float t)
-{
-	if (t == 0.0f || t == 1.0f) return t;
-	if (t < 0.5f) return 0.5f * pow(2.0f, 20.0f * t - 10.0f);
+float Easing::EaseInOutExpo(float t) {
+	if (t == 0.0f || t == 1.0f)
+		return t;
+	if (t < 0.5f)
+		return 0.5f * pow(2.0f, 20.0f * t - 10.0f);
 	return 0.5f * (2.0f - pow(2.0f, -20.0f * t + 10.0f));
 }
 
-float Easing::EaseInBack(float t)
-{
-	return t * t * ((BACK_S + 1.0f) * t - BACK_S);
-}
+float Easing::EaseInBack(float t) { return t * t * ((BACK_S + 1.0f) * t - BACK_S); }
 
-float Easing::EaseOutBack(float t)
-{
-	return (t -= 1.0f) * t * ((BACK_S + 1.0f) * t + BACK_S) + 1.0f;
-}
+float Easing::EaseOutBack(float t) { return (t -= 1.0f) * t * ((BACK_S + 1.0f) * t + BACK_S) + 1.0f; }
 
-float Easing::EaseInOutBack(float t)
-{
+float Easing::EaseInOutBack(float t) {
 	if (t < 0.5f) {
 		return 0.5f * (t * t * ((BACK_S * 1.525f + 1.0f) * t - BACK_S * 1.525f));
 	} else {
@@ -184,13 +129,9 @@ float Easing::EaseInOutBack(float t)
 	}
 }
 
-float Easing::EaseInBounce(float t)
-{
-	return EaseOutBounce(1.0f - t);
-}
+float Easing::EaseInBounce(float t) { return EaseOutBounce(1.0f - t); }
 
-float Easing::EaseOutBounce(float t)
-{
+float Easing::EaseOutBounce(float t) {
 	if (t < (1.0f / 2.75f)) {
 		return 7.5625f * t * t;
 	} else if (t < (2.0f / 2.75f)) {
@@ -205,16 +146,13 @@ float Easing::EaseOutBounce(float t)
 	}
 }
 
-float Easing::EaseInOutBounce(float t)
-{
+float Easing::EaseInOutBounce(float t) {
 	if (t < 0.5f) {
 		return 0.5f * EaseInBounce(t * 2.0f);
 	} else {
 		return 0.5f * EaseOutBounce(t * 2.0f - 1.0f) + 0.5f;
 	}
 }
-
-
 
 void SimpleEasing::Animate(float& value, float start, float end, EasingFunction easingFunction, float duration) {
 	std::thread([&, start, end, duration, easingFunction]() {
@@ -239,7 +177,7 @@ void SimpleEasing::Animate(float& value, float start, float end, EasingFunction 
 
 		// valueを最終値に設定
 		value = end;
-		}).detach(); // スレッドを切り離して非同期処理
+	}).detach(); // スレッドを切り離して非同期処理
 }
 
 void SimpleEasing::Animate(Float3& value, Float3 start, Float3 end, EasingFunction easingFunction, float duration) {
@@ -265,5 +203,5 @@ void SimpleEasing::Animate(Float3& value, Float3 start, Float3 end, EasingFuncti
 
 		// valueを最終値に設定
 		value = end;
-		}).detach(); // スレッドを切り離して非同期処理
+	}).detach(); // スレッドを切り離して非同期処理
 }

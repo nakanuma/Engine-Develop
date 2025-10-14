@@ -11,15 +11,11 @@
 #include <memory>
 
 /// <summary>
-/// BehaviorTreeEditor
+/// ビヘイビアツリーのエディター
 /// </summary>
-template<typename AgentType>
-class BehaviorTreeEditor
-{
+template<typename AgentType> class BehaviorTreeEditor {
 public:
-	BehaviorTreeEditor() {
-		context_ = ImNodes::CreateContext();
-	}
+	BehaviorTreeEditor() { context_ = ImNodes::CreateContext(); }
 
 	~BehaviorTreeEditor() {
 		if (context_) {
@@ -58,7 +54,7 @@ public:
 			ImNodes::EndNodeTitleBar();
 
 			// サブタイトル
-			if(!node.subName.empty()) {
+			if (!node.subName.empty()) {
 				ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "%s", node.subName.c_str());
 				ImGui::Separator();
 			}
@@ -104,13 +100,13 @@ public:
 
 		nlohmann::json j;
 		for (auto& node : nodes_) {
-			j[std::to_string(node.id)] = { node.position.x, node.position.y };
+			j[std::to_string(node.id)] = {node.position.x, node.position.y};
 		}
 
 		std::ofstream file(fullPath);
 		file << j.dump(4);
 	}
-	
+
 	/// <summary>
 	/// ロード
 	/// </summary>
@@ -118,7 +114,8 @@ public:
 		std::string fullPath = defaultDir_ + path;
 
 		std::ifstream file(fullPath);
-		if (!file.is_open()) return;
+		if (!file.is_open())
+			return;
 		nlohmann::json j;
 		file >> j;
 
@@ -132,10 +129,10 @@ public:
 
 private:
 	struct NodeView {
-		uint32_t id; // ノード固有ID
-		std::string name; // ノード名
-		std::string subName; // サブ名
-		ImVec2 position; // ノード位置
+		uint32_t id;                       // ノード固有ID
+		std::string name;                  // ノード名
+		std::string subName;               // サブ名
+		ImVec2 position;                   // ノード位置
 		std::vector<uint32_t> childrenIDs; // 子ノードのIDリスト（リンク描画に使用）
 	};
 	// 描画用ノード配列
@@ -151,7 +148,8 @@ private:
 	/// ノードビュー生成
 	/// </summary>
 	void BuildNodeView(BehaviorNode<AgentType>* node, uint32_t& currentID, std::vector<NodeView>& nodes) {
-		if (!node) return;
+		if (!node)
+			return;
 
 		NodeView view;
 		view.id = currentID++;
@@ -160,24 +158,19 @@ private:
 		if (auto selector = dynamic_cast<SelectorNode<AgentType>*>(node)) {
 			view.name = "Selector";
 			view.subName = selector->GetName();
-		}
-		else if (auto sequence = dynamic_cast<SequenceNode<AgentType>*>(node)) {
+		} else if (auto sequence = dynamic_cast<SequenceNode<AgentType>*>(node)) {
 			view.name = "Sequence";
 			view.subName = sequence->GetName();
-		}
-		else if (auto paralell = dynamic_cast<ParallelNode<AgentType>*>(node)) {
+		} else if (auto paralell = dynamic_cast<ParallelNode<AgentType>*>(node)) {
 			view.name = "Parallel";
 			view.subName = paralell->GetName();
-		}
-		else if (auto condition = dynamic_cast<ConditionNode<AgentType>*>(node)) {
+		} else if (auto condition = dynamic_cast<ConditionNode<AgentType>*>(node)) {
 			view.name = "Condition";
 			view.subName = condition->GetName();
-		}
-		else if (auto action = dynamic_cast<ActionNode<AgentType>*>(node)) {
+		} else if (auto action = dynamic_cast<ActionNode<AgentType>*>(node)) {
 			view.name = "Action";
 			view.subName = action->GetName();
-		}
-		else if (auto wait = dynamic_cast<WaitNode<AgentType>*>(node)) {
+		} else if (auto wait = dynamic_cast<WaitNode<AgentType>*>(node)) {
 			view.name = "Wait";
 			view.subName = wait->GetName();
 		}

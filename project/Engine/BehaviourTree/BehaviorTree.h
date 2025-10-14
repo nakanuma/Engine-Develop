@@ -3,8 +3,10 @@
 // Engine
 #include <Engine/BehaviourTree/BehaviorNode.h>
 
-template<typename AgentType>
-class BehaviorTree {
+/// <summary>
+/// ビヘイビアツリー（全てのノードを管理）
+/// </summary>
+template<typename AgentType> class BehaviorTree {
 public:
 	/// <summary>
 	/// ルートノードをコンストラクタで受け取る
@@ -23,9 +25,7 @@ public:
 	/// <summary>
 	/// ルートノードへの参照を取得
 	/// </summary>
-	BehaviorNode<AgentType>* GetRoot() {
-		return root_.get();
-	}
+	BehaviorNode<AgentType>* GetRoot() { return root_.get(); }
 
 private:
 	// ルートノードのリスト

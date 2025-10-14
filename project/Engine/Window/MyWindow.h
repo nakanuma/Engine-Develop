@@ -1,9 +1,11 @@
 #pragma once
-#include <windows.h>
 #include <cstdint>
+#include <windows.h>
 
-class Window
-{
+/// <summary>
+/// WindowsAPIを用いたウインドウ管理クラス
+/// </summary>
+class Window {
 public:
 	// ウィンドウの作成
 	static void Create(LPCWSTR windowTitle, uint32_t width, uint32_t height);
@@ -26,4 +28,3 @@ private:
 
 	inline static WNDCLASS wc{};
 };
-

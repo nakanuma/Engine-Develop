@@ -8,10 +8,9 @@
 #include <MyMath.h>
 
 /// <summary>
-/// アニメーションの読み込み・補間
+/// アニメーションの読み込み・補間を行うクラス
 /// </summary>
-class AnimationLoader 
-{
+class AnimationLoader {
 public:
 	struct KeyframeFloat3 {
 		Float3 value; // キーフレームの値

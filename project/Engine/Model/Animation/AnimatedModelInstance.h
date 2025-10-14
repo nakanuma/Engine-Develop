@@ -5,14 +5,14 @@
 
 // Engine
 #include <DirectXBase.h>
-#include <Object3D.h>
-#include <ModelManager.h>
 #include <Model/Animation/AnimationLoader.h>
 #include <Model/Animation/Skeleton.h>
 #include <Model/Animation/SkinCluster.h>
+#include <ModelManager.h>
+#include <Object3D.h>
 
 /// <summary>
-/// アニメーションするモデルを一括管理
+/// アニメーション付きのモデルのインスタンス管理クラス
 /// </summary>
 class AnimatedModelInstance {
 public:

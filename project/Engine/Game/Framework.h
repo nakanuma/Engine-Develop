@@ -1,39 +1,41 @@
 #pragma once
-#include <Windows.h> 
-#include <cstdint>
+#include <Windows.h>
 #include <assert.h>
-#include <numbers>
+#include <cstdint>
 #include <list>
+#include <numbers>
 
-// MyClass 
-#include "MyWindow.h"
-#include "Logger.h"
-#include "StringUtil.h"
+// MyClass
+#include "AbstractSceneFactory.h"
+#include "Camera.h"
+#include "ConstBuffer.h"
+#include "DescriptorHeap.h"
 #include "DirectXBase.h"
 #include "DirectXUtil.h"
-#include "MyMath.h"
-#include "Camera.h"
-#include "DescriptorHeap.h"
 #include "ImguiWrapper.h"
-#include "TextureManager.h"
+#include "Input.h"
+#include "LineDrawer.h"
+#include "Logger.h"
 #include "ModelManager.h"
-#include "ConstBuffer.h"
+#include "MyMath.h"
+#include "MyWindow.h"
 #include "Object3D.h"
 #include "OutlinedObject.h"
-#include "Input.h"
-#include "SpriteCommon.h"
-#include "Sprite.h"
 #include "SRVManager.h"
-#include "StructuredBuffer.h"
-#include "SoundManager.h"
 #include "SceneManager.h"
-#include "AbstractSceneFactory.h"
-#include "TimeManager.h"
-#include "LineDrawer.h"
 #include "ShadowMapManager.h"
+#include "SoundManager.h"
+#include "Sprite.h"
+#include "SpriteCommon.h"
+#include "StringUtil.h"
+#include "StructuredBuffer.h"
+#include "TextureManager.h"
+#include "TimeManager.h"
 
-class Framework
-{
+/// <summary>
+/// アプリケーション・ゲームフレームワーク基盤クラス
+/// </summary>
+class Framework {
 public:
 	virtual ~Framework() = default;
 
@@ -69,8 +71,6 @@ protected:
 	// シーンファクトリー
 	AbstractSceneFactory* sceneFactory_ = nullptr;
 
-
 private:
 	bool endRequest_;
 };
-

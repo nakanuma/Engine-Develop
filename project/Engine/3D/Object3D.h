@@ -1,13 +1,15 @@
 #pragma once
-#include "Transform.h"
-#include "ModelManager.h"
-#include "TextureManager.h"
 #include "ConstBuffer.h"
+#include "ModelManager.h"
 #include "StructuredBuffer.h"
+#include "TextureManager.h"
+#include "Transform.h"
 #include <Model/Animation/SkinCluster.h>
 
-class Object3D
-{
+/// <summary>
+/// 3Dオブジェクトクラス
+/// </summary>
+class Object3D {
 public:
 	struct Material {
 		Float4 color;
@@ -72,12 +74,12 @@ public:
 	void DrawShadow(SkinCluster skinCluster);
 
 	// マテリアルの定数バッファ
-	ConstBuffer<Material>materialCB_;
+	ConstBuffer<Material> materialCB_;
 
 	// トランスフォームの定数バッファ
-	ConstBuffer<TransformationMatrix>wvpCB_;
+	ConstBuffer<TransformationMatrix> wvpCB_;
 	// シャドウマップ用の定数バッファ
-	ConstBuffer<ShadowCB>shadowWvpCB_;
+	ConstBuffer<ShadowCB> shadowWvpCB_;
 
 	// モデル情報
 	ModelManager::ModelData* model_ = nullptr;
@@ -89,4 +91,3 @@ private:
 	// 親オブジェクトへのポインタ
 	Object3D* parent_ = nullptr;
 };
-

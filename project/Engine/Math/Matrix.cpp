@@ -2,8 +2,7 @@
 #include <math.h>
 #include <stdexcept>
 
-Matrix::Matrix()
-{
+Matrix::Matrix() {
 	r[0][0] = 1.0f;
 	r[0][1] = 0.0f;
 	r[0][2] = 0.0f;
@@ -25,8 +24,7 @@ Matrix::Matrix()
 	r[3][3] = 1.0f;
 }
 
-Matrix::Matrix(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33)
-{
+Matrix::Matrix(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33) {
 	r[0][0] = m00;
 	r[0][1] = m01;
 	r[0][2] = m02;
@@ -48,8 +46,7 @@ Matrix::Matrix(float m00, float m01, float m02, float m03, float m10, float m11,
 	r[3][3] = m33;
 }
 
-Matrix Matrix::operator-() const
-{
+Matrix Matrix::operator-() const {
 	Matrix result;
 	float temp[4][8] = {};
 
@@ -60,7 +57,8 @@ Matrix Matrix::operator-() const
 		for (int32_t j = 0; j < 4; j++) {
 			temp[i][j] = r[i][j];
 
-			if (i == j)temp[i][4 + j] = 1;
+			if (i == j)
+				temp[i][4 + j] = 1;
 		}
 	}
 
@@ -92,83 +90,44 @@ Matrix Matrix::operator-() const
 	return result;
 }
 
-Matrix Matrix::operator+(const Matrix& m) const
-{
+Matrix Matrix::operator+(const Matrix& m) const {
 	return Matrix(
-		r[0][0] + m.r[0][0],
-		r[0][1] + m.r[0][1],
-		r[0][2] + m.r[0][2],
-		r[0][3] + m.r[0][3],
+	    r[0][0] + m.r[0][0], r[0][1] + m.r[0][1], r[0][2] + m.r[0][2], r[0][3] + m.r[0][3],
 
-		r[1][0] + m.r[1][0],
-		r[1][1] + m.r[1][1],
-		r[1][2] + m.r[1][2],
-		r[1][3] + m.r[1][3],
+	    r[1][0] + m.r[1][0], r[1][1] + m.r[1][1], r[1][2] + m.r[1][2], r[1][3] + m.r[1][3],
 
-		r[2][0] + m.r[2][0],
-		r[2][1] + m.r[2][1],
-		r[2][2] + m.r[2][2],
-		r[2][3] + m.r[2][3],
+	    r[2][0] + m.r[2][0], r[2][1] + m.r[2][1], r[2][2] + m.r[2][2], r[2][3] + m.r[2][3],
 
-		r[3][0] + m.r[3][0],
-		r[3][1] + m.r[3][1],
-		r[3][2] + m.r[3][2],
-		r[3][3] + m.r[3][3]
-	);
+	    r[3][0] + m.r[3][0], r[3][1] + m.r[3][1], r[3][2] + m.r[3][2], r[3][3] + m.r[3][3]);
 }
 
-Matrix Matrix::operator-(const Matrix& m) const
-{
+Matrix Matrix::operator-(const Matrix& m) const {
 	return Matrix(
-		r[0][0] - m.r[0][0],
-		r[0][1] - m.r[0][1],
-		r[0][2] - m.r[0][2],
-		r[0][3] - m.r[0][3],
+	    r[0][0] - m.r[0][0], r[0][1] - m.r[0][1], r[0][2] - m.r[0][2], r[0][3] - m.r[0][3],
 
-		r[1][0] - m.r[1][0],
-		r[1][1] - m.r[1][1],
-		r[1][2] - m.r[1][2],
-		r[1][3] - m.r[1][3],
+	    r[1][0] - m.r[1][0], r[1][1] - m.r[1][1], r[1][2] - m.r[1][2], r[1][3] - m.r[1][3],
 
-		r[2][0] - m.r[2][0],
-		r[2][1] - m.r[2][1],
-		r[2][2] - m.r[2][2],
-		r[2][3] - m.r[2][3],
+	    r[2][0] - m.r[2][0], r[2][1] - m.r[2][1], r[2][2] - m.r[2][2], r[2][3] - m.r[2][3],
 
-		r[3][0] - m.r[3][0],
-		r[3][1] - m.r[3][1],
-		r[3][2] - m.r[3][2],
-		r[3][3] - m.r[3][3]
-	);
+	    r[3][0] - m.r[3][0], r[3][1] - m.r[3][1], r[3][2] - m.r[3][2], r[3][3] - m.r[3][3]);
 }
 
-Matrix Matrix::operator*(const Matrix& m) const
-{
+Matrix Matrix::operator*(const Matrix& m) const {
 	return Matrix(
-		r[0][0] * m.r[0][0] + r[0][1] * m.r[1][0] + r[0][2] * m.r[2][0] + r[0][3] * m.r[3][0],
-		r[0][0] * m.r[0][1] + r[0][1] * m.r[1][1] + r[0][2] * m.r[2][1] + r[0][3] * m.r[3][1],
-		r[0][0] * m.r[0][2] + r[0][1] * m.r[1][2] + r[0][2] * m.r[2][2] + r[0][3] * m.r[3][2],
-		r[0][0] * m.r[0][3] + r[0][1] * m.r[1][3] + r[0][2] * m.r[2][3] + r[0][3] * m.r[3][3],
+	    r[0][0] * m.r[0][0] + r[0][1] * m.r[1][0] + r[0][2] * m.r[2][0] + r[0][3] * m.r[3][0], r[0][0] * m.r[0][1] + r[0][1] * m.r[1][1] + r[0][2] * m.r[2][1] + r[0][3] * m.r[3][1],
+	    r[0][0] * m.r[0][2] + r[0][1] * m.r[1][2] + r[0][2] * m.r[2][2] + r[0][3] * m.r[3][2], r[0][0] * m.r[0][3] + r[0][1] * m.r[1][3] + r[0][2] * m.r[2][3] + r[0][3] * m.r[3][3],
 
-		r[1][0] * m.r[0][0] + r[1][1] * m.r[1][0] + r[1][2] * m.r[2][0] + r[1][3] * m.r[3][0],
-		r[1][0] * m.r[0][1] + r[1][1] * m.r[1][1] + r[1][2] * m.r[2][1] + r[1][3] * m.r[3][1],
-		r[1][0] * m.r[0][2] + r[1][1] * m.r[1][2] + r[1][2] * m.r[2][2] + r[1][3] * m.r[3][2],
-		r[1][0] * m.r[0][3] + r[1][1] * m.r[1][3] + r[1][2] * m.r[2][3] + r[1][3] * m.r[3][3],
+	    r[1][0] * m.r[0][0] + r[1][1] * m.r[1][0] + r[1][2] * m.r[2][0] + r[1][3] * m.r[3][0], r[1][0] * m.r[0][1] + r[1][1] * m.r[1][1] + r[1][2] * m.r[2][1] + r[1][3] * m.r[3][1],
+	    r[1][0] * m.r[0][2] + r[1][1] * m.r[1][2] + r[1][2] * m.r[2][2] + r[1][3] * m.r[3][2], r[1][0] * m.r[0][3] + r[1][1] * m.r[1][3] + r[1][2] * m.r[2][3] + r[1][3] * m.r[3][3],
 
-		r[2][0] * m.r[0][0] + r[2][1] * m.r[1][0] + r[2][2] * m.r[2][0] + r[2][3] * m.r[3][0],
-		r[2][0] * m.r[0][1] + r[2][1] * m.r[1][1] + r[2][2] * m.r[2][1] + r[2][3] * m.r[3][1],
-		r[2][0] * m.r[0][2] + r[2][1] * m.r[1][2] + r[2][2] * m.r[2][2] + r[2][3] * m.r[3][2],
-		r[2][0] * m.r[0][3] + r[2][1] * m.r[1][3] + r[2][2] * m.r[2][3] + r[2][3] * m.r[3][3],
+	    r[2][0] * m.r[0][0] + r[2][1] * m.r[1][0] + r[2][2] * m.r[2][0] + r[2][3] * m.r[3][0], r[2][0] * m.r[0][1] + r[2][1] * m.r[1][1] + r[2][2] * m.r[2][1] + r[2][3] * m.r[3][1],
+	    r[2][0] * m.r[0][2] + r[2][1] * m.r[1][2] + r[2][2] * m.r[2][2] + r[2][3] * m.r[3][2], r[2][0] * m.r[0][3] + r[2][1] * m.r[1][3] + r[2][2] * m.r[2][3] + r[2][3] * m.r[3][3],
 
-		r[3][0] * m.r[0][0] + r[3][1] * m.r[1][0] + r[3][2] * m.r[2][0] + r[3][3] * m.r[3][0],
-		r[3][0] * m.r[0][1] + r[3][1] * m.r[1][1] + r[3][2] * m.r[2][1] + r[3][3] * m.r[3][1],
-		r[3][0] * m.r[0][2] + r[3][1] * m.r[1][2] + r[3][2] * m.r[2][2] + r[3][3] * m.r[3][2],
-		r[3][0] * m.r[0][3] + r[3][1] * m.r[1][3] + r[3][2] * m.r[2][3] + r[3][3] * m.r[3][3]
-	);
+	    r[3][0] * m.r[0][0] + r[3][1] * m.r[1][0] + r[3][2] * m.r[2][0] + r[3][3] * m.r[3][0], r[3][0] * m.r[0][1] + r[3][1] * m.r[1][1] + r[3][2] * m.r[2][1] + r[3][3] * m.r[3][1],
+	    r[3][0] * m.r[0][2] + r[3][1] * m.r[1][2] + r[3][2] * m.r[2][2] + r[3][3] * m.r[3][2], r[3][0] * m.r[0][3] + r[3][1] * m.r[1][3] + r[3][2] * m.r[2][3] + r[3][3] * m.r[3][3]);
 }
 
-Matrix& Matrix::operator+=(const Matrix& m)
-{
+Matrix& Matrix::operator+=(const Matrix& m) {
 	r[0][0] += m.r[0][0];
 	r[0][1] += m.r[0][1];
 	r[0][2] += m.r[0][2];
@@ -192,8 +151,7 @@ Matrix& Matrix::operator+=(const Matrix& m)
 	return *this;
 }
 
-Matrix& Matrix::operator-=(const Matrix& m)
-{
+Matrix& Matrix::operator-=(const Matrix& m) {
 	r[0][0] -= m.r[0][0];
 	r[0][1] -= m.r[0][1];
 	r[0][2] -= m.r[0][2];
@@ -217,33 +175,22 @@ Matrix& Matrix::operator-=(const Matrix& m)
 	return *this;
 }
 
-Matrix& Matrix::operator*=(const Matrix& m)
-{
+Matrix& Matrix::operator*=(const Matrix& m) {
 	*this = *this * m;
 	return *this;
 }
 
-Float4 Matrix::operator*(const Float4& vec) { 
+Float4 Matrix::operator*(const Float4& vec) {
 	return Float4(
-	    r[0][0] * vec.x + r[0][1] * vec.y + r[0][2] * vec.z + r[0][3] * vec.w, 
-		r[1][0] * vec.x + r[1][1] * vec.y + r[1][2] * vec.z + r[1][3] * vec.w,
-	    r[2][0] * vec.x + r[2][1] * vec.y + r[2][2] * vec.z + r[2][3] * vec.w, 
-		r[3][0] * vec.x + r[3][1] * vec.y + r[3][2] * vec.z + r[3][3] * vec.w
-	);
+	    r[0][0] * vec.x + r[0][1] * vec.y + r[0][2] * vec.z + r[0][3] * vec.w, r[1][0] * vec.x + r[1][1] * vec.y + r[1][2] * vec.z + r[1][3] * vec.w,
+	    r[2][0] * vec.x + r[2][1] * vec.y + r[2][2] * vec.z + r[2][3] * vec.w, r[3][0] * vec.x + r[3][1] * vec.y + r[3][2] * vec.z + r[3][3] * vec.w);
 }
 
-Matrix Matrix::Identity()
-{
-	return Matrix();
-}
+Matrix Matrix::Identity() { return Matrix(); }
 
-Matrix Matrix::Inverse(Matrix m)
-{
-	return -m;
-}
+Matrix Matrix::Inverse(Matrix m) { return -m; }
 
-Matrix Matrix::Transpose(const Matrix& m)
-{
+Matrix Matrix::Transpose(const Matrix& m) {
 	Matrix result;
 
 	for (int i = 0; i < 4; ++i) {
@@ -255,8 +202,7 @@ Matrix Matrix::Transpose(const Matrix& m)
 	return result;
 }
 
-Matrix Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float farZ)
-{
+Matrix Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float farZ) {
 	Matrix result = Matrix();
 
 	result.r[1][1] = 1 / tanf(fov / 2);
@@ -269,18 +215,13 @@ Matrix Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float
 	return result;
 }
 
-Matrix Matrix::Orthographic(float width, float height, float nearClip, float farClip)
-{
+Matrix Matrix::Orthographic(float width, float height, float nearClip, float farClip) {
 	return Matrix(
-		2.0f / width, 0.0f, 0.0f, 0.0f,
-		0.0f, 2.0f / -height, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f,
-		-1, 1, nearClip / (nearClip - farClip), 1.0f // 左上を原点にする
+	    2.0f / width, 0.0f, 0.0f, 0.0f, 0.0f, 2.0f / -height, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f, -1, 1, nearClip / (nearClip - farClip), 1.0f // 左上を原点にする
 	);
 }
 
-Matrix Matrix::OrthographicOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ)
-{
+Matrix Matrix::OrthographicOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ) {
 	Matrix m;
 
 	m.r[0][0] = 2.0f / (right - left);
@@ -306,8 +247,7 @@ Matrix Matrix::OrthographicOffCenterLH(float left, float right, float bottom, fl
 	return m;
 }
 
-Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& up)
-{
+Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& up) {
 	// forward
 	Float3 zaxis = target - eye;
 	if (Float3::Length(zaxis) < 1e-6f) {
@@ -329,15 +269,10 @@ Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& u
 
 	// ビュー行列の構築
 	return Matrix(
-		xaxis.x, yaxis.x, zaxis.x, 0.0f,
-		xaxis.y, yaxis.y, zaxis.y, 0.0f,
-		xaxis.z, yaxis.z, zaxis.z, 0.0f,
-		-Float3::Dot(xaxis, eye), -Float3::Dot(yaxis, eye), -Float3::Dot(zaxis, eye), 1.0f
-	);
+	    xaxis.x, yaxis.x, zaxis.x, 0.0f, xaxis.y, yaxis.y, zaxis.y, 0.0f, xaxis.z, yaxis.z, zaxis.z, 0.0f, -Float3::Dot(xaxis, eye), -Float3::Dot(yaxis, eye), -Float3::Dot(zaxis, eye), 1.0f);
 }
 
-Matrix Matrix::Scaling(Float3 scale)
-{
+Matrix Matrix::Scaling(Float3 scale) {
 	Matrix ret = Matrix();
 	ret.r[0][0] = scale.x;
 	ret.r[1][1] = scale.y;
@@ -346,8 +281,7 @@ Matrix Matrix::Scaling(Float3 scale)
 	return ret;
 }
 
-Matrix Matrix::Translation(Float3 translation)
-{
+Matrix Matrix::Translation(Float3 translation) {
 	Matrix ret = Matrix();
 	ret.r[3][0] = translation.x;
 	ret.r[3][1] = translation.y;
@@ -356,8 +290,7 @@ Matrix Matrix::Translation(Float3 translation)
 	return ret;
 }
 
-Matrix Matrix::RotationX(float rad)
-{
+Matrix Matrix::RotationX(float rad) {
 	Matrix result = Matrix();
 
 	result.r[1][1] = cosf(rad);
@@ -368,8 +301,7 @@ Matrix Matrix::RotationX(float rad)
 	return result;
 }
 
-Matrix Matrix::RotationY(float rad)
-{
+Matrix Matrix::RotationY(float rad) {
 	Matrix result = Matrix();
 
 	result.r[0][0] = cosf(rad);
@@ -380,8 +312,7 @@ Matrix Matrix::RotationY(float rad)
 	return result;
 }
 
-Matrix Matrix::RotationZ(float rad)
-{
+Matrix Matrix::RotationZ(float rad) {
 	Matrix result = Matrix();
 
 	result.r[0][0] = cosf(rad);
@@ -392,12 +323,9 @@ Matrix Matrix::RotationZ(float rad)
 	return result;
 }
 
-Matrix Matrix::Rotation(const Float3& eulerAngles) { 
-	return RotationY(eulerAngles.y) * RotationX(eulerAngles.x) * RotationZ(eulerAngles.z);
-}
+Matrix Matrix::Rotation(const Float3& eulerAngles) { return RotationY(eulerAngles.y) * RotationX(eulerAngles.x) * RotationZ(eulerAngles.z); }
 
-Matrix Matrix::Pitch(float rad)
-{
+Matrix Matrix::Pitch(float rad) {
 	Matrix result = Matrix();
 
 	result.r[1][1] = cosf(rad);
@@ -408,8 +336,7 @@ Matrix Matrix::Pitch(float rad)
 	return result;
 }
 
-Matrix Matrix::Yaw(float rad)
-{
+Matrix Matrix::Yaw(float rad) {
 	Matrix result = Matrix();
 
 	result.r[0][0] = cosf(rad);
@@ -420,8 +347,7 @@ Matrix Matrix::Yaw(float rad)
 	return result;
 }
 
-Matrix Matrix::Roll(float rad)
-{
+Matrix Matrix::Roll(float rad) {
 	Matrix result = Matrix();
 
 	result.r[0][0] = cosf(rad);
@@ -432,8 +358,7 @@ Matrix Matrix::Roll(float rad)
 	return result;
 }
 
-Matrix Matrix::LookRotation(const Float3& forward_, const Float3& up_)
-{
+Matrix Matrix::LookRotation(const Float3& forward_, const Float3& up_) {
 	Float3 forward = Float3::Normalize(forward_);
 	Float3 right = Float3::Normalize(Float3::Cross(up_, forward_));
 	Float3 up = Float3::Cross(forward_, right);
@@ -467,14 +392,12 @@ Matrix Matrix::LookRotation(const Float3& forward_, const Float3& up_)
 	return result;
 }
 
-Matrix Matrix::RotationRollPitchYaw(float roll, float pitch, float yaw)
-{
+Matrix Matrix::RotationRollPitchYaw(float roll, float pitch, float yaw) {
 	Matrix result = Matrix::Identity() * Roll(roll) * Pitch(pitch) * Yaw(yaw);
 	return result;
 }
 
-Matrix Matrix::QuaternionToRotation(Quaternion q)
-{
+Matrix Matrix::QuaternionToRotation(Quaternion q) {
 	Matrix result;
 
 	result.r[0][0] = (q.w * q.w) + (q.x * q.x) - (q.y * q.y) - (q.z * q.z);
@@ -500,13 +423,12 @@ Matrix Matrix::QuaternionToRotation(Quaternion q)
 	return result;
 }
 
-Matrix Matrix::MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3 translate)
-{
+Matrix Matrix::MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3 translate) {
 	Matrix result = Matrix();
 
-	result *= Matrix::Scaling({ scale.x, scale.y, scale.z });
-	result *= Matrix::QuaternionToRotation({ rotate.x, rotate.y, rotate.z, rotate.w });
-	result *= Matrix::Translation({ translate.x, translate.y, translate.z });
+	result *= Matrix::Scaling({scale.x, scale.y, scale.z});
+	result *= Matrix::QuaternionToRotation({rotate.x, rotate.y, rotate.z, rotate.w});
+	result *= Matrix::Translation({translate.x, translate.y, translate.z});
 
 	return result;
 }

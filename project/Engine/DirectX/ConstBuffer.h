@@ -1,11 +1,18 @@
 #pragma once
-#include "DirectXUtil.h"
 #include "DirectXBase.h"
+#include "DirectXUtil.h"
 
-template<class Type>class ConstBuffer {
+/// <summary>
+/// 定数バッファのラッパークラス
+/// </summary>
+/// <typeparam name="Type"></typeparam>
+template<class Type> class ConstBuffer {
 public:
 	// trueを指定した場合には空で生成される
-	ConstBuffer(bool isEmpty = false) { if (!isEmpty)Create(); };
+	ConstBuffer(bool isEmpty = false) {
+		if (!isEmpty)
+			Create();
+	};
 
 	void Create() {
 		// リソースを作る

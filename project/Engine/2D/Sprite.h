@@ -1,11 +1,13 @@
 #pragma once
-#include "MyMath.h"
 #include "DirectXBase.h"
+#include "MyMath.h"
 
 class SpriteCommon; // 前方宣言
 
-class Sprite
-{
+/// <summary>
+/// 1つのスプライトを表すクラス
+/// </summary>
+class Sprite {
 public:
 	struct VertexData {
 		Float4 position;
@@ -39,7 +41,7 @@ public:
 
 	///
 	///	アクセッサ
-	/// 
+	///
 
 	// 座標
 	const Float2 GetPosition() const { return position_; }
@@ -70,6 +72,7 @@ public:
 	void SetTextureSize(const Float2& textureSize) { this->textureSize_ = textureSize; }
 
 	Material* materialData_ = nullptr;
+
 private:
 	SpriteCommon* spriteCommon = nullptr;
 
@@ -77,10 +80,10 @@ private:
 	uint32_t textureIndex_;
 
 	// バッファリソース
-	Microsoft::WRL::ComPtr <ID3D12Resource> vertexResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
-	Microsoft::WRL::ComPtr <ID3D12Resource> materialResource_;
-	Microsoft::WRL::ComPtr <ID3D12Resource> transformationMatrixResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_;
 	// バッファリソース内のデータを指すポインタ
 	VertexData* vertexData_ = nullptr;
 	uint32_t* indexData_ = nullptr;
@@ -93,23 +96,22 @@ private:
 	Transform transform_;
 
 	// 座標
-	Float2 position_ = { 0.0f, 0.0f };
+	Float2 position_ = {0.0f, 0.0f};
 	// 回転
 	float rotation = 0.0f;
 	// サイズ
-	Float2 size_ = { 640.0f, 360.0f };
+	Float2 size_ = {640.0f, 360.0f};
 	// アンカーポイント
-	Float2 anchorPoint = { 0.0f, 0.0f };
+	Float2 anchorPoint = {0.0f, 0.0f};
 	// 左右フリップ
 	bool isFlipX_ = false;
 	// 上下フリップ
 	bool isFlipY_ = false;
 	// テクスチャ左上座標
-	Float2 textureLeftTop_ = { 0.0f, 0.0f };
+	Float2 textureLeftTop_ = {0.0f, 0.0f};
 	// テクスチャ切り出しサイズ
-	Float2 textureSize_ = { 100.0f, 100.0f };
+	Float2 textureSize_ = {100.0f, 100.0f};
 
 	// テクスチャサイズをイメージに合わせる
 	void AdjustTextureSize();
 };
-
