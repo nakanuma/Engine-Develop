@@ -18,11 +18,17 @@ public:
 	// 最大4Jointの影響を受ける
 	static const uint32_t kNumMaxInfluence = 4;
 
+	/// <summary>
+	/// 頂点が受けるジョイントの影響情報
+	/// </summary>
 	struct VertexInfluence {
 		std::array<float, kNumMaxInfluence> weights;
 		std::array<int32_t, kNumMaxInfluence> jointIndices;
 	};
 
+	/// <summary>
+	/// GPUに渡すスケルトン空間での変換行列
+	/// </summary>
 	struct WellForGPU {
 		Matrix skeletonSpaceMatrix;                 // 位置用
 		Matrix skeletonSpaceInverseTransposeMatrix; // 法線用

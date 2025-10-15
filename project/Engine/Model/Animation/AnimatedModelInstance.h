@@ -16,6 +16,9 @@
 /// </summary>
 class AnimatedModelInstance {
 public:
+	/// <summary>
+	/// アニメーション付きモデルのデータを保持する構造体
+	/// </summary>
 	struct AnimatedModelData {
 		// モデルデータ
 		ModelManager::ModelData modelData;

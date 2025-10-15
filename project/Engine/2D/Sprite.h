@@ -9,12 +9,18 @@ class SpriteCommon; // 前方宣言
 /// </summary>
 class Sprite {
 public:
+	/// <summary>
+	/// 頂点情報を格納する構造体
+	/// </summary>
 	struct VertexData {
 		Float4 position;
 		Float2 texcoord;
 		Float3 normal;
 	};
 
+	/// <summary>
+	/// マテリアルを表す構造体
+	/// </summary>
 	struct Material {
 		Float4 color;
 		int32_t enableLighting;
@@ -26,6 +32,9 @@ public:
 		Float3 padding2;
 	};
 
+	/// <summary>
+	/// シェーダーに渡す変換行列をまとめた構造体
+	/// </summary>
 	struct TransformationMatrix {
 		Matrix WVP;
 		Matrix World;

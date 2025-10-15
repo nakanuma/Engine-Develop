@@ -19,17 +19,26 @@
 /// </summary>
 class ModelManager {
 public:
+	/// <summary>
+	/// 頂点データ構造体
+	/// </summary>
 	struct VertexData {
 		Float4 position;
 		Float2 texcoord;
 		Float3 normal;
 	};
 
+	/// <summary>
+	/// マテリアル情報
+	/// </summary>
 	struct MaterialData {
 		std::string textureFilePath;
 		uint32_t textureHandle;
 	};
 
+	/// <summary>
+	/// ノード構造体
+	/// </summary>
 	struct Node {
 		QuaternionTransform transform;
 		Matrix localMatrix;
@@ -37,16 +46,25 @@ public:
 		std::vector<Node> children;
 	};
 
+	/// <summary>
+	/// 頂点に対するジョイントの影響情報
+	/// </summary>
 	struct VertexWeightData {
 		float weight;
 		uint32_t vertexIndex;
 	};
 
+	/// <summary>
+	/// ジョイントごとのスキニング情報
+	/// </summary>
 	struct JointWeightData {
 		Matrix inverseBindPoseMatrix;
 		std::vector<VertexWeightData> vertexWeights;
 	};
 
+	/// <summary>
+	/// モデル全体のデータ構造
+	/// </summary>
 	struct ModelData {
 		std::map<std::string, JointWeightData> skinClusterData;
 		std::vector<VertexData> vertices;

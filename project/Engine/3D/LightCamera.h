@@ -9,6 +9,9 @@
 /// </summary>
 class LightCamera {
 public:
+	/// <summary>
+	/// AABB構造体
+	/// </summary>
 	struct BoundingBox {
 		Float3 min;
 		Float3 max;
@@ -36,6 +39,9 @@ public:
 		}
 	};
 
+	/// <summary>
+	/// ライトカメラ用の定数バッファデータ構造体
+	/// </summary>
 	struct LightCameraCB {
 		Matrix lightViewProj;
 	};

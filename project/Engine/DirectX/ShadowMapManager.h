@@ -89,6 +89,9 @@ private:
 	void CreateShadowSkinnedPSO();
 
 private:
+	/// <summary>
+	/// シャドウマップ用のリソースを管理する構造体
+	/// </summary>
 	struct ShadowResource {
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
 		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle{};

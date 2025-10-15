@@ -29,6 +29,9 @@ public:
 		DIJOYSTATE2 directInput_;
 	};
 
+	/// <summary>
+	/// ゲームパッド入力を管理する構造体
+	/// </summary>
 	struct Joystick {
 		ComPtr<IDirectInputDevice8> device_;
 		int32_t deadZoneL_;

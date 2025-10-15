@@ -15,6 +15,9 @@
 /// </summary>
 class Skeleton {
 public:
+	/// <summary>
+	/// スケルトンアニメーションにおける1つのジョイント（ボーン）を表す構造体
+	/// </summary>
 	struct Joint {
 		QuaternionTransform transform; // Transform情報
 		Matrix localMatrix;            // localMatrix

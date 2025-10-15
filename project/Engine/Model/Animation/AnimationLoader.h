@@ -12,22 +12,34 @@
 /// </summary>
 class AnimationLoader {
 public:
+	/// <summary>
+	/// 位置（Float3）を表すキーフレーム構造
+	/// </summary>
 	struct KeyframeFloat3 {
 		Float3 value; // キーフレームの値
 		float time;   // キーフレームの時刻
 	};
 
+	/// <summary>
+	/// 回転（Quaternion）を表すキーフレーム構造
+	/// </summary>
 	struct KeyframeQuaternion {
 		Quaternion value; // キーフレームの値
 		float time;       // キーフレームの時刻
 	};
 
+	/// <summary>
+	/// 1つのノード（ボーン）に対するアニメーションデータ
+	/// </summary>
 	struct NodeAnimation {
 		std::vector<KeyframeFloat3> translate;
 		std::vector<KeyframeQuaternion> rotate;
 		std::vector<KeyframeFloat3> scale;
 	};
 
+	/// <summary>
+	/// アニメーション全体のデータ構造
+	/// </summary>
 	struct Animation {
 		float duration; // アニメーション全体の尺（単位は秒）
 		// NodeAnimationの集合。Node名でひけるようにしておく

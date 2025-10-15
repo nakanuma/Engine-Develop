@@ -12,7 +12,9 @@ static constexpr double PI = 3.14159265359;
 
 static constexpr float PIf = 3.14159265359f;
 
-// AABB
+/// <summary>
+/// AABB構造体
+/// </summary>
 struct AABB {
 	Float3 min;
 	Float3 max;

@@ -2,6 +2,9 @@
 #include "ConstBuffer.h"
 #include "MyMath.h"
 
+/// <summary>
+/// カメラ用の定数バッファデータ構造体
+/// </summary>
 struct CameraCBData {
 	Float3 position;
 };

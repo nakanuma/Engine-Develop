@@ -77,3 +77,4 @@ public:
 
 	static Matrix MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3 translate);
 };
+

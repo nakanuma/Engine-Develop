@@ -9,16 +9,25 @@
 /// </summary>
 class LineDrawer {
 public:
+	/// <summary>
+	/// 通常の線分描画に使用する頂点構造体
+	/// </summary>
 	struct Vertex {
 		Float3 pos;
 		Float4 color;
 	};
 
+	/// <summary>
+	/// トレーサー線の描画に使用する頂点構造体
+	/// </summary>
 	struct TrailVertex {
 		Float3 center;
 		Float4 color;
 	};
 
+	/// <summary>
+	/// 頂点変換用の行列構造体
+	/// </summary>
 	struct TransformationMatrix {
 		Matrix WVP;
 	};

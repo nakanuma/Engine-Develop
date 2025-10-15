@@ -11,6 +11,9 @@
 /// </summary>
 class Object3D {
 public:
+	/// <summary>
+	/// マテリアルを表す構造体
+	/// </summary>
 	struct Material {
 		Float4 color;
 		int32_t enableLighting;
@@ -22,23 +25,35 @@ public:
 		float padding2[2];
 	};
 
+	/// <summary>
+	/// 通常描画用の座標変換行列を表す構造体
+	/// </summary>
 	struct TransformationMatrix {
 		Matrix WVP;
 		Matrix World;
 		Matrix WorldInverseTranspose;
 	};
 
+	/// <summary>
+	/// シャドウマッピング用の定数バッファ構造体
+	/// </summary>
 	struct ShadowCB {
 		Matrix World;
 		Matrix LightViewProj;
 	};
 
+	/// <summary>
+	/// パーティクル描画用のGPUデータ構造体
+	/// </summary>
 	struct ParticleForGPU {
 		Matrix WVP;
 		Matrix World;
 		Float4 color;
 	};
 
+	/// <summary>
+	/// インスタンシング描画用の定数バッファ構造体
+	/// </summary>
 	struct InstancingObject {
 		Matrix WVP;
 		Matrix World;

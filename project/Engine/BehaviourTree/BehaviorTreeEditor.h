@@ -128,6 +128,9 @@ public:
 	}
 
 private:
+	/// <summary>
+	/// 1つ分のノード可視化情報を保持する構造体
+	/// </summary>
 	struct NodeView {
 		uint32_t id;                       // ノード固有ID
 		std::string name;                  // ノード名

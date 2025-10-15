@@ -14,12 +14,18 @@ public:
 	// 各ライトの定数バッファをセット
 	void TransferContantBuffer();
 
+	/// <summary>
+	/// 平行光源情報の構造体
+	/// </summary>
 	struct DirectionalLight {
 		Float4 color;     // ライトの色
 		Float3 direction; // ライトの向き
 		float intensity;  // 輝度
 	};
 
+	/// <summary>
+	/// 点光源情報の構造体
+	/// </summary>
 	struct PointLight {
 		Float4 color;    // ライトの色
 		Float3 position; // ライトの位置
@@ -29,6 +35,9 @@ public:
 		float padding[2];
 	};
 
+	/// <summary>
+	/// スポットライト情報の構造体
+	/// </summary>
 	struct SpotLight {
 		Float4 color;          // ライトの色
 		Float3 position;       // ライトの位置
@@ -43,6 +52,9 @@ public:
 
 	static const int kMaxLight = 64;
 
+	/// <summary>
+	/// 複数のスポットライトをまとめて管理する構造体
+	/// </summary>
 	struct SpotLights {
 		SpotLight spotLights[kMaxLight];
 	};

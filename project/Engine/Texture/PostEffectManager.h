@@ -5,6 +5,9 @@
 #include <Object3D.h>
 #include <Sprite.h>
 
+/// <summary>
+/// 波形ディストーション用の定数バッファ構造体
+/// </summary>
 struct WaveCBData {
 	float gTime;
 	float amplitude;
@@ -12,6 +15,9 @@ struct WaveCBData {
 	float speed;
 };
 
+/// <summary>
+/// グリッチエフェクト用の定数バッファ構造体
+/// </summary>
 struct GlitchCBData {
 	float gTime;
 	float intensity;
@@ -19,6 +25,9 @@ struct GlitchCBData {
 	float padding;
 };
 
+/// <summary>
+/// ポストエフェクトの種類を列挙する列挙型
+/// </summary>
 enum class PostEffectType {
 	None,
 	RadialBlur,

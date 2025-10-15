@@ -9,6 +9,9 @@
 // Engine
 #include <Collider/Collider.h>
 
+/// <summary>
+/// レイキャスト結果を保持する構造体
+/// </summary>
 struct RayCastHit {
 	bool isHit = false;
 	Float3 hitPoint;

@@ -17,7 +17,9 @@
 #include <DirectX/ShaderManager.h>
 #include <Util/FPSController.h>
 
-// リソースリークチェック
+/// <summary>
+/// リソースリーク検出用ユーティリティクラス
+/// </summary>
 struct D3DResourceLeakChecker {
 	~D3DResourceLeakChecker();
 public:

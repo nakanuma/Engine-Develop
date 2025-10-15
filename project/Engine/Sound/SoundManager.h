@@ -10,25 +10,33 @@
 /// </summary>
 class SoundManager {
 public:
-	// チャンクヘッダ
+	/// <summary>
+	/// WAV ファイル内のチャンクヘッダ構造体
+	/// </summary>
 	struct ChunkHeader {
 		char id[4];   // チャンク毎のID
 		int32_t size; // チャンクサイズ
 	};
 
-	// RIFFヘッダチャンク
+	/// <summary>
+	/// RIFF ヘッダチャンク
+	/// </summary>
 	struct RiffHeader {
 		ChunkHeader chunk; // "RIFF"
 		char type[4];      // "WAVE"
 	};
 
-	// FMTチャンク
+	/// <summary>
+	/// フォーマットチャンク
+	/// </summary>
 	struct FormatChunk {
 		ChunkHeader chunk; // "fmt"
 		WAVEFORMATEX fmt;  // 波形フォーマット
 	};
 
-	// 音声データ
+	/// <summary>
+	/// 音声データ構造体
+	/// </summary>
 	struct SoundData {
 		// 波形フォーマット
 		WAVEFORMATEX wfex;

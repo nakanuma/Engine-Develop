@@ -5,7 +5,6 @@
 /// <summary>
 /// 定数バッファのラッパークラス
 /// </summary>
-/// <typeparam name="Type"></typeparam>
 template<class Type> class ConstBuffer {
 public:
 	// trueを指定した場合には空で生成される
