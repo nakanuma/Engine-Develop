@@ -17,7 +17,6 @@
     <ClCompile Include="Engine\Collider\CollisionMath.cpp" />
     <ClCompile Include="Engine\Collider\CollisionManager.cpp" />
     <ClCompile Include="Engine\Collider\Collider.cpp" />
-    <ClCompile Include="Engine\3D\DebugCamera.cpp" />
     <ClCompile Include="Engine\Math\Float2.cpp" />
     <ClCompile Include="Engine\Math\Float3.cpp" />
     <ClCompile Include="Engine\Math\Float4.cpp" />
@@ -52,7 +51,6 @@
     <ClCompile Include="Engine\Texture\TextureManager.cpp" />
     <ClCompile Include="Engine\Math\Transform.cpp" />
     <ClCompile Include="Engine\3D\Object3D.cpp" />
-    <ClCompile Include="Engine\3D\OutlinedObject.cpp" />
     <ClCompile Include="Engine\2D\Sprite.cpp" />
     <ClCompile Include="Engine\2D\SpriteCommon.cpp" />
     <ClCompile Include="Engine\Game\MyGame.cpp" />
@@ -85,7 +83,6 @@
     <ClInclude Include="Engine\Collider\CollisionMath.h" />
     <ClInclude Include="Engine\Collider\CollisionManager.h" />
     <ClInclude Include="Engine\Collider\Collider.h" />
-    <ClInclude Include="Engine\3D\DebugCamera.h" />
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h" />
     <ClInclude Include="Engine\Scene\BaseScene.h" />
     <ClInclude Include="Engine\DirectX\ConstBuffer.h" />
@@ -116,7 +113,6 @@
     <ClInclude Include="Engine\Math\Transform.h" />
     <ClInclude Include="Engine\Input\Input.h" />
     <ClInclude Include="Engine\3D\Object3D.h" />
-    <ClInclude Include="Engine\3D\OutlinedObject.h" />
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\2D\SpriteCommon.h" />
     <ClInclude Include="Engine\Game\Framework.h" />

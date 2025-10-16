@@ -10,9 +10,6 @@
     <ClCompile Include="Engine\3D\Camera.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\3D\DebugCamera.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\3D\InstancedObject.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
@@ -23,9 +20,6 @@
       <Filter>Engine\3D</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3D\Object3D.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\OutlinedObject.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Collider\Collider.cpp">
@@ -195,9 +189,6 @@
     <ClInclude Include="Engine\3D\Camera.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\3D\DebugCamera.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\3D\InstancedObject.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
@@ -208,9 +199,6 @@
       <Filter>Engine\3D</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3D\Object3D.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\OutlinedObject.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
     <ClInclude Include="Engine\BehaviourTree\BehaviorNode.h">

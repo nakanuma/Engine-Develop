@@ -20,7 +20,6 @@
 #include "MyMath.h"
 #include "MyWindow.h"
 #include "Object3D.h"
-#include "OutlinedObject.h"
 #include "SRVManager.h"
 #include "SceneManager.h"
 #include "ShadowMapManager.h"

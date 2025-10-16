@@ -1,22 +1,38 @@
 #pragma once
 
-// externals
-#include <ImguiWrapper.h>
+// ---------------------------------------------------------
+// Externals Includes
+// ---------------------------------------------------------
 #include <externals/nlohmann/json.hpp>
 
-// Engine
-#include <Engine/BehaviourTree/BehaviorTree.h>
-
-// C++
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <memory>
 
-/// <summary>
-/// ビヘイビアツリーのエディター
-/// </summary>
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
+#include <ImguiWrapper.h>
+#include <Engine/BehaviourTree/BehaviorTree.h>
+
+// =========================================================
+// ビヘイビアツリーエディタークラス
+// =========================================================
 template<typename AgentType> class BehaviorTreeEditor {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
 	BehaviorTreeEditor() { context_ = ImNodes::CreateContext(); }
 
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	~BehaviorTreeEditor() {
 		if (context_) {
 			ImNodes::DestroyContext(context_);
@@ -25,19 +41,21 @@ public:
 	}
 
 	/// <summary>
-	/// 内部ノードデータの生成
+	/// ビヘイビアツリーを設定します。
 	/// </summary>
+	/// <param name="tree">ビヘイビアツリー</param>
 	void SetBehaviorTree(BehaviorTree<AgentType>* tree) {
 		tree_ = tree;
 		nodes_.clear();
 		if (tree_ && tree->GetRoot()) {
 			uint32_t startID = 1;
+			// 内部ノードデータの生成
 			BuildNodeView(tree->GetRoot(), startID, nodes_);
 		}
 	}
 
 	/// <summary>
-	/// 描画
+	/// エディターの描画処理を行います。
 	/// </summary>
 	void Draw() {
 		ImNodes::SetCurrentContext(context_);
@@ -93,8 +111,9 @@ public:
 	}
 
 	/// <summary>
-	/// セーブ
+	/// エディターのコンフィグファイルを保存します。
 	/// </summary>
+	/// <param name="path">ファイルパス</param>
 	void Save(const std::string& path) {
 		std::string fullPath = defaultDir_ + path;
 
@@ -108,8 +127,9 @@ public:
 	}
 
 	/// <summary>
-	/// ロード
+	/// エディターのコンフィグファイルをロードします。
 	/// </summary>
+	/// <param name="path">ファイルパス</param>
 	void Load(const std::string& path) {
 		std::string fullPath = defaultDir_ + path;
 
@@ -132,24 +152,23 @@ private:
 	/// 1つ分のノード可視化情報を保持する構造体
 	/// </summary>
 	struct NodeView {
-		uint32_t id;                       // ノード固有ID
-		std::string name;                  // ノード名
-		std::string subName;               // サブ名
-		ImVec2 position;                   // ノード位置
-		std::vector<uint32_t> childrenIDs; // 子ノードのIDリスト（リンク描画に使用）
+		uint32_t id;								/* ノード固有ID */
+		std::string name;							/* ノード名 */
+		std::string subName;						/* サブノード名 */
+		ImVec2 position;							/* ノード位置 */
+		std::vector<uint32_t> childrenIDs;			/* 子ノードのIDリスト（リンク描画に使用） */
 	};
-	// 描画用ノード配列
-	std::vector<NodeView> nodes_;
-	// 対象のツリー
-	BehaviorTree<AgentType>* tree_ = nullptr;
 
-	ImNodesContext* context_ = nullptr;
-	std::string defaultDir_ = "resources/Configs/BehaviorTree/";
-	std::string fileName_ = "";
+	// =========================================================
+	// Internal Methods
+	// =========================================================
 
 	/// <summary>
-	/// ノードビュー生成
+	/// ノードビューを生成します。
 	/// </summary>
+	/// <param name="node">ノード</param>
+	/// <param name="currentID">現在のID</param>
+	/// <param name="nodes">ノードリスト</param>
 	void BuildNodeView(BehaviorNode<AgentType>* node, uint32_t& currentID, std::vector<NodeView>& nodes) {
 		if (!node)
 			return;
@@ -189,4 +208,16 @@ private:
 
 		nodes.push_back(view);
 	}
+
+private:
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	std::vector<NodeView> nodes_;										/* 描画用ノード配列 */
+	BehaviorTree<AgentType>* tree_ = nullptr;							/* 対象のビヘイビアツリー */
+
+	ImNodesContext* context_ = nullptr;									/* ImNodesコンテキスト */
+	std::string defaultDir_ = "resources/Configs/BehaviorTree/";		/* デフォルトの保存ディレクトリ */
+	std::string fileName_ = "";											/* 保存ファイル名 (拡張子含む) */
 };
