@@ -1,6 +1,8 @@
 #pragma once
 
-// Engine
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
 #include <Engine/3D/Camera.h>
 #include <Engine/3D/InstancedObject.h>
 #include <Engine/ParticleEffect/IParticleEffect.h>
@@ -8,21 +10,36 @@
 /// <summary>
 /// ブレンドモード
 /// </summary>
-enum BlendMode { None, Normal, Add, Subtract, Multiply, Screen, Alpha };
+enum BlendMode { 
+	None,			/* 無効 */
+	Normal,			/* 通常 */
+	Add,			/* 加算 */
+	Subtract,		/* 減算 */
+	Multiply,		/* 乗算 */
+	Screen,			/* スクリーン */
+	Alpha			/* アルファ */
+};
 
-/// <summary>
-/// パーティクル共通の基本処理
-/// </summary>
+// =========================================================
+// パーティクル共通の基本処理
+// =========================================================
 template<typename ParticleType> class BaseParticleEffect : public IParticleEffect {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
 	virtual ~BaseParticleEffect() = default;
 
 	/// <summary>
-	/// 生成処理
+	/// パーティクルの発生処理を行います。
 	/// </summary>
+	/// <param name="pos">位置</param>
+	/// <param name="velocity">速度ベクトル</param>
+	/// <param name="angle">角度</param>
 	void Emit(const Float3& pos, const Float3& velocity, const float& angle) override {
 		if (particles_.size() >= kMaxParticles)
 			return;
@@ -30,8 +47,9 @@ public:
 	}
 
 	/// <summary>
-	/// 更新処理
+	/// 毎フレームの更新処理を行います。
 	/// </summary>
+	/// <param name="deltaTime"></param>
 	void Update(float deltaTime) override {
 		for (auto it = particles_.begin(); it != particles_.end();) {
 			it->currentTime += deltaTime;
@@ -47,7 +65,7 @@ public:
 	}
 
 	/// <summary>
-	/// 描画処理
+	/// パーティクルの描画処理を行います。
 	/// </summary>
 	void Draw() override {
 		// パーティクルが無ければ早期リターン
@@ -79,7 +97,7 @@ public:
 	}
 
 	/// <summary>
-	/// クリア処理
+	/// パーティクルのクリア処理を行います。
 	/// </summary>
 	void Clear() override {
 		particles_.clear();
@@ -88,15 +106,28 @@ public:
 
 protected:
 	/// <summary>
-	/// パーティクル固有の生成処理
+	/// パーティクル固有の生成処理を行います。
 	/// </summary>
-	virtual ParticleType CreateParticle(const Float3& pos, const Float3& velicity, const float& angle) = 0;
+	/// <param name="pos">位置</param>
+	/// <param name="velocity">速度ベクトル</param>
+	/// <param name="angle">角度</param>
+	/// <returns>パーティクル</returns>
+	virtual ParticleType CreateParticle(const Float3& pos, const Float3& velocity, const float& angle) = 0;
 
 	/// <summary>
-	/// パーティクル固有の更新処理
+	/// パーティクル固有の毎フレーム更新処理を行います。
 	/// </summary>
+	/// <param name="particle">パーティクル</param>
+	/// <param name="dt">デルタタイム</param>
 	virtual void UpdateParticle(ParticleType& particle, float dt) = 0;
 
+	// =========================================================
+	// Internal Methods
+	// =========================================================
+
+	/// <summary>
+	/// インスタンス行列の更新を行います。
+	/// </summary>
 	void UpdateInstanceMatrices() {
 		Matrix view = Camera::GetCurrent()->MakeViewMatrix();
 		Matrix projection = Camera::GetCurrent()->MakePerspectiveFovMatrix();
@@ -115,7 +146,7 @@ protected:
 		for (size_t i = 0; i < numParticles; ++i) {
 			const auto& p = particles_[i];
 
-			Matrix sclMat = Matrix::Scaling({-p.transform.scale.x, p.transform.scale.y, p.transform.scale.z});
+			Matrix sclMat = Matrix::Scaling({ -p.transform.scale.x, p.transform.scale.y, p.transform.scale.z });
 			Matrix rotMat = Matrix::Rotation(p.transform.rotate);
 			Matrix tlsMat = Matrix::Translation(p.transform.translate);
 
@@ -156,7 +187,7 @@ protected:
 				object_.gTransformationMatrices.data_[i].WVP = Matrix();
 				object_.gTransformationMatrices.data_[i].World = Matrix();
 				object_.gTransformationMatrices.data_[i].WorldInverseTranspose = Matrix();
-				object_.gTransformationMatrices.data_[i].color = {0.0f, 0.0f, 0.0f, 0.0f};
+				object_.gTransformationMatrices.data_[i].color = { 0.0f, 0.0f, 0.0f, 0.0f };
 			}
 		prevNumParticles = numParticles;
 
@@ -164,18 +195,15 @@ protected:
 	}
 
 protected:
-	// パーティクル最大数（共通）
-	static constexpr uint32_t kMaxParticles = 1024;
-	// オブジェクトデータ
-	InstancedObject object_;
-	// 各回転軸のビルボード適用フラグ
-	std::array<bool, 3> isBillboard_ = {false, false, false};
-	// ブレンドモード
-	BlendMode blendMode_ = BlendMode::None;
+	// =========================================================
+	// Member Variables
+	// =========================================================
 
-protected:
-	// パーティクルのコンテナ
-	std::vector<ParticleType> particles_;
-	// ビルボード行列
-	Matrix billboardMatrix_;
+	static constexpr uint32_t kMaxParticles = 1024;					/* パーティクル最大数（共通） */
+	InstancedObject object_;										/* インスタンス化オブジェクト */
+	std::array<bool, 3> isBillboard_ = { false, false, false };		/* 各軸ビルボードフラグ */
+	BlendMode blendMode_ = BlendMode::None;							/* ブレンドモード */
+
+	std::vector<ParticleType> particles_;							/* パーティクルコンテナ */
+	Matrix billboardMatrix_;										/* ビルボード行列 */
 };

@@ -1,7 +1,18 @@
 #pragma once
+
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <string>
 
-// stringの文字列を出力
+/// <summary>
+/// stringの文字列を出力します。
+/// </summary>
+/// <param name="message">文字列（string）</param>
 void Log(const std::string& message);
-// wstringの文字列を出力
+
+/// <summary>
+/// wstringの文字列を出力します。
+/// </summary>
+/// <param name="message">文字列（wstring）</param>
 void Log(const std::wstring& message);

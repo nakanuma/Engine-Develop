@@ -1,40 +1,109 @@
 #pragma once
-#include "DescriptorHeap.h"
-#include "DirectXBase.h"
 
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
+#include <DescriptorHeap.h>
+#include <DirectXBase.h>
+
+// =========================================================
 // シェーダーリソースビュー（SRV）管理クラス
+// =========================================================
 class SRVManager {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
+	/// <summary>
+	/// インスタンスを取得します。
+	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static SRVManager* GetInstance();
 
-	// 初期化
+	/// <summary>
+	/// 初期化処理を行います。
+	/// </summary>
+	/// <param name="dxBase">DirectX基盤クラス</param>
 	void Initialize(DirectXBase* dxBase);
-	// SRV生成（テクスチャ用）
+	
+	/// <summary>
+	/// テクスチャ用のSRVを生成します。
+	/// </summary>
+	/// <param name="srvIndex">SRVのインデックス</param>
+	/// <param name="pResource">リソース</param>
+	/// <param name="Format">フォーマット</param>
+	/// <param name="MipLevels">ミップレベル</param>
 	void CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DXGI_FORMAT Format, UINT MipLevels);
-	// SRV生成（Structured Buffer用）
-	void CrateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride);
 
+	/// <summary>
+	/// Structured Buffer用のSRVを生成します。
+	/// </summary>
+	/// <param name="srvIndex">SRVのインデックス</param>
+	/// <param name="pResource">リソース</param>
+	/// <param name="numElements">要素数</param>
+	/// <param name="structureByteStride">構造体のバイトストライド</param>
+	void CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride);
+
+	/// <summary>
+	/// SRVを割り当てます。
+	/// </summary>
+	/// <returns>SRVのインデックス</returns>
 	uint32_t Allocate();
+
+	/// <summary>
+	/// 描画前処理を行います。
+	/// </summary>
 	void PreDraw();
+
+	/// <summary>
+	/// グラフィックスルートディスクリプタテーブルを設定します。
+	/// </summary>
+	/// <param name="RootParameterIndex">ルートパラメータインデックス</param>
+	/// <param name="srvIndex">SRVインデックス</param>
 	void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex);
 
+	/// <summary>
+	/// CPU デスクリプタハンドルを取得します。
+	/// </summary>
+	/// <param name="index">インデックス</param>
+	/// <returns>CPU デスクリプタハンドル</returns>
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(uint32_t index);
+
+	/// <summary>
+	/// GPU デスクリプタハンドルを取得します。
+	/// </summary>
+	/// <param name="index">インデックス</param>
+	/// <returns>GPU デスクリプタハンドル</returns>
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(uint32_t index);
+
+	/// <summary>
+	/// SRVのインデックスを取得します。
+	/// </summary>
+	/// <returns>SRVのインデックス</returns>
 	const uint32_t GetIndex() { return useIndex; }
+
+	/// <summary>
+	/// SRVのインデックスをインクリメントします。
+	/// </summary>
 	void IncrementIndex() { useIndex++; }
 
+	/// <summary>
+	/// SRVを割り当てることができるか確認します。
+	/// </summary>
+	/// <returns>true: 割り当て可能, false: 割り当て不可能</returns>
 	bool CanAllocate();
 
-	// SRV用デスクリプタヒープ
-	DescriptorHeap descriptorHeap;
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	DescriptorHeap descriptorHeap;			/* ディスクリプタヒープ */
 
 private:
-	DirectXBase* dxBase = nullptr;
+	DirectXBase* dxBase = nullptr;			/* DirectX基盤クラス */
 
-	// 最大SRV数（最大テクスチャ枚数）
-	static const uint32_t kMaxSRVCount;
-	// SRV用のデスクリプタサイズ
-	uint32_t descriptorSize;
-	// 次に使用するSRVインデックス
-	uint32_t useIndex = 1;
+	static const uint32_t kMaxSRVCount;		/* 最大SRV数 */
+	uint32_t descriptorSize;				/* ディスクリプタサイズ */
+	uint32_t useIndex = 1;					/* 使用中のSRVインデックス */
 };

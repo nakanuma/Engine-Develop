@@ -1,55 +1,66 @@
 #pragma once
 
-// C++
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <set>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 
-// Engine
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
 #include <Collider/Collider.h>
 
 /// <summary>
 /// レイキャスト結果を保持する構造体
 /// </summary>
 struct RayCastHit {
-	bool isHit = false;
-	Float3 hitPoint;
-	Collider* hitCollider = nullptr;
+	bool isHit = false;						/* 衝突フラグ */
+	Float3 hitPoint;						/* 衝突位置 */
+	Collider* hitCollider = nullptr;		/* 衝突したコライダー */
 };
 
-/// <summary>
-/// コライダー管理クラス
-/// </summary>
+// =========================================================
+// 全てのコライダーを管理するクラス
+// =========================================================
 class CollisionManager {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
 	/// <summary>
-	/// インスタンスの取得
+	/// インスタンスを取得します。
 	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static CollisionManager* GetInstance();
 
 	/// <summary>
-	/// コライダーの登録
+	/// コライダーを登録します。
 	/// </summary>
+	/// <param name="collider">コライダー</param>
 	void Register(Collider* collider);
 
 	/// <summary>
-	/// コライダーの登録を解除
+	/// コライダーの登録を解除します。
 	/// </summary>
+	/// <param name="collider">コライダー</param>
 	void Unregister(Collider* collider);
 
 	/// <summary>
-	/// 全ての衝突判定を行う
+	/// 毎フレームの更新処理（全てのコライダーの衝突判定）を行います。
 	/// </summary>
 	void Update();
 
 	/// <summary>
-	/// コライダーの描画を行う（デバッグ用）
+	/// コライダーの描画処理（デバッグ用）を行います。
 	/// </summary>
 	void Draw();
 
 	/// <summary>
-	/// リストのクリア
+	/// コライダーのリストをクリアします。
 	/// </summary>
 	void Clear() {
 		colliders_.clear();
@@ -57,23 +68,35 @@ public:
 	}
 
 	/// <summary>
-	/// デバッグ表示
+	/// デバッグ用の描画処理を行います。
 	/// </summary>
 	void Debug();
 
 	/// <summary>
-	/// レイキャスト
+	/// レイキャストを行います。
 	/// </summary>
+	/// <param name="origin">レイの起点</param>
+	/// <param name="direction">レイの方向</param>
+	/// <param name="maxDistance">最大距離</param>
+	/// <param name="outHit">ヒット情報</param>
+	/// <param name="ignoreTags">無視するタグのセット</param>
+	/// <returns>ヒットした場合はtrue</returns>
 	bool RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit, const std::unordered_set<std::string>& ignoreTags = {});
 
 	/// <summary>
-	/// Sphereと特定タグを持ったコライダーとの衝突判定
+	/// Sphereと特定タグを持ったコライダーとの衝突判定を行います。
 	/// </summary>
+	/// <param name="center">Sphereの中心</param>
+	/// <param name="radius">Sphereの半径</param>
+	/// <param name="targetTags">衝突判定を行うタグのセット</param>
+	/// <returns>衝突した場合はtrue</returns>
 	bool CheckSphereCollisionWithTag(const Float3& center, float radius, const std::unordered_set<std::string>& targetTags);
 
 private:
-	// コライダーのコンテナ
-	std::vector<Collider*> colliders_;
-	// 前フレームの衝突ペアを保存
-	std::set<std::pair<Collider*, Collider*>> previousCollisions_;
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	std::vector<Collider*> colliders_;									/* 全てのコライダーのコンテナ */
+	std::set<std::pair<Collider*, Collider*>> previousCollisions_;		/* 前フレームの衝突ペア情報 */
 };

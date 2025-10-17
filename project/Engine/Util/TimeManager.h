@@ -1,34 +1,48 @@
 #pragma once
 
-// C++
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <chrono>
 
-/// <summary>
-/// フレームごとの経過時間を管理するクラス
-/// </summary>
+// =========================================================
+// フレームごとの経過時間を管理するクラス
+// =========================================================
 class TimeManager {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
 	/// <summary>
-	/// インスタンスの取得
+	/// インスタンスを取得します。
 	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static TimeManager* GetInstance();
 
 	/// <summary>
-	///  更新処理（deltaTimeの計算）
+	/// 毎フレームの更新処理を行います。（deltaTimeの計算）
 	/// </summary>
 	void Update();
 
+	// =========================================================
+	// Getter / Setter
+	// =========================================================
+
 	/// <summary>
-	/// DeltaTimeの取得
+	/// デルタタイムを取得します。
 	/// </summary>
+	/// <returns>デルタタイム</returns>
 	float GetDeltaTime() const;
 
 private:
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
 	TimeManager() = default;
 
 	using Clock = std::chrono::high_resolution_clock;
-	// 前フレーム時刻
-	Clock::time_point previousTime_;
-	// 前フレームから現在時刻までの経過秒数
-	float deltaTime_ = 0.0f;
+
+	Clock::time_point previousTime_;					/* 前回の時間 */
+	float deltaTime_ = 0.0f;							/* デルタタイム */
 };

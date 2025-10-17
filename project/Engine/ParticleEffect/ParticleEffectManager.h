@@ -1,48 +1,69 @@
 #pragma once
 
-// C++
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-// Engine
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
 #include <Engine/ParticleEffect/IParticleEffect.h>
 
-/// <summary>
-/// パーティクルエフェクト管理クラス
-/// </summary>
+// =========================================================
+// パーティクルエフェクト管理クラス
+// =========================================================
 class ParticleEffectManager {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
 	/// <summary>
-	/// シングルトンインスタンスの取得
+	/// インスタンスを取得します。
 	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static ParticleEffectManager* GetInstance();
 
 	/// <summary>
-	/// 登録
+	/// パーティクルエフェクトを登録します。
 	/// </summary>
+	/// <param name="name">任意の名前（string）</param>
+	/// <param name="effect">パーティクルエフェクト</param>
 	void Register(const std::string& name, std::shared_ptr<IParticleEffect> effect);
 
 	/// <summary>
-	/// 発生処理
+	/// パーティクルを発生させます。
 	/// </summary>
+	/// <param name="name">パーティクルエフェクトの名前</param>
+	/// <param name="pos">発生位置</param>
+	/// <param name="count">発生させるパーティクルの数</param>
+	/// <param name="velocity">発生させるパーティクルの初速度</param>
+	/// <param name="angle">発生させるパーティクルの初回転角</param>
 	void Emit(const std::string& name, const Float3& pos, uint32_t count, const Float3& velocity = {0.0f, 0.0f, 0.0f}, const float& angle = 0.0f);
 
 	/// <summary>
-	/// 更新処理
+	/// 毎フレームの更新処理を行います。
 	/// </summary>
+	/// <param name="dt">デルタタイム</param>
 	void Update(float dt);
 
 	/// <summary>
-	/// 描画処理
+	/// パーティクルの描画処理を行います。
 	/// </summary>
 	void Draw();
-
+	
 	/// <summary>
-	/// クリア処理
+	/// パーティクルのクリア処理を行います。
 	/// </summary>
 	void Clear();
 
 private:
-	std::unordered_map<std::string, std::shared_ptr<IParticleEffect>> effects_;
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	std::unordered_map<std::string, std::shared_ptr<IParticleEffect>> effects_;			/* パーティクルエフェクトのマップ */
 };

@@ -1,18 +1,32 @@
 #pragma once
-#include "DirectXBase.h"
-#include "DirectXUtil.h"
 
-/// <summary>
-/// 定数バッファのラッパークラス
-/// </summary>
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
+#include <DirectXBase.h>
+#include <DirectXUtil.h>
+
+// =========================================================
+// 定数バッファのラッパークラス
+// =========================================================
 template<class Type> class ConstBuffer {
 public:
-	// trueを指定した場合には空で生成される
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
+	/// <param name="isEmpty">trueを指定した場合には空で生成</param>
 	ConstBuffer(bool isEmpty = false) {
 		if (!isEmpty)
 			Create();
 	};
 
+	/// <summary>
+	/// リソースを作成します。
+	/// </summary>
 	void Create() {
 		// リソースを作る
 		resource_ = CreateBufferResource(DirectXBase::GetInstance()->GetDevice(), sizeof(Type));
@@ -22,12 +36,18 @@ public:
 		resource_->Map(0, nullptr, reinterpret_cast<void**>(&data_));
 	};
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
-	Type* data_;
-
-	// コピー不可にする
+	/// <summary>
+	/// コピー不可にする
+	/// </summary>
 	ConstBuffer(const ConstBuffer&) = delete;
 	ConstBuffer(ConstBuffer&&) = delete;
 	ConstBuffer& operator=(const ConstBuffer&) = delete;
 	ConstBuffer& operator=(ConstBuffer&&) = delete;
+
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> resource_;		/* 定数バッファリソース */
+	Type* data_;											/* 定数バッファデータ ポインタ */
 };

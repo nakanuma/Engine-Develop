@@ -1,4 +1,8 @@
 #pragma once
+
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <d3d12.h>
 #include <dxcapi.h>
 #include <dxgi1_6.h>
@@ -8,11 +12,21 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxcompiler.lib")
 
-// MyClass
-#include "Logger.h"
-#include "StringUtil.h"
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
+#include <Logger.h>
+#include <StringUtil.h>
 
-// シェーダーのコンパイルを行う
+/// <summary>
+/// シェーダーのコンパイルを行います。
+/// </summary>
+/// <param name="filePath">ファイルパス</param>
+/// <param name="profile">コンパイルに使用するプロファイル</param>
+/// <param name="dxcUtils">DXCユーティリティ</param>
+/// <param name="dxcCompiler">DXCコンパイラ</param>
+/// <param name="includeHandler">インクルードハンドラ</param>
+/// <returns></returns>
 IDxcBlob* CompileShader(
     // CompileするShaderファイルへのパス
     const std::wstring& filePath,
@@ -21,11 +35,29 @@ IDxcBlob* CompileShader(
     // 初期化で生成したものを3つ
     IDxcUtils* dxcUtils, IDxcCompiler3* dxcCompiler, IDxcIncludeHandler* includeHandler);
 
-// リソースの作成を行う
+/// <summary>
+/// バッファリソースを作成します。
+/// </summary>
+/// <param name="device">デバイス</param>
+/// <param name="sizeInBytes">サイズ（バイト単位）</param>
+/// <returns>バッファリソース</returns>
 Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
 
-// DepthStencilTextureを作る
+/// <summary>
+/// DepthStencilTextureを作成します。
+/// </summary>
+/// <param name="device">デバイス</param>
+/// <param name="width">幅</param>
+/// <param name="height">高さ</param>
+/// <param name="isReading">読み取り専用フラグ</param>
+/// <returns>DepthStencilTextureリソース</returns>
 Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ID3D12Device* device, int32_t width, int32_t height, bool isReading);
 
-// リソースステートの遷移
+/// <summary>
+/// リソースステートの遷移を行います。
+/// </summary>
+/// <param name="cmdList">コマンドリスト</param>
+/// <param name="resource">リソース</param>
+/// <param name="beforeState">遷移前のステート</param>
+/// <param name="afterState">遷移後のステート</param>
 void TransitionResource(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);

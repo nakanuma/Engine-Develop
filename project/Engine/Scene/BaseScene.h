@@ -1,26 +1,41 @@
 #pragma once
 
-// 前方宣言
+// ---------------------------------------------------------
+// Foward Declaration
+// ---------------------------------------------------------
 class SceneManager;
 
-/// <summary>
-/// シーン基底クラス
-/// </summary>
+// =========================================================
+// シーン基底クラス
+// =========================================================
 class BaseScene {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	virtual ~BaseScene() = default;
 
-	// 初期化
+	/// <summary>
+	/// 初期化処理
+	/// </summary>
 	virtual void Initialize();
 
-	// 終了
+	/// <summary>
+	/// 終了処理
+	/// </summary>
 	virtual void Finalize();
 
-	// 毎フレーム更新
+	/// <summary>
+	/// 毎フレーム更新処理
+	/// </summary>
 	virtual void Update();
 
-	// 描画
+	/// <summary>
+	/// 描画処理
+	/// </summary>
 	virtual void Draw();
-
-public:
 };

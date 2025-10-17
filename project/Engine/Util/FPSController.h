@@ -1,29 +1,39 @@
 #pragma once
 
-// C++
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <chrono>
 
-/// <summary>
-/// FPS固定制御クラス
-/// </summary>
+// =========================================================
+// FPS固定制御クラス
+// =========================================================
 class FPSController {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
 	/// <summary>
-	/// インスタンス取得
+	/// インスタンスを取得します。
 	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static FPSController* GetInstance();
 
 	/// <summary>
-	/// FPS固定初期化
+	/// 初期化処理を行います。
 	/// </summary>
 	void InitializeFixFPS();
 
 	/// <summary>
-	/// FPS固定更新
+	/// FPS固定更新処理を行います。
 	/// </summary>
 	void UpdateFixFPS();
 
 private:
-	// 記録時間(FPS固定用)
-	std::chrono::steady_clock::time_point reference_;
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	std::chrono::steady_clock::time_point reference_;		/* 基準時間 */
 };

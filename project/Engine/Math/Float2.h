@@ -1,8 +1,8 @@
 #pragma once
 
-/// <summary>
-/// 2次元ベクトル
-/// </summary>
+// =========================================================
+// 2次元ベクトル
+// =========================================================
 struct Float2 {
 	float x;
 	float y;
@@ -12,6 +12,11 @@ struct Float2 {
 
 	Float2& operator+=(const Float2& other);
 
-	// ドット積
+	/// <summary>
+	/// ドット積を計算します。
+	/// </summary>
+	/// <param name="a">Float2</param>
+	/// <param name="b">Float2</param>
+	/// <returns>ドット積（Float2）</returns>
 	static float Dot(const Float2& a, const Float2& b);
 };

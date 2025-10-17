@@ -1,55 +1,77 @@
 #pragma once
 
-// DirectX
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <wrl.h>
 #include <dxcapi.h>
-
-// C++
 #include <string>
 #include <unordered_map>
 
-/// <summary>
-/// シェーダー管理クラス
-/// </summary>
+// =========================================================
+// シェーダー管理クラス
+// =========================================================
 class ShaderManager {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
 	/// <summary>
-	/// インスタンスの取得
+	/// インスタンスを取得します。
 	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static ShaderManager* GetInstance();
 
 	/// <summary>
-	/// 初期化
+	/// シェーダー管理クラスの初期化処理を行います。
 	/// </summary>
 	void Initialize();
 
 	/// <summary>
-	/// シェーダーの読み込みと管理
+	/// シェーダーファイルの読み込みを行います。
 	/// </summary>
+	/// <param name="name">マップに保存するシェーダー名（任意）</param>
+	/// <param name="path">シェーダーファイルのパス</param>
+	/// <param name="profile">シェーダープロファイル</param>
 	void LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile);
 
 	/// <summary>
-	/// シェーダーの取得
+	/// シェーダーの取得を行います。
 	/// </summary>
+	/// <param name="name">マップに保存したシェーダー名</param>
+	/// <returns>シェーダーのバイナリデータ</returns>
 	IDxcBlob* GetShader(const std::string& name) const;
 
 private:
+	/// <summary>
+	/// コピー禁止
+	/// </summary>
 	ShaderManager() = default;
 	~ShaderManager() = default;
 	ShaderManager(const ShaderManager&) = delete;
 	ShaderManager& operator=(const ShaderManager&) = delete;
 
+	// =========================================================
+	// Internal Methods
+	// =========================================================
+
 	/// <summary>
-	/// 内部コンパイル関数
+	/// シェーダーのコンパイルを行います。
 	/// </summary>
+	/// <param name="filePath">ファイルパス</param>
+	/// <param name="profile">シェーダープロファイル</param>
+	/// <returns>コンパイルされたシェーダーのバイナリデータ</returns>
 	IDxcBlob* CompileShader(const std::wstring& filePath, const wchar_t* profile);
 
 private:
-	// DXC関連
-	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_;
-	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_;
-	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_;
+	// =========================================================
+	// Member Variables
+	// =========================================================
 
-	// シェーダーの保存
-	std::unordered_map<std::string, Microsoft::WRL::ComPtr<IDxcBlob>> shaders_;
+	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_;									/* DXCユーティリティ */
+	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_;								/* DXCコンパイラ */
+	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_;						/* インクルードハンドラ */
+
+	std::unordered_map<std::string, Microsoft::WRL::ComPtr<IDxcBlob>> shaders_;		/* シェーダーマップ */
 };

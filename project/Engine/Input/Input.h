@@ -1,56 +1,76 @@
 #pragma once
+
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <Windows.h>
 #include <vector>
 #include <wrl.h>
-
 #include <XInput.h>
 #define DIRECTINPUT_VERSON 0x0800 // DirectInputのバージョン指定
 #include <dinput.h>
 
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
 #include "MyWindow.h"
 
-/// <summary>
-/// 入力管理クラス
-/// </summary>
+// =========================================================
+// 入力管理クラス
+// =========================================================
 class Input {
 public:
 	// namespace省略
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public:
+	/// <summary>
+	/// ゲームパッドの種類
+	/// </summary>
 	enum class PadType {
-		DirectInput,
-		XInput,
+		DirectInput,					/* DirectInput */
+		XInput,							/* XInput */
 	};
 
-	// variantがC++17から
+	/// <summary>
+	/// ゲームパッドの状態
+	/// </summary>
 	union State {
-		XINPUT_STATE xInput_;
-		DIJOYSTATE2 directInput_;
+		XINPUT_STATE xInput_;			/* XInput用 */
+		DIJOYSTATE2 directInput_;		/* DirectInput用 */
 	};
 
 	/// <summary>
 	/// ゲームパッド入力を管理する構造体
 	/// </summary>
 	struct Joystick {
-		ComPtr<IDirectInputDevice8> device_;
-		int32_t deadZoneL_;
-		int32_t deadZoneR_;
-		PadType type_;
-		State state_;
-		State statePre_;
+		ComPtr<IDirectInputDevice8> device_;	/* DirectInputデバイス */
+		int32_t deadZoneL_;						/* デッドゾーン左スティック */
+		int32_t deadZoneR_;						/* デッドゾーン右スティック */
+		PadType type_;							/* ゲームパッドの種類 */
+		State state_;							/* 現在の状態 */
+		State statePre_;						/* 前回の状態 */
 	};
 
-public: // メンバ関数
+public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
+	/// <summary>
+	/// インスタンスを取得します。
+	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static Input* GetInstance();
 
 	/// <summary>
-	/// 初期化
+	/// 初期化処理を行います。
 	/// </summary>
+	/// <param name="window"></param>
 	void Initialize(Window* window);
 
 	/// <summary>
-	/// 更新
+	/// 毎フレームの更新処理を行います。
 	/// </summary>
 	void Update();
 
@@ -122,32 +142,24 @@ public: // メンバ関数
 	/// <param name="deadZoneR">デッドゾーン右スティック</param>
 	void SetJoystickDeadZone(int32_t stickNo, int32_t deadZoneL, int32_t deadZoneR);
 
-private: // メンバ変数
-	// DirectInputのインスタンス
-	ComPtr<IDirectInput8> directInput_;
+private:
+	// =========================================================
+	// Member Variables
+	// =========================================================
 
-	// キーボードのデバイス
-	ComPtr<IDirectInputDevice8> keyboard_;
+	
+	ComPtr<IDirectInput8> directInput_;			/* DirectInputインターフェース */
+	ComPtr<IDirectInputDevice8> keyboard_;		/* キーボードデバイス */
+	ComPtr<IDirectInputDevice8> mouse_;			/* マウスデバイス */
 
-	// マウスのデバイス
-	ComPtr<IDirectInputDevice8> mouse_;
+	std::vector<Joystick> joysticks_;			/* ジョイスティックデバイス */
 
-	// ジョイスティックのデバイス
-	std::vector<Joystick> joysticks_;
+	BYTE key_[256] = {};						/* 現在のキー状態 */
+	BYTE keyPre[256] = {};						/* 前回のキー状態 */
 
-	// 全キーの状態
-	BYTE key_[256] = {};
+	POINT mousePosition_;						/* マウスの位置 */
+	DIMOUSESTATE2 mouseState_ = {};				/* 現在のマウス状態 */
+	DIMOUSESTATE2 mouseStatePre_ = {};			/* 前回のマウス状態 */
 
-	// 前回の全キーの状態
-	BYTE keyPre[256] = {};
-
-	// マウスの位置
-	POINT mousePosition_;
-
-	// マウスのボタン状態
-	DIMOUSESTATE2 mouseState_ = {};
-	DIMOUSESTATE2 mouseStatePre_ = {};
-
-	// WindowsAPI
-	Window* window = nullptr;
+	Window* window = nullptr;					/* ウィンドウクラス */
 };

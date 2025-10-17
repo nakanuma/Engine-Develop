@@ -1,4 +1,8 @@
 #pragma once
+
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <wrl.h>
@@ -11,7 +15,9 @@
 #pragma comment(lib, "dxcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
-// MyClass
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
 #include "MyWindow.h"
 #include "DescriptorHeap.h"
 #include <DirectX/ShaderManager.h>
@@ -21,29 +27,51 @@
 /// リソースリーク検出用ユーティリティクラス
 /// </summary>
 struct D3DResourceLeakChecker {
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	~D3DResourceLeakChecker();
 public:
+	/// <summary>
+	/// インスタンスを取得します。
+	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static D3DResourceLeakChecker* GetInstance() {
 		static D3DResourceLeakChecker ins;
 		return &ins;
 	}
 };
 
+// ---------------------------------------------------------
+// Foward Declaration
+// ---------------------------------------------------------
 class RTVManager;
 
-/// <summary>
-/// DirectX基盤クラス
-/// </summary>
+// =========================================================
+// DirectX基盤クラス
+// Todo : 現状は責任が大きすぎるので分割必須
+// =========================================================
 class DirectXBase
 {
 public:
-	// デストラクタ
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	~DirectXBase();
 
-	// シングルトンインスタンスの取得
+	/// <summary>
+	/// インスタンスを取得します。
+	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static DirectXBase* GetInstance();
 
-	// 初期化
+	/// <summary>
+	/// DirectX基盤の初期化処理を行います。
+	/// </summary>
 	void Initialize()
 	{
 		// FPS固定初期化
@@ -149,9 +177,9 @@ public:
 	// 描画後処理
 	void PostDraw();
 
-	///
-	/// アクセッサ
-	/// 
+	// =========================================================
+	// Getter / Setter
+	// =========================================================
 	
 	// デバイスの取得
 	ID3D12Device* GetDevice();

@@ -1,33 +1,59 @@
 #pragma once
+
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
 #include "AbstractSceneFactory.h"
 #include "BaseScene.h"
 
-/// <summary>
-/// シーン管理クラス
-/// </summary>
+// =========================================================
+// シーン管理クラス
+// =========================================================
 class SceneManager {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
+	/// <summary>
+	/// インスタンスを取得します。
+	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static SceneManager* GetInstance();
 
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	~SceneManager();
 
-	// 次シーン予約
-	/*void SetNextScene(BaseScene* nextScene) { nextScene_ = nextScene; }*/
+	/// <summary>
+	/// 指定したシーンに変更します。
+	/// </summary>
+	/// <param name="sceneName">シーン名</param>
 	void ChangeScene(const std::string& sceneName);
 
-	// 更新
+	/// <summary>
+	/// 毎フレーム更新処理を行います。
+	/// </summary>
 	void Update();
 
-	// 描画
+	/// <summary>
+	/// 描画処理を行います。
+	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// シーンファクトリーを設定します。
+	/// </summary>
+	/// <param name="sceneFactory">シーンファクトリー</param>
 	void SetSceneFactory(AbstractSceneFactory* sceneFactory) { sceneFactory_ = sceneFactory; }
 
 private:
-	// 今のシーン（実行中シーン）
-	BaseScene* scene_ = nullptr;
-	// 次のシーン
-	BaseScene* nextScene_ = nullptr;
-	// シーンファクトリー（借りてくる）
-	AbstractSceneFactory* sceneFactory_ = nullptr;
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	BaseScene* scene_ = nullptr;							/* 現在のシーン */
+	BaseScene* nextScene_ = nullptr;						/* 次のシーン */
+	AbstractSceneFactory* sceneFactory_ = nullptr;			/* シーンファクトリー */
 };

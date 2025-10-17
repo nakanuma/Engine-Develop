@@ -1,42 +1,56 @@
 #pragma once
+
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
 #include "Object3D.h"
 
-/// <summary>
-/// スカイボックス管理クラス
-/// </summary>
+// =========================================================
+// スカイボックス管理クラス
+// =========================================================
 class SkyBoxManager {
 public:
+	// =========================================================
+	// Public Methods
+	// =========================================================
+
 	/// <summary>
-	/// シングルトンインスタンスの取得
+	/// インスタンスを取得します。
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>シングルトンインスタンス</returns>
 	static SkyBoxManager* GetInstance();
 
 	/// <summary>
-	/// 初期化処理
+	/// スカイボックスの初期化処理を行います。
 	/// </summary>
-	/// <param name="filePath"></param>
+	/// <param name="filePath">ファイルパス</param>
 	void Initialize(const std::string& filePath);
 
 	/// <summary>
-	/// 更新処理
+	/// 毎フレームの更新処理を行います。
 	/// </summary>
 	void Update();
 
 	/// <summary>
-	/// 描画処理（必ず環境マップ適用モデル描画前に描画）
+	/// スカイボックスの描画処理を行います。（必ず環境マップ適用モデル描画前に描画する）
 	/// </summary>
 	void Draw();
 
+	// =========================================================
+	// Getter / Setter
+	// =========================================================
+
 	/// <summary>
-	/// 使用テクスチャの取得
+	/// 使用テクスチャを取得します。
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>テクスチャハンドル</returns>
 	uint32_t GetEnvironmentTextureHandle();
 
 private:
-	// モデルデータ（Skybox）
-	ModelManager::ModelData modelSkybox_;
-	// 3Dオブジェクト（Skybox）
-	std::unique_ptr<Object3D> objectSkybox_;
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	ModelManager::ModelData modelSkybox_;			/* スカイボックスモデルデータ */
+	std::unique_ptr<Object3D> objectSkybox_;		/* スカイボックスオブジェクト */
 };

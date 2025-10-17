@@ -1,49 +1,74 @@
 #pragma once
 
-// C++
+// ---------------------------------------------------------
+// C++ Includes
+// ---------------------------------------------------------
 #include <random>
 
-// Engine
+// ---------------------------------------------------------
+// Engine Includes
+// ---------------------------------------------------------
 #include <Math/MyMath.h>
 
-/// <summary>
-/// ランダム数字生成クラス
-/// </summary>
+// =========================================================
+// ランダム数字生成クラス
+// =========================================================
 class RandomGenerator {
 public:
 	/// <summary>
-	/// インスタンスの取得
+	/// インスタンスを取得します。
 	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
 	static RandomGenerator* GetInstance();
 
 	/// <summary>
-	/// float
+	/// ランダムなfloat値を生成します。
 	/// </summary>
+	/// <param name="min">最小値</param>
+	/// <param name="max">最大値</param>
+	/// <returns></returns>
 	float RandomValue(float min, float max);
 
 	/// <summary>
-	/// int
+	/// ランダムなint値を生成します。
 	/// </summary>
+	/// <param name="min">最小値</param>
+	/// <param name="max">最大値</param>
+	/// <returns></returns>
 	int RandomValue(int min, int max);
 
 	/// <summary>
-	/// Float2
+	/// ランダムなFloat2値を生成します。
 	/// </summary>
+	/// <param name="min">最小値</param>
+	/// <param name="max">最大値</param>
+	/// <returns></returns>
 	Float2 RandomValue(const Float2& min, const Float2& max);
 
 	/// <summary>
-	/// Float3
+	/// ランダムなFloat3値を生成します。
 	/// </summary>
+	/// <param name="min">最小値</param>
+	/// <param name="max">最大値</param>
+	/// <returns></returns>
 	Float3 RandomValue(const Float3& min, const Float3& max);
 
 	/// <summary>
-	/// bool
+	/// ランダムなbool値を生成します。
 	/// </summary>
-	/// <param name="trueProbability">trueを返す確率（0.0f ~ 1.0fで設定）</param>
+	/// <param name="trueProbability">trueを返す確率（0.0f～1.0fで設定）</param>
 	/// <returns></returns>
 	bool RandomValueBool(float trueProbability = 0.5f);
 
 private:
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
 	RandomGenerator();
-	std::mt19937 rng_;
+
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	std::mt19937 rng_;			/* 乱数生成エンジン */
 };
