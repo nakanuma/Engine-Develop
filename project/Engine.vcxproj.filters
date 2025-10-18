@@ -112,9 +112,6 @@
     <ClCompile Include="Engine\Scene\BaseScene.cpp">
       <Filter>Engine\Sound\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Scene\SceneFactory.cpp">
-      <Filter>Engine\Sound\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Scene\SceneManager.cpp">
       <Filter>Engine\Sound\Scene</Filter>
     </ClCompile>
@@ -313,9 +310,6 @@
       <Filter>Engine\Sound\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\BaseScene.h">
-      <Filter>Engine\Sound\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Scene\SceneFactory.h">
       <Filter>Engine\Sound\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\SceneManager.h">

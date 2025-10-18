@@ -56,7 +56,6 @@
     <ClCompile Include="Engine\Game\MyGame.cpp" />
     <ClCompile Include="Engine\Math\Quaternion.cpp" />
     <ClCompile Include="Engine\Math\QuaternionTransform.cpp" />
-    <ClCompile Include="Engine\Scene\SceneFactory.cpp" />
     <ClCompile Include="Engine\Scene\SceneManager.cpp" />
     <ClCompile Include="Engine\Sound\SoundManager.cpp" />
     <ClCompile Include="Engine\Texture\SRVManager.cpp" />
@@ -119,7 +118,6 @@
     <ClInclude Include="Engine\Game\MyGame.h" />
     <ClInclude Include="Engine\Math\Quaternion.h" />
     <ClInclude Include="Engine\Math\QuaternionTransform.h" />
-    <ClInclude Include="Engine\Scene\SceneFactory.h" />
     <ClInclude Include="Engine\Scene\SceneManager.h" />
     <ClInclude Include="Engine\Sound\SoundManager.h" />
     <ClInclude Include="Engine\Texture\SRVManager.h" />
