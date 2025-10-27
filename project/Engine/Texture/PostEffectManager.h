@@ -148,4 +148,6 @@ private:
 
 	Object3D::TransformationMatrix* transformMap_ = nullptr;		/* 変換行列マップ */
 	Object3D::Material* materialMap_ = nullptr;						/* マテリアルマップ */
+
+	bool initialized_ = false;										/* 初期化フラグ */
 };

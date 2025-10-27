@@ -6,6 +6,10 @@
 #include <Sprite.h>
 
 void PostEffectManager::Initialize() {
+	// 既に初期化済みならスキップ
+	if(initialized_) return;
+	initialized_ = true;
+
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// レンダーテクスチャ作成

@@ -3,7 +3,7 @@
 #include "StringUtil.h"
 #include <cassert>
 
-const uint32_t SRVManager::kMaxSRVCount = 128;
+const uint32_t SRVManager::kMaxSRVCount = 16384;
 
 SRVManager* SRVManager::GetInstance() {
 	static SRVManager instance;

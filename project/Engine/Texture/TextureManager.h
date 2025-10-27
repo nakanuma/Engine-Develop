@@ -166,7 +166,7 @@ private:
 	// Member Variables
 	// =========================================================
 
-	static const uint32_t kMaxTextureValue_ = 128;											/* 最大テクスチャ数 */
+	static const uint32_t kMaxTextureValue_ = 16384;										/* 最大テクスチャ数 */
 	SRVManager* srvManager = nullptr;														/* SRV管理クラス */
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxTextureValue_> texResources;		/* テクスチャリソース配列 */
 	std::array<DirectX::TexMetadata, kMaxTextureValue_> texMetadata;						/* テクスチャメタデータ配列 */

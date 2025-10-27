@@ -102,11 +102,8 @@ int TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, Float4 c
 	// SRVの生成
 	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(targetResource.Get(), &srvDesc, SRVManager::GetInstance()->descriptorHeap.GetCPUHandle(SRVManager::GetInstance()->GetIndex()));
 
-	// SRVを作成するDescriptorHeapの場所を決める
-	SRVManager::GetInstance()->IncrementIndex();
-
 	// 実際に返すのはインクリメントする前の値なので1引いて返す
-	return SRVManager::GetInstance()->GetIndex() - 1;
+	return SRVManager::GetInstance()->Allocate();
 }
 
 ID3D12Resource* TextureManager::GetResource(int textureHandle) { return GetInstance().texResources[textureHandle].Get(); }
@@ -124,11 +121,8 @@ uint32_t TextureManager::CreateSRV(ID3D12Resource* targetResource, DXGI_FORMAT f
 	// SRVの生成
 	dxBase->GetDevice()->CreateShaderResourceView(targetResource, &srvDesc, SRVManager::GetInstance()->descriptorHeap.GetCPUHandle(SRVManager::GetInstance()->GetIndex()));
 
-	// SRVを作成するDescriptorHeapの場所を決める
-	SRVManager::GetInstance()->IncrementIndex();
-
 	// 実際に返すのはインクリメントする前の値なので1引いて返す
-	return SRVManager::GetInstance()->GetIndex() - 1;
+	return SRVManager::GetInstance()->Allocate();
 }
 
 DirectX::ScratchImage TextureManager::LoadTexture(const std::string& filePath) {
