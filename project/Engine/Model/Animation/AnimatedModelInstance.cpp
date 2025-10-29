@@ -22,9 +22,6 @@ void AnimatedModelInstance::SetData(const AnimatedModelData& data) {
 
 	// モデルのセット
 	object_->model_ = &data_.modelData;
-
-	// 再生時間をリセット
-	/*animationTime_ = 0.0f;*/
 }
 
 void AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {

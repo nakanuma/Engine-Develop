@@ -35,11 +35,6 @@ void LightManager::Initialize() {
 		spotLightsCB_.data_->spotLights[i].cosFalloffStart = 0.55f;
 		spotLightsCB_.data_->spotLights[i].isActive = false;
 	}
-
-	// 0番目のスポットライトだけ有効にする
-	/*spotLightsCB_.data_->spotLights[0].isActive = true;
-
-	spotLightsCB_.data_->spotLights[1].isActive = true;*/
 }
 
 void LightManager::TransferContantBuffer() {
