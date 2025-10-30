@@ -59,6 +59,6 @@ void LightCamera::TransferConstantBuffer() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	cb_.data_->lightViewProj = viewProj_;
-
+	// ルートシグネチャに定数バッファをバインド
 	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(13, cb_.resource_->GetGPUVirtualAddress());
 }

@@ -13,7 +13,9 @@ ShadowMapManager* ShadowMapManager::GetInstance() {
 }
 
 void ShadowMapManager::Initialize() {
+	// 通常オブジェクト用PSO生成
 	CreateShadowPSO();
+	// スキニング用PSO生成
 	CreateShadowSkinnedPSO();
 }
 
@@ -21,7 +23,7 @@ int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	ID3D12Device* device = dxBase->GetDevice();
 
-	// シャドウマップリソース作成
+	// シャドウマップ用テクスチャ作成
 	D3D12_RESOURCE_DESC texDesc{};
 	texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	texDesc.Width = width;
@@ -42,7 +44,7 @@ int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height) {
 	heapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
 	device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_PPV_ARGS(&shadowTex));
 
-	// DSV確保
+	// DSVを作成
 	DescriptorHeap* dsvHeap = dxBase->GetDSVHeap();
 	uint32_t dsvIndex = dsvUseIndex_++; // このクラスでインデックスを管理
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap->GetCPUHandle(dsvIndex);
@@ -53,10 +55,10 @@ int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height) {
 
 	device->CreateDepthStencilView(shadowTex.Get(), &dsvDesc, dsvHandle);
 
-	// SRV確保
+	// SRVを作成
 	uint32_t srvIndex = TextureManager::CreateSRV(shadowTex.Get(), DXGI_FORMAT_R32_FLOAT);
 
-	// 登録
+	// シャドウリソースを管理リストに登録
 	shadowResources_[srvIndex] = {shadowTex, dsvHandle, srvIndex, srvIndex};
 
 	return srvIndex;

@@ -258,35 +258,3 @@ public:
 	/// <returns>補間結果</returns>
 	static float EaseInOutBounce(float t);
 };
-
-// =========================================================
-// 汎用イージングアニメーションクラス
-// =========================================================
-class SimpleEasing {
-public:
-	using EasingFunction = std::function<float(float)>;
-
-	// =========================================================
-	// Public Methods
-	// =========================================================
-
-	/// <summary>
-	/// 値を変化させる汎用関数
-	/// </summary>
-	/// <param name="value">変化させる値</param>
-	/// <param name="start">初期値</param>
-	/// <param name="end">最終値</param>
-	/// <param name="easingFunction">イージング関数</param>
-	/// <param name="duration">時間（秒）</param>
-	static void Animate(float& value, float start, float end, EasingFunction easingFunction, float duration);
-
-	/// <summary>
-	/// 値を変化させる汎用関数
-	/// </summary>
-	/// <param name="value">変化させる値</param>
-	/// <param name="start">初期値</param>
-	/// <param name="end">最終値</param>
-	/// <param name="easingFunction">イージング関数</param>
-	/// <param name="duration">時間（秒）</param>
-	static void Animate(Float3& value, Float3 start, Float3 end, EasingFunction easingFunction, float duration);
-};

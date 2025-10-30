@@ -36,30 +36,35 @@ float Float3::Length(const Float3& v) { return sqrtf(v.x * v.x + v.y * v.y + v.z
 float Float3::LengthSq(const Float3& v) { return v.x * v.x + v.y * v.y + v.z * v.z; }
 
 float Float3::Distance(const Float3& a, const Float3& b) {
+	// 差分ベクトルを計算
 	Float3 diff = a - b;
+	// ベクトルの長さを返す
 	return Length(diff);
 }
 
 Float3 Float3::Normalize(const Float3& a) {
+	// ベクトルの長さを計算
 	float length = Length(a);
+	// 長さ1のベクトルに正規化して返す
 	return Float3(a.x / length, a.y / length, a.z / length);
 }
 
 Float3 Float3::Lerp(const Float3& a, const Float3& b, float t) {
 	return {
-	    a.x * (1.0f - t) + b.x * t,
-	    a.y * (1.0f - t) + b.y * t,
-	    a.z * (1.0f - t) + b.z * t,
+	    a.x * (1.0f - t) + b.x * t, // X成分
+	    a.y * (1.0f - t) + b.y * t, // Y成分
+	    a.z * (1.0f - t) + b.z * t, // Z成分
 	};
 }
 
 Float3 Float3::Transform(const Float3& v, const Matrix& m) {
 	Float3 result;
-
+	
+	// 回転・スケール・平行移動を適用
 	result.x = v.x * m.r[0][0] + v.y * m.r[1][0] + v.z * m.r[2][0] + m.r[3][0];
 	result.y = v.x * m.r[0][1] + v.y * m.r[1][1] + v.z * m.r[2][1] + m.r[3][1];
 	result.z = v.x * m.r[0][2] + v.y * m.r[1][2] + v.z * m.r[2][2] + m.r[3][2];
-
+	// 同次座標w成分を計算
 	float w = v.x * m.r[0][3] + v.y * m.r[1][3] + v.z * m.r[2][3] + m.r[3][3];
 
 	// 同次座標 w で割って正規化（透視変換対応）
@@ -69,28 +74,53 @@ Float3 Float3::Transform(const Float3& v, const Matrix& m) {
 		result.z /= w;
 	}
 
+	// 変換後のベクトルを返す
 	return result;
 }
 
-float Float3::Dot(const Float3& a, const Float3& b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
+float Float3::Dot(const Float3& a, const Float3& b) { 
+	return a.x * b.x + a.y * b.y + a.z * b.z; 
+}
 
-Float3 Float3::Cross(const Float3& a, const Float3& b) { return Float3{a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x}; }
+Float3 Float3::Cross(const Float3& a, const Float3& b) { 
+	return Float3{
+		a.y * b.z - a.z * b.y, // X成分
+		a.z * b.x - a.x * b.z, // Y成分
+		a.x * b.y - a.y * b.x // Z成分
+	}; 
+}
 
-Float3 Float3::Max(const Float3& a, const Float3& b) { return Float3{std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)}; }
+Float3 Float3::Max(const Float3& a, const Float3& b) { 
+	// それぞれ大きい方を返す
+	return Float3{
+		std::max(a.x, b.x), 
+		std::max(a.y, b.y), 
+		std::max(a.z, b.z)
+	}; 
+}
 
-Float3 Float3::Min(const Float3& a, const Float3& b) { return Float3{std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)}; }
+Float3 Float3::Min(const Float3& a, const Float3& b) { 
+	// それぞれ小さい方を返す
+	return Float3{
+		std::min(a.x, b.x), 
+		std::min(a.y, b.y), 
+		std::min(a.z, b.z)
+	}; 
+}
 
 Float3 Float3::CatmullRomInterplation(const Float3& p0, const Float3& p1, const Float3& p2, const Float3& p3, float t) {
-	const float s = 0.5f;
+	const float s = 0.5f; // テンション係数
 
 	float t2 = t * t;  // tの2乗
 	float t3 = t2 * t; // tの3乗
 
-	Float3 e3 = (p0 * -1.0f) + (p1 * 3.0f) - (p2 * 3.0f) + p3;
-	Float3 e2 = (p0 * 2.0f) - (p1 * 5.0f) + (p2 * 4.0f) - p3;
-	Float3 e1 = (p0 * -1.0f) + p2;
-	Float3 e0 = (p1 * 2.0f);
+	// 三次多項式の係数を計算
+	Float3 e3 = (p0 * -1.0f) + (p1 * 3.0f) - (p2 * 3.0f) + p3; // t^3の係数
+	Float3 e2 = (p0 * 2.0f) - (p1 * 5.0f) + (p2 * 4.0f) - p3; // t^2の係数
+	Float3 e1 = (p0 * -1.0f) + p2; // t^1の係数
+	Float3 e0 = (p1 * 2.0f); // 定数項
 
+	// 三次多項式に代入して補間点を求める
 	return (e3 * t3 + e2 * t2 + e1 * t + e0) * s;
 }
 
@@ -151,8 +181,11 @@ Float3 Float3::MatrixToEulerAngles(const Matrix& m) {
 
 Float3 Float3::ExtractScale(const Matrix& m) {
 	Float3 scale;
+	// X軸スケール
 	scale.x = std::sqrt(m.r[0][0] * m.r[0][0] + m.r[0][1] * m.r[0][1] + m.r[0][2] * m.r[0][2]);
+	// Y軸スケール
 	scale.y = std::sqrt(m.r[1][0] * m.r[1][0] + m.r[1][1] * m.r[1][1] + m.r[1][2] * m.r[1][2]);
+	// Z軸スケール
 	scale.z = std::sqrt(m.r[2][0] * m.r[2][0] + m.r[2][1] * m.r[2][1] + m.r[2][2] * m.r[2][2]);
 	return scale;
 }

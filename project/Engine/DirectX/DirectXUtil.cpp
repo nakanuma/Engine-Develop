@@ -124,15 +124,17 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ID3D12D
 }
 
 void TransitionResource(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) {
+	// 既に目的のステートなら早期リターン
 	if (beforeState == afterState)
 		return;
 
 	D3D12_RESOURCE_BARRIER barrier = {};
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Transition.pResource = resource;
-	barrier.Transition.StateBefore = beforeState;
-	barrier.Transition.StateAfter = afterState;
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION; // 遷移タイプ
+	barrier.Transition.pResource = resource;               // 遷移対象のリソース
+	barrier.Transition.StateBefore = beforeState;          // 現在の状態
+	barrier.Transition.StateAfter = afterState;            // 遷移後の状態
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
+	// リソースバリアを発行
 	cmdList->ResourceBarrier(1, &barrier);
 }

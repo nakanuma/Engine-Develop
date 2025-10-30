@@ -43,9 +43,13 @@ void SpriteCommon::PostDraw() {
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = {SRVManager::GetInstance()->descriptorHeap.heap_.Get()};
 
+	// ルートシグネチャをセット
 	dxBase->GetCommandList()->SetGraphicsRootSignature(dxBase->GetRootSignature());
+	// 通常PSOをセット
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+	// プリミティブトポロジーをセット
 	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// ディスクリプタヒープをセット
 	dxBase->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
 }
 

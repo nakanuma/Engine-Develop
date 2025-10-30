@@ -26,4 +26,11 @@ Float4 Float4::Transform(const Float4& v, const Matrix& m) {
 	return result;
 }
 
-Float4 Float4::Lerp(const Float4& a, const Float4& b, float t) { return {a.x * (1.0f - t) + b.x * t, a.y * (1.0f - t) + b.y * t, a.z * (1.0f - t) + b.z * t, a.w * (1.0f - t) + b.w * t}; }
+Float4 Float4::Lerp(const Float4& a, const Float4& b, float t) { 
+	return {
+		a.x * (1.0f - t) + b.x * t, // X成分
+		a.y * (1.0f - t) + b.y * t, // Y成分
+		a.z * (1.0f - t) + b.z * t, // Z成分
+		a.w * (1.0f - t) + b.w * t  // W成分
+	}; 
+}

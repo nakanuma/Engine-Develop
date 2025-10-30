@@ -48,25 +48,28 @@ Matrix::Matrix(float m00, float m01, float m02, float m03, float m10, float m11,
 
 Matrix Matrix::operator-() const {
 	Matrix result;
+	// 左側に元行列、右側に単位行列を置く拡大行列を用意
 	float temp[4][8] = {};
 
+	// ガウス消去法で使う係数
 	float a;
 
 	// 一時行列にコピー
 	for (int32_t i = 0; i < 4; i++) {
 		for (int32_t j = 0; j < 4; j++) {
-			temp[i][j] = r[i][j];
+			temp[i][j] = r[i][j]; // 元行列を左側にコピー
 
 			if (i == j)
-				temp[i][4 + j] = 1;
+				temp[i][4 + j] = 1; // 右側に単位行列を作る
 		}
 	}
 
 	for (int32_t k = 0; k < 4; k++) {
+		// 係数を計算
 		a = 1 / temp[k][k];
 
 		for (int32_t j = 0; j < 8; j++) {
-			temp[k][j] *= a;
+			temp[k][j] *= a; // ピボット行を正規化
 		}
 
 		for (int32_t i = 0; i < 4; i++) {
@@ -74,19 +77,21 @@ Matrix Matrix::operator-() const {
 				continue;
 			}
 
-			a = -temp[i][k];
+			a = -temp[i][k]; // 他の行のk列を0にする係数
 
 			for (int32_t j = 0; j < 8; j++) {
-				temp[i][j] += temp[k][j] * a;
+				temp[i][j] += temp[k][j] * a; // ガウス消去
 			}
 		}
 	}
 
 	for (int32_t i = 0; i < 4; i++) {
 		for (int32_t j = 0; j < 4; j++) {
-			result.r[i][j] = temp[i][4 + j];
+			result.r[i][j] = temp[i][4 + j]; // 右側の単位行列の変化が逆行列になる
 		}
 	}
+
+	// 計算した逆行列を返す
 	return result;
 }
 
@@ -193,6 +198,7 @@ Matrix Matrix::Inverse(Matrix m) { return -m; }
 Matrix Matrix::Transpose(const Matrix& m) {
 	Matrix result;
 
+	// 行と列を入れ替え
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
 			result.r[i][j] = m.r[j][i];
@@ -205,10 +211,14 @@ Matrix Matrix::Transpose(const Matrix& m) {
 Matrix Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float farZ) {
 	Matrix result = Matrix();
 
+	// Y方向スケーリング
 	result.r[1][1] = 1 / tanf(fov / 2);
+	// X方向スケーリング（縦横比の補正）
 	result.r[0][0] = result.r[1][1] / aspectRatio;
+	// Z方向スケーリングとオフセット
 	result.r[2][2] = farZ / (farZ - nearZ);
 	result.r[3][2] = (farZ * -nearZ) / (farZ - nearZ);
+	// 透視投影に必要なw成分
 	result.r[2][3] = 1;
 	result.r[3][3] = 0;
 
@@ -217,28 +227,35 @@ Matrix Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float
 
 Matrix Matrix::Orthographic(float width, float height, float nearClip, float farClip) {
 	return Matrix(
-	    2.0f / width, 0.0f, 0.0f, 0.0f, 0.0f, 2.0f / -height, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f, -1, 1, nearClip / (nearClip - farClip), 1.0f // 左上を原点にする
+	    2.0f / width, 0.0f, 0.0f, 0.0f, // Xスケーリング
+		0.0f, 2.0f / -height, 0.0f, 0.0f, // Yスケーリング
+		0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f, // Zスケーリング
+		-1, 1, nearClip / (nearClip - farClip), 1.0f // 平行移動（左上を原点にする + 深度補正）
 	);
 }
 
 Matrix Matrix::OrthographicOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ) {
 	Matrix m;
 
+	// Xスケーリング
 	m.r[0][0] = 2.0f / (right - left);
 	m.r[0][1] = 0.0f;
 	m.r[0][2] = 0.0f;
 	m.r[0][3] = 0.0f;
 
+	// Yスケーリング
 	m.r[1][0] = 0.0f;
 	m.r[1][1] = 2.0f / (top - bottom);
 	m.r[1][2] = 0.0f;
 	m.r[1][3] = 0.0f;
 
+	// Zスケーリング
 	m.r[2][0] = 0.0f;
 	m.r[2][1] = 0.0f;
 	m.r[2][2] = 1.0f / (farZ - nearZ);
 	m.r[2][3] = 0.0f;
 
+	// 平行移動成分
 	m.r[3][0] = (left + right) / (left - right);
 	m.r[3][1] = (top + bottom) / (bottom - top);
 	m.r[3][2] = -nearZ / (farZ - nearZ);
@@ -426,8 +443,11 @@ Matrix Matrix::QuaternionToRotation(Quaternion q) {
 Matrix Matrix::MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3 translate) {
 	Matrix result = Matrix();
 
+	// スケーリング行列を掛ける
 	result *= Matrix::Scaling({scale.x, scale.y, scale.z});
+	// Quaternionを回転行列に変換して掛ける
 	result *= Matrix::QuaternionToRotation({rotate.x, rotate.y, rotate.z, rotate.w});
+	// 平行移動行列を掛ける
 	result *= Matrix::Translation({translate.x, translate.y, translate.z});
 
 	return result;

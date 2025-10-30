@@ -125,6 +125,7 @@ void ShaderManager::LoadShader(const std::string& name, const std::wstring& path
 }
 
 IDxcBlob* ShaderManager::GetShader(const std::string& name) const {
+	// マップから名前で検索して、見つかった場合にポインタを返す
 	auto it = shaders_.find(name);
 	if (it != shaders_.end()) {
 		return it->second.Get();

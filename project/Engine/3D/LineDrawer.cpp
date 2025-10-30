@@ -249,15 +249,16 @@ void LineDrawer::Draw() {
 }
 
 void LineDrawer::CreateRootSignature() {
+	// ルートパラメーター配列を作成
 	D3D12_ROOT_PARAMETER rootParams[1] = {};
-	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParams[0].Descriptor.ShaderRegister = 0;
-	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;     // 定数バッファを渡す
+	rootParams[0].Descriptor.ShaderRegister = 0;                     // b0に対応
+	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // 頂点シェーダーで使う
 
 	D3D12_ROOT_SIGNATURE_DESC desc = {};
-	desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-	desc.NumParameters = _countof(rootParams);
-	desc.pParameters = rootParams;
+	desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; // 入力アセンブラの使用を許可
+	desc.NumParameters = _countof(rootParams);                                 // ルートパラメータ数
+	desc.pParameters = rootParams;                                             // パラメーター配列へのポインタ
 
 	Microsoft::WRL::ComPtr<ID3DBlob> sigBlob;
 	Microsoft::WRL::ComPtr<ID3DBlob> errBlob;
