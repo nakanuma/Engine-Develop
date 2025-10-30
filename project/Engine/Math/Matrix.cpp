@@ -97,39 +97,43 @@ Matrix Matrix::operator-() const {
 
 Matrix Matrix::operator+(const Matrix& m) const {
 	return Matrix(
-	    r[0][0] + m.r[0][0], r[0][1] + m.r[0][1], r[0][2] + m.r[0][2], r[0][3] + m.r[0][3],
-
-	    r[1][0] + m.r[1][0], r[1][1] + m.r[1][1], r[1][2] + m.r[1][2], r[1][3] + m.r[1][3],
-
-	    r[2][0] + m.r[2][0], r[2][1] + m.r[2][1], r[2][2] + m.r[2][2], r[2][3] + m.r[2][3],
-
-	    r[3][0] + m.r[3][0], r[3][1] + m.r[3][1], r[3][2] + m.r[3][2], r[3][3] + m.r[3][3]);
+		r[0][0] + m.r[0][0], r[0][1] + m.r[0][1], r[0][2] + m.r[0][2], r[0][3] + m.r[0][3],
+		r[1][0] + m.r[1][0], r[1][1] + m.r[1][1], r[1][2] + m.r[1][2], r[1][3] + m.r[1][3],
+		r[2][0] + m.r[2][0], r[2][1] + m.r[2][1], r[2][2] + m.r[2][2], r[2][3] + m.r[2][3],
+		r[3][0] + m.r[3][0], r[3][1] + m.r[3][1], r[3][2] + m.r[3][2], r[3][3] + m.r[3][3]
+	);
 }
 
 Matrix Matrix::operator-(const Matrix& m) const {
 	return Matrix(
-	    r[0][0] - m.r[0][0], r[0][1] - m.r[0][1], r[0][2] - m.r[0][2], r[0][3] - m.r[0][3],
-
-	    r[1][0] - m.r[1][0], r[1][1] - m.r[1][1], r[1][2] - m.r[1][2], r[1][3] - m.r[1][3],
-
-	    r[2][0] - m.r[2][0], r[2][1] - m.r[2][1], r[2][2] - m.r[2][2], r[2][3] - m.r[2][3],
-
-	    r[3][0] - m.r[3][0], r[3][1] - m.r[3][1], r[3][2] - m.r[3][2], r[3][3] - m.r[3][3]);
+		r[0][0] - m.r[0][0], r[0][1] - m.r[0][1], r[0][2] - m.r[0][2], r[0][3] - m.r[0][3],
+		r[1][0] - m.r[1][0], r[1][1] - m.r[1][1], r[1][2] - m.r[1][2], r[1][3] - m.r[1][3],
+		r[2][0] - m.r[2][0], r[2][1] - m.r[2][1], r[2][2] - m.r[2][2], r[2][3] - m.r[2][3],
+		r[3][0] - m.r[3][0], r[3][1] - m.r[3][1], r[3][2] - m.r[3][2], r[3][3] - m.r[3][3]
+	);
 }
 
 Matrix Matrix::operator*(const Matrix& m) const {
 	return Matrix(
-	    r[0][0] * m.r[0][0] + r[0][1] * m.r[1][0] + r[0][2] * m.r[2][0] + r[0][3] * m.r[3][0], r[0][0] * m.r[0][1] + r[0][1] * m.r[1][1] + r[0][2] * m.r[2][1] + r[0][3] * m.r[3][1],
-	    r[0][0] * m.r[0][2] + r[0][1] * m.r[1][2] + r[0][2] * m.r[2][2] + r[0][3] * m.r[3][2], r[0][0] * m.r[0][3] + r[0][1] * m.r[1][3] + r[0][2] * m.r[2][3] + r[0][3] * m.r[3][3],
+		r[0][0] * m.r[0][0] + r[0][1] * m.r[1][0] + r[0][2] * m.r[2][0] + r[0][3] * m.r[3][0],
+		r[0][0] * m.r[0][1] + r[0][1] * m.r[1][1] + r[0][2] * m.r[2][1] + r[0][3] * m.r[3][1],
+		r[0][0] * m.r[0][2] + r[0][1] * m.r[1][2] + r[0][2] * m.r[2][2] + r[0][3] * m.r[3][2],
+		r[0][0] * m.r[0][3] + r[0][1] * m.r[1][3] + r[0][2] * m.r[2][3] + r[0][3] * m.r[3][3],
 
-	    r[1][0] * m.r[0][0] + r[1][1] * m.r[1][0] + r[1][2] * m.r[2][0] + r[1][3] * m.r[3][0], r[1][0] * m.r[0][1] + r[1][1] * m.r[1][1] + r[1][2] * m.r[2][1] + r[1][3] * m.r[3][1],
-	    r[1][0] * m.r[0][2] + r[1][1] * m.r[1][2] + r[1][2] * m.r[2][2] + r[1][3] * m.r[3][2], r[1][0] * m.r[0][3] + r[1][1] * m.r[1][3] + r[1][2] * m.r[2][3] + r[1][3] * m.r[3][3],
+		r[1][0] * m.r[0][0] + r[1][1] * m.r[1][0] + r[1][2] * m.r[2][0] + r[1][3] * m.r[3][0],
+		r[1][0] * m.r[0][1] + r[1][1] * m.r[1][1] + r[1][2] * m.r[2][1] + r[1][3] * m.r[3][1],
+		r[1][0] * m.r[0][2] + r[1][1] * m.r[1][2] + r[1][2] * m.r[2][2] + r[1][3] * m.r[3][2],
+		r[1][0] * m.r[0][3] + r[1][1] * m.r[1][3] + r[1][2] * m.r[2][3] + r[1][3] * m.r[3][3],
 
-	    r[2][0] * m.r[0][0] + r[2][1] * m.r[1][0] + r[2][2] * m.r[2][0] + r[2][3] * m.r[3][0], r[2][0] * m.r[0][1] + r[2][1] * m.r[1][1] + r[2][2] * m.r[2][1] + r[2][3] * m.r[3][1],
-	    r[2][0] * m.r[0][2] + r[2][1] * m.r[1][2] + r[2][2] * m.r[2][2] + r[2][3] * m.r[3][2], r[2][0] * m.r[0][3] + r[2][1] * m.r[1][3] + r[2][2] * m.r[2][3] + r[2][3] * m.r[3][3],
+		r[2][0] * m.r[0][0] + r[2][1] * m.r[1][0] + r[2][2] * m.r[2][0] + r[2][3] * m.r[3][0],
+		r[2][0] * m.r[0][1] + r[2][1] * m.r[1][1] + r[2][2] * m.r[2][1] + r[2][3] * m.r[3][1],
+		r[2][0] * m.r[0][2] + r[2][1] * m.r[1][2] + r[2][2] * m.r[2][2] + r[2][3] * m.r[3][2],
+		r[2][0] * m.r[0][3] + r[2][1] * m.r[1][3] + r[2][2] * m.r[2][3] + r[2][3] * m.r[3][3],
 
-	    r[3][0] * m.r[0][0] + r[3][1] * m.r[1][0] + r[3][2] * m.r[2][0] + r[3][3] * m.r[3][0], r[3][0] * m.r[0][1] + r[3][1] * m.r[1][1] + r[3][2] * m.r[2][1] + r[3][3] * m.r[3][1],
-	    r[3][0] * m.r[0][2] + r[3][1] * m.r[1][2] + r[3][2] * m.r[2][2] + r[3][3] * m.r[3][2], r[3][0] * m.r[0][3] + r[3][1] * m.r[1][3] + r[3][2] * m.r[2][3] + r[3][3] * m.r[3][3]);
+		r[3][0] * m.r[0][0] + r[3][1] * m.r[1][0] + r[3][2] * m.r[2][0] + r[3][3] * m.r[3][0],
+		r[3][0] * m.r[0][1] + r[3][1] * m.r[1][1] + r[3][2] * m.r[2][1] + r[3][3] * m.r[3][1],
+		r[3][0] * m.r[0][2] + r[3][1] * m.r[1][2] + r[3][2] * m.r[2][2] + r[3][3] * m.r[3][2],
+		r[3][0] * m.r[0][3] + r[3][1] * m.r[1][3] + r[3][2] * m.r[2][3] + r[3][3] * m.r[3][3]);
 }
 
 Matrix& Matrix::operator+=(const Matrix& m) {
@@ -187,8 +191,11 @@ Matrix& Matrix::operator*=(const Matrix& m) {
 
 Float4 Matrix::operator*(const Float4& vec) {
 	return Float4(
-	    r[0][0] * vec.x + r[0][1] * vec.y + r[0][2] * vec.z + r[0][3] * vec.w, r[1][0] * vec.x + r[1][1] * vec.y + r[1][2] * vec.z + r[1][3] * vec.w,
-	    r[2][0] * vec.x + r[2][1] * vec.y + r[2][2] * vec.z + r[2][3] * vec.w, r[3][0] * vec.x + r[3][1] * vec.y + r[3][2] * vec.z + r[3][3] * vec.w);
+		r[0][0] * vec.x + r[0][1] * vec.y + r[0][2] * vec.z + r[0][3] * vec.w,
+		r[1][0] * vec.x + r[1][1] * vec.y + r[1][2] * vec.z + r[1][3] * vec.w,
+		r[2][0] * vec.x + r[2][1] * vec.y + r[2][2] * vec.z + r[2][3] * vec.w,
+		r[3][0] * vec.x + r[3][1] * vec.y + r[3][2] * vec.z + r[3][3] * vec.w
+	);
 }
 
 Matrix Matrix::Identity() { return Matrix(); }
@@ -227,7 +234,7 @@ Matrix Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float
 
 Matrix Matrix::Orthographic(float width, float height, float nearClip, float farClip) {
 	return Matrix(
-	    2.0f / width, 0.0f, 0.0f, 0.0f, // Xスケーリング
+		2.0f / width, 0.0f, 0.0f, 0.0f, // Xスケーリング
 		0.0f, 2.0f / -height, 0.0f, 0.0f, // Yスケーリング
 		0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f, // Zスケーリング
 		-1, 1, nearClip / (nearClip - farClip), 1.0f // 平行移動（左上を原点にする + 深度補正）
@@ -286,7 +293,11 @@ Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& u
 
 	// ビュー行列の構築
 	return Matrix(
-	    xaxis.x, yaxis.x, zaxis.x, 0.0f, xaxis.y, yaxis.y, zaxis.y, 0.0f, xaxis.z, yaxis.z, zaxis.z, 0.0f, -Float3::Dot(xaxis, eye), -Float3::Dot(yaxis, eye), -Float3::Dot(zaxis, eye), 1.0f);
+		xaxis.x, yaxis.x, zaxis.x, 0.0f,
+		xaxis.y, yaxis.y, zaxis.y, 0.0f,
+		xaxis.z, yaxis.z, zaxis.z, 0.0f,
+		-Float3::Dot(xaxis, eye), -Float3::Dot(yaxis, eye), -Float3::Dot(zaxis, eye), 1.0f
+	);
 }
 
 Matrix Matrix::Scaling(Float3 scale) {
@@ -345,10 +356,10 @@ Matrix Matrix::Rotation(const Float3& eulerAngles) { return RotationY(eulerAngle
 Matrix Matrix::Pitch(float rad) {
 	Matrix result = Matrix();
 
-	result.r[1][1] = cosf(rad);
-	result.r[2][1] = -sinf(rad);
-	result.r[1][2] = sinf(rad);
-	result.r[2][2] = cosf(rad);
+	result.r[1][1] = cosf(rad);	// Y->Y
+	result.r[2][1] = -sinf(rad); // Z->Y
+	result.r[1][2] = sinf(rad); // Y->Z
+	result.r[2][2] = cosf(rad); // Z->Z
 
 	return result;
 }
@@ -356,10 +367,10 @@ Matrix Matrix::Pitch(float rad) {
 Matrix Matrix::Yaw(float rad) {
 	Matrix result = Matrix();
 
-	result.r[0][0] = cosf(rad);
-	result.r[0][2] = -sinf(rad);
-	result.r[2][0] = sinf(rad);
-	result.r[2][2] = cosf(rad);
+	result.r[0][0] = cosf(rad); // X->X
+	result.r[0][2] = -sinf(rad); // Z->X
+	result.r[2][0] = sinf(rad); // X->Z
+	result.r[2][2] = cosf(rad); // Z->Z
 
 	return result;
 }
@@ -367,10 +378,10 @@ Matrix Matrix::Yaw(float rad) {
 Matrix Matrix::Roll(float rad) {
 	Matrix result = Matrix();
 
-	result.r[0][0] = cosf(rad);
-	result.r[1][0] = -sinf(rad);
-	result.r[0][1] = sinf(rad);
-	result.r[1][1] = cosf(rad);
+	result.r[0][0] = cosf(rad); // X->X
+	result.r[1][0] = -sinf(rad); // Y->X
+	result.r[0][1] = sinf(rad); // X->Y
+	result.r[1][1] = cosf(rad); // Y->Y
 
 	return result;
 }
@@ -417,21 +428,25 @@ Matrix Matrix::RotationRollPitchYaw(float roll, float pitch, float yaw) {
 Matrix Matrix::QuaternionToRotation(Quaternion q) {
 	Matrix result;
 
+	// X軸方向
 	result.r[0][0] = (q.w * q.w) + (q.x * q.x) - (q.y * q.y) - (q.z * q.z);
 	result.r[0][1] = 2.0f * ((q.x * q.y) + (q.w * q.z));
 	result.r[0][2] = 2.0f * ((q.x * q.z) - (q.w * q.y));
 	result.r[0][3] = 0.0f;
 
+	// Y軸方向
 	result.r[1][0] = 2.0f * ((q.x * q.y) - (q.w * q.z));
 	result.r[1][1] = (q.w * q.w) - (q.x * q.x) + (q.y * q.y) - (q.z * q.z);
 	result.r[1][2] = 2.0f * ((q.y * q.z) + (q.w * q.x));
 	result.r[1][3] = 0.0f;
 
+	// Z軸方向
 	result.r[2][0] = 2.0f * ((q.x * q.z) + (q.w * q.y));
 	result.r[2][1] = 2.0f * ((q.y * q.z) - (q.w * q.x));
 	result.r[2][2] = (q.w * q.w) - (q.x * q.x) - (q.y * q.y) + (q.z * q.z);
 	result.r[2][3] = 0.0f;
 
+	// 平行移動成分（回転行列なのでゼロ）
 	result.r[3][0] = 0.0f;
 	result.r[3][1] = 0.0f;
 	result.r[3][2] = 0.0f;
@@ -444,11 +459,11 @@ Matrix Matrix::MakeAffine(const Float3& scale, const Quaternion& rotate, const F
 	Matrix result = Matrix();
 
 	// スケーリング行列を掛ける
-	result *= Matrix::Scaling({scale.x, scale.y, scale.z});
+	result *= Matrix::Scaling({ scale.x, scale.y, scale.z });
 	// Quaternionを回転行列に変換して掛ける
-	result *= Matrix::QuaternionToRotation({rotate.x, rotate.y, rotate.z, rotate.w});
+	result *= Matrix::QuaternionToRotation({ rotate.x, rotate.y, rotate.z, rotate.w });
 	// 平行移動行列を掛ける
-	result *= Matrix::Translation({translate.x, translate.y, translate.z});
+	result *= Matrix::Translation({ translate.x, translate.y, translate.z });
 
 	return result;
 }

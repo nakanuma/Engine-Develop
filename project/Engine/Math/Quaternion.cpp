@@ -24,10 +24,14 @@ Quaternion& Quaternion::operator-=(const Quaternion& other) {
 }
 
 Quaternion Quaternion::MakeRotateAxisAngleQuaternion(const Float3& axis, float angle) {
+	// 回転軸を正規化
 	Float3 normalizedAxis = Float3::Normalize(axis);
+	// 回転角の半分を求める
 	float halfAngle = angle * 0.5f;
+	// sinを事前に計算
 	float sinHalfAngle = std::sin(halfAngle);
 
+	// クォータニオン成分を計算
 	float x = normalizedAxis.x * sinHalfAngle;
 	float y = normalizedAxis.y * sinHalfAngle;
 	float z = normalizedAxis.z * sinHalfAngle;

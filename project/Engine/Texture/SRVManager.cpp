@@ -20,22 +20,24 @@ void SRVManager::Initialize(DirectXBase* dxBase) {
 
 void SRVManager::CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DXGI_FORMAT Format, UINT MipLevels) {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = Format;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = Format; // フォーマット
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING; // 色成分マッピングはデフォルトに
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
-	srvDesc.Texture2D.MipLevels = MipLevels;
+	srvDesc.Texture2D.MipLevels = MipLevels; // ミップマップのレベル
 
+	// SRVを生成して指定されたヒープの位置に登録
 	dxBase->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
 void SRVManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride) {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Buffer.StructureByteStride = structureByteStride;
-	srvDesc.Buffer.NumElements = numElements;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN; // フォーマットは未指定
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER; // ビューの次元をバッファとして指定
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING; // マッピング設定
+	srvDesc.Buffer.StructureByteStride = structureByteStride; // 1要素のサイズ
+	srvDesc.Buffer.NumElements = numElements; // バッファ内要素数
 
+	// SRVを生成して指定されたヒープの位置に登録
 	dxBase->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
@@ -60,6 +62,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE SRVManager::GetGPUDescriptorHandle(uint32_t index) {
 }
 
 bool SRVManager::CanAllocate() {
+	// 上限に達しているか確認
 	if (useIndex >= kMaxSRVCount) {
 		return false;
 	} else {

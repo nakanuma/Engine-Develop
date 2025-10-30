@@ -118,12 +118,14 @@ void PostEffectManager::ApplyEffect() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
+	// レンダーターゲットをバックバッファに設定
 	RTVManager::SetRTtoBB();
 
 	if (effectType_ == PostEffectType::None) {
 		return;
 	}
 
+	// 選択中のタイプによって適用するPSOを選択
 	switch (effectType_) {
 	case PostEffectType::RadialBlur:
 		cmd->SetPipelineState(dxBase->GetPipelineStateRadialBlur());
@@ -196,7 +198,9 @@ void PostEffectManager::ApplyEffect() {
 }
 
 void PostEffectManager::BeginRenderToOutlineTexture() {
+	// レンダーターゲットをアウトライン用テクスチャに設定
 	RTVManager::SetRenderTarget(outlineRT_);
+	// レンダーターゲットをクリア
 	RTVManager::ClearRTV(outlineRT_, {0.0f, 0.0f, 0.0f, 0.0f});
 }
 
@@ -205,10 +209,12 @@ void PostEffectManager::ApplyOutline() {
 	auto cmd = dxBase->GetCommandList();
 
 #pragma region 深度値を元にアウトライン生成
+	// レンダーターゲットをアウトライン用テクスチャに設定
 	RTVManager::SetRenderTarget(outlineGH_);
+	// レンダーターゲットをクリア
 	RTVManager::ClearRTV(outlineGH_, {0.0f, 0.0f, 0.0f, 0.0f});
 
-	cmd->SetPipelineState(dxBase->GetPipelineStateSobelFilter());
+	cmd->SetPipelineState(dxBase->GetPipelineStateSobelFilter()); // SobelFilterのPSOを設定
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
 	cmd->SetGraphicsRootConstantBufferView(0, outlineMaterial_.resource_->GetGPUVirtualAddress());
@@ -224,6 +230,7 @@ void PostEffectManager::DrawOutline() {
 	auto cmd = dxBase->GetCommandList();
 
 #pragma region renderTextureGHをバックバッファにそのまま描画
+	// レンダーターゲットをバックバッファに設定
 	RTVManager::SetRTtoBB();
 
 	cmd->SetPipelineState(dxBase->GetPipelineState());
@@ -237,7 +244,7 @@ void PostEffectManager::DrawOutline() {
 #pragma endregion
 
 #pragma region outlineをバックバッファにそのまま描画
-	cmd->SetPipelineState(dxBase->GetPipelineState());
+	cmd->SetPipelineState(dxBase->GetPipelineState()); // 通常PSOに戻す
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
 	cmd->SetGraphicsRootConstantBufferView(0, materialCB_->GetGPUVirtualAddress());
@@ -253,10 +260,12 @@ void PostEffectManager::ApplyBloom() {
 	auto cmd = dxBase->GetCommandList();
 
 #pragma region 明るい部分の抽出
+	// レンダーターゲットをブルーム抽出用のテクスチャに設定
 	RTVManager::SetRenderTarget(bloomExtractGH_);
+	// レンダーターゲットをクリア
 	RTVManager::ClearRTV(bloomExtractGH_, {0.0f, 0.0f, 0.0f, 0.0f});
 
-	cmd->SetPipelineState(dxBase->GetPipelineStateBloomExtract());
+	cmd->SetPipelineState(dxBase->GetPipelineStateBloomExtract()); // ブルーム抽出用PSOを設定
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
 	cmd->SetGraphicsRootConstantBufferView(0, outlineMaterial_.resource_->GetGPUVirtualAddress());
@@ -269,7 +278,9 @@ void PostEffectManager::ApplyBloom() {
 	ParticleEffectManager::GetInstance()->Draw();
 
 #pragma region ガウスブラー
+	// レンダーターゲットをブルームブラーテクスチャに設定
 	RTVManager::SetRenderTarget(bloomBlurGH_);
+	// レンダーターゲットをクリア
 	RTVManager::ClearRTV(bloomBlurGH_, {0.0f, 0.0f, 0.0f, 0.0f});
 
 	cmd->SetPipelineState(dxBase->GetPipelineStateGaussianFilter());
@@ -288,9 +299,10 @@ void PostEffectManager::DrawBloom() {
 	auto cmd = dxBase->GetCommandList();
 
 #pragma region renderTextureGHをバックバッファに描画
+	// レンダーターゲットをバックバッファに設定
 	RTVManager::SetRTtoBB();
 
-	cmd->SetPipelineState(dxBase->GetPipelineState());
+	cmd->SetPipelineState(dxBase->GetPipelineState()); // 通常PSOに戻す
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
 	cmd->SetGraphicsRootConstantBufferView(0, materialCB_->GetGPUVirtualAddress());
@@ -301,7 +313,7 @@ void PostEffectManager::DrawBloom() {
 #pragma endregion
 
 #pragma region ブラー画像をバックバッファに描画
-	cmd->SetPipelineState(dxBase->GetPipelineStateBlendModeAdd()); // 加算合成
+	cmd->SetPipelineState(dxBase->GetPipelineStateBlendModeAdd()); // 加算合成を行う
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
 	cmd->SetGraphicsRootConstantBufferView(0, materialCB_->GetGPUVirtualAddress());

@@ -8,30 +8,38 @@
 
 void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT rtvFormat, ID3D12DescriptorHeap* srvHeap) {
 #ifdef _DEBUG
-
+	// ImGuiのバージョンチェック + コンテキスト作成
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
-	// imnodes
+	// imnodesのコンテキスト作成（ノードエディタ用）
 	ImNodes::CreateContext();
 
 	// フォントの変更
 	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.Fonts->AddFontFromFileTTF("resources/Fonts/FiraMono-Regular.ttf", 16.0f);
 
+	// ドッキング機能有効
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+	// フォントテクスチャを取得
 	unsigned char* pixels;
 	int width, height;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
+	// ダークテーマを適用
 	ImGui::StyleColorsDark();
+
+	// Win32 & DX12用に初期化
 	ImGui_ImplWin32_Init(Window::GetHandle());
 	ImGui_ImplDX12_Init(device, bufferCount, rtvFormat, srvHeap, srvHeap->GetCPUDescriptorHandleForHeapStart(), srvHeap->GetGPUDescriptorHandleForHeapStart());
 
+	// ウィンドウのスタイル調整
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowBorderSize = 0.0f;
 	style.FrameBorderSize = 1.0f;
 
+	// JSONからスタイル設定を読み込み
 	ImGuiUtil::LoadImGuiStyleFromJson("resources/Configs/ImGui/imguiConfig.json");
 
 #endif
@@ -40,11 +48,14 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 void ImguiWrapper::Finalize() {
 #ifdef _DEBUG
 
-	// imnodes
+	// imnodesコンテキスト破棄
 	ImNodes::DestroyContext();
 
+	// DX12 / Win32 のバインディング終了
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
+
+	// ImGuiコンテキスト破棄
 	ImGui::DestroyContext();
 
 #endif
@@ -52,12 +63,13 @@ void ImguiWrapper::Finalize() {
 
 void ImguiWrapper::NewFrame() {
 #ifdef _DEBUG
-
+	// DX12 / Win32用フレーム処理
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	ShowMainDockSpace(); // ドックスペースの描画
+	// メインドックスペース描画
+	ShowMainDockSpace();
 
 #endif
 }
@@ -77,21 +89,25 @@ void ImguiWrapper::ShowMainDockSpace() {
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
+	// ウィンドウスタイルを調整
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::GetStyle().DisplaySafeAreaPadding = ImVec2(0, 0);
 
+	// ウィンドウ位置・サイズをビューポートに合わせる
 	ImGui::SetNextWindowPos(viewport->Pos);
 	ImGui::SetNextWindowSize(viewport->Size);
 	ImGui::SetNextWindowViewport(viewport->ID);
 
+	// ウィンドウフラグ設定
 	ImGuiWindowFlags host_window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
 	                                     ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDocking;
 
 	ImGui::Begin("MainDockSpaceHost", nullptr, host_window_flags);
 	ImGui::PopStyleVar(3);
 
+	// ドックスペース作成
 	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
@@ -176,17 +192,20 @@ void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) {
 	ImGuiStyle& style = ImGui::GetStyle();
 	nlohmann::json j;
 
+	// 色情報を保存
 	for (size_t i = 0; i < ImGuiCol_COUNT; ++i) {
 		ImVec4 col = style.Colors[i];
 		j["Colors"][i] = {col.x, col.y, col.z, col.w};
 	}
 
+	// 各種スタイルパラメーターを保存
 	j["WindowRounding"] = style.WindowRounding;
 	j["FrameRounding"] = style.FrameRounding;
 	j["GrabRounding"] = style.GrabRounding;
 	j["ScrollbarRounding"] = style.ScrollbarRounding;
 	j["Alpha"] = style.Alpha;
 
+	// JSONファイルに書き込み
 	std::ofstream file(filepath);
 	if (file.is_open()) {
 		file << j.dump(4);
@@ -197,16 +216,19 @@ void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) {
 
 void ImGuiUtil::LoadImGuiStyleFromJson(const std::string& filepath) {
 #ifdef _DEBUG
-
+	// ファイルを開く
 	std::ifstream file(filepath);
+	// ファイルを開けばければ終了
 	if (!file.is_open())
 		return;
 
 	nlohmann::json j;
 	file >> j;
 
+	// ImGuiスタイル取得
 	ImGuiStyle& style = ImGui::GetStyle();
 
+	// 色の設定を読み込み
 	if (j.contains("Colors")) {
 		for (size_t i = 0; i < ImGuiCol_COUNT; ++i) {
 			if (i < j["Colors"].size()) {
@@ -216,6 +238,7 @@ void ImGuiUtil::LoadImGuiStyleFromJson(const std::string& filepath) {
 		}
 	}
 
+	// その他のスタイルパラメーターを読み込み
 	if (j.contains("WindowRounding"))
 		style.WindowRounding = j["WindowRounding"];
 	if (j.contains("FrameRounding"))

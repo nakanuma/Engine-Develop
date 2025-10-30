@@ -8,31 +8,39 @@ void ParameterManager::DrawAll() {
 bool ParameterManager::SaveToFile(const std::string& filename) {
 	nlohmann::json j;
 
+	// パラメーターをJSON形式にして保存
 	for (auto& p : params) {
 		p->Save(j);
 	}
 
+	// 出力ファイルストリームを開く
 	std::ofstream ofs(filename);
 
+	// ファイルを開けなかったらエラー
 	if (!ofs.is_open()) {
 		return false;
 	}
 
+	// JSONデータを整形してファイルに書き込み
 	ofs << j.dump(4);
 
 	return true;
 }
 
 bool ParameterManager::LoadFromFile(const std::string& filename) {
+	// 入力ファイルストリームを開く
 	std::ifstream ifs(filename);
 
+	// ファイルを開けなかったらエラー
 	if (!ifs.is_open()) {
 		return false;
 	}
 
+	// JSONデータをパース
 	nlohmann::json j;
 	ifs >> j;
 
+	// 各パラメーターに対して、JSONから値を復元する
 	for (auto& p : params) {
 		p->Load(j);
 	}
@@ -41,8 +49,11 @@ bool ParameterManager::LoadFromFile(const std::string& filename) {
 }
 
 void ParameterManager::PushHistory(const ParameterChange& change) {
+	// 新しい変更履歴をundoStackに追加
 	undoStack.push_back(change);
+	// redoStackは意味をなさなくなるのでクリア
 	redoStack.clear();
+	// セーブすることを知らせる
 	needsSave_ = true;
 }
 

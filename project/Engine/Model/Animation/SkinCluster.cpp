@@ -67,9 +67,15 @@ void SkinCluster::CreateSkinCluster(const Microsoft::WRL::ComPtr<ID3D12Device>& 
 }
 
 void SkinCluster::Update(const Skeleton& skeleton) {
+	// 各ジョイントを順に処理
 	for (size_t jointIndex = 0; jointIndex < skeleton.joints_.size(); ++jointIndex) {
 		assert(jointIndex < inverseBindPoseMatrices_.size());
-		mappedPalette_[jointIndex].skeletonSpaceMatrix = inverseBindPoseMatrices_[jointIndex] * skeleton.joints_[jointIndex].skeletonSpaceMatrix;
-		mappedPalette_[jointIndex].skeletonSpaceInverseTransposeMatrix = Matrix::Transpose(Matrix::Inverse(mappedPalette_[jointIndex].skeletonSpaceMatrix));
+		// スキニング行列を計算
+		mappedPalette_[jointIndex].skeletonSpaceMatrix = 
+			inverseBindPoseMatrices_[jointIndex] * skeleton.joints_[jointIndex].skeletonSpaceMatrix;
+
+		// 法線変換用の行列を計算
+		mappedPalette_[jointIndex].skeletonSpaceInverseTransposeMatrix = 
+			Matrix::Transpose(Matrix::Inverse(mappedPalette_[jointIndex].skeletonSpaceMatrix));
 	}
 }

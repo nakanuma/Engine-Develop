@@ -424,13 +424,6 @@ ModelManager::Node ModelManager::ReadNode(aiNode* node) {
 	result.transform.translate = {-translate.x, translate.y, translate.z}; // x軸を反転
 	result.localMatrix = result.transform.MakeAffineMatrix();
 
-	// aiMatrix4x4 aiLocalMatrix = node->mTransformation; // nodeのlocalMatrixを取得
-	// aiLocalMatrix.Transpose(); // 列ベクトル形式を行ベクトル形式に転置
-	// for (uint32_t i = 0; i < 4; ++i) { // 行列を結果にコピー
-	//     for (uint32_t j = 0; j < 4; ++j) {
-	//         result.localMatrix.r[i][j] = aiLocalMatrix[i][j];
-	//     }
-	// }
 	result.name = node->mName.C_Str();          // Node名を格納
 	result.children.resize(node->mNumChildren); // 子供の数だけ確保
 	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex) {

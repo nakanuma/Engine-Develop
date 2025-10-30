@@ -110,10 +110,10 @@
       <Filter>Engine\ParticleEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Scene\BaseScene.cpp">
-      <Filter>Engine\Sound\Scene</Filter>
+      <Filter>Engine\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Scene\SceneManager.cpp">
-      <Filter>Engine\Sound\Scene</Filter>
+      <Filter>Engine\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Sound\SoundManager.cpp">
       <Filter>Engine\Sound</Filter>
@@ -307,13 +307,13 @@
       <Filter>Engine\ParticleEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h">
-      <Filter>Engine\Sound\Scene</Filter>
+      <Filter>Engine\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\BaseScene.h">
-      <Filter>Engine\Sound\Scene</Filter>
+      <Filter>Engine\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\SceneManager.h">
-      <Filter>Engine\Sound\Scene</Filter>
+      <Filter>Engine\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Sound\SoundManager.h">
       <Filter>Engine\Sound</Filter>
@@ -443,9 +443,6 @@
     <Filter Include="Engine\Model\Animation">
       <UniqueIdentifier>{270f2730-8d85-4b71-a4de-c950bb2dfe03}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Sound\Scene">
-      <UniqueIdentifier>{a3b5d142-15e5-4ba0-9786-2727ee9b55d6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="externals">
       <UniqueIdentifier>{68bffe65-e2b4-4679-9061-0ce37df3e429}</UniqueIdentifier>
     </Filter>
@@ -454,6 +451,9 @@
     </Filter>
     <Filter Include="externals\imnodes">
       <UniqueIdentifier>{c04f8864-c9f9-4e53-8ec0-13a39896a5d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene">
+      <UniqueIdentifier>{a3b5d142-15e5-4ba0-9786-2727ee9b55d6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
