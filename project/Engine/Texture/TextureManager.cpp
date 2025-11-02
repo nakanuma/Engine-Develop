@@ -6,19 +6,27 @@ void TextureManager::Initialize(ID3D12Device* device, SRVManager* srvManager) {
 	GetInstance().srvManager = srvManager;
 }
 
-int TextureManager::Load(const std::string& filePath, ID3D12Device* device) {
+int TextureManager::Load(const std::string& filePath) {
+	// directoryPath
+	const std::string kDirectoryPath = "resources/Images";
+	// device
+	auto* device = DirectXBase::GetInstance()->GetDevice();
+
+	// fullPath
+	std::string fullPath = kDirectoryPath + "/" + filePath;
+
 	// 読み込み済みテクスチャを検索
 	auto& instance = GetInstance();
-	if (instance.textureDatas.contains(filePath)) {
+	if (instance.textureDatas.contains(fullPath)) {
 		// テクスチャが既に読み込まれている場合、その srvIndex を返す
-		return instance.textureDatas[filePath].srvIndex;
+		return instance.textureDatas[fullPath].srvIndex;
 	}
 
 	// テクスチャ枚数上限チェック
 	assert(instance.srvManager->Allocate());
 
 	// Textureを読んで転送する
-	DirectX::ScratchImage mipImages = GetInstance().LoadTexture(filePath);
+	DirectX::ScratchImage mipImages = GetInstance().LoadTexture(fullPath);
 	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
 
 	// メタデータの配列に保存
@@ -48,7 +56,7 @@ int TextureManager::Load(const std::string& filePath, ID3D12Device* device) {
 	}
 
 	// テクスチャデータを追加して書き込む
-	TextureData& textureData = GetInstance().textureDatas[filePath];
+	TextureData& textureData = GetInstance().textureDatas[fullPath];
 	textureData.metadata = mipImages.GetMetadata();
 	textureData.resource = targetResource;
 	textureData.srvIndex = GetInstance().srvManager->GetIndex();

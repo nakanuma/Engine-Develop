@@ -9,7 +9,7 @@ void SkyBoxManager::Initialize(const std::string& filePath) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// ddsファイルの読み込み
-	uint32_t dds = TextureManager::Load(filePath, dxBase->GetDevice());
+	uint32_t dds = TextureManager::Load(filePath);
 
 	// モデルの読み込みとテクスチャの設定
 	modelSkybox_ = ModelManager::CreateSkyBoxModel(dxBase->GetDevice());

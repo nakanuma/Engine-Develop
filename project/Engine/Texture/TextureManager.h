@@ -55,7 +55,7 @@ public:
 	/// <param name="filePath">ファイルパス</param>
 	/// <param name="device">デバイス</param>
 	/// <returns>テクスチャハンドル</returns>
-	static int Load(const std::string& filePath, ID3D12Device* device);
+	static int Load(const std::string& filePath);
 
 	/// <summary>
 	/// インスタンスを取得します。

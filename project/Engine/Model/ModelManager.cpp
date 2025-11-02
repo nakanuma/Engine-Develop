@@ -277,7 +277,12 @@ ModelManager::ModelData ModelManager::CreateSkyBoxModel(ID3D12Device* device) {
 	return modelData;
 }
 
-ModelManager::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, const std::string& filename, ID3D12Device* device) {
+ModelManager::ModelData ModelManager::LoadModelFile(const std::string& filename) {
+	// directoryPath
+	const std::string kDirectoryPath = "resources/Models";
+	// device
+	auto* device = DirectXBase::GetInstance()->GetDevice();
+
 	// 1. 中で必要となる変数の宣言
 	ModelData modelData;           // 構築するModelData
 	std::vector<Float4> positions; // 位置
@@ -287,7 +292,7 @@ ModelManager::ModelData ModelManager::LoadModelFile(const std::string& directory
 
 	// 2. ファイルを開く
 	Assimp::Importer importer;
-	std::string filePath = directoryPath + "/" + filename;
+	std::string filePath = kDirectoryPath + "/" + filename;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); // メッシュがないのは対応しない
 
@@ -343,12 +348,12 @@ ModelManager::ModelData ModelManager::LoadModelFile(const std::string& directory
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			modelData.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			modelData.material.textureFilePath = kDirectoryPath + "/" + textureFilePath.C_Str();
 		}
 	}
 
 	// vertexResourceの作成
-	modelData.vertexResource = CreateBufferResource(DirectXBase::GetInstance()->GetDevice(), sizeof(VertexData) * modelData.vertices.size());
+	modelData.vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
 
 	// 頂点バッファビューを作成する
 	modelData.vertexBufferView;
@@ -367,7 +372,7 @@ ModelManager::ModelData ModelManager::LoadModelFile(const std::string& directory
 	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
 
 	// indexResourceの作成
-	modelData.indexResource = CreateBufferResource(DirectXBase::GetInstance()->GetDevice(), sizeof(uint32_t) * modelData.indices.size());
+	modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * modelData.indices.size());
 
 	// インデックスバッファビューを作成する
 	modelData.indexBufferView.BufferLocation = modelData.indexResource->GetGPUVirtualAddress();
@@ -405,7 +410,7 @@ ModelManager::MaterialData ModelManager::LoadMaterialTemplateFile(const std::str
 			// 連結してファイルパスにする
 			materialData.textureFilePath = directoryPath + "/" + textureFilename;
 			// 画像を読み込む
-			materialData.textureHandle = TextureManager::Load(materialData.textureFilePath, device);
+			materialData.textureHandle = TextureManager::Load(materialData.textureFilePath);
 		}
 	}
 

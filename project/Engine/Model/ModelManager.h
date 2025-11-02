@@ -122,7 +122,7 @@ public:
 	/// <param name="filename">ファイル名</param>
 	/// <param name="device">デバイス</param>
 	/// <returns>モデルデータ</returns>
-	static ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename, ID3D12Device* device);
+	static ModelData LoadModelFile(const std::string& filename);
 	
 	/// <summary>
 	/// マテリアルテンプレートファイルの読み込みを行います。
