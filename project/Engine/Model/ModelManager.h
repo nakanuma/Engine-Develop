@@ -91,6 +91,29 @@ public:
 	// =========================================================
 
 	/// <summary>
+	/// インスタンスを取得します。
+	/// </summary>
+	/// <returns>シングルトンインスタンス</returns>
+	static ModelManager* GetInstance();
+
+	/// <summary>
+	/// モデルの読み込み・登録を行います。
+	/// </summary>
+	/// <param name="key">モデル固有のキー</param>
+	/// <param name="modelFilename">モデルのファイル名</param>
+	/// <param name="textureFilename">テクスチャのファイル名</param>
+	void LoadAndRegisterModel(const std::string& key, const std::string& modelFilename, const std::string& textureFilename);
+
+	/// <summary>
+	/// モデルデータを取得します。
+	/// </summary>
+	/// <param name="key">モデルに設定したキー</param>
+	/// <returns>モデルデータ</returns>
+	ModelData& GetModel(const std::string& key);
+ 
+
+
+	/// <summary>
 	/// リングモデルの生成を行います。
 	/// </summary>
 	/// <param name="device">デバイス</param>
@@ -116,6 +139,13 @@ public:
 
 
 	/// <summary>
+	/// AssimpのNodeから、Node構造体に変換します。
+	/// </summary>
+	/// <param name="node">AssimpのNode</param>
+	/// <returns>Node構造体</returns>
+	static Node ReadNode(aiNode* node);
+
+	/// <summary>
 	/// モデルの読み込みを行います。
 	/// </summary>
 	/// <param name="directoryPath">ディレクトリパス</param>
@@ -132,11 +162,12 @@ public:
 	/// <param name="device">デバイス</param>
 	/// <returns>マテリアルデータ</returns>
 	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, ID3D12Device* device);
-	
-	/// <summary>
-	/// AssimpのNodeから、Node構造体に変換します。
-	/// </summary>
-	/// <param name="node">AssimpのNode</param>
-	/// <returns>Node構造体</returns>
-	static Node ReadNode(aiNode* node);
+
+
+private:
+	// =========================================================
+	// Member Variables
+	// =========================================================
+
+	std::map<std::string, ModelManager::ModelData> models_;				/* モデルデータを保持するマップ */
 };

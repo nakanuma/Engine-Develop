@@ -7,6 +7,32 @@
 
 #include <SRVManager.h>
 
+ModelManager* ModelManager::GetInstance() {
+	static ModelManager instance;
+	return &instance;
+}
+
+void ModelManager::LoadAndRegisterModel(const std::string& key, const std::string& modelFilename, const std::string& textureFilename)
+{
+	// モデルの読み込み
+	ModelManager::ModelData model = LoadModelFile(modelFilename);
+	// テクスチャの読み込みと割り当て
+	model.material.textureHandle = TextureManager::Load(textureFilename);
+	// マップに登録
+	models_[key] = model;
+}
+
+ModelManager::ModelData& ModelManager::GetModel(const std::string& key)
+{
+	// モデルが登録されているか確認
+	auto it = models_.find(key);
+	if(it == models_.end()){
+		assert(0);
+	}
+	// 参照を返す
+	return it->second;
+}
+
 ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device, float outerRadius, float innerRadius) {
 	ModelManager::ModelData modelData;
 

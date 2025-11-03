@@ -211,7 +211,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)engine\2D;$(SolutionDir)engine\3D;$(SolutionDir)engine\Input;$(SolutionDir)externals\assimp\include;$(SolutionDir)engine\Particle;$(SolutionDir)engine\Sound;$(SolutionDir)engine\Game;$(SolutionDir)engine\Scene;$(SolutionDir)application\Scene;$(SolutionDir)application\GlobalVariables;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)engine\2D;$(SolutionDir)engine\3D;$(SolutionDir)engine\Input;$(SolutionDir)externals\assimp\include;$(SolutionDir)engine\Particle;$(SolutionDir)engine\Sound;$(SolutionDir)engine\Game;$(SolutionDir)engine\Scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -243,7 +243,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)engine\2D;$(SolutionDir)engine\3D;$(SolutionDir)engine\Input;$(SolutionDir)externals\assimp\include;$(SolutionDir)engine\Particle;$(SolutionDir)engine\Sound;$(SolutionDir)engine\Game;$(SolutionDir)engine\Scene;$(SolutionDir)application\Scene;$(SolutionDir)application\GlobalVariables;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)engine\2D;$(SolutionDir)engine\3D;$(SolutionDir)engine\Input;$(SolutionDir)externals\assimp\include;$(SolutionDir)engine\Particle;$(SolutionDir)engine\Sound;$(SolutionDir)engine\Game;$(SolutionDir)engine\Scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

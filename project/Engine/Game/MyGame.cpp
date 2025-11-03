@@ -1,5 +1,6 @@
 #include "MyGame.h"
 #include "SceneFactory.h"
+#include "../Application/src/Game/GameResourceLoader/GameResourceLoader.h"
 #include <StringUtil.h>
 
 void MyGame::Initialize() {
@@ -12,6 +13,9 @@ void MyGame::Initialize() {
 	///
 	/// ゲーム固有の初期化
 	///
+
+	// ゲームリーソスローダーの初期化
+	GameResourceLoader::GetInstance()->Initialize();
 
 	// シーンファクトリーを生成し、マネージャにセット
 	sceneFactory_ = new SceneFactory();
