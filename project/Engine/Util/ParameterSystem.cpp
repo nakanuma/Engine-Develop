@@ -101,7 +101,7 @@ void ParameterManager::Redo() {
 	needsSave_ = true;
 }
 
-void IConfigurable::InitConfig() {
+void Configurator::InitConfig() {
 	// 初回だけ読み込み
 	if (!isLoaded_) {
 		LoadConfig(basePath + subPath);
@@ -109,7 +109,7 @@ void IConfigurable::InitConfig() {
 	}
 }
 
-void IConfigurable::DrawConfigWindow(const char* title) {
+void Configurator::DrawConfigWindow(const char* title) {
 	if (ImGui::Begin(title)) {
 		// 調整項目を全て描画
 		mgr.DrawAll();

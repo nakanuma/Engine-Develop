@@ -8,9 +8,9 @@
 
 bool CollisionMath::CheckSphereToSphere(const SphereCollider* a, const SphereCollider* b) {
 	// 2つの球の中心点間の距離を求める
-	Float3 diff = a->center_ - b->center_;
+	Float3 diff = a->GetCenter() - b->GetCenter();
 	float distSq = Float3::Dot(diff, diff);
-	float radiusSum = a->radius_ + b->radius_;
+	float radiusSum = a->GetRadius() + b->GetRadius();
 
 	// 半径の合計よりも短ければ衝突
 	return distSq <= (radiusSum * radiusSum);
@@ -19,33 +19,36 @@ bool CollisionMath::CheckSphereToSphere(const SphereCollider* a, const SphereCol
 bool CollisionMath::CheckSphereToAABB(const SphereCollider* sphere, const AABBCollider* aabb) {
 	// 最近接点を求める
 	Float3 closestPoint{
-	    std::clamp(sphere->center_.x, aabb->min_.x, aabb->max_.x), std::clamp(sphere->center_.y, aabb->min_.y, aabb->max_.y), std::clamp(sphere->center_.z, aabb->min_.z, aabb->max_.z)};
+		std::clamp(sphere->GetCenter().x, aabb->GetMin().x, aabb->GetMax().x),
+		std::clamp(sphere->GetCenter().y, aabb->GetMin().y, aabb->GetMax().y),
+		std::clamp(sphere->GetCenter().z, aabb->GetMin().z, aabb->GetMax().z)
+	};
 	// 最近接点と球の中心との距離を求める
-	Float3 diff = sphere->center_ - closestPoint;
+	Float3 diff = sphere->GetCenter() - closestPoint;
 	float distSq = Float3::Dot(diff, diff);
 
 	// 距離が半径より小さければ衝突
-	return distSq <= (sphere->radius_ * sphere->radius_);
+	return distSq <= (sphere->GetRadius() * sphere->GetRadius());
 }
 
 bool CollisionMath::CheckAABBToAABB(const AABBCollider* a, const AABBCollider* b) {
-	return (a->min_.x <= b->max_.x && a->max_.x >= b->min_.x) && (a->min_.y <= b->max_.y && a->max_.y >= b->min_.y) && (a->min_.z <= b->max_.z && a->max_.z >= b->min_.z);
+	return (a->GetMin().x <= b->GetMax().x && a->GetMax().x >= b->GetMin().x) && (a->GetMin().y <= b->GetMax().y && a->GetMax().y >= b->GetMin().y) && (a->GetMin().z <= b->GetMax().z && a->GetMax().z >= b->GetMin().z);
 }
 
 bool CollisionMath::CheckAABBToOBB(const AABBCollider* aabb, const OBBCollider* obb) {
 	// AABBの中心と半サイズ
-	Float3 aabbCenter = (aabb->min_ + aabb->max_) * 0.5f;
-	Float3 aabbHalfSize = (aabb->max_ - aabb->min_) * 0.5f;
+	Float3 aabbCenter = (aabb->GetMin() + aabb->GetMax()) * 0.5f;
+	Float3 aabbHalfSize = (aabb->GetMax() - aabb->GetMin()) * 0.5f;
 
 	// AABBをOBBの形に変換
 	OBBCollider aabbAsOBB;
-	aabbAsOBB.center_ = aabbCenter;
-	aabbAsOBB.size_ = aabbHalfSize;
+	aabbAsOBB.SetCenter(aabbCenter);
+	aabbAsOBB.SetSize(aabbHalfSize);
 
 	// ワールド軸に平行な軸をセット
-	aabbAsOBB.xAxis_ = {1.0f, 0.0f, 0.0f};
-	aabbAsOBB.yAxis_ = {0.0f, 1.0f, 0.0f};
-	aabbAsOBB.zAxis_ = {0.0f, 0.0f, 1.0f};
+	aabbAsOBB.SetXAxis({ 1.0f, 0.0f, 0.0f });
+	aabbAsOBB.SetYAxis({ 0.0f, 1.0f, 0.0f });
+	aabbAsOBB.SetZAxis({ 0.0f, 0.0f, 1.0f });
 
 	// OBBvsOBBを行う
 	return CheckOBBToOBB(&aabbAsOBB, obb);
@@ -54,26 +57,26 @@ bool CollisionMath::CheckAABBToOBB(const AABBCollider* aabb, const OBBCollider* 
 bool CollisionMath::CheckOBBToOBB(const OBBCollider* a, const OBBCollider* b) {
 	// 軸候補（分離軸）15本
 	Float3 axis[15] = {
-	    // Aのローカル軸
-	    a->xAxis_,
-	    a->yAxis_,
-	    a->zAxis_,
-	    // Bのローカル軸
-	    b->xAxis_,
-	    b->yAxis_,
-	    b->zAxis_,
-	    // A x B（外積軸）
-	    Float3::Cross(a->xAxis_, b->xAxis_),
-	    Float3::Cross(a->xAxis_, b->yAxis_),
-	    Float3::Cross(a->xAxis_, b->zAxis_),
+		// Aのローカル軸
+		a->GetXAxis(),
+		a->GetYAxis(),
+		a->GetZAxis(),
+		// Bのローカル軸
+		b->GetXAxis(),
+		b->GetYAxis(),
+		b->GetZAxis(),
+		// A x B（外積軸）
+		Float3::Cross(a->GetXAxis(), b->GetXAxis()),
+		Float3::Cross(a->GetXAxis(), b->GetYAxis()),
+		Float3::Cross(a->GetXAxis(), b->GetZAxis()),
 
-	    Float3::Cross(a->yAxis_, b->xAxis_),
-	    Float3::Cross(a->yAxis_, b->yAxis_),
-	    Float3::Cross(a->yAxis_, b->zAxis_),
+		Float3::Cross(a->GetYAxis(), b->GetXAxis()),
+		Float3::Cross(a->GetYAxis(), b->GetYAxis()),
+		Float3::Cross(a->GetYAxis(), b->GetZAxis()),
 
-	    Float3::Cross(a->zAxis_, b->xAxis_),
-	    Float3::Cross(a->zAxis_, b->yAxis_),
-	    Float3::Cross(a->zAxis_, b->zAxis_),
+		Float3::Cross(a->GetZAxis(), b->GetXAxis()),
+		Float3::Cross(a->GetZAxis(), b->GetYAxis()),
+		Float3::Cross(a->GetZAxis(), b->GetZAxis()),
 	};
 
 	for (size_t i = 0; i < 15; ++i) {
@@ -88,19 +91,19 @@ bool CollisionMath::CheckOBBToOBB(const OBBCollider* a, const OBBCollider* b) {
 
 bool CollisionMath::CheckOBBToSphere(const OBBCollider* obb, const SphereCollider* sphere) {
 	// 球の中心をOBB空間に射影
-	Float3 d = sphere->center_ - obb->center_;
+	Float3 d = sphere->GetCenter() - obb->GetCenter();
 
 	// 各軸への投影距離を箱の半サイズ以内で計算
-	Float3 closestPoint = obb->center_;
+	Float3 closestPoint = obb->GetCenter();
 
-	closestPoint += obb->xAxis_ * std::clamp(Float3::Dot(d, obb->xAxis_), -obb->size_.x, obb->size_.x);
-	closestPoint += obb->yAxis_ * std::clamp(Float3::Dot(d, obb->yAxis_), -obb->size_.y, obb->size_.y);
-	closestPoint += obb->zAxis_ * std::clamp(Float3::Dot(d, obb->zAxis_), -obb->size_.z, obb->size_.z);
+	closestPoint += obb->GetXAxis() * std::clamp(Float3::Dot(d, obb->GetXAxis()), -obb->GetSize().x, obb->GetSize().x);
+	closestPoint += obb->GetYAxis() * std::clamp(Float3::Dot(d, obb->GetYAxis()), -obb->GetSize().y, obb->GetSize().y);
+	closestPoint += obb->GetZAxis() * std::clamp(Float3::Dot(d, obb->GetZAxis()), -obb->GetSize().z, obb->GetSize().z);
 
-	Float3 vecToSphere = sphere->center_ - closestPoint;
+	Float3 vecToSphere = sphere->GetCenter() - closestPoint;
 	float distSq = Float3::LengthSq(vecToSphere);
 
-	return distSq <= sphere->radius_ * sphere->radius_;
+	return distSq <= sphere->GetRadius() * sphere->GetRadius();
 }
 
 bool CollisionMath::IsSeparatedByAxis(const Float3& axis, const OBBCollider* obbA, const OBBCollider* obbB) {
@@ -112,12 +115,18 @@ bool CollisionMath::IsSeparatedByAxis(const Float3& axis, const OBBCollider* obb
 	Float3 normAxis = Float3::Normalize(axis);
 
 	// 投影中心間距離
-	float centerDist = fabsf(Float3::Dot(normAxis, obbB->center_ - obbA->center_));
+	float centerDist = fabsf(Float3::Dot(normAxis, obbB->GetCenter() - obbA->GetCenter()));
 
 	// Aの半径投影
-	float rA = fabsf(Float3::Dot(normAxis, obbA->xAxis_) * obbA->size_.x) + fabsf(Float3::Dot(normAxis, obbA->yAxis_) * obbA->size_.y) + fabsf(Float3::Dot(normAxis, obbA->zAxis_) * obbA->size_.z);
+	float rA = 
+		fabsf(Float3::Dot(normAxis, obbA->GetXAxis()) * obbA->GetSize().x) +
+		fabsf(Float3::Dot(normAxis, obbA->GetYAxis()) * obbA->GetSize().y) +
+		fabsf(Float3::Dot(normAxis, obbA->GetZAxis()) * obbA->GetSize().z);
 	// Bの半径投影
-	float rB = fabsf(Float3::Dot(normAxis, obbB->xAxis_) * obbB->size_.x) + fabsf(Float3::Dot(normAxis, obbB->yAxis_) * obbB->size_.y) + fabsf(Float3::Dot(normAxis, obbB->zAxis_) * obbB->size_.z);
+	float rB = 
+		fabsf(Float3::Dot(normAxis, obbB->GetXAxis()) * obbB->GetSize().x) +
+		fabsf(Float3::Dot(normAxis, obbB->GetYAxis()) * obbB->GetSize().y) +
+		fabsf(Float3::Dot(normAxis, obbB->GetZAxis()) * obbB->GetSize().z);
 
 	// 分離軸が存在すればfalse
 	return centerDist > (rA + rB);

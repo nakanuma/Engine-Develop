@@ -113,25 +113,25 @@ void CollisionManager::Draw() {
 
 					// 頂点a, b, cを求める
 					Float3 a = {
-					    cosf(lat) * cosf(lon) * sphere->radius_,
-					    sinf(lat) * sphere->radius_,
-					    cosf(lat) * sinf(lon) * sphere->radius_,
+					    cosf(lat) * cosf(lon) * sphere->GetRadius(),
+					    sinf(lat) * sphere->GetRadius(),
+					    cosf(lat) * sinf(lon) * sphere->GetRadius(),
 					};
 					Float3 b = {
-					    cosf(lat + kLatEvery) * cosf(lon) * sphere->radius_,
-					    sinf(lat + kLatEvery) * sphere->radius_,
-					    cosf(lat + kLatEvery) * sinf(lon) * sphere->radius_,
+					    cosf(lat + kLatEvery) * cosf(lon) * sphere->GetRadius(),
+					    sinf(lat + kLatEvery) * sphere->GetRadius(),
+					    cosf(lat + kLatEvery) * sinf(lon) * sphere->GetRadius(),
 					};
 					Float3 c = {
-					    cosf(lat) * cosf(lon + kLonEvery) * sphere->radius_,
-					    sinf(lat) * sphere->radius_,
-					    cosf(lat) * sinf(lon + kLonEvery) * sphere->radius_,
+					    cosf(lat) * cosf(lon + kLonEvery) * sphere->GetRadius(),
+					    sinf(lat) * sphere->GetRadius(),
+					    cosf(lat) * sinf(lon + kLonEvery) * sphere->GetRadius(),
 					};
 
 					// ワールド座標に移動
-					a = a + sphere->center_;
-					b = b + sphere->center_;
-					c = c + sphere->center_;
+					a = a + sphere->GetCenter();
+					b = b + sphere->GetCenter();
+					c = c + sphere->GetCenter();
 
 					drawer->RegisterLine(a, b, {1.0f, 1.0f, 1.0f, 1.0f});
 					drawer->RegisterLine(a, c, {1.0f, 1.0f, 1.0f, 1.0f});
@@ -146,8 +146,8 @@ void CollisionManager::Draw() {
 			auto* aabb = static_cast<AABBCollider*>(collider);
 
 			// AABBの8頂点から12本の辺を描画
-			Float3 min = aabb->min_;
-			Float3 max = aabb->max_;
+			Float3 min = aabb->GetMin();
+			Float3 max = aabb->GetMax();
 
 			Float3 corners[8] = {
 			    {min.x, min.y, min.z},
@@ -186,19 +186,19 @@ void CollisionManager::Draw() {
 			auto* obb = static_cast<OBBCollider*>(collider);
 
 			// OBBのローカル8頂点を計算
-			Float3 halfX = obb->xAxis_ * (obb->size_.x * 1.0f);
-			Float3 halfY = obb->yAxis_ * (obb->size_.y * 1.0f);
-			Float3 halfZ = obb->zAxis_ * (obb->size_.z * 1.0f);
+			Float3 halfX = obb->GetXAxis() * (obb->GetSize().x * 1.0f);
+			Float3 halfY = obb->GetYAxis() * (obb->GetSize().y * 1.0f);
+			Float3 halfZ = obb->GetZAxis() * (obb->GetSize().z * 1.0f);
 
 			Float3 corners[8] = {
-			    obb->center_ + halfX + halfY + halfZ, // 0
-			    obb->center_ - halfX + halfY + halfZ, // 1
-			    obb->center_ - halfX - halfY + halfZ, // 2
-			    obb->center_ + halfX - halfY + halfZ, // 3
-			    obb->center_ + halfX + halfY - halfZ, // 4
-			    obb->center_ - halfX + halfY - halfZ, // 5
-			    obb->center_ - halfX - halfY - halfZ, // 6
-			    obb->center_ + halfX - halfY - halfZ  // 7
+			    obb->GetCenter() + halfX + halfY + halfZ, // 0
+			    obb->GetCenter() - halfX + halfY + halfZ, // 1
+			    obb->GetCenter() - halfX - halfY + halfZ, // 2
+			    obb->GetCenter() + halfX - halfY + halfZ, // 3
+			    obb->GetCenter() + halfX + halfY - halfZ, // 4
+			    obb->GetCenter() - halfX + halfY - halfZ, // 5
+			    obb->GetCenter() - halfX - halfY - halfZ, // 6
+			    obb->GetCenter() + halfX - halfY - halfZ  // 7
 			};
 
 			int edges[12][2] = {
@@ -262,29 +262,29 @@ void CollisionManager::Debug() {
 				// SphereCollider
 				if (collider->GetType() == "Sphere") {
 					if (auto sphere = dynamic_cast<SphereCollider*>(collider)) {
-						ImGui::Text("Center : (%.2f, %.2f, %.2f)", sphere->center_.x, sphere->center_.y, sphere->center_.z);
-						ImGui::Text("Radius : %.2f", sphere->radius_);
+						ImGui::Text("Center : (%.2f, %.2f, %.2f)", sphere->GetCenter().x, sphere->GetCenter().y, sphere->GetCenter().z);
+						ImGui::Text("Radius : %.2f", sphere->GetRadius());
 					}
 				}
 
 				// AABBCollider
 				if (collider->GetType() == "AABB") {
 					if (auto aabb = dynamic_cast<AABBCollider*>(collider)) {
-						Float3 center = (aabb->min_ + aabb->max_) * 0.5f;
+						Float3 center = (aabb->GetMin() + aabb->GetMax()) * 0.5f;
 						ImGui::Text("Center : (%.2f, %.2f, %.2f)", center.x, center.y, center.z);
-						ImGui::Text("Min : (%.2f, %.2f, %.2f)", aabb->min_.x, aabb->min_.y, aabb->min_.z);
-						ImGui::Text("Max : (%.2f, %.2f, %.2f)", aabb->max_.x, aabb->max_.y, aabb->max_.z);
+						ImGui::Text("Min : (%.2f, %.2f, %.2f)", aabb->GetMin().x, aabb->GetMin().y, aabb->GetMin().z);
+						ImGui::Text("Max : (%.2f, %.2f, %.2f)", aabb->GetMax().x, aabb->GetMax().y, aabb->GetMax().z);
 					}
 				}
 
 				// OBBCollider
 				if (collider->GetType() == "OBB") {
 					if (auto obb = dynamic_cast<OBBCollider*>(collider)) {
-						Float3 center = obb->center_;
-						Float3 size = obb->size_;
-						Float3 xAxis = obb->xAxis_;
-						Float3 yAxis = obb->yAxis_;
-						Float3 zAxis = obb->zAxis_;
+						Float3 center = obb->GetCenter();
+						Float3 size = obb->GetSize();
+						Float3 xAxis = obb->GetXAxis();
+						Float3 yAxis = obb->GetYAxis();
+						Float3 zAxis = obb->GetZAxis();
 
 						ImGui::Text("Center : (%.2f, %.2f, %.2f)", center.x, center.y, center.z);
 						ImGui::Text("Size : (%.2f, %.2f, %.2f)", size.x, size.y, size.z);
@@ -332,8 +332,8 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 			    direction.z != 0.0f ? 1.0f / direction.z : std::numeric_limits<float>::infinity(),
 			};
 
-			Float3 t1 = (aabb->min_ - origin) * invDir;
-			Float3 t2 = (aabb->max_ - origin) * invDir;
+			Float3 t1 = (aabb->GetMin() - origin) * invDir;
+			Float3 t2 = (aabb->GetMax() - origin) * invDir;
 
 			// 全体の交差区間に変換
 			Float3 tmin = Float3::Min(t1, t2);
@@ -366,8 +366,8 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 bool CollisionManager::CheckSphereCollisionWithTag(const Float3& center, float radius, const std::unordered_set<std::string>& targetTags) {
 	// 疑似SphereColliderを作成
 	SphereCollider tempSphere;
-	tempSphere.center_ = center;
-	tempSphere.radius_ = radius;
+	tempSphere.SetCenter(center);
+	tempSphere.SetRadius(radius);
 
 	for (auto* collider : colliders_) {
 		// 引数で受け取ったタグを持ったコライダー以外は弾く
