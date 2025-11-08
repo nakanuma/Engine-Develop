@@ -10,6 +10,8 @@ Float3 Float3::operator*(const Float3& other) const { return {x * other.x, y * o
 
 Float3 Float3::operator*(float scalar) const { return {x * scalar, y * scalar, z * scalar}; }
 
+Float3 Float3::operator/(float scalar) const { return { x / scalar, y / scalar, z / scalar }; }
+
 Float3& Float3::operator+=(const Float3& other) {
 	x += other.x;
 	y += other.y;

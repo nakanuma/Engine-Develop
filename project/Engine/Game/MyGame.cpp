@@ -21,7 +21,7 @@ void MyGame::Initialize() {
 	sceneFactory_ = new SceneFactory();
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_);
 	// シーンマネージャに最初のシーンをセット
-	std::string sceneName = "TITLE";
+	std::string sceneName = "GAMEPLAY";
 	SceneManager::GetInstance()->ChangeScene(sceneName);
 }
 

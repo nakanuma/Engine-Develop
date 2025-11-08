@@ -10,7 +10,7 @@
 /// <summary>
 /// ブレンドモード
 /// </summary>
-enum BlendMode { 
+enum BlendMode {
 	None,			/* 無効 */
 	Normal,			/* 通常 */
 	Add,			/* 加算 */
@@ -151,23 +151,37 @@ protected:
 			Matrix tlsMat = Matrix::Translation(p.transform.translate);
 
 			// 各軸に対してビルボード行列を使用するかチェック
-			if (isBillboard_[0]) { // X軸
-				rotMat.r[0][0] = billboardMatrix_.r[0][0];
-				rotMat.r[0][1] = billboardMatrix_.r[0][1];
-				rotMat.r[0][2] = billboardMatrix_.r[0][2];
-				rotMat.r[0][3] = billboardMatrix_.r[0][3];
+			bool shouldBillBoard = false;
+			if (isBillboard_[0] && isBillboard_[1] && isBillboard_[2]) {
+				// 3軸全てがtrueなら、完全にビルボード行列で上書き
+				rotMat = billboardMatrix_;
+				shouldBillBoard = true;
+			} else {
+				// 部分的にビルボード行列を適用
+				if (isBillboard_[0]) { // X軸
+					rotMat.r[0][0] = billboardMatrix_.r[0][0];
+					rotMat.r[0][1] = billboardMatrix_.r[0][1];
+					rotMat.r[0][2] = billboardMatrix_.r[0][2];
+					rotMat.r[0][3] = billboardMatrix_.r[0][3];
+				}
+				if (isBillboard_[1]) {
+					rotMat.r[1][0] = billboardMatrix_.r[1][0];
+					rotMat.r[1][1] = billboardMatrix_.r[1][1];
+					rotMat.r[1][2] = billboardMatrix_.r[1][2];
+					rotMat.r[1][3] = billboardMatrix_.r[1][3];
+				}
+				if (isBillboard_[2]) {
+					rotMat.r[2][0] = billboardMatrix_.r[2][0];
+					rotMat.r[2][1] = billboardMatrix_.r[2][1];
+					rotMat.r[2][2] = billboardMatrix_.r[2][2];
+					rotMat.r[2][3] = billboardMatrix_.r[2][3];
+				}
 			}
-			if (isBillboard_[1]) {
-				rotMat.r[1][0] = billboardMatrix_.r[1][0];
-				rotMat.r[1][1] = billboardMatrix_.r[1][1];
-				rotMat.r[1][2] = billboardMatrix_.r[1][2];
-				rotMat.r[1][3] = billboardMatrix_.r[1][3];
-			}
-			if (isBillboard_[2]) {
-				rotMat.r[2][0] = billboardMatrix_.r[2][0];
-				rotMat.r[2][1] = billboardMatrix_.r[2][1];
-				rotMat.r[2][2] = billboardMatrix_.r[2][2];
-				rotMat.r[2][3] = billboardMatrix_.r[2][3];
+
+			// 完全にビルボードが適用されている場合、Z軸周りの回転を再適用
+			if(shouldBillBoard){
+				Matrix zRotmat = Matrix::RotationZ(p.transform.rotate.z);
+				rotMat = zRotmat * rotMat;
 			}
 
 			// ワールド行列を計算

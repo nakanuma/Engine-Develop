@@ -27,6 +27,8 @@ struct Float3 {
 	Float3 operator*(float scalar) const;
 	friend Float3 operator*(float scalar, const Float3& vec);
 
+	Float3 operator/(float scalar) const;
+
 	Float3& operator+=(const Float3& other);
 	Float3& operator-=(const Float3& other);
 	Float3& operator*=(float scalar);
