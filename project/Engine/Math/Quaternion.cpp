@@ -1,4 +1,4 @@
-#include "Quaternion.h"
+﻿#include "Quaternion.h"
 #include "cmath"
 
 Quaternion Quaternion::operator+(const Quaternion& other) const { return {x + other.x, y + other.y, z + other.z, w + other.w}; }

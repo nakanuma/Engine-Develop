@@ -1,4 +1,4 @@
-#include "Input.h"
+﻿#include "Input.h"
 #include <cassert>
 
 #pragma comment(lib, "dinput8.lib")

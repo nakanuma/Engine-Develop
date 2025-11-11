@@ -1,4 +1,4 @@
-#include "LightManager.h"
+﻿#include "LightManager.h"
 #include "DirectXBase.h"
 
 #include <numbers>

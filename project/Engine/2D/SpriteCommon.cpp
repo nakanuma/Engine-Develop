@@ -1,4 +1,4 @@
-#include "SpriteCommon.h"
+﻿#include "SpriteCommon.h"
 #include "DirectXUtil.h"
 #include "Logger.h"
 #include "SRVManager.h"

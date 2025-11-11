@@ -1,4 +1,4 @@
-#include "Logger.h"
+﻿#include "Logger.h"
 #include "MyWindow.h"
 
 void Log(const std::string& message) { 

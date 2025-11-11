@@ -1,4 +1,4 @@
-#include "QuaternionTransform.h"
+﻿#include "QuaternionTransform.h"
 
 Matrix QuaternionTransform::MakeAffineMatrix() {
 	Matrix result = Matrix::Identity();

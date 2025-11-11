@@ -1,4 +1,4 @@
-#include "LightCamera.h"
+﻿#include "LightCamera.h"
 
 #include <algorithm>
 

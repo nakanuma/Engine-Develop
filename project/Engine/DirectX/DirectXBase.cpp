@@ -1,4 +1,4 @@
-#include "DirectXBase.h" 
+﻿#include "DirectXBase.h" 
 #include <cassert>
 // MyClass
 #include "Logger.h"

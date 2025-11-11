@@ -1,4 +1,4 @@
-#include "InstancedObject.h"
+﻿#include "InstancedObject.h"
 
 InstancedObject::InstancedObject() { Object3D::Object3D(); }
 

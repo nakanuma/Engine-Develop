@@ -1,4 +1,4 @@
-#include "TimeManager.h"
+﻿#include "TimeManager.h"
 
 TimeManager* TimeManager::GetInstance() {
 	static TimeManager instance;

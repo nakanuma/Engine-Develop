@@ -1,4 +1,4 @@
-#include "MyGame.h"
+﻿#include "MyGame.h"
 #include "SceneFactory.h"
 #include "../Application/src/Game/GameResourceLoader/GameResourceLoader.h"
 #include <StringUtil.h>

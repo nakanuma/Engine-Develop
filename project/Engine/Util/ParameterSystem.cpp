@@ -1,4 +1,4 @@
-#include "ParameterSystem.h"
+﻿#include "ParameterSystem.h"
 
 void ParameterManager::DrawAll() {
 	for (auto& p : params)

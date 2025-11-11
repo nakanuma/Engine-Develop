@@ -1,4 +1,4 @@
-#include "ParticleEffectManager.h"
+﻿#include "ParticleEffectManager.h"
 
 ParticleEffectManager* ParticleEffectManager::GetInstance() {
 	static ParticleEffectManager particleEffectManager;

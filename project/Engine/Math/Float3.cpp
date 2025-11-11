@@ -1,4 +1,4 @@
-#include "Float3.h"
+﻿#include "Float3.h"
 #include "Matrix.h"
 #include "algorithm"
 

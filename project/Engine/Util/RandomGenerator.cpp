@@ -1,4 +1,4 @@
-#include "RandomGenerator.h"
+﻿#include "RandomGenerator.h"
 
 RandomGenerator* RandomGenerator::GetInstance() {
 	static RandomGenerator instance;

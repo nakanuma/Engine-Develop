@@ -1,4 +1,4 @@
-#include "SkyBoxManager.h"
+﻿#include "SkyBoxManager.h"
 
 SkyBoxManager* SkyBoxManager::GetInstance() {
 	static SkyBoxManager instance;

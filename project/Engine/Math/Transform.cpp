@@ -1,4 +1,4 @@
-#include "Transform.h"
+﻿#include "Transform.h"
 
 Matrix Transform::MakeAffineMatrix() {
 	Matrix result = Matrix::Identity();

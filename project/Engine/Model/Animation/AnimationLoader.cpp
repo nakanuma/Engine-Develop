@@ -1,4 +1,4 @@
-#include "AnimationLoader.h"
+﻿#include "AnimationLoader.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

@@ -1,4 +1,4 @@
-#include "Sprite.h"
+﻿#include "Sprite.h"
 #include "DirectXUtil.h"
 #include "SpriteCommon.h"
 #include "TextureManager.h"

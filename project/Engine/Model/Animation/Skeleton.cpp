@@ -1,4 +1,4 @@
-#include "Skeleton.h"
+﻿#include "Skeleton.h"
 
 void Skeleton::CreateSkeleton(const ModelManager::Node& rootNode) {
 	root_ = CreateJoint(rootNode, {}, joints_);

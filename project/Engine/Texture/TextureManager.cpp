@@ -1,4 +1,4 @@
-#include "TextureManager.h"
+﻿#include "TextureManager.h"
 #include <cassert>
 
 void TextureManager::Initialize(ID3D12Device* device, SRVManager* srvManager) {
