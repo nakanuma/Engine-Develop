@@ -13,8 +13,8 @@
 // ---------------------------------------------------------
 // Engine Includes
 // ---------------------------------------------------------
-#include <ImguiWrapper.h>
 #include <Engine/BehaviourTree/BehaviorTree.h>
+#include <ImguiWrapper.h>
 
 // =========================================================
 // ビヘイビアツリーエディタークラス
@@ -28,16 +28,22 @@ public:
 	/// <summary>
 	/// コンストラクタ
 	/// </summary>
-	BehaviorTreeEditor() { context_ = ImNodes::CreateContext(); }
+	BehaviorTreeEditor() {
+#ifdef USE_IMGUI
+		context_ = ImNodes::CreateContext();
+#endif
+	}
 
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
 	~BehaviorTreeEditor() {
+#ifdef USE_IMGUI
 		if (context_) {
 			ImNodes::DestroyContext(context_);
 			context_ = nullptr;
 		}
+#endif
 	}
 
 	/// <summary>
@@ -58,6 +64,7 @@ public:
 	/// エディターの描画処理を行います。
 	/// </summary>
 	void Draw() {
+#ifdef USE_IMGUI
 		ImNodes::SetCurrentContext(context_);
 
 		ImNodes::BeginNodeEditor();
@@ -108,6 +115,7 @@ public:
 		for (auto& node : nodes_) {
 			node.position = ImNodes::GetNodeEditorSpacePos(node.id);
 		}
+#endif
 	}
 
 	/// <summary>
@@ -152,11 +160,11 @@ private:
 	/// 1つ分のノード可視化情報を保持する構造体
 	/// </summary>
 	struct NodeView {
-		uint32_t id;								/* ノード固有ID */
-		std::string name;							/* ノード名 */
-		std::string subName;						/* サブノード名 */
-		ImVec2 position;							/* ノード位置 */
-		std::vector<uint32_t> childrenIDs;			/* 子ノードのIDリスト（リンク描画に使用） */
+		uint32_t id;                       /* ノード固有ID */
+		std::string name;                  /* ノード名 */
+		std::string subName;               /* サブノード名 */
+		ImVec2 position;                   /* ノード位置 */
+		std::vector<uint32_t> childrenIDs; /* 子ノードのIDリスト（リンク描画に使用） */
 	};
 
 	// =========================================================
@@ -214,10 +222,10 @@ private:
 	// Member Variables
 	// =========================================================
 
-	std::vector<NodeView> nodes_;										/* 描画用ノード配列 */
-	BehaviorTree<AgentType>* tree_ = nullptr;							/* 対象のビヘイビアツリー */
+	std::vector<NodeView> nodes_;             /* 描画用ノード配列 */
+	BehaviorTree<AgentType>* tree_ = nullptr; /* 対象のビヘイビアツリー */
 
-	ImNodesContext* context_ = nullptr;									/* ImNodesコンテキスト */
-	std::string defaultDir_ = "resources/Configs/BehaviorTree/";		/* デフォルトの保存ディレクトリ */
-	std::string fileName_ = "";											/* 保存ファイル名 (拡張子含む) */
+	ImNodesContext* context_ = nullptr;                          /* ImNodesコンテキスト */
+	std::string defaultDir_ = "resources/Configs/BehaviorTree/"; /* デフォルトの保存ディレクトリ */
+	std::string fileName_ = "";                                  /* 保存ファイル名 (拡張子含む) */
 };

@@ -224,6 +224,7 @@ void CollisionManager::Draw() {
 }
 
 void CollisionManager::Debug() {
+#ifdef USE_IMGUI
 	if (ImGui::Begin("Colliders")) {
 
 		// 有効なコライダーの数を数える
@@ -300,7 +301,7 @@ void CollisionManager::Debug() {
 	}
 
 	ImGui::End();
-
+#endif
 	///
 	///	コライダーの描画
 	///

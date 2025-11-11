@@ -58,10 +58,12 @@ HWND Window::GetHandle() { return hwnd; }
 HINSTANCE Window::GetHInstance() { return wc.hInstance; }
 
 LRESULT Window::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+#ifdef USE_IMGUI
 	// ImGuiでのマウスの操作を可能にする
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
 		return true;
 	}
+#endif
 
 	// メッセージに応じてゲーム固有の処理を行う
 	switch (msg) {

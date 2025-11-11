@@ -110,6 +110,7 @@ void Configurator::InitConfig() {
 }
 
 void Configurator::DrawConfigWindow(const char* title) {
+#ifdef USE_IMGUI
 	if (ImGui::Begin(title)) {
 		// 調整項目を全て描画
 		mgr.DrawAll();
@@ -137,4 +138,5 @@ void Configurator::DrawConfigWindow(const char* title) {
 		}
 	}
 	ImGui::End();
+#endif
 }
