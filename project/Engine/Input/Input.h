@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -36,20 +36,20 @@ public:
 	/// ゲームパッドの状態
 	/// </summary>
 	union State {
-		XINPUT_STATE xInput_;			/* XInput用 */
-		DIJOYSTATE2 directInput_;		/* DirectInput用 */
+		XINPUT_STATE xInput;			/* XInput用 */
+		DIJOYSTATE2 directInput;		/* DirectInput用 */
 	};
 
 	/// <summary>
 	/// ゲームパッド入力を管理する構造体
 	/// </summary>
 	struct Joystick {
-		ComPtr<IDirectInputDevice8> device_;	/* DirectInputデバイス */
-		int32_t deadZoneL_;						/* デッドゾーン左スティック */
-		int32_t deadZoneR_;						/* デッドゾーン右スティック */
-		PadType type_;							/* ゲームパッドの種類 */
-		State state_;							/* 現在の状態 */
-		State statePre_;						/* 前回の状態 */
+		ComPtr<IDirectInputDevice8> device;		/* DirectInputデバイス */
+		int32_t deadZoneL;						/* デッドゾーン左スティック */
+		int32_t deadZoneR;						/* デッドゾーン右スティック */
+		PadType type;							/* ゲームパッドの種類 */
+		State state;							/* 現在の状態 */
+		State statePre;							/* 前回の状態 */
 	};
 
 public:
@@ -155,11 +155,11 @@ private:
 	std::vector<Joystick> joysticks_;			/* ジョイスティックデバイス */
 
 	BYTE key_[256] = {};						/* 現在のキー状態 */
-	BYTE keyPre[256] = {};						/* 前回のキー状態 */
+	BYTE keyPre_[256] = {};						/* 前回のキー状態 */
 
 	POINT mousePosition_;						/* マウスの位置 */
 	DIMOUSESTATE2 mouseState_ = {};				/* 現在のマウス状態 */
 	DIMOUSESTATE2 mouseStatePre_ = {};			/* 前回のマウス状態 */
 
-	Window* window = nullptr;					/* ウィンドウクラス */
+	Window* window_ = nullptr;					/* ウィンドウクラス */
 };

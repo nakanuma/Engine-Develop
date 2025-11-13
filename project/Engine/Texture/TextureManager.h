@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Externals Includes
@@ -107,21 +107,21 @@ public:
 	/// </summary>
 	/// <param name="filePath">ファイルパス</param>
 	/// <returns>テクスチャのメタデータ</returns>
-	const DirectX::TexMetadata& GetMetaData(const std::string& filePath) { return textureDatas[filePath].metadata; }
+	const DirectX::TexMetadata& GetMetaData(const std::string& filePath) { return textureDatas_[filePath].metadata; }
 
 	/// <summary>
 	/// SRVインデックスを取得します。
 	/// </summary>
 	/// <param name="filePath">ファイルパス</param>
 	/// <returns>SRVインデックス</returns>
-	uint32_t GetSRVIndex(const std::string& filePath) { return textureDatas[filePath].srvIndex; }
+	uint32_t GetSRVIndex(const std::string& filePath) { return textureDatas_[filePath].srvIndex; }
 
 	/// <summary>
 	/// SRVハンドル（GPU）を取得します。
 	/// </summary>
 	/// <param name="filePath">ファイルパス</param>
 	/// <returns>SRVハンドル（GPU）</returns>
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(const std::string& filePath) { return textureDatas[filePath].srvHandleGPU; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(const std::string& filePath) { return textureDatas_[filePath].srvHandleGPU; }
 
 	/// <summary>
 	/// コピー禁止
@@ -166,9 +166,9 @@ private:
 	// Member Variables
 	// =========================================================
 
-	static const uint32_t kMaxTextureValue_ = 16384;										/* 最大テクスチャ数 */
-	SRVManager* srvManager = nullptr;														/* SRV管理クラス */
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxTextureValue_> texResources;		/* テクスチャリソース配列 */
-	std::array<DirectX::TexMetadata, kMaxTextureValue_> texMetadata;						/* テクスチャメタデータ配列 */
-	std::unordered_map<std::string, TextureData> textureDatas;								/* テクスチャデータマップ */
+	static const uint32_t kMaxTextureValue = 16384;											/* 最大テクスチャ数 */
+	SRVManager* srvManager_ = nullptr;														/* SRV管理クラス */
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxTextureValue> texResources_;		/* テクスチャリソース配列 */
+	std::array<DirectX::TexMetadata, kMaxTextureValue> texMetadata_;						/* テクスチャメタデータ配列 */
+	std::unordered_map<std::string, TextureData> textureDatas_;								/* テクスチャデータマップ */
 };

@@ -1,7 +1,7 @@
-﻿#include "ParameterSystem.h"
+#include "ParameterSystem.h"
 
 void ParameterManager::DrawAll() {
-	for (auto& p : params)
+	for (auto& p : params_)
 		p->Draw();
 }
 
@@ -9,7 +9,7 @@ bool ParameterManager::SaveToFile(const std::string& filename) {
 	nlohmann::json j;
 
 	// パラメーターをJSON形式にして保存
-	for (auto& p : params) {
+	for (auto& p : params_) {
 		p->Save(j);
 	}
 
@@ -41,7 +41,7 @@ bool ParameterManager::LoadFromFile(const std::string& filename) {
 	ifs >> j;
 
 	// 各パラメーターに対して、JSONから値を復元する
-	for (auto& p : params) {
+	for (auto& p : params_) {
 		p->Load(j);
 	}
 
@@ -50,27 +50,27 @@ bool ParameterManager::LoadFromFile(const std::string& filename) {
 
 void ParameterManager::PushHistory(const ParameterChange& change) {
 	// 新しい変更履歴をundoStackに追加
-	undoStack.push_back(change);
+	undoStack_.push_back(change);
 	// redoStackは意味をなさなくなるのでクリア
-	redoStack.clear();
+	redoStack_.clear();
 	// セーブすることを知らせる
 	needsSave_ = true;
 }
 
 void ParameterManager::Undo() {
-	if (undoStack.empty())
+	if (undoStack_.empty())
 		return;
 
 	// 直近の変更を取り出す
-	ParameterChange change = undoStack.back();
-	undoStack.pop_back();
-	redoStack.push_back(change);
+	ParameterChange change = undoStack_.back();
+	undoStack_.pop_back();
+	redoStack_.push_back(change);
 
 	// 値の更新を行う
-	for (auto& p : params) {
-		if (p->name == change.name) {
+	for (auto& p : params_) {
+		if (p->name_ == change.name) {
 			p->Load(nlohmann::json{
-			    {p->name, change.beforeValue}
+			    {p->name_, change.beforeValue}
             });
 		}
 	}
@@ -80,19 +80,19 @@ void ParameterManager::Undo() {
 }
 
 void ParameterManager::Redo() {
-	if (redoStack.empty())
+	if (redoStack_.empty())
 		return;
 
 	// 直近の変更を取り出す
-	ParameterChange change = redoStack.back();
-	redoStack.pop_back();
-	undoStack.push_back(change);
+	ParameterChange change = redoStack_.back();
+	redoStack_.pop_back();
+	undoStack_.push_back(change);
 
 	// 値の更新を行う
-	for (auto& p : params) {
-		if (p->name == change.name) {
+	for (auto& p : params_) {
+		if (p->name_ == change.name) {
 			p->Load(nlohmann::json{
-			    {p->name, change.afterValue}
+			    {p->name_, change.afterValue}
             });
 		}
 	}
@@ -104,7 +104,7 @@ void ParameterManager::Redo() {
 void Configurator::InitConfig() {
 	// 初回だけ読み込み
 	if (!isLoaded_) {
-		LoadConfig(basePath + subPath);
+		LoadConfig(kBasePath + subPath_);
 		isLoaded_ = true;
 	}
 }
@@ -113,28 +113,28 @@ void Configurator::DrawConfigWindow(const char* title) {
 #ifdef USE_IMGUI
 	if (ImGui::Begin(title)) {
 		// 調整項目を全て描画
-		mgr.DrawAll();
+		mgr_.DrawAll();
 
 		// パラメーター変更されたら自動保存を行う
-		if (mgr.NeedsSave()) {
-			SaveConfig(basePath + subPath);
-			mgr.ClearNeedsSave();
+		if (mgr_.NeedsSave()) {
+			SaveConfig(kBasePath + subPath_);
+			mgr_.ClearNeedsSave();
 		}
 
 		// Undo/Redoのショートカット
 		if (Input::GetInstance()->PushKey(DIK_LCONTROL) && Input::GetInstance()->TriggerKey(DIK_Z)) {
-			mgr.Undo();
+			mgr_.Undo();
 		}
 		if (Input::GetInstance()->PushKey(DIK_LCONTROL) && Input::GetInstance()->TriggerKey(DIK_Y)) {
-			mgr.Redo();
+			mgr_.Redo();
 		}
 		// わかりやすさのためにボタン配置
 		if (ImGui::Button("Undo")) {
-			mgr.Undo();
+			mgr_.Undo();
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Redo")) {
-			mgr.Redo();
+			mgr_.Redo();
 		}
 	}
 	ImGui::End();

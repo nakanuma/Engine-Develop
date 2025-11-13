@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -10,9 +10,9 @@
 // =========================================================
 class Transform {
 public:
-	Float3 scale;
-	Float3 rotate;
-	Float3 translate;
+	Float3 scale_;
+	Float3 rotate_;
+	Float3 translate_;
 
 	// =========================================================
 	// Public Methods

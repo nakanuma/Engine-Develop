@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -81,7 +81,7 @@ template<class Type> inline void StructuredBuffer<Type>::CreateSRV() {
 	instancingSrvDesc.Buffer.NumElements = numMaxInstance_;
 	instancingSrvDesc.Buffer.StructureByteStride = sizeof(Type);
 	/*D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU = SRVManager::GetInstance().descriptorHeap.GetCPUHandle(SRVManager::GetInstance().GetIndex());*/
-	D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU = SRVManager::GetInstance()->descriptorHeap.GetCPUHandle(SRVManager::GetInstance()->GetIndex());
+	D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU = SRVManager::GetInstance()->descriptorHeap_.GetCPUHandle(SRVManager::GetInstance()->GetIndex());
 	heapIndex_ = SRVManager::GetInstance()->GetIndex(); // heapのIndexを記録
 	SRVManager::GetInstance()->IncrementIndex();        // indexをインクリメント
 	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(resource_.Get(), &instancingSrvDesc, instancingSrvHandleCPU);

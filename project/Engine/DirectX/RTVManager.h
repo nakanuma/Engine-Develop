@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -73,11 +73,11 @@ private:
 	// Member Variables
 	// =========================================================
 
-	std::unordered_map<int32_t, int32_t> rtvHandleMap;										/* レンダーターゲットビュー（RTV）ハンドルマップ */
-	int32_t rtvIndex = 2;																	/* レンダーターゲットビュー（RTV）ハンドルインデックス */
+	std::unordered_map<int32_t, int32_t> rtvHandleMap_;										/* レンダーターゲットビュー（RTV）ハンドルマップ */
+	int32_t rtvIndex_ = 2;																	/* レンダーターゲットビュー（RTV）ハンドルインデックス */
 
-	int32_t currentRenderTarget = -1;														/* 現在のレンダーターゲット状態 */
+	int32_t currentRenderTarget_ = -1;														/* 現在のレンダーターゲット状態 */
 
-	std::unordered_map<int32_t, Microsoft::WRL::ComPtr<ID3D12Resource>> dsvResourceMap;		/* デプスステンシルビュー（DSV）リソースマップ */
-	std::unordered_map<int32_t, int32_t> depthSRVHandleMap;									/* デプスシェンシルビュー（DSV）シェーダリソースビュー（SRV）ハンドルマップ */
+	std::unordered_map<int32_t, Microsoft::WRL::ComPtr<ID3D12Resource>> dsvResourceMap_;	/* デプスステンシルビュー（DSV）リソースマップ */
+	std::unordered_map<int32_t, int32_t> depthSRVHandleMap_;								/* デプスシェンシルビュー（DSV）シェーダリソースビュー（SRV）ハンドルマップ */
 };

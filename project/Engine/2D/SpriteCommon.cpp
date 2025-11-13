@@ -1,4 +1,4 @@
-﻿#include "SpriteCommon.h"
+#include "SpriteCommon.h"
 #include "DirectXUtil.h"
 #include "Logger.h"
 #include "SRVManager.h"
@@ -41,7 +41,7 @@ void SpriteCommon::PreDraw() {
 void SpriteCommon::PostDraw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
-	ID3D12DescriptorHeap* descriptorHeaps[] = {SRVManager::GetInstance()->descriptorHeap.heap_.Get()};
+	ID3D12DescriptorHeap* descriptorHeaps[] = {SRVManager::GetInstance()->descriptorHeap_.heap_.Get()};
 
 	// ルートシグネチャをセット
 	dxBase->GetCommandList()->SetGraphicsRootSignature(dxBase->GetRootSignature());

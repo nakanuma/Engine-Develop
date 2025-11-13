@@ -1,4 +1,4 @@
-﻿#include "Input.h"
+#include "Input.h"
 #include <cassert>
 
 #pragma comment(lib, "dinput8.lib")
@@ -13,7 +13,7 @@ Input* Input::GetInstance() {
 
 void Input::Initialize(Window* window) {
 	// 借りてきたwinAppのインスタンスを記録
-	this->window = window;
+	this->window_ = window;
 
 	// DirectInputの初期化
 	HRESULT result = DirectInput8Create(window->GetHInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
@@ -49,9 +49,9 @@ void Input::Initialize(Window* window) {
 		if (XInputGetState(i, &state) == ERROR_SUCCESS) {
 			// XInputデバイスが接続されている場合
 			Joystick joystick;
-			joystick.type_ = PadType::XInput;
-			joystick.deadZoneL_ = XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
-			joystick.deadZoneR_ = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
+			joystick.type = PadType::XInput;
+			joystick.deadZoneL = XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
+			joystick.deadZoneR = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
 			joysticks_.push_back(joystick);
 		}
 	}
@@ -61,7 +61,7 @@ void Input::Update() {
 	HRESULT result;
 
 	// 前回のキー入力を保存
-	memcpy(keyPre, key_, sizeof(key_));
+	memcpy(keyPre_, key_, sizeof(key_));
 
 	// キーボード情報の取得開始
 	result = keyboard_->Acquire();
@@ -79,7 +79,7 @@ void Input::Update() {
 
 	// マウス位置の更新
 	GetCursorPos(&mousePosition_);
-	ScreenToClient(window->GetHandle(), &mousePosition_);
+	ScreenToClient(window_->GetHandle(), &mousePosition_);
 }
 
 bool Input::PushKey(BYTE keyNumber) {
@@ -93,7 +93,7 @@ bool Input::PushKey(BYTE keyNumber) {
 
 bool Input::TriggerKey(BYTE keyNumber) {
 	// 指定キーが押された瞬間のみtrueを返す
-	if (key_[keyNumber] && !keyPre[keyNumber]) {
+	if (key_[keyNumber] && !keyPre_[keyNumber]) {
 		return true;
 	}
 	// そうでなければfalseを返す
@@ -102,7 +102,7 @@ bool Input::TriggerKey(BYTE keyNumber) {
 
 bool Input::ReleaseKey(BYTE keyNumber) {
 	// 指定キーが離された瞬間のみtrueを返す
-	if (!key_[keyNumber] && keyPre[keyNumber]) {
+	if (!key_[keyNumber] && keyPre_[keyNumber]) {
 		return true;
 	}
 	// そうでなければfalseを返す
@@ -147,7 +147,7 @@ bool Input::GetJoystickState(int32_t stickNo, XINPUT_STATE& out) const {
 	const Joystick& joystick = joysticks_[stickNo];
 
 	// ジョイスティックがXInputタイプか確認
-	if (joystick.type_ != PadType::XInput) {
+	if (joystick.type != PadType::XInput) {
 		return false; // DirectInputコントローラーの場合は処理しない
 	}
 
@@ -162,17 +162,17 @@ bool Input::GetJoystickState(int32_t stickNo, XINPUT_STATE& out) const {
 	///
 
 	// 左スティック
-	if (abs(out.Gamepad.sThumbLX) < joysticks_[stickNo].deadZoneL_) {
+	if (abs(out.Gamepad.sThumbLX) < joysticks_[stickNo].deadZoneL) {
 		out.Gamepad.sThumbLX = 0;
 	}
-	if (abs(out.Gamepad.sThumbLY) < joysticks_[stickNo].deadZoneL_) {
+	if (abs(out.Gamepad.sThumbLY) < joysticks_[stickNo].deadZoneL) {
 		out.Gamepad.sThumbLY = 0;
 	}
 	// 右スティック
-	if (abs(out.Gamepad.sThumbRX) < joysticks_[stickNo].deadZoneL_) {
+	if (abs(out.Gamepad.sThumbRX) < joysticks_[stickNo].deadZoneL) {
 		out.Gamepad.sThumbRX = 0;
 	}
-	if (abs(out.Gamepad.sThumbRY) < joysticks_[stickNo].deadZoneL_) {
+	if (abs(out.Gamepad.sThumbRY) < joysticks_[stickNo].deadZoneL) {
 		out.Gamepad.sThumbRY = 0;
 	}
 
@@ -189,6 +189,6 @@ void Input::SetJoystickDeadZone(int32_t stickNo, int32_t deadZoneL, int32_t dead
 	Joystick& joystick = joysticks_[stickNo];
 
 	// 左右スティックのデッドゾーンを設定
-	joystick.deadZoneL_ = deadZoneL;
-	joystick.deadZoneR_ = deadZoneR;
+	joystick.deadZoneL = deadZoneL;
+	joystick.deadZoneR = deadZoneR;
 }

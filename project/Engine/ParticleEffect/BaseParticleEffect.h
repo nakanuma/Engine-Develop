@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -146,9 +146,9 @@ protected:
 		for (size_t i = 0; i < numParticles; ++i) {
 			const auto& p = particles_[i];
 
-			Matrix sclMat = Matrix::Scaling({ -p.transform.scale.x, p.transform.scale.y, p.transform.scale.z });
-			Matrix rotMat = Matrix::Rotation(p.transform.rotate);
-			Matrix tlsMat = Matrix::Translation(p.transform.translate);
+			Matrix sclMat = Matrix::Scaling({-p.transform.scale_.x, p.transform.scale_.y, p.transform.scale_.z});
+			Matrix rotMat = Matrix::Rotation(p.transform.rotate_);
+			Matrix tlsMat = Matrix::Translation(p.transform.translate_);
 
 			// 各軸に対してビルボード行列を使用するかチェック
 			bool shouldBillBoard = false;
@@ -180,17 +180,17 @@ protected:
 
 			// 完全にビルボードが適用されている場合、Z軸周りの回転を再適用
 			if(shouldBillBoard){
-				Matrix zRotmat = Matrix::RotationZ(p.transform.rotate.z);
+				Matrix zRotmat = Matrix::RotationZ(p.transform.rotate_.z);
 				rotMat = zRotmat * rotMat;
 			}
 
 			// ワールド行列を計算
 			Matrix world = sclMat * rotMat * tlsMat;
 
-			object_.gTransformationMatrices.data_[i].WVP = world * view * projection;
-			object_.gTransformationMatrices.data_[i].World = world;
-			object_.gTransformationMatrices.data_[i].WorldInverseTranspose = Matrix::Transpose(Matrix::Inverse(world));
-			object_.gTransformationMatrices.data_[i].color = p.color;
+			object_.gTransformationMatrices_.data_[i].WVP = world * view * projection;
+			object_.gTransformationMatrices_.data_[i].World = world;
+			object_.gTransformationMatrices_.data_[i].WorldInverseTranspose = Matrix::Transpose(Matrix::Inverse(world));
+			object_.gTransformationMatrices_.data_[i].color = p.color;
 		}
 
 		// 前フレームとのパーティクル数の差分を取って必要な無効化だけを行う
@@ -198,10 +198,10 @@ protected:
 		if (numParticles < prevNumParticles)
 			// 不要分を無効化
 			for (size_t i = numParticles; i < prevNumParticles; ++i) {
-				object_.gTransformationMatrices.data_[i].WVP = Matrix();
-				object_.gTransformationMatrices.data_[i].World = Matrix();
-				object_.gTransformationMatrices.data_[i].WorldInverseTranspose = Matrix();
-				object_.gTransformationMatrices.data_[i].color = { 0.0f, 0.0f, 0.0f, 0.0f };
+				object_.gTransformationMatrices_.data_[i].WVP = Matrix();
+				object_.gTransformationMatrices_.data_[i].World = Matrix();
+				object_.gTransformationMatrices_.data_[i].WorldInverseTranspose = Matrix();
+				object_.gTransformationMatrices_.data_[i].color = { 0.0f, 0.0f, 0.0f, 0.0f };
 			}
 		prevNumParticles = numParticles;
 

@@ -1,4 +1,4 @@
-﻿#include "SRVManager.h"
+#include "SRVManager.h"
 #include "Logger.h"
 #include "StringUtil.h"
 #include <cassert>
@@ -12,10 +12,10 @@ SRVManager* SRVManager::GetInstance() {
 
 void SRVManager::Initialize(DirectXBase* dxBase) {
 	// 引数で受け取ってメンバ変数に記録する
-	this->dxBase = dxBase;
+	this->dxBase_ = dxBase;
 
 	// デスクリプタヒープの生成
-	descriptorHeap.Create(dxBase->GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
+	descriptorHeap_.Create(dxBase->GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
 }
 
 void SRVManager::CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DXGI_FORMAT Format, UINT MipLevels) {
@@ -26,7 +26,7 @@ void SRVManager::CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResou
 	srvDesc.Texture2D.MipLevels = MipLevels; // ミップマップのレベル
 
 	// SRVを生成して指定されたヒープの位置に登録
-	dxBase->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
+	dxBase_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
 void SRVManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride) {
@@ -38,32 +38,32 @@ void SRVManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource*
 	srvDesc.Buffer.NumElements = numElements; // バッファ内要素数
 
 	// SRVを生成して指定されたヒープの位置に登録
-	dxBase->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
+	dxBase_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
 void SRVManager::PreDraw() {
 	// 描画用のDescriptorHeapの設定
-	ID3D12DescriptorHeap* descriptorHeaps[] = {descriptorHeap.heap_.Get()};
-	dxBase->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
+	ID3D12DescriptorHeap* descriptorHeaps[] = {descriptorHeap_.heap_.Get()};
+	dxBase_->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
 }
 
 void SRVManager::SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex) {
-	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(RootParameterIndex, GetGPUDescriptorHandle(srvIndex));
+	dxBase_->GetCommandList()->SetGraphicsRootDescriptorTable(RootParameterIndex, GetGPUDescriptorHandle(srvIndex));
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE SRVManager::GetCPUDescriptorHandle(uint32_t index) {
-	D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = descriptorHeap.GetCPUHandle(index);
+	D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = descriptorHeap_.GetCPUHandle(index);
 	return handleCPU;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE SRVManager::GetGPUDescriptorHandle(uint32_t index) {
-	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap.GetGPUHandle(index);
+	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap_.GetGPUHandle(index);
 	return handleGPU;
 }
 
 bool SRVManager::CanAllocate() {
 	// 上限に達しているか確認
-	if (useIndex >= kMaxSRVCount) {
+	if (useIndex_ >= kMaxSRVCount) {
 		return false;
 	} else {
 		return true;
@@ -72,14 +72,14 @@ bool SRVManager::CanAllocate() {
 
 uint32_t SRVManager::Allocate() {
 	// 上限に達していないかチェックしてassert
-	if (useIndex >= kMaxSRVCount) {
+	if (useIndex_ >= kMaxSRVCount) {
 		assert(0);
 	}
 
 	// returnする番号を一旦記録しておく
-	int index = useIndex;
+	int index = useIndex_;
 	// 次回のために番号を1進める
-	useIndex++;
+	useIndex_++;
 	// 　上で記録した番号をreturn
 	return index;
 }

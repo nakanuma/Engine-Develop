@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -140,7 +140,7 @@ private:
 	// =========================================================
 
 	std::unordered_map<int32_t, ShadowResource> shadowResources_;				/* シャドウマップリソースマップ */
-	int32_t currentIndex = 0;													/* シャドウマップハンドルインデックス */
+	int32_t currentIndex_ = 0;													/* シャドウマップハンドルインデックス */
 
 	uint32_t dsvUseIndex_ = 1;													/* DSVインデックス管理用（0は通常のデプスバッファ用に予約） */
 

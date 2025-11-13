@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -100,6 +100,6 @@ private:
 	// Member Variables
 	// =========================================================
 
-	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;			/* XAudio2 インターフェース */
-	IXAudio2MasteringVoice* masterVoice;				/* マスターボイス */
+	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;			/* XAudio2 インターフェース */
+	IXAudio2MasteringVoice* masterVoice_;				/* マスターボイス */
 };

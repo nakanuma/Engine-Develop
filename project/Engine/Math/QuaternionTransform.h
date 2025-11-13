@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -12,9 +12,9 @@
 // =========================================================
 class QuaternionTransform {
 public:
-	Float3 scale;
-	Quaternion rotate;
-	Float3 translate;
+	Float3 scale_;
+	Quaternion rotate_;
+	Float3 translate_;
 
 	// =========================================================
 	// Public Methods

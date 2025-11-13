@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -93,11 +93,11 @@ protected:
 	// =========================================================
 
 	// ----- System -----
-	Window* window = nullptr;							/* ウィンドウクラス */
-	DirectXBase* dxBase = nullptr;						/* DirectX基盤クラス */
-	SRVManager* srvManager = nullptr;					/* SRV管理クラス */
-	SpriteCommon* spriteCommon = nullptr;				/* スプライト共通処理クラス */
-	SoundManager* soundManager = nullptr;				/* サウンド管理クラス */
+	Window* window_ = nullptr;							/* ウィンドウクラス */
+	DirectXBase* dxBase_ = nullptr;						/* DirectX基盤クラス */
+	SRVManager* srvManager_ = nullptr;					/* SRV管理クラス */
+	SpriteCommon* spriteCommon_ = nullptr;				/* スプライト共通処理クラス */
+	SoundManager* soundManager_ = nullptr;				/* サウンド管理クラス */
 	AbstractSceneFactory* sceneFactory_ = nullptr;		/* シーンファクトリクラス */
 
 private:

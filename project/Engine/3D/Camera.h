@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -75,9 +75,9 @@ public:
 	// =========================================================
 
 	// ----- Parameters -----
-	Transform transform;						/* 変換行列 */
-	float fov;									/* 視野角 */
-	float nearZ = 0.1f, farZ = 1000.0f;			/* ニアクリップ距離、ファークリップ距離 */
+	Transform transform_;						/* 変換行列 */
+	float fov_;									/* 視野角 */
+	float nearZ_ = 0.1f, farZ_ = 1000.0f;		/* ニアクリップ距離、ファークリップ距離 */
 
 private:
 	inline static Camera* current_;				/* 現在のカメラ */

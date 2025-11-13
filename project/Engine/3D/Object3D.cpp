@@ -1,4 +1,4 @@
-﻿#include "Object3D.h"
+#include "Object3D.h"
 #include "Camera.h"
 #include "SRVManager.h"
 #include <LightCamera.h>
@@ -6,9 +6,9 @@
 #include <numbers>
 
 Object3D::Object3D() {
-	transform_.translate = {0.0f, 0.0f, 0.0f};
-	transform_.rotate = {0.0f, 0.0f, 0.0f};
-	transform_.scale = {1.0f, 1.0f, 1.0f};
+	transform_.translate_ = {0.0f, 0.0f, 0.0f};
+	transform_.rotate_ = {0.0f, 0.0f, 0.0f};
+	transform_.scale_ = {1.0f, 1.0f, 1.0f};
 
 	// 白を書き込む
 	materialCB_.data_->color = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -123,7 +123,7 @@ void Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer
 	// マテリアルCBufferの場所を設定
 	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialCB_.resource_->GetGPUVirtualAddress());
 	// instancing用のDataを読むためにStructuredBufferのSRVを設定する
-	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(1, SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(structuredBuffer.heapIndex_));
+	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(1, SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(structuredBuffer.heapIndex_));
 	// SRVのDescriptorTableの先頭を設定（Textureの設定）
 	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), TextureHandle); // 引数で指定したテクスチャを使用する
 	// 描画を行う（DrawCall/ドローコール）

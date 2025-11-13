@@ -1,4 +1,4 @@
-﻿#include "SoundManager.h"
+#include "SoundManager.h"
 #include <cassert>
 
 SoundManager* SoundManager::GetInstance() {
@@ -7,15 +7,15 @@ SoundManager* SoundManager::GetInstance() {
 	return &instance;
 }
 
-SoundManager::~SoundManager() { xAudio2.Reset(); }
+SoundManager::~SoundManager() { xAudio2_.Reset(); }
 
 void SoundManager::Initialize() {
 	HRESULT result;
 	// メインインターフェースを生成
-	result = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	result = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(result));
 	// マスターボイスを生成
-	result = xAudio2->CreateMasteringVoice(&masterVoice);
+	result = xAudio2_->CreateMasteringVoice(&masterVoice_);
 	assert(SUCCEEDED(result));
 }
 
@@ -118,7 +118,7 @@ void SoundManager::PlayWave(SoundData& soundData, bool loopFlag, float volume) {
 	HRESULT result;
 
 	// 波形フォーマットを元にSourceVoiceの生成
-	result = xAudio2->CreateSourceVoice(&soundData.pSourceVoice, &soundData.wfex);
+	result = xAudio2_->CreateSourceVoice(&soundData.pSourceVoice, &soundData.wfex);
 	assert(SUCCEEDED(result));
 
 	// 再生する波形データの設定

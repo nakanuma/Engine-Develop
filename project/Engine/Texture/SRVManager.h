@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -81,12 +81,12 @@ public:
 	/// SRVのインデックスを取得します。
 	/// </summary>
 	/// <returns>SRVのインデックス</returns>
-	const uint32_t GetIndex() { return useIndex; }
+	const uint32_t GetIndex() { return useIndex_; }
 
 	/// <summary>
 	/// SRVのインデックスをインクリメントします。
 	/// </summary>
-	void IncrementIndex() { useIndex++; }
+	void IncrementIndex() { useIndex_++; }
 
 	/// <summary>
 	/// SRVを割り当てることができるか確認します。
@@ -98,12 +98,12 @@ public:
 	// Member Variables
 	// =========================================================
 
-	DescriptorHeap descriptorHeap;			/* ディスクリプタヒープ */
+	DescriptorHeap descriptorHeap_;			/* ディスクリプタヒープ */
 
 private:
-	DirectXBase* dxBase = nullptr;			/* DirectX基盤クラス */
+	DirectXBase* dxBase_ = nullptr;			/* DirectX基盤クラス */
 
 	static const uint32_t kMaxSRVCount;		/* 最大SRV数 */
-	uint32_t descriptorSize;				/* ディスクリプタサイズ */
-	uint32_t useIndex = 1;					/* 使用中のSRVインデックス */
+	uint32_t descriptorSize_;				/* ディスクリプタサイズ */
+	uint32_t useIndex_ = 1;					/* 使用中のSRVインデックス */
 };

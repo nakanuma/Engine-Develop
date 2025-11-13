@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Externals Includes
@@ -45,7 +45,7 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="name_">パラメーター名</param>
-	ParameterBase(const std::string& name_) : name(name_) {}
+	ParameterBase(const std::string& name_) : name_(name_) {}
 
 	/// <summary>
 	/// デストラクタ
@@ -74,7 +74,7 @@ public:
 	// Member Variables
 	// =========================================================
 
-	std::string name;		/* パラメーター名 */
+	std::string name_;		/* パラメーター名 */
 };
 
 // =========================================================
@@ -95,7 +95,7 @@ public:
 	/// <param name="maxV">最大値</param>
 	/// <param name="step">ステップ値</param>
 	/// <param name="manager">パラメーター管理クラス</param>
-	Parameter(const std::string& name, T* p, T minV, T maxV, T step, ParameterManager& manager) : ParameterBase(name), ptr(p), minV(minV), maxV(maxV), step(step), mgr(manager), beforeValue(*p) {}
+	Parameter(const std::string& name, T* p, T minV, T maxV, T step, ParameterManager& manager) : ParameterBase(name), ptr_(p), minV_(minV), maxV_(maxV), step_(step), mgr_(manager), beforeValue_(*p) {}
 
 	/// <summary>
 	/// パラメーターをImGui上で表示します。
@@ -104,25 +104,25 @@ public:
 		bool changed = false;
 
 		if constexpr (std::is_integral<T>::value) {
-			int tmp = static_cast<int>(*ptr);
-			changed = ImGui::DragInt(name.c_str(), &tmp, (float)step, (int)minV, (int)maxV);
+			int tmp = static_cast<int>(*ptr_);
+			changed = ImGui::DragInt(name_.c_str(), &tmp, (float)step_, (int)minV_, (int)maxV_);
 			if (changed) {
-				*ptr = static_cast<T>(tmp);
+				*ptr_ = static_cast<T>(tmp);
 			}
 		} else {
-			float tmp = static_cast<float>(*ptr);
-			changed = ImGui::DragFloat(name.c_str(), &tmp, (float)step, (float)minV, (float)maxV);
+			float tmp = static_cast<float>(*ptr_);
+			changed = ImGui::DragFloat(name_.c_str(), &tmp, (float)step_, (float)minV_, (float)maxV_);
 			if (changed) {
-				*ptr = static_cast<T>(tmp);
+				*ptr_ = static_cast<T>(tmp);
 			}
 		}
 
 		// ドラッグ解除後に変更があれば履歴に追加
 		if (ImGui::IsItemDeactivatedAfterEdit()) {
-			if (*ptr != beforeValue) {
-				mgr.PushHistory(ParameterChange{name, beforeValue, *ptr});
+			if (*ptr_ != beforeValue_) {
+				mgr_.PushHistory(ParameterChange{name_, beforeValue_, *ptr_});
 			}
-			beforeValue = *ptr; // 更新
+			beforeValue_ = *ptr_; // 更新
 		}
 	}
 
@@ -130,16 +130,16 @@ public:
 	/// パラメーターの値をJSONへ保存します。
 	/// </summary>
 	/// <param name="j">jsonファイル</param>
-	void Save(nlohmann::json& j) const override { j[name] = *ptr; }
+	void Save(nlohmann::json& j) const override { j[name_] = *ptr_; }
 
 	/// <summary>
 	/// JSONからパラメーターの値を読み込みます。
 	/// </summary>
 	/// <param name="j">jsonファイル</param>
 	void Load(const nlohmann::json& j) override {
-		if (j.contains(name)) {
-			*ptr = j.at(name).get<T>();
-			beforeValue = *ptr; // Load後の値を基準にする
+		if (j.contains(name_)) {
+			*ptr_ = j.at(name_).get<T>();
+			beforeValue_ = *ptr_; // Load後の値を基準にする
 		}
 	}
 
@@ -148,10 +148,10 @@ public:
 	// Member Variables
 	// =========================================================
 
-	T* ptr;							/* パラメーターのポインタ */
-	T minV, maxV, step;				/* 最小値、最大値、ステップ値 */
-	ParameterManager& mgr;			/* パラメーター管理クラス */
-	T beforeValue{};				/* 変更前の値 */
+	T* ptr_;						/* パラメーターのポインタ */
+	T minV_, maxV_, step_;			/* 最小値、最大値、ステップ値 */
+	ParameterManager& mgr_;			/* パラメーター管理クラス */
+	T beforeValue_{};				/* 変更前の値 */
 };
 
 // =========================================================
@@ -172,7 +172,7 @@ public:
 	/// <param name="minV">最小値</param>
 	/// <param name="maxV">最大値</param>
 	/// <param name="step">ステップ値</param>
-	template<typename T> void Add(const std::string& name, T* ptr, T minV, T maxV, T step = (T)1) { params.emplace_back(std::make_unique<Parameter<T>>(name, ptr, minV, maxV, step, *this)); }
+	template<typename T> void Add(const std::string& name, T* ptr, T minV, T maxV, T step = (T)1) { params_.emplace_back(std::make_unique<Parameter<T>>(name, ptr, minV, maxV, step, *this)); }
 
 	/// <summary>
 	/// 登録されたすべてのパラメーターをGUI上に描画します。
@@ -224,9 +224,9 @@ private:
 	// Member Variables
 	// =========================================================
 
-	std::vector<std::unique_ptr<ParameterBase>> params;		/* 登録されたパラメーターリスト */
-	std::vector<ParameterChange> undoStack;					/* 元に戻す用履歴スタック */
-	std::vector<ParameterChange> redoStack;					/* やり直し用履歴スタック */
+	std::vector<std::unique_ptr<ParameterBase>> params_;	/* 登録されたパラメーターリスト */
+	std::vector<ParameterChange> undoStack_;				/* 元に戻す用履歴スタック */
+	std::vector<ParameterChange> redoStack_;				/* やり直し用履歴スタック */
 
 	bool needsSave_ = false;								/* 保存が必要かどうかのフラグ */
 
@@ -247,7 +247,7 @@ protected:
 	/// <param name="minV">最小値</param>
 	/// <param name="maxV">最大値</param>
 	/// <param name="step">ステップ値</param>
-	template<typename T> void RegisterParam(const std::string& name, T* ptr, T minV, T maxV, T step = (T)1) { mgr.Add(name, ptr, minV, maxV, step); }
+	template<typename T> void RegisterParam(const std::string& name, T* ptr, T minV, T maxV, T step = (T)1) { mgr_.Add(name, ptr, minV, maxV, step); }
 
 public:
 	// =========================================================
@@ -263,7 +263,7 @@ public:
 	/// jsonの保存/読み込み先のファイルパス設定を行います。
 	/// </summary>
 	/// <param name="path">ファイルパス</param>
-	void SetConfigPath(const std::string& path) { subPath = path; }
+	void SetConfigPath(const std::string& path) { subPath_ = path; }
 
 	/// <summary>
 	/// ウインドウを表示します。
@@ -277,24 +277,24 @@ private:
 	/// </summary>
 	/// <param name="path">ファイルパス</param>
 	/// <returns>成功した場合はtrue</returns>
-	bool SaveConfig(const std::string& path) { return mgr.SaveToFile(path); }
+	bool SaveConfig(const std::string& path) { return mgr_.SaveToFile(path); }
 
 	/// <summary>
 	/// 設定をファイルから読み込みます。
 	/// </summary>
 	/// <param name="path">ファイルパス</param>
 	/// <returns>成功した場合はtrue</returns>
-	bool LoadConfig(const std::string& path) { return mgr.LoadFromFile(path); }
+	bool LoadConfig(const std::string& path) { return mgr_.LoadFromFile(path); }
 
 public:
 	// =========================================================
 	// Member Variables
 	// =========================================================
 
-	ParameterManager mgr;									/* パラメーター管理クラス */
+	ParameterManager mgr_;									/* パラメーター管理クラス */
 
-	const std::string basePath = "resources/Configs/";		/* 基本パス */
-	std::string subPath = "untitled.json";					/* サブパス */
+	const std::string kBasePath = "resources/Configs/";		/* 基本パス */
+	std::string subPath_ = "untitled.json";					/* サブパス */
 
 	bool isLoaded_ = false;									/* 設定が読み込まれたかどうか */
 };

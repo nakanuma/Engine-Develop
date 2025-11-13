@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -30,5 +30,5 @@ public:
 	// =========================================================
 
 	// ----- Resources -----
-	StructuredBuffer<Object3D::InstancingObject> gTransformationMatrices = StructuredBuffer<Object3D::InstancingObject>(0, true); /* 空っぽのStructuredBuffer */
+	StructuredBuffer<Object3D::InstancingObject> gTransformationMatrices_ = StructuredBuffer<Object3D::InstancingObject>(0, true); /* 空っぽのStructuredBuffer */
 };

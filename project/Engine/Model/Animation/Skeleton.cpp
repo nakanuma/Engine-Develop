@@ -1,4 +1,4 @@
-﻿#include "Skeleton.h"
+#include "Skeleton.h"
 
 void Skeleton::CreateSkeleton(const ModelManager::Node& rootNode) {
 	root_ = CreateJoint(rootNode, {}, joints_);
@@ -47,9 +47,9 @@ void Skeleton::ApplyAnimation(const AnimationLoader::Animation& animation, float
 		// 対象のJointのAnimationがあれば、他の適用を行う
 		if (auto it = animation.nodeAnimations.find(joint.name); it != animation.nodeAnimations.end()) {
 			const AnimationLoader::NodeAnimation& rootNodeAnimation = (*it).second;
-			joint.transform.translate = AnimationLoader::CalculateValue(rootNodeAnimation.translate, animationTime);
-			joint.transform.rotate = AnimationLoader::CalculateValue(rootNodeAnimation.rotate, animationTime);
-			joint.transform.scale = AnimationLoader::CalculateValue(rootNodeAnimation.scale, animationTime);
+			joint.transform.translate_ = AnimationLoader::CalculateValue(rootNodeAnimation.translate, animationTime);
+			joint.transform.rotate_ = AnimationLoader::CalculateValue(rootNodeAnimation.rotate, animationTime);
+			joint.transform.scale_ = AnimationLoader::CalculateValue(rootNodeAnimation.scale, animationTime);
 		}
 	}
 }
@@ -65,22 +65,22 @@ void Skeleton::ApplyBlendedAnimation(const AnimationLoader::Animation& a, const 
 		// アニメーションAのジョイント情報を取得
 		if (auto it = a.nodeAnimations.find(name); it != a.nodeAnimations.end()) {
 			// timeAにおけるトランスフォームを取得
-			poseA.translate = AnimationLoader::CalculateValue(it->second.translate, timeA);
-			poseA.rotate = AnimationLoader::CalculateValue(it->second.rotate, timeA);
-			poseA.scale = AnimationLoader::CalculateValue(it->second.scale, timeA);
+			poseA.translate_ = AnimationLoader::CalculateValue(it->second.translate, timeA);
+			poseA.rotate_ = AnimationLoader::CalculateValue(it->second.rotate, timeA);
+			poseA.scale_ = AnimationLoader::CalculateValue(it->second.scale, timeA);
 		}
 		// アニメーションBでのジョイント情報を取得
 		if (auto it = b.nodeAnimations.find(name); it != b.nodeAnimations.end()) {
 			// timeBにおけるトランスフォームを取得
-			poseB.translate = AnimationLoader::CalculateValue(it->second.translate, timeB);
-			poseB.rotate = AnimationLoader::CalculateValue(it->second.rotate, timeB);
-			poseB.scale = AnimationLoader::CalculateValue(it->second.scale, timeB);
+			poseB.translate_ = AnimationLoader::CalculateValue(it->second.translate, timeB);
+			poseB.rotate_ = AnimationLoader::CalculateValue(it->second.rotate, timeB);
+			poseB.scale_ = AnimationLoader::CalculateValue(it->second.scale, timeB);
 		}
 
 		// 2つのアニメーションを補間して適用
 		// BlendRate : 0.0f ~ 1.0f（0.0f -> アニメーションAの姿勢、0.5f -> 中間の姿勢、1.0f -> アニメーションBの姿勢 に補間）
-		joint.transform.translate = Float3::Lerp(poseA.translate, poseB.translate, blendRate);
-		joint.transform.rotate = Quaternion::Slerp(poseA.rotate, poseB.rotate, blendRate);
-		joint.transform.scale = Float3::Lerp(poseA.scale, poseB.scale, blendRate);
+		joint.transform.translate_ = Float3::Lerp(poseA.translate_, poseB.translate_, blendRate);
+		joint.transform.rotate_ = Quaternion::Slerp(poseA.rotate_, poseB.rotate_, blendRate);
+		joint.transform.scale_ = Float3::Lerp(poseA.scale_, poseB.scale_, blendRate);
 	}
 }

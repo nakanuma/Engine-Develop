@@ -1,4 +1,4 @@
-﻿#include "ImguiWrapper.h"
+#include "ImguiWrapper.h"
 #include "RTVManager.h"
 #include "TextureManager.h"
 #include <d3d12.h>
@@ -136,7 +136,7 @@ void ImGuiUtil::ImageWindow(std::string windowName, int32_t textureHandle) {
 	ImVec2 topLeft = {(wndSize.x - finalImageSize.x) * 0.5f + cntRegionMin.x, (wndSize.y - finalImageSize.y) * 0.5f + cntRegionMin.y};
 	ImGui::SetCursorPos(topLeft);
 
-	ImGui::Image((SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(textureHandle).ptr), finalImageSize);
+	ImGui::Image((SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(textureHandle).ptr), finalImageSize);
 
 	ImGui::End();
 #endif
@@ -169,7 +169,7 @@ void ImGuiUtil::DepthWindow(std::string windowName, int32_t textureHandle) {
 	ImVec2 topLeft = {(wndSize.x - finalImageSize.x) * 0.5f + cntRegionMin.x, (wndSize.y - finalImageSize.y) * 0.5f + cntRegionMin.y};
 	ImGui::SetCursorPos(topLeft);
 
-	ImGui::Image((SRVManager::GetInstance()->descriptorHeap.GetGPUHandle(textureHandle).ptr), finalImageSize);
+	ImGui::Image((SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(textureHandle).ptr), finalImageSize);
 
 	ImGui::End();
 #endif

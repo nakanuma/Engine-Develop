@@ -1,4 +1,4 @@
-﻿#include "RTVManager.h"
+#include "RTVManager.h"
 #include "DirectXBase.h"
 #include "DirectXUtil.h"
 #include "TextureManager.h"
@@ -13,17 +13,17 @@ int32_t RTVManager::CreateRenderTargetTexture(uint32_t width, uint32_t height, F
 	// 空のテクスチャを作成
 	int32_t emptyTexture = TextureManager::CreateEmptyTexture(width, height, clearColor);
 	// TextureHandleとRTVHandleを対応させる
-	GetInstance().rtvHandleMap[emptyTexture] = GetInstance().rtvIndex;
+	GetInstance().rtvHandleMap_[emptyTexture] = GetInstance().rtvIndex_;
 
 	// テクスチャに対してレンダーターゲットを作成
-	DirectXBase::GetInstance()->GetDevice()->CreateRenderTargetView(TextureManager::GetResource(emptyTexture), nullptr, DirectXBase::GetInstance()->GetRTVHeap()->GetCPUHandle(GetInstance().rtvIndex));
+	DirectXBase::GetInstance()->GetDevice()->CreateRenderTargetView(TextureManager::GetResource(emptyTexture), nullptr, DirectXBase::GetInstance()->GetRTVHeap()->GetCPUHandle(GetInstance().rtvIndex_));
 
 	// 深度テクスチャの作成
 	// DepthStencilTextureをウィンドウのサイズで作成
 	ID3D12Resource* depthResource;
-	GetInstance().dsvResourceMap[emptyTexture] = CreateDepthStencilTextureResource(DirectXBase::GetInstance()->GetDevice(), Window::GetWidth(), Window::GetHeight(), true);
+	GetInstance().dsvResourceMap_[emptyTexture] = CreateDepthStencilTextureResource(DirectXBase::GetInstance()->GetDevice(), Window::GetWidth(), Window::GetHeight(), true);
 
-	depthResource = GetInstance().dsvResourceMap[emptyTexture].Get();
+	depthResource = GetInstance().dsvResourceMap_[emptyTexture].Get();
 
 	// DSVの設定
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
@@ -31,13 +31,13 @@ int32_t RTVManager::CreateRenderTargetTexture(uint32_t width, uint32_t height, F
 	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;        // Format。基本的にはResourceに合わせる
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; // 2dTexture;
 	// DSVHeapの先頭にDSVをつくる
-	DirectXBase::GetInstance()->GetDevice()->CreateDepthStencilView(depthResource, &dsvDesc, DirectXBase::GetInstance()->GetDSVHeap()->GetCPUHandle(GetInstance().rtvIndex)); // rtvIndexと同じにする
+	DirectXBase::GetInstance()->GetDevice()->CreateDepthStencilView(depthResource, &dsvDesc, DirectXBase::GetInstance()->GetDSVHeap()->GetCPUHandle(GetInstance().rtvIndex_)); // rtvIndexと同じにする
 
 	// SRVの設定をする
 	uint32_t depthSRVHandle = TextureManager::CreateSRV(depthResource, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
-	GetInstance().depthSRVHandleMap[emptyTexture] = depthSRVHandle;
+	GetInstance().depthSRVHandleMap_[emptyTexture] = depthSRVHandle;
 
-	GetInstance().rtvIndex++;
+	GetInstance().rtvIndex_++;
 
 	return emptyTexture;
 }
@@ -54,19 +54,19 @@ void RTVManager::SetRenderTarget(int32_t textureHandle) {
 	dxBase->barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	dxBase->GetCommandList()->ResourceBarrier(1, &dxBase->barrier_);
 	// そのテクスチャの深度情報のリソースバリアを書込み可能な状態にする
-	dxBase->barrier_.Transition.pResource = GetInstance().dsvResourceMap[textureHandle].Get();
+	dxBase->barrier_.Transition.pResource = GetInstance().dsvResourceMap_[textureHandle].Get();
 	dxBase->barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
 	dxBase->barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 	dxBase->GetCommandList()->ResourceBarrier(1, &dxBase->barrier_);
 
 	// レンダーターゲットをセットする
-	auto cpuHandle = dxBase->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap[textureHandle]);
-	auto dsvHandle = dxBase->dsvDescriptorHeap_.GetCPUHandle(GetInstance().rtvHandleMap[textureHandle]);
+	auto cpuHandle = dxBase->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]);
+	auto dsvHandle = dxBase->dsvDescriptorHeap_.GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]);
 
 	dxBase->GetCommandList()->OMSetRenderTargets(1, &cpuHandle, false, &dsvHandle);
 
 	// 現在のレンダーターゲットを保存する
-	GetInstance().currentRenderTarget = textureHandle;
+	GetInstance().currentRenderTarget_ = textureHandle;
 }
 
 void RTVManager::SetRTtoBB() {
@@ -95,11 +95,11 @@ void RTVManager::SetRTtoBB() {
 	dxBase->GetCommandList()->OMSetRenderTargets(1, &dxBase->rtvHandles_[backBufferIndex], false, &dsvHandle);
 
 	// 現在のレンダーターゲットを保存する
-	GetInstance().currentRenderTarget = -1;
+	GetInstance().currentRenderTarget_ = -1;
 }
 
 void RTVManager::ResetResourceBarrier() {
-	int32_t rt = GetInstance().currentRenderTarget;
+	int32_t rt = GetInstance().currentRenderTarget_;
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	if (rt < 0) {
@@ -117,7 +117,7 @@ void RTVManager::ResetResourceBarrier() {
 		dxBase->barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 		dxBase->GetCommandList()->ResourceBarrier(1, &dxBase->barrier_);
 		// そのテクスチャの深度情報のリソースバリアを戻す
-		dxBase->barrier_.Transition.pResource = GetInstance().dsvResourceMap[rt].Get();
+		dxBase->barrier_.Transition.pResource = GetInstance().dsvResourceMap_[rt].Get();
 		dxBase->barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		dxBase->barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
 		dxBase->GetCommandList()->ResourceBarrier(1, &dxBase->barrier_);
@@ -128,8 +128,8 @@ void RTVManager::ClearRTV(int32_t textureHandle, Float4 clearColor) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 指定した色で画面全体をクリアする
-	dxBase->GetCommandList()->ClearRenderTargetView(dxBase->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap[textureHandle]), &clearColor.x, 0, nullptr);
-	dxBase->GetCommandList()->ClearDepthStencilView(dxBase->GetDSVHeap()->GetCPUHandle(GetInstance().rtvHandleMap[textureHandle]), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	dxBase->GetCommandList()->ClearRenderTargetView(dxBase->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]), &clearColor.x, 0, nullptr);
+	dxBase->GetCommandList()->ClearDepthStencilView(dxBase->GetDSVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 
-int32_t RTVManager::GetDepthSRVHandle(int32_t textureHandle) { return GetInstance().depthSRVHandleMap[textureHandle]; }
+int32_t RTVManager::GetDepthSRVHandle(int32_t textureHandle) { return GetInstance().depthSRVHandleMap_[textureHandle]; }

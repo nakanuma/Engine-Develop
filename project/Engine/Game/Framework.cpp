@@ -1,4 +1,4 @@
-﻿#include "Framework.h"
+#include "Framework.h"
 
 #include <StringUtil.h>
 
@@ -9,33 +9,33 @@ void Framework::Initialize() {
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 
 	// ゲームウィンドウの生成
-	window = new Window;
-	window->Create(L"ファクトリコイル", 1280, 720);
+	window_ = new Window;
+	window_->Create(L"ファクトリコイル", 1280, 720);
 
 	// DirectX初期化処理
-	dxBase = DirectXBase::GetInstance();
-	dxBase->Initialize();
+	dxBase_ = DirectXBase::GetInstance();
+	dxBase_->Initialize();
 
 	// SRVマネージャの初期化
-	srvManager = SRVManager::GetInstance();
-	srvManager->Initialize(dxBase);
+	srvManager_ = SRVManager::GetInstance();
+	srvManager_->Initialize(dxBase_);
 
 	// 入力デバイスの生成と初期化
-	Input::GetInstance()->Initialize(window);
+	Input::GetInstance()->Initialize(window_);
 
 	// スプライト共通部の初期化
-	spriteCommon = new SpriteCommon;
-	spriteCommon->Initialize(dxBase);
+	spriteCommon_ = new SpriteCommon;
+	spriteCommon_->Initialize(dxBase_);
 
 	// TextureManagerの初期化
-	TextureManager::Initialize(dxBase->GetDevice(), srvManager);
+	TextureManager::Initialize(dxBase_->GetDevice(), srvManager_);
 
 	// ImGuiの初期化
-	ImguiWrapper::Initialize(dxBase->GetDevice(), dxBase->GetSwapChainDesc().BufferCount, dxBase->GetRtvDesc().Format, srvManager->descriptorHeap.heap_.Get());
+	ImguiWrapper::Initialize(dxBase_->GetDevice(), dxBase_->GetSwapChainDesc().BufferCount, dxBase_->GetRtvDesc().Format, srvManager_->descriptorHeap_.heap_.Get());
 
 	// SoundManagerの生成と初期化
-	soundManager = new SoundManager;
-	soundManager->Initialize();
+	soundManager_ = new SoundManager;
+	soundManager_->Initialize();
 
 	// LineDrawer初期化
 	LineDrawer::GetInstance()->Initialize();
@@ -48,9 +48,9 @@ void Framework::Finalize() {
 	// シーンファクトリ開放
 	delete sceneFactory_;
 	// スプライト共通処理開放
-	delete spriteCommon;
+	delete spriteCommon_;
 	// SoundManager開放
-	delete soundManager;
+	delete soundManager_;
 
 	// ImGuiの終了処理
 	ImguiWrapper::Finalize();
@@ -60,7 +60,7 @@ void Framework::Finalize() {
 
 void Framework::Update() {
 	// ウィンドウのメッセージを処理して終了リクエストを設定
-	if (window->ProcessMessage()) {
+	if (window_->ProcessMessage()) {
 		RequestEnd();
 		return;
 	}
@@ -68,7 +68,7 @@ void Framework::Update() {
 	// 入力の更新
 	Input::GetInstance()->Update();
 	// フレーム開始処理
-	dxBase->BeginFrame();
+	dxBase_->BeginFrame();
 
 	// SceneManagerの更新
 	SceneManager::GetInstance()->Update();

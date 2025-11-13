@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -90,19 +90,19 @@ public:
 	/// 位置を取得します。
 	/// </summary>
 	/// <returns>現在位置（Float3）</returns>
-	Float3& GetTranslate() { return object_->transform_.translate; }
+	Float3& GetTranslate() { return object_->transform_.translate_; }
 
 	/// <summary>
 	/// 回転を取得します。
 	/// </summary>
 	/// <returns>回転（Euler）</returns>
-	Float3& GetRotate() { return object_->transform_.rotate; }
+	Float3& GetRotate() { return object_->transform_.rotate_; }
 
 	/// <summary>
 	/// スケールを取得します。
 	/// </summary>
 	/// <returns>スケール（Float3）</returns>
-	Float3& GetScale() { return object_->transform_.scale; }
+	Float3& GetScale() { return object_->transform_.scale_; }
 
 	// =========================================================
 	// Member Variables

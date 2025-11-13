@@ -1,11 +1,11 @@
-﻿#include "Sprite.h"
+#include "Sprite.h"
 #include "DirectXUtil.h"
 #include "SpriteCommon.h"
 #include "TextureManager.h"
 
 void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 	// 引数で受け取ってメンバ変数に記録する
-	this->spriteCommon = spriteCommon;
+	this->spriteCommon_ = spriteCommon;
 	// テクスチャを保存
 	textureIndex_ = textureIndex;
 
@@ -62,11 +62,11 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 
 void Sprite::Update() {
 	// 座標を反映
-	transform_.translate = {position_.x, position_.y, 0.0f};
+	transform_.translate_ = {position_.x, position_.y, 0.0f};
 	// 回転を反映
-	transform_.rotate = {0.0f, 0.0f, rotation};
+	transform_.rotate_ = {0.0f, 0.0f, rotation};
 	// サイズを反映
-	transform_.scale = {size_.x, size_.y, 1.0f};
+	transform_.scale_ = {size_.x, size_.y, 1.0f};
 	// アンカーポイント
 	float left = 0.0f - anchorPoint.x;
 	float right = 1.0f - anchorPoint.x;
@@ -128,17 +128,17 @@ void Sprite::Update() {
 
 void Sprite::Draw() {
 	// VertexBufferViewを設定
-	spriteCommon->GetDxBase()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	spriteCommon_->GetDxBase()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
 	// IBVを設定
-	spriteCommon->GetDxBase()->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
+	spriteCommon_->GetDxBase()->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
 	// マテリアルCBufferの場所を設定
-	spriteCommon->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	spriteCommon_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	// TransformatinMatrixCBufferの場所を設定
-	spriteCommon->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	spriteCommon_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 	// SRVのDescriptorTableの先頭を設定
-	TextureManager::SetDescriptorTable(2, spriteCommon->GetDxBase()->GetCommandList(), textureIndex_);
+	TextureManager::SetDescriptorTable(2, spriteCommon_->GetDxBase()->GetCommandList(), textureIndex_);
 	// 描画（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画
-	spriteCommon->GetDxBase()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	spriteCommon_->GetDxBase()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
 void Sprite::AdjustTextureSize() {

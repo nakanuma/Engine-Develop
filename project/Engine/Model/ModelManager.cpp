@@ -1,4 +1,4 @@
-﻿#include "ModelManager.h"
+#include "ModelManager.h"
 #include <DirectXBase.h>
 #include <DirectXUtil.h>
 #include <fstream>
@@ -450,9 +450,9 @@ ModelManager::Node ModelManager::ReadNode(aiNode* node) {
 	aiVector3D scale, translate;
 	aiQuaternion rotate;
 	node->mTransformation.Decompose(scale, rotate, translate);             // assimpの行列からSRTを抽出する関数を利用
-	result.transform.scale = {scale.x, scale.y, scale.z};                  // Scaleはそのまま
-	result.transform.rotate = {rotate.x, -rotate.y, -rotate.z, rotate.w};  // x軸を反転、さらに回転方向が逆なので軸を反転させる
-	result.transform.translate = {-translate.x, translate.y, translate.z}; // x軸を反転
+	result.transform.scale_ = {scale.x, scale.y, scale.z};                  // Scaleはそのまま
+	result.transform.rotate_ = {rotate.x, -rotate.y, -rotate.z, rotate.w};  // x軸を反転、さらに回転方向が逆なので軸を反転させる
+	result.transform.translate_ = {-translate.x, translate.y, translate.z}; // x軸を反転
 	result.localMatrix = result.transform.MakeAffineMatrix();
 
 	result.name = node->mName.C_Str();          // Node名を格納

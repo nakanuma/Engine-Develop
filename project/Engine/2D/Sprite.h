@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -200,7 +200,7 @@ private:
 	// =========================================================
 
 	// ----- System -----
-	SpriteCommon* spriteCommon = nullptr;										/* スプライト共通処理クラス */
+	SpriteCommon* spriteCommon_ = nullptr;										/* スプライト共通処理クラス */
 
 	// ----- Resources -----
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;						/* 頂点バッファ */

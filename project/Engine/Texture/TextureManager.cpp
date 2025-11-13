@@ -1,9 +1,9 @@
-﻿#include "TextureManager.h"
+#include "TextureManager.h"
 #include <cassert>
 
 void TextureManager::Initialize(ID3D12Device* device, SRVManager* srvManager) {
 	/*GetInstance().srvHeap_.Create(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);*/
-	GetInstance().srvManager = srvManager;
+	GetInstance().srvManager_ = srvManager;
 }
 
 int TextureManager::Load(const std::string& filePath) {
@@ -17,23 +17,23 @@ int TextureManager::Load(const std::string& filePath) {
 
 	// 読み込み済みテクスチャを検索
 	auto& instance = GetInstance();
-	if (instance.textureDatas.contains(fullPath)) {
+	if (instance.textureDatas_.contains(fullPath)) {
 		// テクスチャが既に読み込まれている場合、その srvIndex を返す
-		return instance.textureDatas[fullPath].srvIndex;
+		return instance.textureDatas_[fullPath].srvIndex;
 	}
 
 	// テクスチャ枚数上限チェック
-	assert(instance.srvManager->Allocate());
+	assert(instance.srvManager_->Allocate());
 
 	// Textureを読んで転送する
 	DirectX::ScratchImage mipImages = GetInstance().LoadTexture(fullPath);
 	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
 
 	// メタデータの配列に保存
-	GetInstance().texMetadata[GetInstance().srvManager->GetIndex()] = mipImages.GetMetadata();
+	GetInstance().texMetadata_[GetInstance().srvManager_->GetIndex()] = mipImages.GetMetadata();
 
 	// リソースの配列に保存
-	Microsoft::WRL::ComPtr<ID3D12Resource>& targetResource = GetInstance().texResources[GetInstance().srvManager->GetIndex()];
+	Microsoft::WRL::ComPtr<ID3D12Resource>& targetResource = GetInstance().texResources_[GetInstance().srvManager_->GetIndex()];
 	targetResource = TextureManager::CreateTextureResource(device, metadata);
 
 	TextureManager::GetInstance().UploadTextureData(targetResource.Get(), mipImages);
@@ -56,17 +56,17 @@ int TextureManager::Load(const std::string& filePath) {
 	}
 
 	// テクスチャデータを追加して書き込む
-	TextureData& textureData = GetInstance().textureDatas[fullPath];
+	TextureData& textureData = GetInstance().textureDatas_[fullPath];
 	textureData.metadata = mipImages.GetMetadata();
 	textureData.resource = targetResource;
-	textureData.srvIndex = GetInstance().srvManager->GetIndex();
-	textureData.srvHandleCPU = GetInstance().srvManager->GetCPUDescriptorHandle(textureData.srvIndex);
-	textureData.srvHandleGPU = GetInstance().srvManager->GetGPUDescriptorHandle(textureData.srvIndex);
+	textureData.srvIndex = GetInstance().srvManager_->GetIndex();
+	textureData.srvHandleCPU = GetInstance().srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
+	textureData.srvHandleGPU = GetInstance().srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
 
 	// SRVの生成
-	device->CreateShaderResourceView(targetResource.Get(), &srvDesc, GetInstance().srvManager->GetCPUDescriptorHandle(GetInstance().srvManager->GetIndex()));
+	device->CreateShaderResourceView(targetResource.Get(), &srvDesc, GetInstance().srvManager_->GetCPUDescriptorHandle(GetInstance().srvManager_->GetIndex()));
 	// 実際に返すのはインクリメントする前の値なので1引いて返す
-	return GetInstance().srvManager->Allocate();
+	return GetInstance().srvManager_->Allocate();
 }
 
 TextureManager& TextureManager::GetInstance() {
@@ -76,14 +76,14 @@ TextureManager& TextureManager::GetInstance() {
 }
 
 void TextureManager::SetDescriptorTable(UINT rootParamIndex, ID3D12GraphicsCommandList* commandList, uint32_t textureHandle) {
-	commandList->SetGraphicsRootDescriptorTable(rootParamIndex, GetInstance().srvManager->descriptorHeap.GetGPUHandle(textureHandle));
+	commandList->SetGraphicsRootDescriptorTable(rootParamIndex, GetInstance().srvManager_->descriptorHeap_.GetGPUHandle(textureHandle));
 }
 
-const DirectX::TexMetadata& TextureManager::GetMetaData(uint32_t textureHandle) { return GetInstance().texMetadata[textureHandle]; }
+const DirectX::TexMetadata& TextureManager::GetMetaData(uint32_t textureHandle) { return GetInstance().texMetadata_[textureHandle]; }
 
 int TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, Float4 clearColor) {
 	// テクスチャ読み込みの最大値に達した場合、ログを出力
-	if (SRVManager::GetInstance()->GetIndex() >= kMaxTextureValue_) {
+	if (SRVManager::GetInstance()->GetIndex() >= kMaxTextureValue) {
 		Log(std::format("Maximum texture loading has been reached.\n"));
 		assert(0);
 	}
@@ -96,9 +96,9 @@ int TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, Float4 c
 	metadata.arraySize = 1;
 	metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
 	// メタデータの配列に保存
-	GetInstance().texMetadata[SRVManager::GetInstance()->GetIndex()] = metadata;
+	GetInstance().texMetadata_[SRVManager::GetInstance()->GetIndex()] = metadata;
 	// リソースの配列に保存
-	Microsoft::WRL::ComPtr<ID3D12Resource>& targetResource = GetInstance().texResources[SRVManager::GetInstance()->GetIndex()];
+	Microsoft::WRL::ComPtr<ID3D12Resource>& targetResource = GetInstance().texResources_[SRVManager::GetInstance()->GetIndex()];
 	targetResource = TextureManager::CreateTextureResource(DirectXBase::GetInstance()->GetDevice(), metadata, true, clearColor);
 	// metaDataを基にSRVの設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -108,13 +108,13 @@ int TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, Float4 c
 	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
 	// SRVの生成
-	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(targetResource.Get(), &srvDesc, SRVManager::GetInstance()->descriptorHeap.GetCPUHandle(SRVManager::GetInstance()->GetIndex()));
+	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(targetResource.Get(), &srvDesc, SRVManager::GetInstance()->descriptorHeap_.GetCPUHandle(SRVManager::GetInstance()->GetIndex()));
 
 	// 実際に返すのはインクリメントする前の値なので1引いて返す
 	return SRVManager::GetInstance()->Allocate();
 }
 
-ID3D12Resource* TextureManager::GetResource(int textureHandle) { return GetInstance().texResources[textureHandle].Get(); }
+ID3D12Resource* TextureManager::GetResource(int textureHandle) { return GetInstance().texResources_[textureHandle].Get(); }
 
 uint32_t TextureManager::CreateSRV(ID3D12Resource* targetResource, DXGI_FORMAT format) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
@@ -127,7 +127,7 @@ uint32_t TextureManager::CreateSRV(ID3D12Resource* targetResource, DXGI_FORMAT f
 	srvDesc.Texture2D.MipLevels = 1;
 
 	// SRVの生成
-	dxBase->GetDevice()->CreateShaderResourceView(targetResource, &srvDesc, SRVManager::GetInstance()->descriptorHeap.GetCPUHandle(SRVManager::GetInstance()->GetIndex()));
+	dxBase->GetDevice()->CreateShaderResourceView(targetResource, &srvDesc, SRVManager::GetInstance()->descriptorHeap_.GetCPUHandle(SRVManager::GetInstance()->GetIndex()));
 
 	// 実際に返すのはインクリメントする前の値なので1引いて返す
 	return SRVManager::GetInstance()->Allocate();
