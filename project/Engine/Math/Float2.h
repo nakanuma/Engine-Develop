@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // =========================================================
 // 2次元ベクトル
@@ -9,6 +9,7 @@ struct Float2 {
 
 	Float2 operator+(const Float2& other) const;
 	Float2 operator-(const Float2& other) const;
+	Float2 operator*(float scalar) const;
 
 	Float2& operator+=(const Float2& other);
 
