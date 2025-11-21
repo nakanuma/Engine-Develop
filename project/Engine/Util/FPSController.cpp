@@ -1,4 +1,4 @@
-﻿#include "FPSController.h"
+#include "FPSController.h"
 
 // C++
 #include <thread>
@@ -15,9 +15,9 @@ void FPSController::InitializeFixFPS() {
 
 void FPSController::UpdateFixFPS() {
 	// 1/60秒ぴったりの時間
-	const std::chrono::microseconds kMinTime(uint64_t(1000000.0f / 60.0f));
+	const std::chrono::microseconds kMinTime(uint64_t(kMicrosecondsInSecond / kTargetFPS));
 	// 1/60秒よりわずかに短い時間
-	const std::chrono::microseconds kMinCheckTime(uint64_t(1000000.0f / 65.0f));
+	const std::chrono::microseconds kMinCheckTime(uint64_t(kMicrosecondsInSecond / kCheckFPS));
 
 	// 現在時間を取得する
 	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
@@ -29,7 +29,7 @@ void FPSController::UpdateFixFPS() {
 		// 1/60秒経過するまで微小なスリープを繰り返す
 		while (std::chrono::steady_clock::now() - reference_ < kMinTime) {
 			// 1マイクロ秒スリープ
-			std::this_thread::sleep_for(std::chrono::microseconds(1));
+			std::this_thread::sleep_for(std::chrono::microseconds(kSleepDurationMicroseconds));
 		}
 	}
 	// 現在の時間を記録する

@@ -17,7 +17,7 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 
 	// フォントの変更
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("resources/Fonts/FiraMono-Regular.ttf", 16.0f);
+	io.Fonts->AddFontFromFileTTF(kFontFilePath, kFontSize);
 
 	// ドッキング機能有効
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -36,11 +36,11 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 
 	// ウィンドウのスタイル調整
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowBorderSize = 0.0f;
-	style.FrameBorderSize = 1.0f;
+	style.WindowBorderSize = kWindowBorderSize;
+	style.FrameBorderSize = kFrameBorderSize;
 
 	// JSONからスタイル設定を読み込み
-	ImGuiUtil::LoadImGuiStyleFromJson("resources/Configs/ImGui/imguiConfig.json");
+	ImGuiUtil::LoadImGuiStyleFromJson(kImGuiConfigPath);
 
 #endif
 }
@@ -84,10 +84,10 @@ void ImguiWrapper::ShowMainDockSpace() {
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
 	// ウィンドウスタイルを調整
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::GetStyle().DisplaySafeAreaPadding = ImVec2(0, 0);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, kDockWindowPadding);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, kDockWindowRounding);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, kDockWindowBorderSize);
+	ImGui::GetStyle().DisplaySafeAreaPadding = kDisplaySafeAreaPadding;
 
 	// ウィンドウ位置・サイズをビューポートに合わせる
 	ImGui::SetNextWindowPos(viewport->Pos);
@@ -103,7 +103,7 @@ void ImguiWrapper::ShowMainDockSpace() {
 
 	// ドックスペース作成
 	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::DockSpace(dockspace_id, kDockSpaceSize, ImGuiDockNodeFlags_PassthruCentralNode);
 
 	ImGui::End();
 #endif
@@ -133,7 +133,7 @@ void ImGuiUtil::ImageWindow(std::string windowName, int32_t textureHandle) {
 	}
 
 	// 画像を中央に持ってくる
-	ImVec2 topLeft = {(wndSize.x - finalImageSize.x) * 0.5f + cntRegionMin.x, (wndSize.y - finalImageSize.y) * 0.5f + cntRegionMin.y};
+	ImVec2 topLeft = {(wndSize.x - finalImageSize.x) * kImageCenterScale + cntRegionMin.x, (wndSize.y - finalImageSize.y) * kImageCenterScale + cntRegionMin.y};
 	ImGui::SetCursorPos(topLeft);
 
 	ImGui::Image((SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(textureHandle).ptr), finalImageSize);
@@ -166,7 +166,7 @@ void ImGuiUtil::DepthWindow(std::string windowName, int32_t textureHandle) {
 	}
 
 	// 画像を中央に持ってくる
-	ImVec2 topLeft = {(wndSize.x - finalImageSize.x) * 0.5f + cntRegionMin.x, (wndSize.y - finalImageSize.y) * 0.5f + cntRegionMin.y};
+	ImVec2 topLeft = {(wndSize.x - finalImageSize.x) * kImageCenterScale + cntRegionMin.x, (wndSize.y - finalImageSize.y) * kImageCenterScale + cntRegionMin.y};
 	ImGui::SetCursorPos(topLeft);
 
 	ImGui::Image((SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(textureHandle).ptr), finalImageSize);

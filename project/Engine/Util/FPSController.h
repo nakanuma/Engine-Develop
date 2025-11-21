@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -32,8 +32,15 @@ public:
 
 private:
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kTargetFPS = 60.0f;					/* 目標FPS */
+	static constexpr float kMicrosecondsInSecond = 1000000.0f;	/* 1秒を1マイクロ秒で表した値 */
+	static constexpr float kCheckFPS = 65.0f;					/* チェック用のFPS（kTargetFPSよりわずかに速い時間） */
+	static constexpr uint32_t kSleepDurationMicroseconds = 1;	/* スリープ時間（マイクロ秒） */
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
-
 	std::chrono::steady_clock::time_point reference_;		/* 基準時間 */
 };

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -74,7 +74,7 @@ public:
 	/// ポストエフェクトを適用します。
 	/// </summary>
 	void ApplyEffect();
-	
+
 	/// <summary>
 	/// レンダーテクスチャのハンドルを取得します。
 	/// </summary>
@@ -112,7 +112,7 @@ public:
 	/// ブルームエフェクトを適用します。
 	/// </summary>
 	void ApplyBloom();
-	
+
 	/// <summary>
 	/// ブルーム効果を描画します。
 	/// </summary>
@@ -134,6 +134,59 @@ public:
 	uint32_t bloomBlurGH_ = 0;										/* ブルームブラー用ガウシアンハンドル */
 
 private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr size_t kVertexCount = 4;	/* 頂点バッファの要素数 */
+	static constexpr size_t kIndexCount = 6;	/* インデックスバッファの要素数 */
+
+	static constexpr uint32_t kDrawIndexedCount = 6;	/* 描画するインデックス数 */
+	static constexpr uint32_t kInstancedCount = 1;		/* 描画するプリミティブのインスタンス数 */
+
+	/* 頂点座標 */
+	static constexpr float kNDCMin = -1.0f;
+	static constexpr float kNDCMax = 1.0f;
+	static constexpr float kNDCZ = 0.0f;
+	static constexpr float kNDCW = 1.0f;
+	/* 法線ベクトル */
+	static constexpr float kNormalX = 0.0f;
+	static constexpr float kNormalY = 0.0f;
+	static constexpr float kNormalZ = -1.0f;
+	/* UV座標 */
+	static constexpr float kUVMin = 0.0f;
+	static constexpr float kUVMax = 1.0f;
+	/* インデックス */
+	static constexpr uint32_t kIndex0 = 0;
+	static constexpr uint32_t kIndex1 = 1;
+	static constexpr uint32_t kIndex2 = 2;
+	static constexpr uint32_t kIndex3 = 3;
+
+	static constexpr Float4 kDefaultMaterialColor = { 1.0f, 1.0f, 1.0f, 1.0f };	/* マテリアルのデフォルトカラー（白） */
+	static constexpr Float4 kOutlineMaterialColor = { 0.0f, 0.0f, 0.0f, 1.0f };	/* アウトラインのマテリアルカラー（黒） */
+
+	static constexpr Float4 kOutlineClearColor = { 0.0f, 0.0f, 0.0f, 0.0f };	/* アウトラインのクリアカラー */
+	static constexpr Float4 kBloomClearColor = { 0.0f, 0.0f, 0.0f, 0.0f };		/* ブルームのクリアカラー */
+
+	/* WaveDistortionの初期値 */
+	static constexpr float kWaveTimeInitial = 0.0f;
+	static constexpr float kWaveAmplitudeInitial = 0.02f;
+	static constexpr float kWaveFrequencyInitial = 10.0f;
+	static constexpr float kWaveSpeedInitial = 1.5f;
+
+	/* GlitchEffectの初期値 */
+	static constexpr float kGlitchTimeInitial = 0.0f;
+	static constexpr float kGlitchIntensityInitial = 1.0f;
+	static constexpr float kGlitchSpeedInitial = 0.5f;
+
+	static constexpr uint32_t kRootParameterIndexMaterial = 0;	/* マテリアル用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTransform = 1;	/* 変換行列用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTexture = 2;	/* テクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexWave = 9;		/* WaveDistortionCBV用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexGlitch = 10;	/* GlitchEffectCBV用ルートパラメーターインデックス */
+
+	// =========================================================
+	// Member Variables
+	// =========================================================
 	PostEffectType effectType_ = PostEffectType::RadialBlur;		/* エフェクトタイプ */
 
 	uint32_t renderTextureHandle_ = 0;								/* レンダーテクスチャハンドル */

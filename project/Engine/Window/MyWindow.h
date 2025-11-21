@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -64,6 +64,11 @@ public:
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr UINT kTimeBeginPeriodValue = 1;	/* timeBeginPeriodに渡すシステムタイマーの分解能 */
+
 	// =========================================================
 	// Member Variables
 	// =========================================================

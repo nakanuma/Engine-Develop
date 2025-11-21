@@ -1,4 +1,4 @@
-﻿#include "RandomGenerator.h"
+#include "RandomGenerator.h"
 
 RandomGenerator* RandomGenerator::GetInstance() {
 	static RandomGenerator instance;
@@ -31,7 +31,7 @@ Float3 RandomGenerator::RandomValue(const Float3& min, const Float3& max) {
 }
 
 bool RandomGenerator::RandomValueBool(float trueProbability) { 
-	return RandomValue(0.0f, 1.0f) < trueProbability; 
+	return RandomValue(kRandomValueMin, kRandomValueMax) < trueProbability;
 }
 
 RandomGenerator::RandomGenerator() : rng_(std::random_device{}()) {}

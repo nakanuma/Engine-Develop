@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -65,6 +65,12 @@ private:
 	/// コンストラクタ
 	/// </summary>
 	RandomGenerator();
+
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kRandomValueMin = 0.0f;	/* RandomValueBoolの比較に使用される最小乱数値 */
+	static constexpr float kRandomValueMax = 1.0f;	/* RandomValueBoolの比較に使用される最大乱数値 */
 
 	// =========================================================
 	// Member Variables

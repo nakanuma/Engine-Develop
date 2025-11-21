@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Externals Includes
@@ -68,6 +68,25 @@ private:
 	/// メインのドックスペースを表示します。
 	/// </summary>
 	static void ShowMainDockSpace();
+
+private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr const char* kFontFilePath = "resources/Fonts/FiraMono-Regular.ttf";	/* 読み込むフォントのファイルパス */
+	static constexpr float kFontSize = 16.0f;												/* 読み込むフォントのサイズ */
+
+	static constexpr float kWindowBorderSize = 0.0f;	/* ImGuiのデフォルトのウィンドウボーダーサイズ */
+	static constexpr float kFrameBorderSize = 1.0f;		/* ImGuiのデフォルトのフレームボーダーサイズ */
+
+	static constexpr ImVec2 kDockWindowPadding = ImVec2(0, 0);		/* ドックスペースホストウィンドウのパディング */
+	static constexpr float kDockWindowRounding = 0.0f;				/* ドックスペースホストウィンドウの角の丸み */
+	static constexpr float kDockWindowBorderSize = 0.0f;			/* ドックスペースホストウィンドウのボーダーサイズ */
+	static constexpr ImVec2 kDisplaySafeAreaPadding = ImVec2(0, 0);	/* ディスプレイセーフエリアのパディング */
+
+	static constexpr ImVec2 kDockSpaceSize = ImVec2(0.0f, 0.0f);	/* ドックスペースの初期サイズ */
+
+	static constexpr const char* kImGuiConfigPath = "resources/Configs/ImGui/imguiConfig.json"; /* JSON設定ファイルのパス */
 };
 
 // =========================================================
@@ -104,4 +123,10 @@ public:
 	/// </summary>
 	/// <param name="filepath">ファイルパス</param>
 	static void LoadImGuiStyleFromJson(const std::string& filepath);
+
+private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kImageCenterScale = 0.5f;	/* 画像の中央揃えに使用するスケール値 */
 };

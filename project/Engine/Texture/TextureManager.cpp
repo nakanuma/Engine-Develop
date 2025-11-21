@@ -8,12 +8,12 @@ void TextureManager::Initialize(ID3D12Device* device, SRVManager* srvManager) {
 
 int TextureManager::Load(const std::string& filePath) {
 	// directoryPath
-	const std::string kDirectoryPath = "resources/Images";
+	std::string directoryPath = kDirectoryPath;
 	// device
 	auto* device = DirectXBase::GetInstance()->GetDevice();
 
 	// fullPath
-	std::string fullPath = kDirectoryPath + "/" + filePath;
+	std::string fullPath = directoryPath + "/" + filePath;
 
 	// 読み込み済みテクスチャを検索
 	auto& instance = GetInstance();

@@ -1,4 +1,4 @@
-﻿#include "PostEffectManager.h"
+#include "PostEffectManager.h"
 
 // Engine
 #include <ParticleEffect/ParticleEffectManager.h>
@@ -7,7 +7,7 @@
 
 void PostEffectManager::Initialize() {
 	// 既に初期化済みならスキップ
-	if(initialized_) return;
+	if (initialized_) return;
 	initialized_ = true;
 
 	DirectXBase* dxBase = DirectXBase::GetInstance();
@@ -16,48 +16,48 @@ void PostEffectManager::Initialize() {
 	renderTextureHandle_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
 
 	// 頂点バッファ
-	vertexBuffer_ = CreateBufferResource(dxBase->GetDevice(), sizeof(Sprite::VertexData) * 4);
+	vertexBuffer_ = CreateBufferResource(dxBase->GetDevice(), sizeof(Sprite::VertexData) * kVertexCount);
 	vbView_.BufferLocation = vertexBuffer_->GetGPUVirtualAddress();
-	vbView_.SizeInBytes = sizeof(Sprite::VertexData) * 4;
+	vbView_.SizeInBytes = sizeof(Sprite::VertexData) * kVertexCount;
 	vbView_.StrideInBytes = sizeof(Sprite::VertexData);
 
 	Sprite::VertexData* vbData = nullptr;
 	vertexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
 	vbData[0] = {
-	    {-1, -1, 0, 1},
-        {0, 1},
-        {0, 0, -1}
-    };
+		{kNDCMin, kNDCMin, kNDCZ, kNDCW},
+		{kUVMin, kUVMax},
+		{kNormalX, kNormalY, kNormalZ}
+	};
 	vbData[1] = {
-	    {-1, 1, 0, 1},
-        {0, 0},
-        {0, 0, -1}
-    };
+		{kNDCMin, kNDCMax, kNDCZ, kNDCW},
+		{kUVMin, kUVMin},
+		{kNormalX, kNormalY, kNormalZ}
+	};
 	vbData[2] = {
-	    {1, -1, 0, 1},
-        {1, 1},
-        {0, 0, -1}
-    };
+		{kNDCMax, kNDCMin, kNDCZ, kNDCW},
+		{kUVMax, kUVMax},
+		{kNormalX, kNormalY, kNormalZ}
+	};
 	vbData[3] = {
-	    {1, 1, 0, 1},
-        {1, 0},
-        {0, 0, -1}
-    };
+		{kNDCMax, kNDCMax, kNDCZ, kNDCW},
+		{kUVMax, kUVMin},
+		{kNormalX, kNormalY, kNormalZ}
+	};
 
 	// インデックスバッファ
-	indexBuffer_ = CreateBufferResource(dxBase->GetDevice(), sizeof(uint32_t) * 6);
+	indexBuffer_ = CreateBufferResource(dxBase->GetDevice(), sizeof(uint32_t) * kIndexCount);
 	ibView_.BufferLocation = indexBuffer_->GetGPUVirtualAddress();
-	ibView_.SizeInBytes = sizeof(uint32_t) * 6;
+	ibView_.SizeInBytes = sizeof(uint32_t) * kIndexCount;
 	ibView_.Format = DXGI_FORMAT_R32_UINT;
 
 	uint32_t* ibData = nullptr;
 	indexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&ibData));
-	ibData[0] = 0;
-	ibData[1] = 1;
-	ibData[2] = 2;
-	ibData[3] = 1;
-	ibData[4] = 3;
-	ibData[5] = 2;
+	ibData[0] = kIndex0;
+	ibData[1] = kIndex1;
+	ibData[2] = kIndex2;
+	ibData[3] = kIndex1;
+	ibData[4] = kIndex3;
+	ibData[5] = kIndex2;
 
 	// Transformation CB
 	transformCB_ = CreateBufferResource(dxBase->GetDevice(), sizeof(Object3D::TransformationMatrix));
@@ -67,42 +67,42 @@ void PostEffectManager::Initialize() {
 	// Material CB
 	materialCB_ = CreateBufferResource(dxBase->GetDevice(), sizeof(Object3D::Material));
 	materialCB_->Map(0, nullptr, reinterpret_cast<void**>(&materialMap_));
-	materialMap_->color = {1.0f, 1.0f, 1.0f, 1.0f};
+	materialMap_->color = kDefaultMaterialColor;
 	materialMap_->enableLighting = false;
 	materialMap_->uvTransform = Matrix::Identity();
 
 	/*アウトライン*/
 
 	// レンダーテクスチャ
-	outlineRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
-	outlineGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
+	outlineRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kOutlineClearColor);
+	outlineGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kOutlineClearColor);
 
 	// Outline Material
-	outlineMaterial_.data_->color = {0.0f, 0.0f, 0.0f, 1.0f};
+	outlineMaterial_.data_->color = kOutlineMaterialColor;
 	outlineMaterial_.data_->enableLighting = false;
 	outlineMaterial_.data_->uvTransform = Matrix::Identity();
 
 	/*Bloom*/
-	bloomExtractGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
-	bloomBlurGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 0.0f});
+	bloomExtractGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kBloomClearColor);
+	bloomBlurGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kBloomClearColor);
 
 	/*WaveDistortion*/
-	waveCB_.data_->gTime = 0.0f;
-	waveCB_.data_->amplitude = 0.02f;
-	waveCB_.data_->frequency = 10.0f;
-	waveCB_.data_->speed = 1.5f;
+	waveCB_.data_->gTime = kWaveTimeInitial;
+	waveCB_.data_->amplitude = kWaveAmplitudeInitial;
+	waveCB_.data_->frequency = kWaveFrequencyInitial;
+	waveCB_.data_->speed = kWaveSpeedInitial;
 
 	/*GlitchEffect*/
-	glitchCB_.data_->gTime = 0.0f;
-	glitchCB_.data_->intensity = 1.0f;
-	glitchCB_.data_->speed = 0.5f;
+	glitchCB_.data_->gTime = kGlitchTimeInitial;
+	glitchCB_.data_->intensity = kGlitchIntensityInitial;
+	glitchCB_.data_->speed = kGlitchSpeedInitial;
 }
 
 void PostEffectManager::TransfarConstantBuffer() {
 	/*WaveDistrotion*/
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(9, waveCB_.resource_->GetGPUVirtualAddress());
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexWave, waveCB_.resource_->GetGPUVirtualAddress());
 	/*GlitchEffect*/
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(10, glitchCB_.resource_->GetGPUVirtualAddress());
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexGlitch, glitchCB_.resource_->GetGPUVirtualAddress());
 }
 
 void PostEffectManager::BeginRenderToTexture() {
@@ -191,17 +191,17 @@ void PostEffectManager::ApplyEffect() {
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
 
-	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(2, cmd, renderTextureHandle_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, renderTextureHandle_);
 
-	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 }
 
 void PostEffectManager::BeginRenderToOutlineTexture() {
 	// レンダーターゲットをアウトライン用テクスチャに設定
 	RTVManager::SetRenderTarget(outlineRT_);
 	// レンダーターゲットをクリア
-	RTVManager::ClearRTV(outlineRT_, {0.0f, 0.0f, 0.0f, 0.0f});
+	RTVManager::ClearRTV(outlineRT_, kOutlineClearColor);
 }
 
 void PostEffectManager::ApplyOutline() {
@@ -212,16 +212,16 @@ void PostEffectManager::ApplyOutline() {
 	// レンダーターゲットをアウトライン用テクスチャに設定
 	RTVManager::SetRenderTarget(outlineGH_);
 	// レンダーターゲットをクリア
-	RTVManager::ClearRTV(outlineGH_, {0.0f, 0.0f, 0.0f, 0.0f});
+	RTVManager::ClearRTV(outlineGH_, kOutlineClearColor);
 
 	cmd->SetPipelineState(dxBase->GetPipelineStateSobelFilter()); // SobelFilterのPSOを設定
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(0, outlineMaterial_.resource_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(2, cmd, RTVManager::GetDepthSRVHandle(outlineRT_));
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, outlineMaterial_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, RTVManager::GetDepthSRVHandle(outlineRT_));
 
-	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 #pragma endregion
 }
 
@@ -236,22 +236,22 @@ void PostEffectManager::DrawOutline() {
 	cmd->SetPipelineState(dxBase->GetPipelineState());
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(0, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(2, cmd, renderTextureHandle_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, renderTextureHandle_);
 
-	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 #pragma endregion
 
 #pragma region outlineをバックバッファにそのまま描画
 	cmd->SetPipelineState(dxBase->GetPipelineState()); // 通常PSOに戻す
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(0, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(2, cmd, outlineGH_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, outlineGH_);
 
-	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 #pragma endregion
 }
 
@@ -263,16 +263,16 @@ void PostEffectManager::ApplyBloom() {
 	// レンダーターゲットをブルーム抽出用のテクスチャに設定
 	RTVManager::SetRenderTarget(bloomExtractGH_);
 	// レンダーターゲットをクリア
-	RTVManager::ClearRTV(bloomExtractGH_, {0.0f, 0.0f, 0.0f, 0.0f});
+	RTVManager::ClearRTV(bloomExtractGH_, kBloomClearColor);
 
 	cmd->SetPipelineState(dxBase->GetPipelineStateBloomExtract()); // ブルーム抽出用PSOを設定
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(0, outlineMaterial_.resource_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(2, cmd, renderTextureHandle_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, outlineMaterial_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, renderTextureHandle_);
 
-	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 #pragma endregion
 
 	ParticleEffectManager::GetInstance()->Draw();
@@ -281,16 +281,16 @@ void PostEffectManager::ApplyBloom() {
 	// レンダーターゲットをブルームブラーテクスチャに設定
 	RTVManager::SetRenderTarget(bloomBlurGH_);
 	// レンダーターゲットをクリア
-	RTVManager::ClearRTV(bloomBlurGH_, {0.0f, 0.0f, 0.0f, 0.0f});
+	RTVManager::ClearRTV(bloomBlurGH_, kBloomClearColor);
 
 	cmd->SetPipelineState(dxBase->GetPipelineStateGaussianFilter());
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(0, outlineMaterial_.resource_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(2, cmd, bloomExtractGH_); // 明るさ抽出結果にブラーをかける
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, outlineMaterial_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, bloomExtractGH_); // 明るさ抽出結果にブラーをかける
 
-	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 #pragma endregion
 }
 
@@ -305,21 +305,21 @@ void PostEffectManager::DrawBloom() {
 	cmd->SetPipelineState(dxBase->GetPipelineState()); // 通常PSOに戻す
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(0, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(2, cmd, renderTextureHandle_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, renderTextureHandle_);
 
-	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 #pragma endregion
 
 #pragma region ブラー画像をバックバッファに描画
 	cmd->SetPipelineState(dxBase->GetPipelineStateBlendModeAdd()); // 加算合成を行う
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(0, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(1, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(2, cmd, bloomBlurGH_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, bloomBlurGH_);
 
-	cmd->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 #pragma endregion
 }
