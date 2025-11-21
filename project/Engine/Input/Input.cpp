@@ -111,21 +111,21 @@ bool Input::ReleaseKey(BYTE keyNumber) {
 
 bool Input::IsPressMouse(int32_t mouseNumber) const {
 	// ボタン番号の範囲チェック
-	if (mouseNumber < 0 || mouseNumber > 3) {
+	if (mouseNumber < kMouseIndexMin || mouseNumber > kMouseIndexMax) {
 		return false;
 	}
 
-	return (mouseState_.rgbButtons[mouseNumber] & 0x80) != 0;
+	return (mouseState_.rgbButtons[mouseNumber] & kMouseButtonPressMask) != 0;
 }
 
 bool Input::IsTriggerMouse(int32_t mouseNumber) const {
 	// ボタン番号の範囲チェック
-	if (mouseNumber < 0 || mouseNumber > 3) {
+	if (mouseNumber < kMouseIndexMin || mouseNumber > kMouseIndexMax) {
 		return false;
 	}
 
 	// 前フレームで押されていないかつ、現在押されている場合のみtrueを返す
-	return !(mouseStatePre_.rgbButtons[mouseNumber] & 0x80) && (mouseState_.rgbButtons[mouseNumber] & 0x80);
+	return !(mouseStatePre_.rgbButtons[mouseNumber] & kMouseButtonPressMask) && (mouseState_.rgbButtons[mouseNumber] & kMouseButtonPressMask);
 }
 
 POINT Input::GetMouseMove() const {

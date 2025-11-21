@@ -1,4 +1,4 @@
-﻿#include "CollisionMath.h"
+#include "CollisionMath.h"
 
 // C++
 #include <algorithm>
@@ -37,8 +37,8 @@ bool CollisionMath::CheckAABBToAABB(const AABBCollider* a, const AABBCollider* b
 
 bool CollisionMath::CheckAABBToOBB(const AABBCollider* aabb, const OBBCollider* obb) {
 	// AABBの中心と半サイズ
-	Float3 aabbCenter = (aabb->GetMin() + aabb->GetMax()) * 0.5f;
-	Float3 aabbHalfSize = (aabb->GetMax() - aabb->GetMin()) * 0.5f;
+	Float3 aabbCenter = (aabb->GetMin() + aabb->GetMax()) * kAABBCenterScale;
+	Float3 aabbHalfSize = (aabb->GetMax() - aabb->GetMin()) * kAABBCenterScale;
 
 	// AABBをOBBの形に変換
 	OBBCollider aabbAsOBB;
@@ -46,17 +46,17 @@ bool CollisionMath::CheckAABBToOBB(const AABBCollider* aabb, const OBBCollider* 
 	aabbAsOBB.SetSize(aabbHalfSize);
 
 	// ワールド軸に平行な軸をセット
-	aabbAsOBB.SetXAxis({ 1.0f, 0.0f, 0.0f });
-	aabbAsOBB.SetYAxis({ 0.0f, 1.0f, 0.0f });
-	aabbAsOBB.SetZAxis({ 0.0f, 0.0f, 1.0f });
+	aabbAsOBB.SetXAxis(kWorldAxisX);
+	aabbAsOBB.SetYAxis(kWorldAxisY);
+	aabbAsOBB.SetZAxis(kWorldAxisZ);
 
 	// OBBvsOBBを行う
 	return CheckOBBToOBB(&aabbAsOBB, obb);
 }
 
 bool CollisionMath::CheckOBBToOBB(const OBBCollider* a, const OBBCollider* b) {
-	// 軸候補（分離軸）15本
-	Float3 axis[15] = {
+	// 軸候補（分離軸）
+	Float3 axis[kSeparatingAxisCount] = {
 		// Aのローカル軸
 		a->GetXAxis(),
 		a->GetYAxis(),
@@ -79,7 +79,7 @@ bool CollisionMath::CheckOBBToOBB(const OBBCollider* a, const OBBCollider* b) {
 		Float3::Cross(a->GetZAxis(), b->GetZAxis()),
 	};
 
-	for (size_t i = 0; i < 15; ++i) {
+	for (size_t i = 0; i < kSeparatingAxisCount; ++i) {
 		if (IsSeparatedByAxis(axis[i], a, b)) {
 			return false;
 		}
@@ -108,7 +108,7 @@ bool CollisionMath::CheckOBBToSphere(const OBBCollider* obb, const SphereCollide
 
 bool CollisionMath::IsSeparatedByAxis(const Float3& axis, const OBBCollider* obbA, const OBBCollider* obbB) {
 	// 軸がゼロベクトルでないことを確認
-	if (Float3::LengthSq(axis) < 1e-6f) {
+	if (Float3::LengthSq(axis) < kAxisZeroEpsilon) {
 		return false; // 分離軸ではない
 	}
 
@@ -118,12 +118,12 @@ bool CollisionMath::IsSeparatedByAxis(const Float3& axis, const OBBCollider* obb
 	float centerDist = fabsf(Float3::Dot(normAxis, obbB->GetCenter() - obbA->GetCenter()));
 
 	// Aの半径投影
-	float rA = 
+	float rA =
 		fabsf(Float3::Dot(normAxis, obbA->GetXAxis()) * obbA->GetSize().x) +
 		fabsf(Float3::Dot(normAxis, obbA->GetYAxis()) * obbA->GetSize().y) +
 		fabsf(Float3::Dot(normAxis, obbA->GetZAxis()) * obbA->GetSize().z);
 	// Bの半径投影
-	float rB = 
+	float rB =
 		fabsf(Float3::Dot(normAxis, obbB->GetXAxis()) * obbB->GetSize().x) +
 		fabsf(Float3::Dot(normAxis, obbB->GetYAxis()) * obbB->GetSize().y) +
 		fabsf(Float3::Dot(normAxis, obbB->GetZAxis()) * obbB->GetSize().z);

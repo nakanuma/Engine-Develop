@@ -196,6 +196,55 @@ private:
 
 private:
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr uint32_t kVertexCount = 4;	/* 頂点数 */
+	static constexpr uint32_t kIndexCount = 6;	/* インデックス数 */
+
+	static constexpr Float4 kDefaultColor = { 1.0f, 1.0f, 1.0f, 1.0f }; /* デフォルトの色 */
+	static constexpr float kDefaultShininess = 0.0f;					/* デフォルトの光沢度 */
+	static constexpr float kDefaultRatio = 1.0f;						/* デフォルトのマスク割合 */
+
+	static constexpr Float3 kDefaultTranslation = { 0.0f, 0.0f, 0.0f };	/* デフォルトの位置 */
+	static constexpr Float3 kDefaultRotation = { 0.0f, 0.0f, 0.0f };	/* デフォルトの回転 */
+	static constexpr Float3 kDefaultScale = { 1.0f, 1.0f, 1.0f };		/* デフォルトのスケール */
+
+	static constexpr Float3 kSpriteNormal = { 0.0f, 0.0f, -1.0f };	/* 法線ベクトル */
+	static constexpr float kVertexPositionW = 1.0f;					/* 頂点座標のW成分 */
+
+	static constexpr float kNearClip = 0.0f;	/* ニアクリップ面 */
+	static constexpr float kFarClip = 1000.0f;	/* ファークリップ面 */
+
+	static constexpr float kAnchorLeft = 0.0f;		/* アンカーポイント左端 */
+	static constexpr float kAnchorRight = 1.0f;		/* アンカーポイント右端 */
+	static constexpr float kAnchorTop = 0.0f;		/* アンカーポイント上端 */
+	static constexpr float kAnchorBottom = 1.0f;	/* アンカーポイント下端 */
+
+	static constexpr uint32_t kVertexIndexLeftBottom = 0;	/* 左下頂点インデックス */
+	static constexpr uint32_t kVertexIndexLeftTop = 1;		/* 左上頂点インデックス */
+	static constexpr uint32_t kVertexIndexRightBottom = 2;	/* 右下頂点インデックス */
+	static constexpr uint32_t kVertexIndexRightTop = 3;		/* 右上頂点インデックス */
+
+	static constexpr uint32_t kIndex0 = 0; /* インデックス0 */
+	static constexpr uint32_t kIndex1 = 1; /* インデックス1 */
+	static constexpr uint32_t kIndex2 = 2; /* インデックス2 */
+	static constexpr uint32_t kIndex3 = 3; /* インデックス3 */
+	static constexpr uint32_t kIndex4 = 4; /* インデックス4 */
+	static constexpr uint32_t kIndex5 = 5; /* インデックス5 */
+
+	static constexpr uint32_t kVertexBufferSlot = 0;	/* 頂点バッファスロット */
+	static constexpr uint32_t kVertexBufferCount = 1;	/* 頂点バッファ数 */
+
+	static constexpr uint32_t kMaterialRootParameterIndex = 0;		/* マテリアルのルートパラメーターインデックス */
+	static constexpr uint32_t kTransformRootParameterIndex = 1;		/* 変換行列のルートパラメーターインデックス */
+	static constexpr uint32_t kTextureRootParameterIndex = 2;		/* テクスチャのルートパラメーターインデックス */
+	static constexpr uint32_t kDrawIndexCount = 6;					/* 描画するインデックス数 */
+	static constexpr uint32_t kDrawInstanceCount = 1;				/* 描画するインスタンス数 */
+	static constexpr uint32_t kDrawStartIndexLocation = 0;			/* 描画開始インデックス位置 */
+	static constexpr uint32_t kDrawBaseVertexLocation = 0;			/* 描画ベース頂点位置 */
+	static constexpr uint32_t kDrawStartInstanceLocation = 0;		/* 描画開始インスタンス位置 */
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
 

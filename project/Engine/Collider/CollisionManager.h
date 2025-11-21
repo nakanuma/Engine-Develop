@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -93,6 +93,16 @@ public:
 	bool CheckSphereCollisionWithTag(const Float3& center, float radius, const std::unordered_set<std::string>& targetTags);
 
 private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr uint32_t kSphereSubdivision = 8;					/* Sphereデバッグ表示時の分割数 */
+	static constexpr size_t kCubeEdgesCount = 12;						/* AABB/OBBの辺の数 */
+	static constexpr Float4 kDebugDrawColor = {1.0f, 1.0f, 1.0f, 1.0f};	/* デバッグ描画の色（白） */
+
+	static constexpr float kRayCastZeroEpsilon = 0.0f;	/* レイの逆数を計算する際のゼロ判定値 */
+	static constexpr float kRayNearMin = 0.0f;			/* tNearが有効であるとみなす最小値 */
+
 	// =========================================================
 	// Member Variables
 	// =========================================================

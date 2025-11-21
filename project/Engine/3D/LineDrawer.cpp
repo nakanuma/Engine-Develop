@@ -1,4 +1,4 @@
-﻿#include "LineDrawer.h"
+#include "LineDrawer.h"
 
 // Engine
 #include <Camera.h>
@@ -26,7 +26,7 @@ void LineDrawer::Initialize() {
 
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = (sizeof(TransformationMatrix) + 0xff) & ~0xff; // 256バイトアライン
+	resDesc.Width = (sizeof(TransformationMatrix) + kConstBufferAlignment) & ~kConstBufferAlignment; // 256バイトアライン
 	resDesc.Height = 1;
 	resDesc.DepthOrArraySize = 1;
 	resDesc.MipLevels = 1;
@@ -40,12 +40,12 @@ void LineDrawer::Initialize() {
 }
 
 void LineDrawer::RegisterLine(const Float3& start, const Float3& end, const Float4& color) {
-	lineVertices_.push_back({start, color});
-	lineVertices_.push_back({end, color});
+	lineVertices_.push_back({ start, color });
+	lineVertices_.push_back({ end, color });
 }
 
 void LineDrawer::RegisterSector(
-    const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset) {
+	const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset) {
 	if (segments < 1)
 		return;
 
@@ -60,21 +60,21 @@ void LineDrawer::RegisterSector(
 		float a1 = startAngleRad + (endAngleRad - startAngleRad) * t1;
 
 		// 内側弧
-		Float3 i0 = {c.x + std::cosf(a0) * innerRadius, c.y, c.z + std::sinf(a0) * innerRadius};
-		Float3 i1 = {c.x + std::cosf(a1) * innerRadius, c.y, c.z + std::sinf(a1) * innerRadius};
+		Float3 i0 = { c.x + std::cosf(a0) * innerRadius, c.y, c.z + std::sinf(a0) * innerRadius };
+		Float3 i1 = { c.x + std::cosf(a1) * innerRadius, c.y, c.z + std::sinf(a1) * innerRadius };
 
 		// 外側弧
-		Float3 o0 = {c.x + std::cosf(a0) * outerRadius, c.y, c.z + std::sinf(a0) * outerRadius};
-		Float3 o1 = {c.x + std::cosf(a1) * outerRadius, c.y, c.z + std::sinf(a1) * outerRadius};
+		Float3 o0 = { c.x + std::cosf(a0) * outerRadius, c.y, c.z + std::sinf(a0) * outerRadius };
+		Float3 o1 = { c.x + std::cosf(a1) * outerRadius, c.y, c.z + std::sinf(a1) * outerRadius };
 
 		// Quadを三角形2枚で作成
-		triVertices_.push_back({i0, innerColor});
-		triVertices_.push_back({o0, outerColor});
-		triVertices_.push_back({o1, outerColor});
+		triVertices_.push_back({ i0, innerColor });
+		triVertices_.push_back({ o0, outerColor });
+		triVertices_.push_back({ o1, outerColor });
 
-		triVertices_.push_back({i0, innerColor});
-		triVertices_.push_back({o1, outerColor});
-		triVertices_.push_back({i1, innerColor});
+		triVertices_.push_back({ i0, innerColor });
+		triVertices_.push_back({ o1, outerColor });
+		triVertices_.push_back({ i1, innerColor });
 	}
 }
 
@@ -82,14 +82,14 @@ void LineDrawer::RegisterTracer(const Float3& start, const Float3& end, float th
 	// 方向ベクトルと長さ
 	Float3 dir = end - start;
 	float len = Float3::Length(dir);
-	if (len < 0.001f)
+	if (len < kTracerLengthEpsilon)
 		return; // 長さ0なら描画しない
 	dir = Float3(dir.x / len, dir.y / len, dir.z / len);
 
 	// カメラに対して垂直なオフセット方向を求める
-	Float3 up = {0.0f, 1.0f, 0.0f};
+	Float3 up = { 0.0f, 1.0f, 0.0f };
 	Float3 side = Float3::Normalize(Float3::Cross(up, dir));
-	Float3 offset = side * (thickness * 0.5f);
+	Float3 offset = side * (thickness * kTracerThicknessHalf);
 
 	// 四角形の4頂点
 	Float3 v0 = start - offset; // tail left
@@ -98,13 +98,13 @@ void LineDrawer::RegisterTracer(const Float3& start, const Float3& end, float th
 	Float3 v3 = end - offset;   // head left;
 
 	// 三角形2毎にして分割して登録
-	triVertices_.push_back({v0, tailColor});
-	triVertices_.push_back({v1, tailColor});
-	triVertices_.push_back({v2, headColor});
+	triVertices_.push_back({ v0, tailColor });
+	triVertices_.push_back({ v1, tailColor });
+	triVertices_.push_back({ v2, headColor });
 
-	triVertices_.push_back({v0, tailColor});
-	triVertices_.push_back({v2, headColor});
-	triVertices_.push_back({v3, headColor});
+	triVertices_.push_back({ v0, tailColor });
+	triVertices_.push_back({ v2, headColor });
+	triVertices_.push_back({ v3, headColor });
 }
 
 void LineDrawer::Draw() {
@@ -251,9 +251,9 @@ void LineDrawer::Draw() {
 void LineDrawer::CreateRootSignature() {
 	// ルートパラメーター配列を作成
 	D3D12_ROOT_PARAMETER rootParams[1] = {};
-	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;     // 定数バッファを渡す
-	rootParams[0].Descriptor.ShaderRegister = 0;                     // b0に対応
-	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // 頂点シェーダーで使う
+	rootParams[kRootParameterIndexWVP].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;     // 定数バッファを渡す
+	rootParams[kRootParameterIndexWVP].Descriptor.ShaderRegister = kWVPShaderRegister;                     // b0に対応
+	rootParams[kRootParameterIndexWVP].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // 頂点シェーダーで使う
 
 	D3D12_ROOT_SIGNATURE_DESC desc = {};
 	desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; // 入力アセンブラの使用を許可
@@ -280,23 +280,23 @@ void LineDrawer::CreateGraphicsPipeline() {
 		ShaderManager* shaderManager = ShaderManager::GetInstance();
 		auto vs = shaderManager->GetShader(vsName);
 		auto ps = shaderManager->GetShader(psName);
-		d.VS = {vs->GetBufferPointer(), vs->GetBufferSize()};
-		d.PS = {ps->GetBufferPointer(), ps->GetBufferSize()};
+		d.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
+		d.PS = { ps->GetBufferPointer(), ps->GetBufferSize() };
 		d.BlendState = blendDesc_;
 		d.RasterizerState = rasterizerDesc_;
 		// 書き込むRTVの情報
-		d.NumRenderTargets = 1;
+		d.NumRenderTargets = kRenderTargetCount;
 		d.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 		// 利用するトポロジのタイプ
 		d.PrimitiveTopologyType = topo;
 		// どのように画面に色を打ち込むかの設定
-		d.SampleDesc.Count = 1;
+		d.SampleDesc.Count = kSampleDescCount;
 		d.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 		// DepthStencil
 		d.DepthStencilState = depthStencilDesc_;
 		d.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		return d;
-	};
+		};
 
 	// 線分用
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC lineDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE, "LineDrawer_VS", "LineDrawer_PS", inputLayoutDesc_);
@@ -313,15 +313,15 @@ void LineDrawer::CreateGraphicsPipeline() {
 
 void LineDrawer::SetInputLayout() {
 	// InputLayout
-	inputElementDescs_[0].SemanticName = "POSITION";
-	inputElementDescs_[0].SemanticIndex = 0;
-	inputElementDescs_[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs_[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs_[kInputElementIndexPositon].SemanticName = "POSITION";
+	inputElementDescs_[kInputElementIndexPositon].SemanticIndex = kSemanticIndex;
+	inputElementDescs_[kInputElementIndexPositon].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElementDescs_[kInputElementIndexPositon].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
-	inputElementDescs_[1].SemanticName = "COLOR";
-	inputElementDescs_[1].SemanticIndex = 0;
-	inputElementDescs_[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputElementDescs_[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs_[kInputElementIndexColor].SemanticName = "COLOR";
+	inputElementDescs_[kInputElementIndexColor].SemanticIndex = kSemanticIndex;
+	inputElementDescs_[kInputElementIndexColor].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	inputElementDescs_[kInputElementIndexColor].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
 	inputLayoutDesc_.pInputElementDescs = inputElementDescs_;
 	inputLayoutDesc_.NumElements = _countof(inputElementDescs_);
@@ -354,13 +354,13 @@ void LineDrawer::CreateDepthBuffer() {
 	depthStencilResource_ = CreateDepthStencilTextureResource(dxBase_->GetDevice(), Window::GetWidth(), Window::GetHeight(), false);
 
 	// DSVの生成
-	dsvDescriptorHeap_.Create(dxBase_->GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
+	dsvDescriptorHeap_.Create(dxBase_->GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, kDSVDescriptorCount, false);
 
 	// DSVの設定
 	dsvDesc_.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;        // Format。基本的にはResourceに合わせる
 	dsvDesc_.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; // 2dTexture;
 	// DSVHeapの先頭にDSVをつくる
-	dxBase_->GetDevice()->CreateDepthStencilView(depthStencilResource_.Get(), &dsvDesc_, dsvDescriptorHeap_.GetCPUHandle(0));
+	dxBase_->GetDevice()->CreateDepthStencilView(depthStencilResource_.Get(), &dsvDesc_, dsvDescriptorHeap_.GetCPUHandle(kDSVHeapIndex));
 
 	// DepthStencilStateの設定
 	// Depthの機能を有効化する
@@ -372,14 +372,14 @@ void LineDrawer::CreateDepthBuffer() {
 }
 
 D3D12_BLEND_DESC LineDrawer::SetBlendState() {
-	blendDesc_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDesc_.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc_.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc_.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc_.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc_.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc_.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc_.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
+	blendDesc_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 	return blendDesc_;
 }

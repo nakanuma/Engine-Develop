@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -71,7 +71,7 @@ public:
 	/// <param name="outerColor">外側の色</param>
 	/// <param name="yOffset">Y軸オフセット</param>
 	void RegisterSector(
-	    const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset);
+		const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset);
 
 	/// <summary>
 	/// トレーサー線を登録します。
@@ -130,6 +130,30 @@ private:
 
 private:
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr size_t kConstBufferAlignment = 0xff;	/* 256バイト - 1 */
+
+	static constexpr uint32_t kRootParameterIndexWVP = 0;	/* WVP用ルートパラメーターインデックス */
+	static constexpr uint32_t kWVPShaderRegister = 0;		/* WVPのシェーダーレジスタ番号 */
+
+	static constexpr uint32_t kNumInputElements = 2;			/* 入力要素の数 */
+	static constexpr uint32_t kSemanticIndex = 0;				/* セマンティックインデックス */
+	static constexpr uint32_t kInputElementIndexPositon = 0;	/* POSITION入力要素インデックス */
+	static constexpr uint32_t kInputElementIndexColor = 1;		/* COLOR入力要素インデックス */
+
+	static constexpr uint32_t kRenderTargetCount = 1; /* レンダーターゲット数 */
+	static constexpr uint32_t kRenderTargetIndex = 0; /* レンダーターゲットインデックス */
+
+	static constexpr uint32_t kSampleDescCount = 1;	/* サンプル数 */
+
+	static constexpr uint32_t kDSVDescriptorCount = 1;	/* DSVディスクリプタヒープ数 */
+	static constexpr uint32_t kDSVHeapIndex = 0;		/* DSVヒープインデックス */
+
+	static constexpr float kTracerLengthEpsilon = 0.001f;	/* トレーサー線の長さが0に近いとみなす閾値 */
+	static constexpr float kTracerThicknessHalf = 0.5f;		/* トレーサー線の太さを半分にする係数 */
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
 
@@ -142,7 +166,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineStateTri_;			/* パイプラインステートオブジェクト */
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineStateTracer_;		/* パイプラインステートオブジェクト */
 
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[2];							/* 頂点入力レイアウト */
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[kNumInputElements];			/* 頂点入力レイアウト */
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc_;								/* 頂点入力レイアウト構造体 */
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;									/* ラスタライザステート */

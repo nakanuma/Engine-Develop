@@ -6,12 +6,12 @@
 #include <numbers>
 
 Object3D::Object3D() {
-	transform_.translate_ = {0.0f, 0.0f, 0.0f};
-	transform_.rotate_ = {0.0f, 0.0f, 0.0f};
-	transform_.scale_ = {1.0f, 1.0f, 1.0f};
+	transform_.translate_ = kDefaultTranslate;
+	transform_.rotate_ = kDefaultRotation;
+	transform_.scale_ = kDefaultScale;
 
 	// 白を書き込む
-	materialCB_.data_->color = {1.0f, 1.0f, 1.0f, 1.0f};
+	materialCB_.data_->color = kDefaultColor;
 	// ライティング有効化
 	materialCB_.data_->enableLighting = true;
 	// 環境マップ有効化フラグ（CubeMapをバインドしてない場合には有効化できない）
@@ -19,9 +19,9 @@ Object3D::Object3D() {
 	// 単位行列で初期化
 	materialCB_.data_->uvTransform = Matrix::Identity();
 	// 光沢を初期化
-	materialCB_.data_->shininess = 50.0f;
+	materialCB_.data_->shininess = kDefaultShinniness;
 	// 環境反射の強度を初期化
-	materialCB_.data_->environmentStrength = 1.0f;
+	materialCB_.data_->environmentStrength = kDefaultEnvironmentStrength;
 }
 
 void Object3D::UpdateMatrix() {
@@ -60,7 +60,7 @@ void Object3D::UpdateShadowMatrix() {
 
 void Object3D::ScaleUV(float scaleU) {
 	// UV変換行列を作成する（U方向にスケール）
-	Matrix uvScaleMatrix = Matrix::Scaling({scaleU, 1.0f, 1.0f});
+	Matrix uvScaleMatrix = Matrix::Scaling({ scaleU, kDefaultUVScale, kDefaultUVScale });
 
 	// マテリアルのUV変換行列にスケールを適用
 	materialCB_.data_->uvTransform = uvScaleMatrix;
@@ -70,17 +70,17 @@ void Object3D::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// commandListにVBVを設定
-	dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &model_->vertexBufferView);
+	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
 	// commandListにIBVを設定
 	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
 	// プリミティブトポロジーの設定
 	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
 	// wvp用のCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
 	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
 	// 描画を行う（DrawCall/ドローコール）
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
@@ -88,25 +88,25 @@ void Object3D::Draw() {
 void Object3D::Draw(SkinCluster skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
-	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
-	    model_->vertexBufferView,        // VertexDataのVBV
-	    skinCluster.influenceBufferView_ // InfluenceのVBV
+	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {
+		model_->vertexBufferView,        // VertexDataのVBV
+		skinCluster.influenceBufferView_ // InfluenceのVBV
 	};
 
 	// 配列を渡す（開始Slot番号、使用Slot番号、VBV配列へのポインタ）
-	dxBase->GetCommandList()->IASetVertexBuffers(0, 2, vbvs);
+	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kSkinMeshVBVCount, vbvs);
 	// commandListにIBVを設定
 	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
 	// プリミティブトポロジーの設定
 	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
 	// wvp用のCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
 	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
 	// PaletteのSRVを設定
-	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(5, skinCluster.paletteSrvHandle_.second);
+	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(kRootParameterIndexSkinPaletteSRV, skinCluster.paletteSrvHandle_.second);
 	// 描画を行う（DrawCall/ドローコール）
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
@@ -119,13 +119,13 @@ void Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer
 	// パーティクル用PSOを設定
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateParticle());
 	// commandListにVBVを設定
-	dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &model_->vertexBufferView);
+	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
 	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
 	// instancing用のDataを読むためにStructuredBufferのSRVを設定する
 	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(1, SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(structuredBuffer.heapIndex_));
 	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), TextureHandle); // 引数で指定したテクスチャを使用する
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, dxBase->GetCommandList(), TextureHandle); // 引数で指定したテクスチャを使用する
 	// 描画を行う（DrawCall/ドローコール）
 	dxBase->GetCommandList()->DrawInstanced(UINT(model_->vertices.size()), numInstance, 0, 0);
 }
@@ -134,17 +134,17 @@ void Object3D::DrawPartial(uint32_t indexCount) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// commandListにVBVを設定
-	dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &model_->vertexBufferView);
+	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
 	// commandListにIBVを設定
 	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
 	// プリミティブトポロジーの設定
 	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
 	// wvp用のCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
 	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
 	// 描画を行う（DrawCall/ドローコール）
 	dxBase->GetCommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }
@@ -153,12 +153,12 @@ void Object3D::DrawShadow() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 頂点バッファ・インデックスバッファの設定
-	dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &model_->vertexBufferView);
+	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
 	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
 	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// WVP（World * LightViewProj）のみを使う
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(11, shadowWvpCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexShadowCBV, shadowWvpCB_.resource_->GetGPUVirtualAddress());
 
 	// DrawCall
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
@@ -167,14 +167,14 @@ void Object3D::DrawShadow() {
 void Object3D::DrawShadow(SkinCluster skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
-	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {model_->vertexBufferView, skinCluster.influenceBufferView_};
+	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = { model_->vertexBufferView, skinCluster.influenceBufferView_ };
 
-	dxBase->GetCommandList()->IASetVertexBuffers(0, 2, vbvs);
+	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kSkinMeshVBVCount, vbvs);
 	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
 	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// World行列とLightViewProj行列の定数バッファを設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(11, shadowWvpCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexShadowCBV, shadowWvpCB_.resource_->GetGPUVirtualAddress());
 
 	// DrawCall
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -77,4 +77,16 @@ public:
 	/// <param name="obbB">OBB2</param>
 	/// <returns>衝突していたらtrue</returns>
 	static bool IsSeparatedByAxis(const Float3& axis, const OBBCollider* obbA, const OBBCollider* obbB);
+
+private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kAABBCenterScale = 0.5f;				/* AABBをOBBに変換する際の中心座標計算スケール */
+	static constexpr Float3 kWorldAxisX = { 1.0f, 0.0f, 0.0f };	/* ワールド軸に平行なOBBのX軸ベクトル成分 */
+	static constexpr Float3 kWorldAxisY = { 0.0f, 1.0f, 0.0f };	/* ワールド軸に平行なOBBのY軸ベクトル成分 */
+	static constexpr Float3 kWorldAxisZ = { 0.0f, 0.0f, 1.0f };	/* ワールド軸に平行なOBBのZ軸ベクトル成分 */
+
+	static constexpr size_t kSeparatingAxisCount = 15;	/* 分離軸候補の総数（Aの軸3 + Bの軸3 + A*Bの軸9） */
+	static constexpr float kAxisZeroEpsilon = 1e-6f;	/* 軸がゼロベクトルでないかを判定する微小な値 */
 };

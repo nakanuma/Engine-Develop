@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -50,14 +50,14 @@ public:
 			Float3 e = Extents();
 			Float3 c = Center();
 
-			out[0] = {c.x - e.x, c.y - e.y, c.z - e.z};
-			out[1] = {c.x - e.x, c.y - e.y, c.z + e.z};
-			out[2] = {c.x - e.x, c.y + e.y, c.z - e.z};
-			out[3] = {c.x - e.x, c.y + e.y, c.z + e.z};
-			out[4] = {c.x + e.x, c.y - e.y, c.z - e.z};
-			out[5] = {c.x + e.x, c.y - e.y, c.z + e.z};
-			out[6] = {c.x + e.x, c.y + e.y, c.z - e.z};
-			out[7] = {c.x + e.x, c.y + e.y, c.z + e.z};
+			out[0] = { c.x - e.x, c.y - e.y, c.z - e.z };
+			out[1] = { c.x - e.x, c.y - e.y, c.z + e.z };
+			out[2] = { c.x - e.x, c.y + e.y, c.z - e.z };
+			out[3] = { c.x - e.x, c.y + e.y, c.z + e.z };
+			out[4] = { c.x + e.x, c.y - e.y, c.z - e.z };
+			out[5] = { c.x + e.x, c.y - e.y, c.z + e.z };
+			out[6] = { c.x + e.x, c.y + e.y, c.z - e.z };
+			out[7] = { c.x + e.x, c.y + e.y, c.z + e.z };
 		}
 	};
 
@@ -106,6 +106,16 @@ public:
 	const Matrix& GetViewProj() const { return viewProj_; }
 
 private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kLightPosDistance = 50.0f;	/* ライトカメラの中心からの距離 */
+	static constexpr float kFarZMargin = 250.0f;		/* farZに加算するマージン */
+	static constexpr float kNearZMin = 0.1f;			/* nearZの最小値 */
+	static constexpr float kThreshold = 1e-6f;			/* WorldUpがlightDirとほぼ平行か判定するしきい値 */
+
+	static constexpr uint32_t kRootParameterIndexCBV = 13; /* CBV用ルートパラメーターインデックス */
+
 	// =========================================================
 	// Member Variables
 	// =========================================================

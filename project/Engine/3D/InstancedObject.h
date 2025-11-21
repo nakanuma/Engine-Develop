@@ -26,6 +26,14 @@ public:
 	void InstancedDraw();
 
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr uint32_t kRootParameterIndexMaterial = 0;			/* マテリアル用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexWVP = 1;				/* WVP用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTexture = 2;			/* テクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexStructuredBuffer = 5;	/* ストラクチャードバッファ用ルートパラメーターインデックス */
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
 

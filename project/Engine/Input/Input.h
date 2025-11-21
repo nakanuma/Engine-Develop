@@ -144,9 +144,17 @@ public:
 
 private:
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr size_t kKeyArraySize = 256;	/* キーボード状態配列のサイズ */
+
+	static constexpr BYTE kMouseButtonPressMask = 0x80;	/* マウスボタンの状態チェックに使用するビットマスク */
+	static constexpr int32_t kMouseIndexMin = 0;	/* マウスボタンの最小インデックス */
+	static constexpr int32_t kMouseIndexMax = 3;	/* マウスボタンの最大インデックス */
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
-
 	
 	ComPtr<IDirectInput8> directInput_;			/* DirectInputインターフェース */
 	ComPtr<IDirectInputDevice8> keyboard_;		/* キーボードデバイス */
@@ -154,8 +162,8 @@ private:
 
 	std::vector<Joystick> joysticks_;			/* ジョイスティックデバイス */
 
-	BYTE key_[256] = {};						/* 現在のキー状態 */
-	BYTE keyPre_[256] = {};						/* 前回のキー状態 */
+	BYTE key_[kKeyArraySize] = {};				/* 現在のキー状態 */
+	BYTE keyPre_[kKeyArraySize] = {};			/* 前回のキー状態 */
 
 	POINT mousePosition_;						/* マウスの位置 */
 	DIMOUSESTATE2 mouseState_ = {};				/* 現在のマウス状態 */

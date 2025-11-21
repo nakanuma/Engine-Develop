@@ -1,4 +1,4 @@
-﻿#include "Collider.h"
+#include "Collider.h"
 
 // Engine
 #include <Collider/CollisionMath.h>
@@ -62,12 +62,12 @@ void AABBCollider::Update()
 
 Float3 AABBCollider::GetPushBackVector(const AABBCollider& other) const {
 	// それぞれの中心座標を取得
-	Float3 centerA = (min_ + max_) * 0.5f;
-	Float3 centerB = (other.min_ + other.max_) * 0.5f;
+	Float3 centerA = (min_ + max_) * kHalfSize;
+	Float3 centerB = (other.min_ + other.max_) * kHalfSize;
 
 	// それぞれの半サイズを取得
-	Float3 halfSizeA = (max_ - min_) * 0.5f;
-	Float3 halfSizeB = (other.max_ - other.min_) * 0.5f;
+	Float3 halfSizeA = (max_ - min_) * kHalfSize;
+	Float3 halfSizeB = (other.max_ - other.min_) * kHalfSize;
 
 	// 中心間ベクトルを計算
 	Float3 delta = centerA - centerB;
@@ -81,13 +81,13 @@ Float3 AABBCollider::GetPushBackVector(const AABBCollider& other) const {
 
 	if (overlap.x < overlap.y && overlap.x < overlap.z) {
 		// X軸方向に押し戻すベクトルを返す
-		return { (delta.x > 0 ? overlap.x : -overlap.x), 0.0f, 0.0f };
+		return { (delta.x > kNormalZero ? overlap.x : -overlap.x), kNormalZero, kNormalZero };
 	} else if (overlap.y < overlap.z) {
 		// Y軸方向に押し戻すベクトルを返す
-		return { 0.0f, (delta.y > 0 ? overlap.y : -overlap.y), 0.0f };
+		return { kNormalZero, (delta.y > kNormalZero ? overlap.y : -overlap.y), kNormalZero };
 	} else {
 		// Z軸方向に押し戻すベクトルを返す
-		return { 0.0f, 0.0f, (delta.z > 0 ? overlap.z : -overlap.z) };
+		return { kNormalZero, kNormalZero, (delta.z > kNormalZero ? overlap.z : -overlap.z) };
 	}
 }
 
@@ -104,13 +104,13 @@ Float3 AABBCollider::GetContactNormalFromSphere(const Float3& sphereCenter) cons
 	// 各軸の差分の絶対値を比較して、最も影響が大きい軸を探す
 	if (std::abs(delta.x) > std::abs(delta.y) && std::abs(delta.x) > std::abs(delta.z)) {
 		// X軸方向から接触
-		return { delta.x > 0 ? 1.0f : -1.0f, 0.0f, 0.0f };
+		return { delta.x > kNormalZero ? kNormalX : -kNormalX, kNormalZero, kNormalZero };
 	} else if (std::abs(delta.y) > std::abs(delta.z)) {
 		// Y軸方向から接触
-		return { 0.0f, delta.y > 0 ? 1.0f : -1.0f, 0.0f };
+		return { kNormalZero, delta.y > kNormalZero ? kNormalY : -kNormalY, kNormalZero };
 	} else {
 		// Z軸方向から接触
-		return { 0.0f, 0.0f, delta.z > 0 ? 1.0f : -1.0f };
+		return { kNormalZero, kNormalZero, delta.z > kNormalZero ? kNormalZ : -kNormalZ };
 	}
 }
 

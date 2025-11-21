@@ -12,13 +12,13 @@ void InstancedObject::InstancedDraw() {
 	// プリミティブトポロジーの設定
 	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
 	// wvp用のCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpCB_.resource_->GetGPUVirtualAddress());
+	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
 	// instancing用のDataを読むためにStructuredBufferのSRVを設定
-	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(5, SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(gTransformationMatrices_.heapIndex_));
+	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(kRootParameterIndexStructuredBuffer, SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(gTransformationMatrices_.heapIndex_));
 	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(2, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
 	// 描画を行う（DrawCall/ドローコール）
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), gTransformationMatrices_.numMaxInstance_, 0, 0, 0);
 }

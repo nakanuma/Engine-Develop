@@ -6,14 +6,14 @@ Camera::Camera(Float3 argTranslate, Float3 argRotate, float argFov) {
 	// 引数で受け取った位置、回転、視野角を設定
 	transform_.translate_ = argTranslate;
 	transform_.rotate_ = argRotate;
-	transform_.scale_ = {1.0f, 1.0f, 1.0};
+	transform_.scale_ = kDefaultScale;
 	fov_ = argFov;
 
 	// CBにカメラのポジションをセット
 	cameraCB_.data_->position = argTranslate;
 }
 
-void Camera::TransferConstantBuffer() { DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(4, current_->cameraCB_.resource_->GetGPUVirtualAddress()); }
+void Camera::TransferConstantBuffer() { DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexCamera, current_->cameraCB_.resource_->GetGPUVirtualAddress()); }
 
 Matrix Camera::MakeViewMatrix() {
 	// カメラのtransformからアフィン変換行列を作成

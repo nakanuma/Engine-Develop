@@ -1,8 +1,8 @@
-﻿#define NOMINMAX
+#define NOMINMAX
 #include "CollisionManager.h"
 
 // C++
-#include <algorithm>
+#include <algorithm> 
 #include <iostream>
 #include <limits>
 
@@ -101,14 +101,13 @@ void CollisionManager::Draw() {
 		if (collider->GetType() == "Sphere") {
 			auto* sphere = static_cast<SphereCollider*>(collider);
 
-			const uint32_t kSubdivision = 8; // 分割数
-			const float kLonEvery = (PIf * 2.0f) / kSubdivision;
-			const float kLatEvery = PIf / kSubdivision;
+			const float kLonEvery = (PIf * 2.0f) / kSphereSubdivision;
+			const float kLatEvery = PIf / kSphereSubdivision;
 
-			for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
+			for (uint32_t latIndex = 0; latIndex < kSphereSubdivision; ++latIndex) {
 				float lat = -PIf / 2.0f + kLatEvery * latIndex;
 
-				for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
+				for (uint32_t lonIndex = 0; lonIndex < kSphereSubdivision; ++lonIndex) {
 					float lon = lonIndex * kLonEvery;
 
 					// 頂点a, b, cを求める
@@ -133,8 +132,8 @@ void CollisionManager::Draw() {
 					b = b + sphere->GetCenter();
 					c = c + sphere->GetCenter();
 
-					drawer->RegisterLine(a, b, {1.0f, 1.0f, 1.0f, 1.0f});
-					drawer->RegisterLine(a, c, {1.0f, 1.0f, 1.0f, 1.0f});
+					drawer->RegisterLine(a, b, kDebugDrawColor);
+					drawer->RegisterLine(a, c, kDebugDrawColor);
 				}
 			}
 
@@ -160,7 +159,7 @@ void CollisionManager::Draw() {
                 {max.x, max.y, max.z},
 			};
 
-			int edges[12][2] = {
+			int edges[kCubeEdgesCount][2] = {
 			    {0, 1},
                 {1, 3},
                 {3, 2},
@@ -176,7 +175,7 @@ void CollisionManager::Draw() {
 			};
 
 			for (auto& e : edges) {
-				drawer->RegisterLine(corners[e[0]], corners[e[1]], {1.0f, 1.0f, 1.0f, 1.0f});
+				drawer->RegisterLine(corners[e[0]], corners[e[1]], kDebugDrawColor);
 			}
 		}
 		///
@@ -201,7 +200,7 @@ void CollisionManager::Draw() {
 			    obb->GetCenter() + halfX - halfY - halfZ  // 7
 			};
 
-			int edges[12][2] = {
+			int edges[kCubeEdgesCount][2] = {
 			    {0, 1},
                 {1, 2},
                 {2, 3},
@@ -217,7 +216,7 @@ void CollisionManager::Draw() {
 			};
 
 			for (auto& e : edges) {
-				drawer->RegisterLine(corners[e[0]], corners[e[1]], {1.0f, 1.0f, 1.0f, 1.0f});
+				drawer->RegisterLine(corners[e[0]], corners[e[1]], kDebugDrawColor);
 			}
 		}
 	}
@@ -328,9 +327,9 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 
 			// レイ方向の逆数を計算
 			Float3 invDir = {
-			    direction.x != 0.0f ? 1.0f / direction.x : std::numeric_limits<float>::infinity(),
-			    direction.y != 0.0f ? 1.0f / direction.y : std::numeric_limits<float>::infinity(),
-			    direction.z != 0.0f ? 1.0f / direction.z : std::numeric_limits<float>::infinity(),
+			    direction.x != kRayCastZeroEpsilon ? 1.0f / direction.x : std::numeric_limits<float>::infinity(),
+			    direction.y != kRayCastZeroEpsilon ? 1.0f / direction.y : std::numeric_limits<float>::infinity(),
+			    direction.z != kRayCastZeroEpsilon ? 1.0f / direction.z : std::numeric_limits<float>::infinity(),
 			};
 
 			Float3 t1 = (aabb->GetMin() - origin) * invDir;
@@ -344,7 +343,7 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 			float tFar = std::min({tmax.x, tmax.y, tmax.z});  // レイがAABBから出る時刻
 
 			// レイとAABBの交差判定
-			if (tNear <= tFar && tNear >= 0.0f && tNear < closestDistance) {
+			if (tNear <= tFar && tNear >= kRayNearMin && tNear < closestDistance) {
 				hitAny = true;
 				closestDistance = tNear;
 				closestCollider = collider;

@@ -38,8 +38,6 @@ public:
 		data_ = nullptr;
 		// 書き込むためのアドレスを取得
 		resource_->Map(0, nullptr, reinterpret_cast<void**>(&data_));
-		// DescriptorHeapの生成
-		/*heap_.Create(DirectXBase::GetInstance()->GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kNumInstance, true);*/
 
 		CreateSRV();
 	};

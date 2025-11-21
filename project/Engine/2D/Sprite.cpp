@@ -10,9 +10,9 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 	textureIndex_ = textureIndex;
 
 	// VertexResourceを作る
-	vertexResource_ = CreateBufferResource(spriteCommon->GetDxBase()->GetDevice(), sizeof(VertexData) * 4);
+	vertexResource_ = CreateBufferResource(spriteCommon->GetDxBase()->GetDevice(), sizeof(VertexData) * kVertexCount);
 	// IndexResourceを作る
-	indexResource_ = CreateBufferResource(spriteCommon->GetDxBase()->GetDevice(), sizeof(uint32_t) * 6);
+	indexResource_ = CreateBufferResource(spriteCommon->GetDxBase()->GetDevice(), sizeof(uint32_t) * kIndexCount);
 	// materialResourceを作る
 	materialResource_ = CreateBufferResource(spriteCommon->GetDxBase()->GetDevice(), sizeof(Material));
 	// TransformationResourceを作る
@@ -20,11 +20,11 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 
 	// VertexBufferViewを作成する
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 4;
+	vertexBufferView_.SizeInBytes = sizeof(VertexData) * kVertexCount;
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 	// IndexBufferViewを作成する
 	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
-	indexBufferView_.SizeInBytes = sizeof(uint32_t) * 6;
+	indexBufferView_.SizeInBytes = sizeof(uint32_t) * kIndexCount;
 	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
 
 	// VertexResourceにデータを書き込むためのアドレスを取得してvertexDataに割り当てる
@@ -36,11 +36,11 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 	// materialResourceにデータを書き込むためのアドレスを取得してmaterialDataに割り当てる
 	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
 	// materialDataの初期値を書き込む
-	materialData_->color = Float4(1.0f, 1.0f, 1.0f, 1.0f);
+	materialData_->color = kDefaultColor;
 	materialData_->enableLighting = false;
 	materialData_->uvTransform = Matrix::Identity();
-	materialData_->shininess = 0.0f;
-	materialData_->ratio = 1.0f;
+	materialData_->shininess = kDefaultShininess;
+	materialData_->ratio = kDefaultRatio;
 	materialData_->useCircleMask = false;
 
 	// TransformationResourceにデータを書き込むためのアドレスを取得してtransformationMatrixDataに割り当てる
@@ -51,10 +51,10 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 
 	// Transformの初期化
 	transform_ = {
-	    {1.0f, 1.0f, 1.0f},
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f}
-    };
+		kDefaultTranslation,
+		kDefaultRotation,
+		kDefaultScale
+	};
 
 	// テクスチャの解像度を取得して、スプライト自体のサイズに反映させる
 	AdjustTextureSize();
@@ -62,16 +62,16 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 
 void Sprite::Update() {
 	// 座標を反映
-	transform_.translate_ = {position_.x, position_.y, 0.0f};
+	transform_.translate_ = { position_.x, position_.y, kDefaultTranslation.z };
 	// 回転を反映
-	transform_.rotate_ = {0.0f, 0.0f, rotation};
+	transform_.rotate_ = { kDefaultRotation.x, kDefaultRotation.y, rotation };
 	// サイズを反映
-	transform_.scale_ = {size_.x, size_.y, 1.0f};
+	transform_.scale_ = { size_.x, size_.y, kDefaultScale.z };
 	// アンカーポイント
-	float left = 0.0f - anchorPoint.x;
-	float right = 1.0f - anchorPoint.x;
-	float top = 0.0f - anchorPoint.y;
-	float bottom = 1.0f - anchorPoint.y;
+	float left = kAnchorLeft - anchorPoint.x;
+	float right = kAnchorRight - anchorPoint.x;
+	float top = kAnchorTop - anchorPoint.y;
+	float bottom = kAnchorBottom - anchorPoint.y;
 
 	// 左右反転
 	if (isFlipX_) {
@@ -93,34 +93,34 @@ void Sprite::Update() {
 
 	// 頂点リソースにデータを書き込む
 	// 左下
-	vertexData_[0].position = {left, bottom, 0.0f, 1.0f};
-	vertexData_[0].texcoord = {tex_left, tex_bottom};
-	vertexData_[0].normal = {0.0f, 0.0f, -1.0f};
+	vertexData_[kVertexIndexLeftBottom].position = { left, bottom, kDefaultTranslation.z, kVertexPositionW };
+	vertexData_[kVertexIndexLeftBottom].texcoord = { tex_left, tex_bottom };
+	vertexData_[kVertexIndexLeftBottom].normal = kSpriteNormal;
 	// 左上
-	vertexData_[1].position = {left, top, 0.0f, 1.0f};
-	vertexData_[1].texcoord = {tex_left, tex_top};
-	vertexData_[1].normal = {0.0f, 0.0f, -1.0f};
+	vertexData_[kVertexIndexLeftTop].position = { left, top, kDefaultTranslation.z, kVertexPositionW };
+	vertexData_[kVertexIndexLeftTop].texcoord = { tex_left, tex_top };
+	vertexData_[kVertexIndexLeftTop].normal = kSpriteNormal;
 	// 右下
-	vertexData_[2].position = {right, bottom, 0.0f, 1.0f};
-	vertexData_[2].texcoord = {tex_right, tex_bottom};
-	vertexData_[2].normal = {0.0f, 0.0f, -1.0f};
+	vertexData_[kVertexIndexRightBottom].position = { right, bottom, kDefaultTranslation.z, kVertexPositionW };
+	vertexData_[kVertexIndexRightBottom].texcoord = { tex_right, tex_bottom };
+	vertexData_[kVertexIndexRightBottom].normal = kSpriteNormal;
 	// 右上
-	vertexData_[3].position = {right, top, 0.0f, 1.0f};
-	vertexData_[3].texcoord = {tex_right, tex_top};
-	vertexData_[3].normal = {0.0f, 0.0f, -1.0f};
+	vertexData_[kVertexIndexRightTop].position = { right, top, kDefaultTranslation.z, kVertexPositionW };
+	vertexData_[kVertexIndexRightTop].texcoord = { tex_right, tex_top };
+	vertexData_[kVertexIndexRightTop].normal = kSpriteNormal;
 
 	// インデックスリソースにデータを書き込む
-	indexData_[0] = 0;
-	indexData_[1] = 1;
-	indexData_[2] = 2;
-	indexData_[3] = 1;
-	indexData_[4] = 3;
-	indexData_[5] = 2;
+	indexData_[kIndex0] = kVertexIndexLeftBottom;
+	indexData_[kIndex1] = kVertexIndexLeftTop;
+	indexData_[kIndex2] = kVertexIndexRightBottom;
+	indexData_[kIndex3] = kVertexIndexLeftTop;
+	indexData_[kIndex4] = kVertexIndexRightTop;
+	indexData_[kIndex5] = kVertexIndexRightBottom;
 
 	// Transform情報を作る
 	Matrix worldMatrix = transform_.MakeAffineMatrix();
 	Matrix viewMatrix = Matrix::Identity();
-	Matrix projectionMatrix = Matrix::Orthographic(static_cast<float>(Window::GetWidth()), static_cast<float>(Window::GetHeight()), 0.0f, 1000.0f);
+	Matrix projectionMatrix = Matrix::Orthographic(static_cast<float>(Window::GetWidth()), static_cast<float>(Window::GetHeight()), kNearClip, kFarClip);
 	Matrix worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
 	transformationMatrixData_->World = worldMatrix;
@@ -128,17 +128,17 @@ void Sprite::Update() {
 
 void Sprite::Draw() {
 	// VertexBufferViewを設定
-	spriteCommon_->GetDxBase()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	spriteCommon_->GetDxBase()->GetCommandList()->IASetVertexBuffers(kVertexBufferSlot, kVertexBufferCount, &vertexBufferView_);
 	// IBVを設定
 	spriteCommon_->GetDxBase()->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
 	// マテリアルCBufferの場所を設定
-	spriteCommon_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	spriteCommon_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(kMaterialRootParameterIndex, materialResource_->GetGPUVirtualAddress());
 	// TransformatinMatrixCBufferの場所を設定
-	spriteCommon_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	spriteCommon_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(kTransformRootParameterIndex, transformationMatrixResource_->GetGPUVirtualAddress());
 	// SRVのDescriptorTableの先頭を設定
-	TextureManager::SetDescriptorTable(2, spriteCommon_->GetDxBase()->GetCommandList(), textureIndex_);
+	TextureManager::SetDescriptorTable(kTextureRootParameterIndex, spriteCommon_->GetDxBase()->GetCommandList(), textureIndex_);
 	// 描画（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画
-	spriteCommon_->GetDxBase()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	spriteCommon_->GetDxBase()->GetCommandList()->DrawIndexedInstanced(kDrawIndexCount, kDrawInstanceCount, kDrawStartIndexLocation, kDrawBaseVertexLocation, kDrawStartInstanceLocation);
 }
 
 void Sprite::AdjustTextureSize() {

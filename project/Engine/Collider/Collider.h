@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -141,7 +141,7 @@ protected:
 	ICollisionCallback* owner_;			/* コライダーのオーナー */
 	bool isActive_ = true;				/* コライダーの有効化状態 */
 	Float3* followTarget_ = nullptr;	/* 追従対象の位置 */
-	Float3* followRotation_ = nullptr;	/* 追従対象の回転（OBBでのみ使用） */ 
+	Float3* followRotation_ = nullptr;	/* 追従対象の回転（OBBでのみ使用） */
 };
 
 // =========================================================
@@ -291,6 +291,16 @@ public:
 
 private:
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kHalfSize = 0.5f;	/* 押し戻しベクトル計算用 */
+
+	static constexpr float kNormalX = 1.0f;
+	static constexpr float kNormalY = 1.0f;
+	static constexpr float kNormalZ = 1.0f;
+	static constexpr float kNormalZero = 0.0f;
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
 
@@ -389,7 +399,7 @@ public:
 	/// </summary>
 	/// <returns>OBBのZ軸方向ベクトル</returns>
 	const Float3& GetZAxis() const { return zAxis_; }
-	
+
 private:
 	// =========================================================
 	// Member Variables

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Externals Includes
@@ -80,17 +80,17 @@ public:
 
 			// サブタイトル
 			if (!node.subName.empty()) {
-				ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "%s", node.subName.c_str());
+				ImGui::TextColored(kSubTitleColor, "%s", node.subName.c_str());
 				ImGui::Separator();
 			}
 
 			// 入力ピン
-			ImNodes::BeginInputAttribute(node.id * 10 + 0);
+			ImNodes::BeginInputAttribute(node.id * kInputAttributeMultiplier + kInputAttributeIndex);
 			ImGui::Text("In");
 			ImNodes::EndInputAttribute();
 
 			// 出力ピン
-			ImNodes::BeginOutputAttribute(node.id * 10 + 1);
+			ImNodes::BeginOutputAttribute(node.id * kOutputAttributeMultiplier + kOutputAttributeIndex);
 			ImGui::Text("Out");
 			ImNodes::EndOutputAttribute();
 
@@ -103,9 +103,9 @@ public:
 		// リンク描画
 		for (auto& node : nodes_) {
 			for (uint32_t childID : node.childrenIDs) {
-				uint32_t linkID = node.id * 1000 + childID;
+				uint32_t linkID = node.id * kLinkMultiplier + childID;
 
-				ImNodes::Link(linkID, node.id * 10 + 1, childID * 10 + 0);
+				ImNodes::Link(linkID, node.id * kOutputAttributeMultiplier + kOutputAttributeIndex, childID * kInputAttributeMultiplier + kInputAttributeIndex);
 			}
 		}
 
@@ -123,7 +123,7 @@ public:
 	/// </summary>
 	/// <param name="path">ファイルパス</param>
 	void Save(const std::string& path) {
-		std::string fullPath = defaultDir_ + path;
+		std::string fullPath = kDefaultDir + path;
 
 		nlohmann::json j;
 		for (auto& node : nodes_) {
@@ -139,7 +139,7 @@ public:
 	/// </summary>
 	/// <param name="path">ファイルパス</param>
 	void Load(const std::string& path) {
-		std::string fullPath = defaultDir_ + path;
+		std::string fullPath = kDefaultDir + path;
 
 		std::ifstream file(fullPath);
 		if (!file.is_open())
@@ -219,6 +219,18 @@ private:
 
 private:
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr uint32_t kInputAttributeMultiplier = 10;	/* 入力ピンIDを生成するための乗数 */
+	static constexpr uint32_t kOutputAttributeMultiplier = 10;	/* 出力ピンIDを生成するための乗数 */
+	static constexpr uint32_t kLinkMultiplier = 1000;			/* リンクIDを生成するための乗数 */
+	static constexpr uint32_t kInputAttributeIndex = 0;			/* 入力ピンのインデックス */
+	static constexpr uint32_t kOutputAttributeIndex = 1;		/* 出力ピンのインデックス */
+
+	static constexpr ImVec4 kSubTitleColor = ImVec4{0.0f, 1.0f, 1.0f, 1.0f};		/* サブタイトルのデフォルトカラー */
+	static constexpr const char* kDefaultDir = "resources/Configs/BehaviorTree/";	/* デフォルトの保存ディレクトリ */
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
 
@@ -226,6 +238,5 @@ private:
 	BehaviorTree<AgentType>* tree_ = nullptr; /* 対象のビヘイビアツリー */
 
 	ImNodesContext* context_ = nullptr;                          /* ImNodesコンテキスト */
-	std::string defaultDir_ = "resources/Configs/BehaviorTree/"; /* デフォルトの保存ディレクトリ */
 	std::string fileName_ = "";                                  /* 保存ファイル名 (拡張子含む) */
 };

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -148,4 +148,27 @@ public:
 
 private:
 	Object3D* parent_ = nullptr;					/* 親オブジェクトへのポインタ */
+
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr uint32_t kRootParameterIndexMaterial = 0;			/* マテリアル用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexWVP = 1;				/* WVP用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTexture = 2;			/* テクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexSkinPaletteSRV = 5;	/* スキンアニメーションSRV用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexShadowCBV = 11;		/* シャドウマッピングWVP用ルートパラメーターインデックス */
+
+	static constexpr uint32_t kMeshVBVStartSlot = 0;	/* メッシュ頂点バッファの開始スロット */
+	static constexpr uint32_t kMeshVBVCount = 1;		/* VBVの数 */
+
+	static constexpr uint32_t kSkinMeshVBVCount = 2;	/* スキンメッシュ時のVBV数 */
+
+	static constexpr Float3 kDefaultTranslate = { 0.0f, 0.0f, 0.0f };	/* デフォルトの位置 */
+	static constexpr Float3 kDefaultRotation = { 0.0f, 0.0f, 0.0f };	/* デフォルトの回転 */
+	static constexpr Float3 kDefaultScale = { 1.0f, 1.0f, 1.0f };		/* デフォルトのスケール */
+	static constexpr Float4 kDefaultColor = { 1.0f, 1.0f, 1.0f, 1.0f };	/* デフォルトカラー */
+	static constexpr float kDefaultShinniness = 50.0f;					/* デフォルトの光沢 */
+	static constexpr float kDefaultEnvironmentStrength = 1.0f;			/* デフォルトの環境反射強度 */
+
+	static constexpr float kDefaultUVScale = 1.0f;	/* UVスケーリングを行わないスケール */
 };

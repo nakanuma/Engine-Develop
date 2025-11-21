@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -100,13 +100,53 @@ private:
 	/// ブレンドステート(BlendMode::Multiply用)を設定します。
 	/// </summary>
 	D3D12_BLEND_DESC SetBlendStateMultiply();
-	
+
 	/// <summary>
 	/// ブレンドステート(BlendMode::Screen用)を設定します。
 	/// </summary>
 	D3D12_BLEND_DESC SetBlendStateScreen();
 
 private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr uint32_t kInputElementCount = 3;		/* 入力要素数 */
+	static constexpr uint32_t kDescriptorRangeCount = 1;	/* ディスクリプタレンジ数 */
+	static constexpr uint32_t kRootParameterCount = 5;		/* ルートパラメーター数 */
+	static constexpr uint32_t kStaticSamplerCount = 1;		/* サンプラー数 */
+
+	static constexpr uint32_t kDescriptorRangeBaseShaderRegister = 0; /* ディスクリプタレンジの基底レジスタ */
+	static constexpr uint32_t kDescriptorRangeNumDescriptors = 1;	  /* ディスクリプタレンジの数 */
+
+	static constexpr uint32_t kRootParameterIndexMaterial = 0;	/* マテリアル用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTransform = 1;	/* 変換行列用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTexture = 2;	/* テクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexLight = 3;		/* ライト用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexCamera = 4;	/* カメラ用ルートパラメーターインデックス */
+
+	static constexpr uint32_t kMaterialShaderRegister = 0;	/* マテリアルのシェーダーレジスタ番号 */
+	static constexpr uint32_t kTransformShaderRegister = 0;	/* 変換行列のシェーダーレジスタ番号 */
+	static constexpr uint32_t kLightShaderRegister = 1;		/* ライトのシェーダーレジスタ番号 */
+	static constexpr uint32_t kCameraShaderRegister = 2;	/* カメラのシェーダーレジスタ番号 */
+
+	static constexpr uint32_t kSamplerShaderRegister = 0;	/* サンプラーのシェーダーレジスタ番号 */
+
+	static constexpr uint32_t kRenderTargetCount = 1; /* レンダーターゲット数 */
+	static constexpr uint32_t kRenderTargetIndex = 0; /* レンダーターゲットインデックス */
+
+	static constexpr uint32_t kSampleDescCount = 1;	/* サンプル数 */
+
+	static constexpr uint32_t kInputElementIndexPositon = 0;	/* POSITION入力要素インデックス */
+	static constexpr uint32_t kInputElementIndexTexcoord = 1;	/* TEXCOORD入力要素インデックス */
+	static constexpr uint32_t kInputElementIndexNormal = 2;		/* NORMAL入力要素インデックス */
+	static constexpr uint32_t kSemanticIndex = 0;				/* セマンティックインデックス */
+
+	static constexpr uint32_t kDSVDescriptorCount = 1;	/* DSVディスクリプタヒープ数 */
+	static constexpr uint32_t kDSVHeapIndex = 0;		/* DSVヒープインデックス */
+	static constexpr uint32_t kDescriptorHeapCount = 1;	/* ディスクリプタヒープ数 */
+
+	static constexpr uint32_t kRootSignatureVersion = 0; /* ルートシグネチャバージョン */
+
 	// =========================================================
 	// Member Variables
 	// =========================================================
@@ -121,7 +161,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob_;										/* ルートシグネチャシグネチャバッファ */
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob_;											/* エラーバッファ */
 
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[3];											/* 入力レイアウト */
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[kInputElementCount];						/* 入力レイアウト */
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc_;												/* 入力レイアウト構造体 */
 
 	IDxcUtils* dxcUtils_;																	/* DXCユーティリティ */
