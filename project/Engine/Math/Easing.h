@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -257,4 +257,44 @@ public:
 	/// <param name="t">補間係数</param>
 	/// <returns>補間結果</returns>
 	static float EaseInOutBounce(float t);
+
+private:
+	// =========================================================
+	// Constants
+	// =========================================================
+
+	static constexpr float kHalf = 0.5f;
+	static constexpr float kTwo = 2.0f;
+
+	static constexpr float kCubicInOutMultiplier = 4.0f;	/* EaseInOutCubicの乗数 */
+	static constexpr float kQuintInOutMultiplier = 16.0f;	/* EaseInOutQuintの乗数 */
+	static constexpr float kElasticInOutMultiplier = 20.0f;	/* EaseInOutElasticの乗数 */
+	static constexpr float kExpoShift = 10.0f;				/* EaseInExpo/EaseOutExpoの指数 */
+	static constexpr float kExpoInOutMultiplier = 20.0f;	/* EaseInOutExpoの指数 */
+	static constexpr float kExpoInOutShift = 10.0f;			/* EaseInOutExpoの指数 */
+	static constexpr float kQuartExponent = 4.0f;			/* EaseOutQuart/EaseInOutQuartの指数 */
+	static constexpr float kQuartInOutMultiplier = 8.0f;	/* EaseInOutQuartの乗数 */
+
+	// Back
+	static constexpr float kBackS = 1.70158f;				/* 初期の過剰数 */
+	static constexpr float kBackSInOutMultiplier = 1.525f;	/* 調整係数 */
+
+	// Elastic
+	static constexpr float kElasticA = 1.0f;				/* 振幅 */
+	static constexpr float kElasticP = 0.3f;				/* 周期 */
+	static constexpr float kElasticInOutShift = 10.0f;		/* 調整係数 */
+	static constexpr float kElasticInOutOffset = 11.125f;	/* 調整係数 */
+
+	// Bounce
+	static constexpr float kBounceThreshold1 = 1.0f / 2.75f;	/* 1回目のバウンドのしきい値 */
+	static constexpr float kBounceThreshold2 = 2.0f / 2.75f;	/* 2回目のバウンドのしきい値 */
+	static constexpr float kBounceThreshold3 = 2.5f / 2.75f;	/* 3回目のバウンドのしきい値 */
+
+	static constexpr float kBounceMultiplier = 7.5625f;			/* 1回目のバウンドの乗数 */
+	static constexpr float kBounceSubtract2 = 1.5f / 2.75f;		/* 2回目のバウンドの減算値 */
+	static constexpr float kBounceAdd2 = 0.75f;					/* 2回目のバウンドの加算値 */
+	static constexpr float kBounceSubtract3 = 2.25f / 2.75f;	/* 3回目のバウンドの減算値 */
+	static constexpr float kBounceAdd3 = 0.9375f;				/* 3回目のバウンドの加算値 */
+	static constexpr float kBounceSubtract4 = 2.625f / 2.75f;	/* 4回目のバウンドの減算値 */
+	static constexpr float kBounceAdd4 = 0.984375f;				/* 4回目のバウンドの加算値 */
 };

@@ -1,4 +1,4 @@
-﻿#include "Easing.h"
+#include "Easing.h"
 
 // C++
 #include <chrono>
@@ -6,18 +6,13 @@
 #include <numbers>
 #include <thread>
 
-const float BACK_S = 1.70158f;
-
-const float ELASTIC_A = 1.0f;
-const float ELASTIC_P = 0.3f;
-
 float Easing::Lerp(float start, float end, float t) { return start + (end - start) * t; }
 
-float Easing::EaseInSine(float t) { return 1.0f - cosf((t * std::numbers::pi_v<float>) / 2.0f); }
+float Easing::EaseInSine(float t) { return 1.0f - cosf((t * std::numbers::pi_v<float>) / kTwo); }
 
-float Easing::EaseOutSine(float t) { return sinf((t * std::numbers::pi_v<float>) / 2.0f); }
+float Easing::EaseOutSine(float t) { return sinf((t * std::numbers::pi_v<float>) / kTwo); }
 
-float Easing::EaseInOutSine(float t) { return 0.5f * (1.0f - cosf(std::numbers::pi_v<float> * t)); }
+float Easing::EaseInOutSine(float t) { return kHalf * (1.0f - cosf(std::numbers::pi_v<float> * t)); }
 
 float Easing::EaseInCubic(float t) { return t * t * t; }
 
@@ -25,9 +20,9 @@ float Easing::EaseOutCubic(float t) { return (t -= 1.0f) * t * t + 1.0f; }
 
 float Easing::EaseInOutCubic(float t) {
 	if (t < 0.5) {
-		return 4.0f * t * t * t;
+		return kCubicInOutMultiplier * t * t * t;
 	} else {
-		return (t -= 1.0f) * (t * (t * 4.0f - 1.0f) + 1.0f);
+		return (t -= 1.0f) * (t * (t * kCubicInOutMultiplier - 1.0f) + 1.0f);
 	}
 }
 
@@ -37,9 +32,9 @@ float Easing::EaseOutQuint(float t) { return (t -= 1.0f) * t * t * t * t + 1.0f;
 
 float Easing::EaseInOutQuint(float t) {
 	if (t < 0.5) {
-		return 16.0f * t * t * t * t * t;
+		return kQuintInOutMultiplier * t * t * t * t * t;
 	} else {
-		return (t -= 1.0f) * t * t * t * t * 16.0f + 1.0f;
+		return (t -= 1.0f) * t * t * t * t * kQuintInOutMultiplier + 1.0f;
 	}
 }
 
@@ -48,10 +43,10 @@ float Easing::EaseInCirc(float t) { return 1.0f - sqrtf(1.0f - t * t); }
 float Easing::EaseOutCirc(float t) { return sqrtf(1.0f - (t -= 1.0f) * t); }
 
 float Easing::EaseInOutCirc(float t) {
-	if (t < 0.5f) {
-		return 0.5f * (1.0f - sqrtf(1.0f - (t * 2.0f) * (t * 2.0f)));
+	if (t < kHalf) {
+		return kHalf * (1.0f - sqrtf(1.0f - (t * kTwo) * (t * kTwo)));
 	} else {
-		return 0.5f * (sqrtf(1.0f - (t = t * 2.0f - 2.0f) * t) + 1.0f);
+		return kHalf * (sqrtf(1.0f - (t = t * kTwo - kTwo) * t) + 1.0f);
 	}
 }
 
@@ -59,13 +54,13 @@ float Easing::EaseInElastic(float t) {
 	return (t == 0.0f) ? 0.0f
 	       : (t == 1.0f)
 	           ? 1.0f
-	           : -(ELASTIC_A * powf(2.0f, 10.0f * (t - 1.0f)) * sin((t - 1.0f - (ELASTIC_P / (2.0f * std::numbers::pi_v<float>)) * logf(ELASTIC_A)) * (2.0f * std::numbers::pi_v<float>) / ELASTIC_P));
+	           : -(kElasticA * powf(kTwo, kElasticInOutShift * (t - 1.0f)) * sin((t - 1.0f - (kElasticP / (kTwo * std::numbers::pi_v<float>)) * logf(kElasticA)) * (kTwo * std::numbers::pi_v<float>) / kElasticP));
 }
 
 float Easing::EaseOutElastic(float t) {
 	return (t == 0.0f)   ? 0.0f
 	       : (t == 1.0f) ? 1.0f
-	                     : ELASTIC_A * powf(2.0f, -10.0f * t) * sinf((t - (ELASTIC_P / (2.0f * std::numbers::pi_v<float>)) * logf(ELASTIC_A)) * (2.0f * std::numbers::pi_v<float>) / ELASTIC_P) + 1.0f;
+	                     : kElasticA * powf(kTwo, -kElasticInOutShift * t) * sinf((t - (kElasticP / (kTwo * std::numbers::pi_v<float>)) * logf(kElasticA)) * (kTwo * std::numbers::pi_v<float>) / kElasticP) + 1.0f;
 }
 
 float Easing::EaseInOutElastic(float t) {
@@ -74,10 +69,10 @@ float Easing::EaseInOutElastic(float t) {
 	if (t == 1.0f)
 		return 1.0f;
 
-	if (t < 0.5f) {
-		return -0.5f * (ELASTIC_A * powf(2.0f, 20.0f * t - 10.0f) * sinf((20.0f * t - 11.125f) * (2.0f * std::numbers::pi_v<float>) / ELASTIC_P));
+	if (t < kHalf) {
+		return -kHalf * (kElasticA * powf(kTwo, kElasticInOutMultiplier * t - kElasticInOutShift) * sinf((kElasticInOutMultiplier * t - kElasticInOutOffset) * (kTwo * std::numbers::pi_v<float>) / kElasticP));
 	} else {
-		return ELASTIC_A * powf(2.0f, -20.0f * t + 10.0f) * sinf((20.0f * t - 11.125f) * (2.0f * std::numbers::pi_v<float>) / ELASTIC_P) * 0.5f + 1.0f;
+		return kElasticA * powf(kTwo, -kElasticInOutMultiplier * t + kElasticInOutShift) * sinf((kElasticInOutMultiplier * t - kElasticInOutOffset) * (kTwo * std::numbers::pi_v<float>) / kElasticP) * kHalf + 1.0f;
 	}
 }
 
@@ -86,70 +81,70 @@ float Easing::EaseInQuad(float t) { return t * t; }
 float Easing::EaseOutQuad(float t) { return 1.0f - (1.0f - t) * (1.0f - t); }
 
 float Easing::EaseInOutQuad(float t) {
-	if (t < 0.5f) {
-		return 2.0f * t * t;
+	if (t < kHalf) {
+		return kTwo * t * t;
 	} else {
-		return 1.0f - powf(-2.0f * t + 2.0f, 2.0f) / 2.0f;
+		return 1.0f - powf(-kTwo * t + kTwo, kTwo) / kTwo;
 	}
 }
 
 float Easing::EaseInQuart(float t) { return t * t * t * t; }
 
-float Easing::EaseOutQuart(float t) { return 1.0f - powf(1.0f - t, 4.0f); }
+float Easing::EaseOutQuart(float t) { return 1.0f - powf(1.0f - t, kQuartExponent); }
 
 float Easing::EaseInOutQuart(float t) {
-	if (t < 0.5f) {
-		return 8.0f * t * t * t * t;
+	if (t < kHalf) {
+		return kQuartInOutMultiplier * t * t * t * t;
 	} else {
-		return 1.0f - powf(-2.0f * t + 2.0f, 4.0f) / 2.0f;
+		return 1.0f - powf(-kTwo * t + kTwo, kQuartExponent) / kTwo;
 	}
 }
 
-float Easing::EaseInExpo(float t) { return (t == 0.0f) ? 0.0f : powf(2.0f, 10.0f * (t - 1.0f)); }
+float Easing::EaseInExpo(float t) { return (t == 0.0f) ? 0.0f : powf(kTwo, kExpoShift * (t - 1.0f)); }
 
-float Easing::EaseOutExpo(float t) { return (t == 1.0f) ? 1.0f : 1.0f - powf(2.0f, -10.0f * t); }
+float Easing::EaseOutExpo(float t) { return (t == 1.0f) ? 1.0f : 1.0f - powf(kTwo, -kExpoShift * t); }
 
 float Easing::EaseInOutExpo(float t) {
 	if (t == 0.0f || t == 1.0f)
 		return t;
-	if (t < 0.5f)
-		return 0.5f * pow(2.0f, 20.0f * t - 10.0f);
-	return 0.5f * (2.0f - pow(2.0f, -20.0f * t + 10.0f));
+	if (t < kHalf)
+		return kHalf * pow(kTwo, kExpoInOutMultiplier * t - kExpoInOutShift);
+	return kHalf * (kTwo - pow(kTwo, -kExpoInOutMultiplier * t + kExpoInOutShift));
 }
 
-float Easing::EaseInBack(float t) { return t * t * ((BACK_S + 1.0f) * t - BACK_S); }
+float Easing::EaseInBack(float t) { return t * t * ((kBackS + 1.0f) * t - kBackS); }
 
-float Easing::EaseOutBack(float t) { return (t -= 1.0f) * t * ((BACK_S + 1.0f) * t + BACK_S) + 1.0f; }
+float Easing::EaseOutBack(float t) { return (t -= 1.0f) * t * ((kBackS + 1.0f) * t + kBackS) + 1.0f; }
 
 float Easing::EaseInOutBack(float t) {
-	if (t < 0.5f) {
-		return 0.5f * (t * t * ((BACK_S * 1.525f + 1.0f) * t - BACK_S * 1.525f));
+	if (t < kHalf) {
+		return kHalf * (t * t * ((kBackS * kBackSInOutMultiplier + 1.0f) * t - kBackS * kBackSInOutMultiplier));
 	} else {
-		return 0.5f * ((t -= 1.0f) * t * ((BACK_S * 1.525f + 1.0f) * t + BACK_S * 1.525f) + 2.0f);
+		return kHalf * ((t -= 1.0f) * t * ((kBackS * kBackSInOutMultiplier + 1.0f) * t + kBackS * kBackSInOutMultiplier) + kTwo);
 	}
 }
 
 float Easing::EaseInBounce(float t) { return EaseOutBounce(1.0f - t); }
 
 float Easing::EaseOutBounce(float t) {
-	if (t < (1.0f / 2.75f)) {
-		return 7.5625f * t * t;
-	} else if (t < (2.0f / 2.75f)) {
-		t -= (1.5f / 2.75f);
-		return 7.5625f * t * t + 0.75f;
-	} else if (t < (2.5f / 2.75f)) {
-		t -= (2.25f / 2.75f);
-		return 7.5625f * t * t + 0.9375f;
+	if (t < kBounceThreshold1) {
+		return kBounceMultiplier * t * t;
+	} else if (t < kBounceThreshold2) {
+		t -= kBounceSubtract2;
+		return kBounceMultiplier * t * t + kBounceAdd2;
+	} else if (t < kBounceThreshold3) {
+		t -= kBounceSubtract3;
+		return kBounceMultiplier * t * t + kBounceAdd3;
 	} else {
-		t -= (2.625f / 2.75f);
-		return 7.5625f * t * t + 0.984375f;
+		t -= kBounceSubtract4;
+		return kBounceMultiplier * t * t + kBounceAdd4;
 	}
 }
 
 float Easing::EaseInOutBounce(float t) {
-	if (t < 0.5f) {
-		return 0.5f * EaseInBounce(t * 2.0f);
+	if (t < kHalf) {
+		return kHalf * EaseInBounce(t * kTwo);
 	} else {
-		return 0.5f * EaseOutBounce(t * 2.0f - 1.0f) + 0.5f;
+		return kHalf * EaseOutBounce(t * kTwo - 1.0f) + kHalf;
 	}
 }

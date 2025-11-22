@@ -1,4 +1,4 @@
-﻿#include "DirectXBase.h" 
+#include "DirectXBase.h" 
 #include <cassert>
 // MyClass
 #include "Logger.h"
@@ -200,7 +200,7 @@ void DirectXBase::CreateRootSignature()
 	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	// DescriptorRange作成
-	D3D12_DESCRIPTOR_RANGE descriptorRange[2] = {};
+	D3D12_DESCRIPTOR_RANGE descriptorRange[kDescriptorRangeCount] = {};
 	// t0 : 通常テクスチャ
 	descriptorRange[0].BaseShaderRegister = 0; // 0から始まる
 	descriptorRange[0].NumDescriptors = 1; // 数は1つ
@@ -227,102 +227,102 @@ void DirectXBase::CreateRootSignature()
 	shadowMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// RootParameter作成。複数設定できるので配列。
-	D3D12_ROOT_PARAMETER rootParameters[14] = {};
+	D3D12_ROOT_PARAMETER rootParameters[kRootParameterCount] = {};
 	// Material（CBV）
-	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
-	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[0].Descriptor.ShaderRegister = 0; // レジスタ番号0とバインド
+	rootParameters[kRootParameterIndexMaterial].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
+	rootParameters[kRootParameterIndexMaterial].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	rootParameters[kRootParameterIndexMaterial].Descriptor.ShaderRegister = kMaterialCBVRegister;
 	// TransformationMatrix（CBV）
-	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
-	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // VertexShaderで使う
-	rootParameters[1].Descriptor.ShaderRegister = 0; // レジスタ番号0を使う
+	rootParameters[kRootParameterIndexTransform].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
+	rootParameters[kRootParameterIndexTransform].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // VertexShaderで使う
+	rootParameters[kRootParameterIndexTransform].Descriptor.ShaderRegister = kTransformCBVRegister;
 	// DescriptorTable
-	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
-	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange; // Tableの中身の配列を指定
-	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数
+	rootParameters[kRootParameterIndexDescriptorTable].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
+	rootParameters[kRootParameterIndexDescriptorTable].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	rootParameters[kRootParameterIndexDescriptorTable].DescriptorTable.pDescriptorRanges = descriptorRange; // Tableの中身の配列を指定
+	rootParameters[kRootParameterIndexDescriptorTable].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数
 	// DirecitonalLight（CBV）
-	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
-	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[3].Descriptor.ShaderRegister = 1; // レジスタ番号1を使う
+	rootParameters[kRootParameterIndexDirectionalLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
+	rootParameters[kRootParameterIndexDirectionalLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	rootParameters[kRootParameterIndexDirectionalLight].Descriptor.ShaderRegister = kDirectionalLightCBVRegister;
 	// Camera（CBV）
-	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[4].Descriptor.ShaderRegister = 2;
+	rootParameters[kRootParameterIndexCamera].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexCamera].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexCamera].Descriptor.ShaderRegister = kCameraCBVRegister;
 
 	// StructuredBuffer
-	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[5].DescriptorTable.pDescriptorRanges = &descriptorRange[0];
-	rootParameters[5].DescriptorTable.NumDescriptorRanges = 1;
+	rootParameters[kRootParameterIndexStrcturedBuffer].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[kRootParameterIndexStrcturedBuffer].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[kRootParameterIndexStrcturedBuffer].DescriptorTable.pDescriptorRanges = &descriptorRange[0];
+	rootParameters[kRootParameterIndexStrcturedBuffer].DescriptorTable.NumDescriptorRanges = 1;
 
 	// PointLight（CBV）
-	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[6].Descriptor.ShaderRegister = 3;
+	rootParameters[kRootParameterIndexPointLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexPointLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexPointLight].Descriptor.ShaderRegister = kPointLightCBVRegister;
 
 	// SpotLight（CBV）
-	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[7].Descriptor.ShaderRegister = 4;
+	rootParameters[kRootParameterIndexSpotLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexSpotLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexSpotLight].Descriptor.ShaderRegister = kSpotLightCBVRegister;
 
 	// CubeMap
-	rootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[8].DescriptorTable.pDescriptorRanges = &cubeMapRange;
-	rootParameters[8].DescriptorTable.NumDescriptorRanges = 1;
+	rootParameters[kRootParameterIndexCubeMap].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[kRootParameterIndexCubeMap].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexCubeMap].DescriptorTable.pDescriptorRanges = &cubeMapRange;
+	rootParameters[kRootParameterIndexCubeMap].DescriptorTable.NumDescriptorRanges = 1;
 
 	// WaveDistoration（CBV）
-	rootParameters[9].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[9].Descriptor.ShaderRegister = 5;
+	rootParameters[kRootParameterIndexWaveDistortion].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexWaveDistortion].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexWaveDistortion].Descriptor.ShaderRegister = kWaveDistortionCBVRegister;
 
 	// GlitchEffect（CBV）
-	rootParameters[10].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[10].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[10].Descriptor.ShaderRegister = 6;
+	rootParameters[kRootParameterIndexGlitchEffect].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexGlitchEffect].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexGlitchEffect].Descriptor.ShaderRegister = kWaveGlitchEffectCBVRegister;
 
 	// LightCameraObject（CBV）
-	rootParameters[11].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[11].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[11].Descriptor.ShaderRegister = 1;
+	rootParameters[kRootParameterIndexLightCamera].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexLightCamera].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[kRootParameterIndexLightCamera].Descriptor.ShaderRegister = 1;
 
 	// ShadowMap
-	rootParameters[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[12].DescriptorTable.pDescriptorRanges = &shadowMapRange;
-	rootParameters[12].DescriptorTable.NumDescriptorRanges = 1;
+	rootParameters[kRootParameterIndexShadowMap].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[kRootParameterIndexShadowMap].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexShadowMap].DescriptorTable.pDescriptorRanges = &shadowMapRange;
+	rootParameters[kRootParameterIndexShadowMap].DescriptorTable.NumDescriptorRanges = 1;
 
 	// LightViewProj（CBV）
-	rootParameters[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[13].Descriptor.ShaderRegister = 7; // b7
+	rootParameters[kRootParameterIndexLightViewProj].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexLightViewProj].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexLightViewProj].Descriptor.ShaderRegister = kLightViewProjCBVRegister;
 
 	descriptionRootSignature.pParameters = rootParameters; // ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
 
 	// Samplerの設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[2] = {};
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[kStaticSamplerCount] = {};
 
 	// 通常テクスチャ用
-	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
-	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0~1の範囲外をリピート
-	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
-	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
-	staticSamplers[0].ShaderRegister = 0; // レジスタ番号0を使う
-	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	staticSamplers[kNormalSamplerRegister].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
+	staticSamplers[kNormalSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0~1の範囲外をリピート
+	staticSamplers[kNormalSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[kNormalSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[kNormalSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
+	staticSamplers[kNormalSamplerRegister].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
+	staticSamplers[kNormalSamplerRegister].ShaderRegister = kNormalSamplerRegister;
+	staticSamplers[kNormalSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
 
 	// シャドウマップ用比較サンプラー
-	staticSamplers[1].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR; // 比較サンプラー
-	staticSamplers[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER; // 外側は白
-	staticSamplers[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	staticSamplers[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	staticSamplers[1].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; // 典型的シャドウ判定
-	staticSamplers[1].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
-	staticSamplers[1].ShaderRegister = 1; // s1
-	staticSamplers[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	staticSamplers[kShadowSamplerRegister].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR; // 比較サンプラー
+	staticSamplers[kShadowSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER; // 外側は白
+	staticSamplers[kShadowSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	staticSamplers[kShadowSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	staticSamplers[kShadowSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; // 典型的シャドウ判定
+	staticSamplers[kShadowSamplerRegister].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+	staticSamplers[kShadowSamplerRegister].ShaderRegister = kShadowSamplerRegister;
+	staticSamplers[kShadowSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	descriptionRootSignature.pStaticSamplers = staticSamplers;
 	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
@@ -364,11 +364,11 @@ void DirectXBase::CreateRootSignatureParticle()
 	descriptorRangeForInstancing[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// RootParameterの作成
-	D3D12_ROOT_PARAMETER rootParameters[5] = {};
+	D3D12_ROOT_PARAMETER rootParameters[kParticleRootParameterCount] = {};
 
-	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
-	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[0].Descriptor.ShaderRegister = 0; // レジスタ番号0とバインド
+	rootParameters[kRootParameterIndexMaterial].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
+	rootParameters[kRootParameterIndexMaterial].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	rootParameters[kRootParameterIndexMaterial].Descriptor.ShaderRegister = 0; // レジスタ番号0とバインド
 
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // VertexShaderで使う
@@ -392,15 +392,15 @@ void DirectXBase::CreateRootSignatureParticle()
 	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
 
 	// Samplerの設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
-	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
-	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0~1の範囲外をリピート
-	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
-	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
-	staticSamplers[0].ShaderRegister = 0; // レジスタ番号0を使う
-	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[kParticleStaticSamplerCount] = {};
+	staticSamplers[kNormalSamplerRegister].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
+	staticSamplers[kNormalSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0~1の範囲外をリピート
+	staticSamplers[kNormalSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[kNormalSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[kNormalSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
+	staticSamplers[kNormalSamplerRegister].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
+	staticSamplers[kNormalSamplerRegister].ShaderRegister = kNormalSamplerRegister;
+	staticSamplers[kNormalSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
 	descriptionRootSignature.pStaticSamplers = staticSamplers;
 	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
 
@@ -427,7 +427,7 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	// DescriptorRange作成
-	D3D12_DESCRIPTOR_RANGE descriptorRange[2] = {};
+	D3D12_DESCRIPTOR_RANGE descriptorRange[kInstancedObjectDescriptorRangeCount] = {};
 	descriptorRange[0].BaseShaderRegister = 0;                                                   // 0から始まる
 	descriptorRange[0].NumDescriptors = 1;                                                       // 数は1つ
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;                              // SRVを使う
@@ -453,102 +453,102 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 	shadowMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// RootParameter作成。複数設定できるので配列。
-	D3D12_ROOT_PARAMETER rootParameters[14] = {};
+	D3D12_ROOT_PARAMETER rootParameters[kInstancedObjectRootParameterCount] = {};
 	// Material（CBV）
-	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;    // CBVを使う
-	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[0].Descriptor.ShaderRegister = 0;                    // レジスタ番号0とバインド
+	rootParameters[kRootParameterIndexMaterial].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;    // CBVを使う
+	rootParameters[kRootParameterIndexMaterial].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	rootParameters[kRootParameterIndexMaterial].Descriptor.ShaderRegister = kMaterialCBVRegister;
 	// TransformationMatrix（CBV）
-	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;     // CBVを使う
-	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // VertexShaderで使う
-	rootParameters[1].Descriptor.ShaderRegister = 0;                     // レジスタ番号0を使う
+	rootParameters[kRootParameterIndexTransform].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;     // CBVを使う
+	rootParameters[kRootParameterIndexTransform].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // VertexShaderで使う
+	rootParameters[kRootParameterIndexTransform].Descriptor.ShaderRegister = kTransformCBVRegister;
 	// DescriptorTable
-	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;      // DescriptorTableを使う
-	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;                // PixelShaderで使う
-	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;             // Tableの中身の配列を指定
-	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数
+	rootParameters[kRootParameterIndexDescriptorTable].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;      // DescriptorTableを使う
+	rootParameters[kRootParameterIndexDescriptorTable].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;                // PixelShaderで使う
+	rootParameters[kRootParameterIndexDescriptorTable].DescriptorTable.pDescriptorRanges = descriptorRange;             // Tableの中身の配列を指定
+	rootParameters[kRootParameterIndexDescriptorTable].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数
 	// DirecitonalLight（CBV）
-	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;    // CBVを使う
-	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[3].Descriptor.ShaderRegister = 1;                    // レジスタ番号1を使う
+	rootParameters[kRootParameterIndexDirectionalLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;    // CBVを使う
+	rootParameters[kRootParameterIndexDirectionalLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	rootParameters[kRootParameterIndexDirectionalLight].Descriptor.ShaderRegister = kDirectionalLightCBVRegister;
 	// Camera（CBV）
-	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[4].Descriptor.ShaderRegister = 2;
+	rootParameters[kRootParameterIndexCamera].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexCamera].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexCamera].Descriptor.ShaderRegister = kCameraCBVRegister;
 
 	// StructuredBuffer
-	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[5].DescriptorTable.pDescriptorRanges = &descriptorRange[0];
-	rootParameters[5].DescriptorTable.NumDescriptorRanges = 1;
+	rootParameters[kRootParameterIndexStrcturedBuffer].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[kRootParameterIndexStrcturedBuffer].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[kRootParameterIndexStrcturedBuffer].DescriptorTable.pDescriptorRanges = &descriptorRange[0];
+	rootParameters[kRootParameterIndexStrcturedBuffer].DescriptorTable.NumDescriptorRanges = 1;
 
 	// PointLight（CBV）
-	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[6].Descriptor.ShaderRegister = 3;
+	rootParameters[kRootParameterIndexPointLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexPointLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexPointLight].Descriptor.ShaderRegister = kPointLightCBVRegister;
 
 	// SpotLight（CBV）
-	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[7].Descriptor.ShaderRegister = 4;
+	rootParameters[kRootParameterIndexSpotLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexSpotLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexSpotLight].Descriptor.ShaderRegister = kSpotLightCBVRegister;
 
 	// CubeMap
-	rootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[8].DescriptorTable.pDescriptorRanges = &cubeMapRange;
-	rootParameters[8].DescriptorTable.NumDescriptorRanges = 1;
+	rootParameters[kRootParameterIndexCubeMap].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[kRootParameterIndexCubeMap].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexCubeMap].DescriptorTable.pDescriptorRanges = &cubeMapRange;
+	rootParameters[kRootParameterIndexCubeMap].DescriptorTable.NumDescriptorRanges = 1;
 
 	// WaveDistoration（CBV）
-	rootParameters[9].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[9].Descriptor.ShaderRegister = 5;
+	rootParameters[kRootParameterIndexWaveDistortion].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexWaveDistortion].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexWaveDistortion].Descriptor.ShaderRegister = kWaveDistortionCBVRegister;
 
 	// GlitchEffect（CBV）
-	rootParameters[10].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[10].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[10].Descriptor.ShaderRegister = 6;
+	rootParameters[kRootParameterIndexGlitchEffect].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexGlitchEffect].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexGlitchEffect].Descriptor.ShaderRegister = kWaveGlitchEffectCBVRegister;
 
 	// LightCamera（CBV）
-	rootParameters[11].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[11].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[11].Descriptor.ShaderRegister = 1;
+	rootParameters[kRootParameterIndexLightCamera].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexLightCamera].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[kRootParameterIndexLightCamera].Descriptor.ShaderRegister = 1;
 
 	// ShadowMap
-	rootParameters[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[12].DescriptorTable.pDescriptorRanges = &shadowMapRange;
-	rootParameters[12].DescriptorTable.NumDescriptorRanges = 1;
+	rootParameters[kRootParameterIndexShadowMap].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[kRootParameterIndexShadowMap].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexShadowMap].DescriptorTable.pDescriptorRanges = &shadowMapRange;
+	rootParameters[kRootParameterIndexShadowMap].DescriptorTable.NumDescriptorRanges = 1;
 
 	// LightViewProj（CBV）
-	rootParameters[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[13].Descriptor.ShaderRegister = 7; // b7
+	rootParameters[kRootParameterIndexLightViewProj].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexLightViewProj].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexLightViewProj].Descriptor.ShaderRegister = kLightViewProjCBVRegister;
 
 	descriptionRootSignature.pParameters = rootParameters;             // ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
 
 	// Samplerの設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[2] = {};
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[kInstancedObjectStaticSamplerCount] = {};
 
 	// 通常テクスチャ用
-	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
-	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0~1の範囲外をリピート
-	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
-	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
-	staticSamplers[0].ShaderRegister = 0; // レジスタ番号0を使う
-	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	staticSamplers[kNormalSamplerRegister].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
+	staticSamplers[kNormalSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0~1の範囲外をリピート
+	staticSamplers[kNormalSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[kNormalSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[kNormalSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
+	staticSamplers[kNormalSamplerRegister].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
+	staticSamplers[kNormalSamplerRegister].ShaderRegister = kNormalSamplerRegister;
+	staticSamplers[kNormalSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
 
 	// シャドウマップ用比較サンプラー
-	staticSamplers[1].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR; // 比較サンプラー
-	staticSamplers[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER; // 外側は白
-	staticSamplers[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	staticSamplers[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	staticSamplers[1].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; // 典型的シャドウ判定
-	staticSamplers[1].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
-	staticSamplers[1].ShaderRegister = 1; // s1
-	staticSamplers[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	staticSamplers[kShadowSamplerRegister].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR; // 比較サンプラー
+	staticSamplers[kShadowSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER; // 外側は白
+	staticSamplers[kShadowSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	staticSamplers[kShadowSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	staticSamplers[kShadowSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; // 典型的シャドウ判定
+	staticSamplers[kShadowSamplerRegister].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+	staticSamplers[kShadowSamplerRegister].ShaderRegister = kShadowSamplerRegister;
+	staticSamplers[kShadowSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	descriptionRootSignature.pStaticSamplers = staticSamplers;
 	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
@@ -570,32 +570,32 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 void DirectXBase::SetInputLayout()
 {
 	// InputLayout
-	inputElementDescs_[0].SemanticName = "POSITION";
-	inputElementDescs_[0].SemanticIndex = 0;
-	inputElementDescs_[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputElementDescs_[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs_[kInputElementIndexPositon].SemanticName = "POSITION";
+	inputElementDescs_[kInputElementIndexPositon].SemanticIndex = 0;
+	inputElementDescs_[kInputElementIndexPositon].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	inputElementDescs_[kInputElementIndexPositon].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
-	inputElementDescs_[1].SemanticName = "TEXCOORD";
-	inputElementDescs_[1].SemanticIndex = 0;
-	inputElementDescs_[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElementDescs_[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs_[kInputElementIndexTexcoord].SemanticName = "TEXCOORD";
+	inputElementDescs_[kInputElementIndexTexcoord].SemanticIndex = 0;
+	inputElementDescs_[kInputElementIndexTexcoord].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputElementDescs_[kInputElementIndexTexcoord].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
-	inputElementDescs_[2].SemanticName = "NORMAL";
-	inputElementDescs_[2].SemanticIndex = 0;
-	inputElementDescs_[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs_[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs_[kInputElementIndexNormal].SemanticName = "NORMAL";
+	inputElementDescs_[kInputElementIndexNormal].SemanticIndex = 0;
+	inputElementDescs_[kInputElementIndexNormal].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElementDescs_[kInputElementIndexNormal].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
-	inputElementDescs_[3].SemanticName = "WEIGHT";
-	inputElementDescs_[3].SemanticIndex = 0;
-	inputElementDescs_[3].Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // float32_t4
-	inputElementDescs_[3].InputSlot = 1; // 1番目のslotのVBVのことだと伝える
-	inputElementDescs_[3].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs_[kInputElementIndexWeight].SemanticName = "WEIGHT";
+	inputElementDescs_[kInputElementIndexWeight].SemanticIndex = 0;
+	inputElementDescs_[kInputElementIndexWeight].Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // float32_t4
+	inputElementDescs_[kInputElementIndexWeight].InputSlot = 1; // 1番目のslotのVBVのことだと伝える
+	inputElementDescs_[kInputElementIndexWeight].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
-	inputElementDescs_[4].SemanticName = "INDEX";
-	inputElementDescs_[4].SemanticIndex = 0;
-	inputElementDescs_[4].Format = DXGI_FORMAT_R32G32B32A32_SINT; // int32_t4
-	inputElementDescs_[4].InputSlot = 1; // 1番目のslotのVBVのことだと伝える
-	inputElementDescs_[4].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs_[kInputElementIndex].SemanticName = "INDEX";
+	inputElementDescs_[kInputElementIndex].SemanticIndex = 0;
+	inputElementDescs_[kInputElementIndex].Format = DXGI_FORMAT_R32G32B32A32_SINT; // int32_t4
+	inputElementDescs_[kInputElementIndex].InputSlot = 1; // 1番目のslotのVBVのことだと伝える
+	inputElementDescs_[kInputElementIndex].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
 	inputLayoutDesc_.pInputElementDescs = inputElementDescs_;
 	inputLayoutDesc_.NumElements = _countof(inputElementDescs_);
@@ -609,91 +609,91 @@ D3D12_BLEND_DESC DirectXBase::SetBlendState()
 
 	// BlendStateの設定
 	// すべての色要素を書き込む
-	blendDesc_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDesc_.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc_.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc_.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc_.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc_.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc_.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc_.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
+	blendDesc_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 	return blendDesc_;
 }
 
 D3D12_BLEND_DESC DirectXBase::SetBlendStateNone()
 {
-	blendDescNone_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDescNone_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDescNone_;
 }
 
 D3D12_BLEND_DESC DirectXBase::SetBlendStateAdd()
 {
-	blendDescAdd_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDescAdd_.RenderTarget[0].BlendEnable = TRUE;
-	blendDescAdd_.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDescAdd_.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDescAdd_.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-	blendDescAdd_.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDescAdd_.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDescAdd_.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDescAdd_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDescAdd_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
+	blendDescAdd_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDescAdd_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDescAdd_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_ONE;
+	blendDescAdd_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDescAdd_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDescAdd_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 	return blendDescAdd_;
 }
 
 D3D12_BLEND_DESC DirectXBase::SetBlendStateSubtract()
 {
-	blendDescSubtract_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDescSubtract_.RenderTarget[0].BlendEnable = TRUE;
-	blendDescSubtract_.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDescSubtract_.RenderTarget[0].BlendOp = D3D12_BLEND_OP_REV_SUBTRACT;
-	blendDescSubtract_.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-	blendDescSubtract_.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDescSubtract_.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDescSubtract_.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDescSubtract_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDescSubtract_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
+	blendDescSubtract_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDescSubtract_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_REV_SUBTRACT;
+	blendDescSubtract_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_ONE;
+	blendDescSubtract_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDescSubtract_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDescSubtract_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 	return blendDescSubtract_;
 }
 
 D3D12_BLEND_DESC DirectXBase::SetBlendStateMultiply()
 {
-	blendDescMultiply_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDescMultiply_.RenderTarget[0].BlendEnable = TRUE;
-	blendDescMultiply_.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
-	blendDescMultiply_.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDescMultiply_.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
-	blendDescMultiply_.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDescMultiply_.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDescMultiply_.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDescMultiply_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDescMultiply_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
+	blendDescMultiply_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_ZERO;
+	blendDescMultiply_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDescMultiply_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_SRC_COLOR;
+	blendDescMultiply_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDescMultiply_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDescMultiply_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 	return blendDescMultiply_;
 }
 
 D3D12_BLEND_DESC DirectXBase::SetBlendStateScreen()
 {
-	blendDescScreen_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDescScreen_.RenderTarget[0].BlendEnable = TRUE;
-	blendDescScreen_.RenderTarget[0].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;
-	blendDescScreen_.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDescScreen_.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-	blendDescScreen_.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDescScreen_.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDescScreen_.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDescScreen_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDescScreen_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
+	blendDescScreen_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;
+	blendDescScreen_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDescScreen_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_ONE;
+	blendDescScreen_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDescScreen_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDescScreen_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 	return blendDescScreen_;
 }
 
 D3D12_BLEND_DESC DirectXBase::SetBlendStateAlpha()
 {
-	blendDescAlpha_.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDescAlpha_.RenderTarget[0].BlendEnable = TRUE;
-	blendDescAlpha_.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDescAlpha_.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDescAlpha_.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDescAlpha_.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDescAlpha_.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDescAlpha_.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDescAlpha_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDescAlpha_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
+	blendDescAlpha_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDescAlpha_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDescAlpha_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDescAlpha_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDescAlpha_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDescAlpha_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 	return blendDescAlpha_;
 }
@@ -1157,8 +1157,8 @@ void DirectXBase::SetViewport()
 	viewport_.Height = static_cast<float>(Window::GetHeight());
 	viewport_.TopLeftX = 0;
 	viewport_.TopLeftY = 0;
-	viewport_.MinDepth = 0.0f;
-	viewport_.MaxDepth = 1.0f;
+	viewport_.MinDepth = kViewportMinDepth;
+	viewport_.MaxDepth = kViewportMaxDepth;
 }
 
 void DirectXBase::SetScissor()
@@ -1176,7 +1176,7 @@ void DirectXBase::CreateDepthBuffer()
 	depthStencilResource_ = CreateDepthStencilTextureResource(device_.Get(), Window::GetWidth(), Window::GetHeight(), false);
 
 	// DSVの生成
-	dsvDescriptorHeap_.Create(device_.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 128, false);
+	dsvDescriptorHeap_.Create(device_.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, kDefaultDSVHeapSize, false);
 
 	// DSVの設定
 	dsvDesc_.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // Format。基本的にはResourceに合わせる
@@ -1218,9 +1218,7 @@ void DirectXBase::BeginFrame()
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_.GetCPUHandle(0);
 	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
 	// 指定した色で画面全体をクリアする
-	/*float clearColor[] = {0.247f, 0.3f, 0.372f, 1.0f};*/
-	float clearColor[] = {0.1f, 0.25f, 0.5f, 1.0f};
-	commandList_->ClearRenderTargetView(rtvHandles_[backBufferIndex], clearColor, 0, nullptr);
+	commandList_->ClearRenderTargetView(rtvHandles_[backBufferIndex], kDefaultClearColor, 0, nullptr);
 	// 指定した深度で画面全体をクリアする
 	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
@@ -1332,7 +1330,7 @@ DescriptorHeap* DirectXBase::GetDSVHeap()
 
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXBase::GetRTVHandle(UINT index)
 {
-	if (index >= 2) {
+	if (index >= kBackBufferCount) {
 		throw std::out_of_range("GetRTVHandle: index out of range");
 	}
 

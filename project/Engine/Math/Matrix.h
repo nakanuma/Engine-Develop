@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -193,5 +193,17 @@ public:
 	/// <param name="translate">平行移動ベクトル</param>
 	/// <returns>アフィン変換行列（4x4Matrix）</returns>
 	static Matrix MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3 translate);
+
+private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kTwo = 2.0f;
+
+	static constexpr size_t kRowSize = 4;
+	static constexpr size_t kColSize = 4;
+	static constexpr size_t kAugmentedColSize = 8;	/* 逆行列計算時の拡大行列の列数 */
+
+	static constexpr float kEpsilon = 1e-6f;	/* 微小値 */
 };
 

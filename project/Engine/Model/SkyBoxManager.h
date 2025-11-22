@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -48,9 +48,14 @@ public:
 
 private:
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kSkyBoxScale = 1000.0f;				/* スカイボックスのスケール */
+	static constexpr uint32_t kRootParameterIndexCubeMap = 8;	/* キューブマップテクスチャ用ルートパラメーターインデックス */
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
-
 	ModelManager::ModelData modelSkybox_;			/* スカイボックスモデルデータ */
 	std::unique_ptr<Object3D> objectSkybox_;		/* スカイボックスオブジェクト */
 };

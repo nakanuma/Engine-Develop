@@ -136,6 +136,17 @@ private:
 	};
 
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kDefaultClearDepth = 1.0f;	/* デフォルトのクリア深度 */
+	static constexpr float kMinDepth = 0.0f;	/* ビューポートの最小深度 */
+	static constexpr float kMaxDepth = 1.0f;	/* ビューポートの最大深度 */
+
+	static constexpr uint32_t kRootParameterIndexShadowMap = 12;	/* シャドウマップテクスチャ用ルートパラメーターインデックス */
+
+	static constexpr size_t kMaxRenderTargets = 8;	/* レンダーターゲットの最大数 */
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
 

@@ -1,4 +1,4 @@
-﻿#include "Matrix.h"
+#include "Matrix.h"
 #include <math.h>
 #include <stdexcept>
 
@@ -49,45 +49,45 @@ Matrix::Matrix(float m00, float m01, float m02, float m03, float m10, float m11,
 Matrix Matrix::operator-() const {
 	Matrix result;
 	// 左側に元行列、右側に単位行列を置く拡大行列を用意
-	float temp[4][8] = {};
+	float temp[kRowSize][kAugmentedColSize] = {};
 
 	// ガウス消去法で使う係数
 	float a;
 
 	// 一時行列にコピー
-	for (int32_t i = 0; i < 4; i++) {
-		for (int32_t j = 0; j < 4; j++) {
+	for (int32_t i = 0; i < kRowSize; i++) {
+		for (int32_t j = 0; j < kColSize; j++) {
 			temp[i][j] = r[i][j]; // 元行列を左側にコピー
 
 			if (i == j)
-				temp[i][4 + j] = 1; // 右側に単位行列を作る
+				temp[i][kColSize + j] = 1; // 右側に単位行列を作る
 		}
 	}
 
-	for (int32_t k = 0; k < 4; k++) {
+	for (int32_t k = 0; k < kRowSize; k++) {
 		// 係数を計算
 		a = 1 / temp[k][k];
 
-		for (int32_t j = 0; j < 8; j++) {
+		for (int32_t j = 0; j < kAugmentedColSize; j++) {
 			temp[k][j] *= a; // ピボット行を正規化
 		}
 
-		for (int32_t i = 0; i < 4; i++) {
+		for (int32_t i = 0; i < kRowSize; i++) {
 			if (i == k) {
 				continue;
 			}
 
 			a = -temp[i][k]; // 他の行のk列を0にする係数
 
-			for (int32_t j = 0; j < 8; j++) {
+			for (int32_t j = 0; j < kAugmentedColSize; j++) {
 				temp[i][j] += temp[k][j] * a; // ガウス消去
 			}
 		}
 	}
 
-	for (int32_t i = 0; i < 4; i++) {
-		for (int32_t j = 0; j < 4; j++) {
-			result.r[i][j] = temp[i][4 + j]; // 右側の単位行列の変化が逆行列になる
+	for (int32_t i = 0; i < kRowSize; i++) {
+		for (int32_t j = 0; j < kColSize; j++) {
+			result.r[i][j] = temp[i][kColSize + j]; // 右側の単位行列の変化が逆行列になる
 		}
 	}
 
@@ -206,8 +206,8 @@ Matrix Matrix::Transpose(const Matrix& m) {
 	Matrix result;
 
 	// 行と列を入れ替え
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
+	for (int i = 0; i < kRowSize; ++i) {
+		for (int j = 0; j < kColSize; ++j) {
 			result.r[i][j] = m.r[j][i];
 		}
 	}
@@ -234,8 +234,8 @@ Matrix Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float
 
 Matrix Matrix::Orthographic(float width, float height, float nearClip, float farClip) {
 	return Matrix(
-		2.0f / width, 0.0f, 0.0f, 0.0f, // Xスケーリング
-		0.0f, 2.0f / -height, 0.0f, 0.0f, // Yスケーリング
+		kTwo / width, 0.0f, 0.0f, 0.0f, // Xスケーリング
+		0.0f, kTwo / -height, 0.0f, 0.0f, // Yスケーリング
 		0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f, // Zスケーリング
 		-1, 1, nearClip / (nearClip - farClip), 1.0f // 平行移動（左上を原点にする + 深度補正）
 	);
@@ -245,14 +245,14 @@ Matrix Matrix::OrthographicOffCenterLH(float left, float right, float bottom, fl
 	Matrix m;
 
 	// Xスケーリング
-	m.r[0][0] = 2.0f / (right - left);
+	m.r[0][0] = kTwo / (right - left);
 	m.r[0][1] = 0.0f;
 	m.r[0][2] = 0.0f;
 	m.r[0][3] = 0.0f;
 
 	// Yスケーリング
 	m.r[1][0] = 0.0f;
-	m.r[1][1] = 2.0f / (top - bottom);
+	m.r[1][1] = kTwo / (top - bottom);
 	m.r[1][2] = 0.0f;
 	m.r[1][3] = 0.0f;
 
@@ -274,7 +274,7 @@ Matrix Matrix::OrthographicOffCenterLH(float left, float right, float bottom, fl
 Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& up) {
 	// forward
 	Float3 zaxis = target - eye;
-	if (Float3::Length(zaxis) < 1e-6f) {
+	if (Float3::Length(zaxis) < kEpsilon) {
 		zaxis = Float3(0, 0, 1); // 適当な初期値
 	} else {
 		zaxis = Float3::Normalize(zaxis);
@@ -282,7 +282,7 @@ Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& u
 
 	// right
 	Float3 xaxis = Float3::Cross(zaxis, up);
-	if (Float3::LengthSq(xaxis) < 1e-6f) {
+	if (Float3::LengthSq(xaxis) < kEpsilon) {
 		// upとzaxisが平行->別のupベクトルに置き換える
 		xaxis = Float3::Cross(Float3(0, 0, 1), zaxis);
 	}
@@ -430,19 +430,19 @@ Matrix Matrix::QuaternionToRotation(Quaternion q) {
 
 	// X軸方向
 	result.r[0][0] = (q.w * q.w) + (q.x * q.x) - (q.y * q.y) - (q.z * q.z);
-	result.r[0][1] = 2.0f * ((q.x * q.y) + (q.w * q.z));
-	result.r[0][2] = 2.0f * ((q.x * q.z) - (q.w * q.y));
+	result.r[0][1] = kTwo * ((q.x * q.y) + (q.w * q.z));
+	result.r[0][2] = kTwo * ((q.x * q.z) - (q.w * q.y));
 	result.r[0][3] = 0.0f;
 
 	// Y軸方向
-	result.r[1][0] = 2.0f * ((q.x * q.y) - (q.w * q.z));
+	result.r[1][0] = kTwo * ((q.x * q.y) - (q.w * q.z));
 	result.r[1][1] = (q.w * q.w) - (q.x * q.x) + (q.y * q.y) - (q.z * q.z);
-	result.r[1][2] = 2.0f * ((q.y * q.z) + (q.w * q.x));
+	result.r[1][2] = kTwo * ((q.y * q.z) + (q.w * q.x));
 	result.r[1][3] = 0.0f;
 
 	// Z軸方向
-	result.r[2][0] = 2.0f * ((q.x * q.z) + (q.w * q.y));
-	result.r[2][1] = 2.0f * ((q.y * q.z) - (q.w * q.x));
+	result.r[2][0] = kTwo * ((q.x * q.z) + (q.w * q.y));
+	result.r[2][1] = kTwo * ((q.y * q.z) - (q.w * q.x));
 	result.r[2][2] = (q.w * q.w) - (q.x * q.x) - (q.y * q.y) + (q.z * q.z);
 	result.r[2][3] = 0.0f;
 

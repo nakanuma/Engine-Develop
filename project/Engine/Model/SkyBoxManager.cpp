@@ -18,7 +18,7 @@ void SkyBoxManager::Initialize(const std::string& filePath) {
 	// オブジェクトの生成とモデル設定
 	objectSkybox_ = std::make_unique<Object3D>();
 	objectSkybox_->model_ = &modelSkybox_;
-	objectSkybox_->transform_.scale_ = {1000.0f, 1000.0f, 1000.0f};
+	objectSkybox_->transform_.scale_ = { kSkyBoxScale, kSkyBoxScale, kSkyBoxScale };
 }
 
 void SkyBoxManager::Update() {
@@ -33,7 +33,7 @@ void SkyBoxManager::Draw() {
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateSkybox());
 
 	// CubeMapをバインド
-	TextureManager::SetDescriptorTable(8, dxBase->GetCommandList(), modelSkybox_.material.textureHandle);
+	TextureManager::SetDescriptorTable(kRootParameterIndexCubeMap, dxBase->GetCommandList(), modelSkybox_.material.textureHandle);
 
 	objectSkybox_->Draw();
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());

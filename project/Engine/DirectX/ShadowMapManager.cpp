@@ -1,4 +1,4 @@
-﻿#include "ShadowMapManager.h"
+#include "ShadowMapManager.h"
 
 #include <DirectXBase.h>
 #include <LightCamera.h>
@@ -36,7 +36,7 @@ int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height) {
 
 	D3D12_CLEAR_VALUE clearValue{};
 	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
-	clearValue.DepthStencil.Depth = 1.0f;
+	clearValue.DepthStencil.Depth = kDefaultClearDepth;
 	clearValue.DepthStencil.Stencil = 0;
 
 	ComPtr<ID3D12Resource> shadowTex;
@@ -76,8 +76,8 @@ void ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle) {
 	vp.TopLeftY = 0.0f;
 	vp.Width = static_cast<float>(Window::GetWidth());
 	vp.Height = static_cast<float>(Window::GetHeight());
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
+	vp.MinDepth = kMinDepth;
+	vp.MaxDepth = kMaxDepth;
 	dxBase->GetCommandList()->RSSetViewports(1, &vp);
 
 	D3D12_RECT sc{};
@@ -103,7 +103,7 @@ void ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle) {
 	// 描画後、SRVとして使えるように遷移
 	ShadowMapManager::GetInstance()->TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	// ShadowMapをバインド
-	TextureManager::SetDescriptorTable(12, dxBase->GetCommandList(), shadowMapHandle);
+	TextureManager::SetDescriptorTable(kRootParameterIndexShadowMap, dxBase->GetCommandList(), shadowMapHandle);
 	// LightCameraの定数バッファを送信（PixelShader内で使用）
 	LightCamera::GetInstance()->TransferConstantBuffer();
 
@@ -182,8 +182,7 @@ void ShadowMapManager::CreateShadowPSO() {
 	psoDesc.DepthStencilState.StencilEnable = FALSE;
 
 	psoDesc.NumRenderTargets = 0; // カラーターゲットなし
-	for (int i = 0; i < 8; ++i)
-		psoDesc.RTVFormats[i] = DXGI_FORMAT_UNKNOWN;
+	for (int i = 0; i < kMaxRenderTargets; ++i) psoDesc.RTVFormats[i] = DXGI_FORMAT_UNKNOWN;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
 	auto vs = ShaderManager::GetInstance()->GetShader("ShadowMap_VS");
@@ -223,8 +222,7 @@ void ShadowMapManager::CreateShadowSkinnedPSO() {
 	psoDesc.DepthStencilState.StencilEnable = FALSE;
 
 	psoDesc.NumRenderTargets = 0; // カラーターゲットなし
-	for (int i = 0; i < 8; ++i)
-		psoDesc.RTVFormats[i] = DXGI_FORMAT_UNKNOWN;
+	for (int i = 0; i < kMaxRenderTargets; ++i) psoDesc.RTVFormats[i] = DXGI_FORMAT_UNKNOWN;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
 	auto vs = ShaderManager::GetInstance()->GetShader("ShadowMapSkinned_VS");

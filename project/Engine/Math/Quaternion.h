@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -53,4 +53,11 @@ public:
 	/// <param name="t">補間係数（0.0fから1.0fの範囲）</param>
 	/// <returns>補間後のQuaternion</returns>
 	static Quaternion Slerp(const Quaternion& a, const Quaternion& b, float t);
+
+private:
+	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr float kHalf = 0.5f;
+	static constexpr float kSlerpDotThreshold = 0.995f;	/* 線形補間に切り替えるドット積の閾値 */
 };

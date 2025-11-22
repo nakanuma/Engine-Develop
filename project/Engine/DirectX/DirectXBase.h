@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -253,6 +253,76 @@ public:
 
 	friend RTVManager;
 private:
+	// =========================================================
+	// Constants
+	// =========================================================
+
+	// RootSignatureCounts
+	static constexpr uint32_t kDescriptorRangeCount = 2;	/* ディスクリプタレンジの数 */
+	static constexpr uint32_t kRootParameterCount = 14;		/* ルートパラメーターの数 */
+	static constexpr uint32_t kStaticSamplerCount = 2;		/* スタティックサンプラーの数 */
+
+	// RootSignatureCounts - Particle
+	static constexpr uint32_t kParticleRootParameterCount = 5;	/* ルートパラメーターの数 */
+	static constexpr uint32_t kParticleStaticSamplerCount = 1;	/* スタティックサンプラーの数 */
+
+	// RootSignatureCounts - InstancedObject
+	static constexpr uint32_t kInstancedObjectDescriptorRangeCount = 2;		/* ディスクリプタレンジの数 */
+	static constexpr uint32_t kInstancedObjectRootParameterCount = 14;		/* ルートパラメーターの数 */
+	static constexpr uint32_t kInstancedObjectStaticSamplerCount = 2;		/* スタティックサンプラーの数 */
+
+	static constexpr uint32_t kMaterialCBVRegister = 0;			/* マテリアル用レジスタ番号 */
+	static constexpr uint32_t kTransformCBVRegister = 0;		/* 変換行列用レジスタ番号 */
+	static constexpr uint32_t kDirectionalLightCBVRegister = 1;	/* 平行光源用レジスタ番号 */
+	static constexpr uint32_t kCameraCBVRegister = 2;			/* カメラ用レジスタ番号 */
+	static constexpr uint32_t kPointLightCBVRegister = 3;		/* 点光源用レジスタ番号 */
+	static constexpr uint32_t kSpotLightCBVRegister = 4;		/* スポットライト用レジスタ番号 */
+	static constexpr uint32_t kWaveDistortionCBVRegister = 5;	/* 波用レジスタ番号 */
+	static constexpr uint32_t kWaveGlitchEffectCBVRegister = 6;	/* グリッチエフェクト用レジスタ番号 */
+	static constexpr uint32_t kLightViewProjCBVRegister = 7;	/* ライト行列用レジスタ番号 */
+
+	static constexpr uint32_t kRootParameterIndexMaterial = 0;			/* マテリアル用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTransform = 1;			/* 変換行列用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexDescriptorTable = 2;	/* ディスクリプタテーブル用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexDirectionalLight = 3;	/* 平行光源用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexCamera = 4;			/* カメラ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexStrcturedBuffer = 5;	/* ストラクチャードバッファ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexPointLight = 6;		/* 点光源用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexSpotLight = 7;			/* スポットライト用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexCubeMap = 8;			/* キューブマップテクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexWaveDistortion = 9;	/* 波用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexGlitchEffect = 10;		/* グリッチエフェクト用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexLightCamera = 11;		/* ライトカメラ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexShadowMap = 12;		/* シャドウマップテクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexLightViewProj = 13;	/* ライト行列用ルートパラメーターインデックス */
+
+	static constexpr uint32_t kNormalSamplerRegister = 0;	/* 通常テクスチャ用サンプラーのインデックス */
+	static constexpr uint32_t kShadowSamplerRegister = 1;	/* シャドウマップテクスチャ用サンプラーのインデックス */
+
+	// InputLayout
+	static constexpr uint32_t kInputElementCount = 5;			/* 入力要素の数 */
+	static constexpr uint32_t kInputElementIndexPositon = 0;	/* POSITION入力要素インデックス */
+	static constexpr uint32_t kInputElementIndexTexcoord = 1;	/* TEXCOORD入力要素インデックス */
+	static constexpr uint32_t kInputElementIndexNormal = 2;		/* NORMAL入力要素インデックス */
+	static constexpr uint32_t kInputElementIndexWeight = 3;		/* WEIGHT入力要素インデックス */
+	static constexpr uint32_t kInputElementIndex = 4;			/* INDEX入力要素インデックス */
+
+	// BlendState
+	static constexpr uint32_t kRenderTargetIndex = 0;	/* ブレンド設定を行うレンダーターゲットのインデックス */
+
+	// Viewport
+	static constexpr float kViewportMinDepth = 0.0f;	/* ビューポートの最小深度 */
+	static constexpr float kViewportMaxDepth = 1.0f;	/* ビューポートの最大深度 */
+
+	static constexpr uint32_t kDefaultDSVHeapSize = 128;	/* DSVヒープのデフォルトサイズ */
+
+	static constexpr float kDefaultClearColor[4] = {0.1f, 0.25f, 0.5f, 1.0f};	/* デフォルトの画面クリアカラー */
+
+	static constexpr size_t kBackBufferCount = 2;	/* バックバッファの数 */
+
+	// =========================================================
+	// Member Variables
+	// =========================================================
 	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_;
 	Microsoft::WRL::ComPtr<IDXGIAdapter4> useAdapter_;
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
@@ -276,7 +346,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureParticle_;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureInstancedObject_;
 
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[5];
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[kInputElementCount];
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc_;
 
 	D3D12_BLEND_DESC blendDesc_; // kBlendModeNormal

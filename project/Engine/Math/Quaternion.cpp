@@ -1,4 +1,4 @@
-﻿#include "Quaternion.h"
+#include "Quaternion.h"
 #include "cmath"
 
 Quaternion Quaternion::operator+(const Quaternion& other) const { return {x + other.x, y + other.y, z + other.z, w + other.w}; }
@@ -27,7 +27,7 @@ Quaternion Quaternion::MakeRotateAxisAngleQuaternion(const Float3& axis, float a
 	// 回転軸を正規化
 	Float3 normalizedAxis = Float3::Normalize(axis);
 	// 回転角の半分を求める
-	float halfAngle = angle * 0.5f;
+	float halfAngle = angle * kHalf;
 	// sinを事前に計算
 	float sinHalfAngle = std::sin(halfAngle);
 
@@ -45,8 +45,7 @@ Quaternion Quaternion::Slerp(const Quaternion& a, const Quaternion& b, float t) 
 	float dot = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 
 	// 補間のためにクォータニオンを反転
-	const float DOT_THRESHOLD = 0.9995f;
-	if (dot > DOT_THRESHOLD) {
+	if (dot > kSlerpDotThreshold) {
 		// クォータニオンが非常に近い場合は、線形補間を使用
 		Quaternion result = a + t * (b - a);
 		float len = std::sqrt(result.x * result.x + result.y * result.y + result.z * result.z + result.w * result.w);

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Externals Includes
@@ -166,8 +166,28 @@ public:
 
 private:
 	// =========================================================
+	// Constants
+	// =========================================================
+	static constexpr const char* kModelDirectoryPath = "resources/Models";	/* モデルファイルの基準ディレクトリパス */
+
+	// Ring
+	static constexpr uint32_t kRingDivision = 32;	/* リングの分割数 */
+	static constexpr uint32_t kRingVerticesPerSegment = 4;	/* リング生成時の頂点数 */
+
+	// Cylinder
+	static constexpr uint32_t kCylinderDivision = 32;	/* シリンダーの分割数 */
+	static constexpr uint32_t kCylinderIndicesPerSegment = 6;	/* シリンダーのインデックス数 */
+	static constexpr float kCylinderTopRadius = 1.0f;	/* デフォルトの上半径 */
+	static constexpr float kCylinderBottomRadius = 1.0f;	/* デフォルトの下半径 */
+	static constexpr float kCylinderHeight = 3.0f;	/* デフォルトの高さ */
+
+	// SkyBox
+	static constexpr size_t kSkyBoxVertexCount = 24;		/* スカイボックスの頂点数 */
+	static constexpr size_t kSkyBoxFaceCount = 6;			/* スカイボックスの面の数 */
+	static constexpr uint32_t kSkyBoxVerticesPerFace = 4;	/* 1面あたりの頂点数 */
+
+	// =========================================================
 	// Member Variables
 	// =========================================================
-
 	std::map<std::string, ModelManager::ModelData> models_;				/* モデルデータを保持するマップ */
 };

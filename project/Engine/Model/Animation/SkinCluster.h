@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -20,7 +20,7 @@
 class SkinCluster {
 public:
 	// 最大4Jointの影響を受ける
-	static const uint32_t kNumMaxInfluence = 4;
+	static constexpr uint32_t kNumMaxInfluence = 4;
 
 	/// <summary>
 	/// 頂点が受けるジョイントの影響情報

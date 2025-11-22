@@ -36,21 +36,20 @@ ModelManager::ModelData& ModelManager::GetModel(const std::string& key)
 ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device, float outerRadius, float innerRadius) {
 	ModelManager::ModelData modelData;
 
-	const uint32_t kRingDevide = 32; // 分割数
-	const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kRingDevide);
+	const float radianPerDivide = 2.0f * PIf / float(kRingDivision);
 
 	// 頂点データとインデックスデータのコンテナ
 	std::vector<ModelManager::VertexData> vertices;
 	std::vector<uint32_t> indices;
 
 	// リング形状の頂点を生成
-	for (uint32_t index = 0; index < kRingDevide; ++index) {
+	for (uint32_t index = 0; index < kRingDivision; ++index) {
 		float sin = std::sin(index * radianPerDivide);
 		float cos = std::cos(index * radianPerDivide);
 		float sinNext = std::sin((index + 1) * radianPerDivide);
 		float cosNext = std::cos((index + 1) * radianPerDivide);
-		float u = float(index) / float(kRingDevide);
-		float uNext = float(index + 1) / float(kRingDevide);
+		float u = float(index) / float(kRingDivision);
+		float uNext = float(index + 1) / float(kRingDivision);
 
 		// 頂点の定義
 		vertices.push_back({
@@ -75,12 +74,12 @@ ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device, floa
 		});
 
 		// インデックスを生成
-		indices.push_back(4 * index + 0);
-		indices.push_back(4 * index + 2);
-		indices.push_back(4 * index + 1);
-		indices.push_back(4 * index + 1);
-		indices.push_back(4 * index + 2);
-		indices.push_back(4 * index + 3);
+		indices.push_back(kRingVerticesPerSegment * index + 0);
+		indices.push_back(kRingVerticesPerSegment * index + 2);
+		indices.push_back(kRingVerticesPerSegment * index + 1);
+		indices.push_back(kRingVerticesPerSegment * index + 1);
+		indices.push_back(kRingVerticesPerSegment * index + 2);
+		indices.push_back(kRingVerticesPerSegment * index + 3);
 	}
 
 	modelData.vertices = vertices;
@@ -118,67 +117,62 @@ ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device, floa
 
 ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) {
 	ModelManager::ModelData modelData;
-
-	const uint32_t kCylinderDevide = 32; // 分割数
-	const float kTopRadius = 1.0f;       // 上半径
-	const float kBottomRadius = 1.0f;    // 下半径
-	const float kHeight = 3.0f;          // 高さ
-	const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kCylinderDevide);
+	const float radianPerDivide = 2.0f * PIf / float(kCylinderDivision);
 
 	// 頂点データとインデックスデータのコンテナ
 	std::vector<ModelManager::VertexData> vertices;
 	std::vector<uint32_t> indices;
 
 	// Cylinderの頂点データを生成
-	for (uint32_t index = 0; index < kCylinderDevide; ++index) {
+	for (uint32_t index = 0; index < kCylinderDivision; ++index) {
 		float sin = std::sin(index * radianPerDivide);
 		float cos = std::cos(index * radianPerDivide);
 		float sinNext = std::sin((index + 1) * radianPerDivide);
 		float cosNext = std::cos((index + 1) * radianPerDivide);
-		float u = float(index) / float(kCylinderDevide);
-		float uNext = float(index + 1) / float(kCylinderDevide);
+		float u = float(index) / float(kCylinderDivision);
+		float uNext = float(index + 1) / float(kCylinderDivision);
 
 		// 頂点の定義 : {position, texcoord(V方向を反転), normal}
 		vertices.push_back({
-		    {-sin * kTopRadius, kHeight, cos * kTopRadius, 1.0f},
+		    {-sin * kCylinderTopRadius, kCylinderHeight, cos * kCylinderTopRadius, 1.0f},
             {u, 1.0f - 0.0f},
             {-sin, 0.0f, cos}
         });
 		vertices.push_back({
-		    {-sinNext * kTopRadius, kHeight, cosNext * kTopRadius, 1.0f},
+		    {-sinNext * kCylinderTopRadius, kCylinderHeight, cosNext * kCylinderTopRadius, 1.0f},
             {uNext, 1.0f - 0.0f},
             {-sinNext, 0.0f, cosNext}
         });
 
 		vertices.push_back({
-		    {-sin * kBottomRadius, 0.0f, cos * kBottomRadius, 1.0f},
+		    {-sin * kCylinderBottomRadius, 0.0f, cos * kCylinderBottomRadius, 1.0f},
             {u, 1.0f - 1.0f},
             {-sin, 0.0f, cos}
         });
 		vertices.push_back({
-		    {-sin * kBottomRadius, 0.0f, cos * kBottomRadius, 1.0f},
+		    {-sin * kCylinderBottomRadius, 0.0f, cos * kCylinderBottomRadius, 1.0f},
             {u, 1.0f - 1.0f},
             {-sin, 0.0f, cos}
         });
 
 		vertices.push_back({
-		    {-sinNext * kTopRadius, kHeight, cosNext * kTopRadius, 1.0f},
+		    {-sinNext * kCylinderTopRadius, kCylinderHeight, cosNext * kCylinderTopRadius, 1.0f},
             {uNext, 1.0f - 0.0f},
             {-sinNext, 0.0f, cosNext}
         });
 		vertices.push_back({
-		    {-sinNext * kBottomRadius, 0.0f, cosNext * kBottomRadius, 1.0f},
+		    {-sinNext * kCylinderBottomRadius, 0.0f, cosNext * kCylinderBottomRadius, 1.0f},
             {uNext, 1.0f - 1.0f},
             {-sinNext, 0.0f, cosNext}
         });
 
 		// インデックスを生成
-		indices.push_back(6 * index + 0);
-		indices.push_back(6 * index + 1);
-		indices.push_back(6 * index + 2);
-		indices.push_back(6 * index + 3);
-		indices.push_back(6 * index + 4);
-		indices.push_back(6 * index + 5);
+		indices.push_back(kCylinderIndicesPerSegment * index + 0);
+		indices.push_back(kCylinderIndicesPerSegment * index + 1);
+		indices.push_back(kCylinderIndicesPerSegment * index + 2);
+		indices.push_back(kCylinderIndicesPerSegment * index + 3);
+		indices.push_back(kCylinderIndicesPerSegment * index + 4);
+		indices.push_back(kCylinderIndicesPerSegment * index + 5);
 	}
 
 	modelData.vertices = vertices;
@@ -218,7 +212,7 @@ ModelManager::ModelData ModelManager::CreateSkyBoxModel(ID3D12Device* device) {
 	ModelManager::ModelData modelData;
 
 	// 頂点データとインデックスデータのコンテナ
-	std::vector<VertexData> vertices(24);
+	std::vector<VertexData> vertices(kSkyBoxVertexCount);
 	std::vector<uint32_t> indices;
 
 	// SkyBoxの頂点データを生成
@@ -260,8 +254,8 @@ ModelManager::ModelData ModelManager::CreateSkyBoxModel(ID3D12Device* device) {
 	}
 
 	// 各面のインデックス（内側を向くように
-	for (uint32_t i = 0; i < 6; ++i) {
-		uint32_t base = i * 4;
+	for (uint32_t i = 0; i < kSkyBoxFaceCount; ++i) {
+		uint32_t base = i * kSkyBoxVerticesPerFace;
 		indices.push_back(base + 0);
 		indices.push_back(base + 1);
 		indices.push_back(base + 2);
@@ -305,7 +299,7 @@ ModelManager::ModelData ModelManager::CreateSkyBoxModel(ID3D12Device* device) {
 
 ModelManager::ModelData ModelManager::LoadModelFile(const std::string& filename) {
 	// directoryPath
-	const std::string kDirectoryPath = "resources/Models";
+	std::string directoryPath = kModelDirectoryPath;
 	// device
 	auto* device = DirectXBase::GetInstance()->GetDevice();
 
@@ -318,7 +312,7 @@ ModelManager::ModelData ModelManager::LoadModelFile(const std::string& filename)
 
 	// 2. ファイルを開く
 	Assimp::Importer importer;
-	std::string filePath = kDirectoryPath + "/" + filename;
+	std::string filePath = directoryPath + "/" + filename;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); // メッシュがないのは対応しない
 
@@ -374,7 +368,7 @@ ModelManager::ModelData ModelManager::LoadModelFile(const std::string& filename)
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			modelData.material.textureFilePath = kDirectoryPath + "/" + textureFilePath.C_Str();
+			modelData.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
 		}
 	}
 
