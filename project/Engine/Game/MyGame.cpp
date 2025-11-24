@@ -1,4 +1,4 @@
-﻿#include "MyGame.h"
+#include "MyGame.h"
 #include "SceneFactory.h"
 #include "../Application/src/Game/GameResourceLoader/GameResourceLoader.h"
 #include <StringUtil.h>
@@ -21,7 +21,7 @@ void MyGame::Initialize() {
 	sceneFactory_ = new SceneFactory();
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_);
 	// シーンマネージャに最初のシーンをセット
-	std::string sceneName = "TITLE";
+	std::string sceneName = "GAMEPLAY";
 	SceneManager::GetInstance()->ChangeScene(sceneName);
 }
 

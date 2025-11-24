@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include "SRVManager.h"
 #include <LightCamera.h>
+#include <LightManager.h>
 
 #include <numbers>
 
@@ -22,6 +23,10 @@ Object3D::Object3D() {
 	materialCB_.data_->shininess = kDefaultShinniness;
 	// 環境反射の強度を初期化
 	materialCB_.data_->environmentStrength = kDefaultEnvironmentStrength;
+	// 発光色を初期化
+	materialCB_.data_->emissiveColor = kDefaultEmissiveColor;
+	// 発光強度を初期化
+	materialCB_.data_->emissiveIntensity = kDefaultEmissiveIntensity;
 }
 
 void Object3D::UpdateMatrix() {
@@ -178,4 +183,48 @@ void Object3D::DrawShadow(SkinCluster skinCluster) {
 
 	// DrawCall
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
+}
+
+void Object3D::SetEmissive(const Float3& color, float intensity, float radius, float decay)
+{
+	isEmissive_ = true;
+	materialCB_.data_->emissiveColor = color;
+	materialCB_.data_->emissiveIntensity = intensity;
+	emissiveRadius_ = radius;
+	emissiveDecay_ = decay;
+}
+
+void Object3D::UpdateEmissiveLight()
+{
+	if(!isEmissive_) return;
+
+	// ワールド座標を計算
+	Matrix worldMatrix = transform_.MakeAffineMatrix();
+	if(parent_){
+		Matrix parentWorldMatrix = parent_->transform_.MakeAffineMatrix();
+		worldMatrix = worldMatrix * parentWorldMatrix;
+	}
+
+	// ワールド座標の位置を取得
+	Float3 worldPosition = {
+		worldMatrix.r[3][0],
+		worldMatrix.r[3][1],
+		worldMatrix.r[3][2]
+	};
+
+	// LightManagerに登録
+	LightManager::GetInstance()->RegisterEmissiveLight(
+		worldPosition,
+		materialCB_.data_->emissiveColor,
+		materialCB_.data_->emissiveIntensity,
+		emissiveRadius_,
+		emissiveDecay_
+	);
+}
+
+void Object3D::DisableEmissive()
+{
+	isEmissive_ = false;
+	materialCB_.data_->emissiveColor = kDefaultEmissiveColor;
+	materialCB_.data_->emissiveIntensity = kDefaultEmissiveIntensity;
 }

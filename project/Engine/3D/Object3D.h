@@ -27,6 +27,8 @@ public:
 		float shininess;						/* 光沢 */
 		float environmentStrength;				/* 環境マップの影響度 */
 		float padding2[2];						/* パディング */
+		Float3 emissiveColor;					/* 発光色 */
+		float emissiveIntensity;				/* 発光強度 */
 	};
 
 	/// <summary>
@@ -133,6 +135,25 @@ public:
 	/// <param name="skinCluster">スキンクラスター</param>
 	void DrawShadow(SkinCluster skinCluster);
 
+	/// <summary>
+	/// エミッシブ（発光）を設定します。
+	/// </summary>
+	/// <param name="color"></param>
+	/// <param name="intensity"></param>
+	/// <param name="radius"></param>
+	/// <param name="decay"></param>
+	void SetEmissive(const Float3& color, float intensity, float radius = 5.0f, float decay = 2.0f);
+
+	/// <summary>
+	/// エミッシブライトとしてLightManagerに登録します。
+	/// </summary>
+	void UpdateEmissiveLight();
+
+	/// <summary>
+	/// エミッシブを無効化します。
+	/// </summary>
+	void DisableEmissive();
+
 	// =========================================================
 	// Member Variables
 	// =========================================================
@@ -148,6 +169,10 @@ public:
 
 private:
 	Object3D* parent_ = nullptr;					/* 親オブジェクトへのポインタ */
+
+	bool isEmissive_ = false;		/* 発光フラグ */
+	float emissiveRadius_ = 5.0f;	/* 影響範囲 */
+	float emissiveDecay_ = 2.0f;	/* 減衰率 */
 
 	// =========================================================
 	// Constants
@@ -171,4 +196,9 @@ private:
 	static constexpr float kDefaultEnvironmentStrength = 1.0f;			/* デフォルトの環境反射強度 */
 
 	static constexpr float kDefaultUVScale = 1.0f;	/* UVスケーリングを行わないスケール */
+
+	static constexpr Float3 kDefaultEmissiveColor = {0.0f, 0.0f, 0.0f};	/* デフォルトの発光色 */
+	static constexpr float kDefaultEmissiveIntensity = 0.0f;			/* デフォルトの発光時輝度 */
+	static constexpr float kDefaultEmissiveRadius = 5.0f;				/* デフォルトの発光時影響範囲 */
+	static constexpr float kDefaultEmissiveDecay = 2.0f;				/* デフォルトの発光時減衰率 */
 };

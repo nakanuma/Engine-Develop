@@ -259,7 +259,7 @@ private:
 
 	// RootSignatureCounts
 	static constexpr uint32_t kDescriptorRangeCount = 2;	/* ディスクリプタレンジの数 */
-	static constexpr uint32_t kRootParameterCount = 14;		/* ルートパラメーターの数 */
+	static constexpr uint32_t kRootParameterCount = 15;		/* ルートパラメーターの数 */
 	static constexpr uint32_t kStaticSamplerCount = 2;		/* スタティックサンプラーの数 */
 
 	// RootSignatureCounts - Particle
@@ -268,7 +268,7 @@ private:
 
 	// RootSignatureCounts - InstancedObject
 	static constexpr uint32_t kInstancedObjectDescriptorRangeCount = 2;		/* ディスクリプタレンジの数 */
-	static constexpr uint32_t kInstancedObjectRootParameterCount = 14;		/* ルートパラメーターの数 */
+	static constexpr uint32_t kInstancedObjectRootParameterCount = 15;		/* ルートパラメーターの数 */
 	static constexpr uint32_t kInstancedObjectStaticSamplerCount = 2;		/* スタティックサンプラーの数 */
 
 	static constexpr uint32_t kMaterialCBVRegister = 0;			/* マテリアル用レジスタ番号 */
@@ -280,6 +280,7 @@ private:
 	static constexpr uint32_t kWaveDistortionCBVRegister = 5;	/* 波用レジスタ番号 */
 	static constexpr uint32_t kWaveGlitchEffectCBVRegister = 6;	/* グリッチエフェクト用レジスタ番号 */
 	static constexpr uint32_t kLightViewProjCBVRegister = 7;	/* ライト行列用レジスタ番号 */
+	static constexpr uint32_t kEmissiveLightCBVRegister = 8;	/* エミッシブライト用レジスタ番号 */
 
 	static constexpr uint32_t kRootParameterIndexMaterial = 0;			/* マテリアル用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexTransform = 1;			/* 変換行列用ルートパラメーターインデックス */
@@ -295,6 +296,7 @@ private:
 	static constexpr uint32_t kRootParameterIndexLightCamera = 11;		/* ライトカメラ用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexShadowMap = 12;		/* シャドウマップテクスチャ用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexLightViewProj = 13;	/* ライト行列用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexEmissiveLight = 14;	/* エミッシブライト用ルートパラメーターインデックス */
 
 	static constexpr uint32_t kNormalSamplerRegister = 0;	/* 通常テクスチャ用サンプラーのインデックス */
 	static constexpr uint32_t kShadowSamplerRegister = 1;	/* シャドウマップテクスチャ用サンプラーのインデックス */
