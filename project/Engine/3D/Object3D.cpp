@@ -2,7 +2,6 @@
 #include "Camera.h"
 #include "SRVManager.h"
 #include <LightCamera.h>
-#include <LightManager.h>
 
 #include <numbers>
 
@@ -220,11 +219,48 @@ void Object3D::UpdateEmissiveLight()
 		emissiveRadius_,
 		emissiveDecay_
 	);
+
 }
 
-void Object3D::DisableEmissive()
-{
-	isEmissive_ = false;
-	materialCB_.data_->emissiveColor = kDefaultEmissiveColor;
-	materialCB_.data_->emissiveIntensity = kDefaultEmissiveIntensity;
+void Object3D::SetEmissiveAsAreaLight(const Float3& color, float intensity, float range, LightManager::AreaLightType type) { 
+	isEmissive_ = true;
+	materialCB_.data_->emissiveColor = color;
+	materialCB_.data_->emissiveIntensity = intensity;
+	emissiveRadius_ = range;
+	emissiveAreaLightType_ = type;
+}
+
+void Object3D::UpdateEmissiveAreaLight() {
+	if (!isEmissive_) return;
+
+	// ワールド行列を計算
+	Matrix worldMatrix = transform_.MakeAffineMatrix();
+	if (parent_) {
+		Matrix parentWorldMatrix = parent_->transform_.MakeAffineMatrix();
+		worldMatrix = worldMatrix * parentWorldMatrix;
+	}
+
+	// ワールド座標系での位置を取得
+	Float3 position = {worldMatrix.r[3][0], worldMatrix.r[3][1], worldMatrix.r[3][2]};
+
+	// ワールド座標系での方向を取得
+	Float3 right = {worldMatrix.r[0][0], worldMatrix.r[0][1], worldMatrix.r[0][2]};
+	Float3 up = {worldMatrix.r[1][0], worldMatrix.r[1][1], worldMatrix.r[1][2]};
+
+	// スケールを考慮した幅と高さを計算
+	float width = transform_.scale_.x * 2.0f;
+	float height = transform_.scale_.y * 2.0f;
+
+	// エリアライトとしてRightManagerに登録
+	LightManager::GetInstance()->RegisterAreaLight(
+		position, 
+		right, 
+		up, 
+		width, 
+		height, 
+		materialCB_.data_->emissiveColor, 
+		materialCB_.data_->emissiveIntensity, 
+		emissiveRadius_, 
+		emissiveAreaLightType_
+	);
 }

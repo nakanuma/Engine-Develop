@@ -9,6 +9,7 @@
 #include <TextureManager.h>
 #include <Transform.h>
 #include <Model/Animation/SkinCluster.h>
+#include <LightManager.h>
 
 // =========================================================
 // 3Dオブジェクトクラス
@@ -136,12 +137,12 @@ public:
 	void DrawShadow(SkinCluster skinCluster);
 
 	/// <summary>
-	/// エミッシブ（発光）を設定します。
+	/// エミッシブを設定します。
 	/// </summary>
-	/// <param name="color"></param>
-	/// <param name="intensity"></param>
-	/// <param name="radius"></param>
-	/// <param name="decay"></param>
+	/// <param name="color">色</param>
+	/// <param name="intensity">輝度</param>
+	/// <param name="radius">半径</param>
+	/// <param name="decay">減衰率</param>
 	void SetEmissive(const Float3& color, float intensity, float radius = 5.0f, float decay = 2.0f);
 
 	/// <summary>
@@ -150,9 +151,18 @@ public:
 	void UpdateEmissiveLight();
 
 	/// <summary>
-	/// エミッシブを無効化します。
+	/// エミッシブ（エリアライト）を設定します。
 	/// </summary>
-	void DisableEmissive();
+	/// <param name="color">色</param>
+	/// <param name="intensity">輝度</param>
+	/// <param name="range">影響範囲</param>
+	/// <param name="type">タイプ</param>
+	void SetEmissiveAsAreaLight(const Float3& color, float intensity, float range, LightManager::AreaLightType type);
+
+	/// <summary>
+	/// エミッシブライト（エリアライト）としてLightManagerに登録します。
+	/// </summary>
+	void UpdateEmissiveAreaLight();
 
 	// =========================================================
 	// Member Variables
@@ -171,8 +181,11 @@ private:
 	Object3D* parent_ = nullptr;					/* 親オブジェクトへのポインタ */
 
 	bool isEmissive_ = false;		/* 発光フラグ */
+
 	float emissiveRadius_ = 5.0f;	/* 影響範囲 */
 	float emissiveDecay_ = 2.0f;	/* 減衰率 */
+
+	LightManager::AreaLightType emissiveAreaLightType_ = LightManager::AreaLightType::RectAngle;
 
 	// =========================================================
 	// Constants

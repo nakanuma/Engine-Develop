@@ -303,6 +303,11 @@ void DirectXBase::CreateRootSignature()
 	rootParameters[kRootParameterIndexEmissiveLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[kRootParameterIndexEmissiveLight].Descriptor.ShaderRegister = kEmissiveLightCBVRegister;
 
+	// AreaLight（CBV）
+	rootParameters[kRootParameterIndexAreaLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexAreaLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexAreaLight].Descriptor.ShaderRegister = kAreaLightCBVRegister;
+
 	descriptionRootSignature.pParameters = rootParameters; // ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
 
@@ -533,6 +538,11 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 	rootParameters[kRootParameterIndexEmissiveLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[kRootParameterIndexEmissiveLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[kRootParameterIndexEmissiveLight].Descriptor.ShaderRegister = kEmissiveLightCBVRegister;
+
+	// AreaLight（CBV）
+	rootParameters[kRootParameterIndexAreaLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexAreaLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexAreaLight].Descriptor.ShaderRegister = kAreaLightCBVRegister;
 
 	descriptionRootSignature.pParameters = rootParameters;             // ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
