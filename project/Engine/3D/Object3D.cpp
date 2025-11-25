@@ -64,7 +64,7 @@ void Object3D::UpdateShadowMatrix() {
 
 void Object3D::ScaleUV(float scaleU) {
 	// UV変換行列を作成する（U方向にスケール）
-	Matrix uvScaleMatrix = Matrix::Scaling({ scaleU, kDefaultUVScale, kDefaultUVScale });
+	Matrix uvScaleMatrix = Matrix::Scaling({scaleU, kDefaultUVScale, kDefaultUVScale});
 
 	// マテリアルのUV変換行列にスケールを適用
 	materialCB_.data_->uvTransform = uvScaleMatrix;
@@ -93,8 +93,8 @@ void Object3D::Draw(SkinCluster skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {
-		model_->vertexBufferView,        // VertexDataのVBV
-		skinCluster.influenceBufferView_ // InfluenceのVBV
+	    model_->vertexBufferView,        // VertexDataのVBV
+	    skinCluster.influenceBufferView_ // InfluenceのVBV
 	};
 
 	// 配列を渡す（開始Slot番号、使用Slot番号、VBV配列へのポインタ）
@@ -171,7 +171,7 @@ void Object3D::DrawShadow() {
 void Object3D::DrawShadow(SkinCluster skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
-	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = { model_->vertexBufferView, skinCluster.influenceBufferView_ };
+	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {model_->vertexBufferView, skinCluster.influenceBufferView_};
 
 	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kSkinMeshVBVCount, vbvs);
 	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
@@ -184,8 +184,7 @@ void Object3D::DrawShadow(SkinCluster skinCluster) {
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::SetEmissive(const Float3& color, float intensity, float radius, float decay)
-{
+void Object3D::SetEmissive(const Float3& color, float intensity, float radius, float decay) {
 	isEmissive_ = true;
 	materialCB_.data_->emissiveColor = color;
 	materialCB_.data_->emissiveIntensity = intensity;
@@ -193,36 +192,25 @@ void Object3D::SetEmissive(const Float3& color, float intensity, float radius, f
 	emissiveDecay_ = decay;
 }
 
-void Object3D::UpdateEmissiveLight()
-{
-	if(!isEmissive_) return;
+void Object3D::UpdateEmissiveLight() {
+	if (!isEmissive_)
+		return;
 
 	// ワールド座標を計算
 	Matrix worldMatrix = transform_.MakeAffineMatrix();
-	if(parent_){
+	if (parent_) {
 		Matrix parentWorldMatrix = parent_->transform_.MakeAffineMatrix();
 		worldMatrix = worldMatrix * parentWorldMatrix;
 	}
 
 	// ワールド座標の位置を取得
-	Float3 worldPosition = {
-		worldMatrix.r[3][0],
-		worldMatrix.r[3][1],
-		worldMatrix.r[3][2]
-	};
+	Float3 worldPosition = {worldMatrix.r[3][0], worldMatrix.r[3][1], worldMatrix.r[3][2]};
 
 	// LightManagerに登録
-	LightManager::GetInstance()->RegisterEmissiveLight(
-		worldPosition,
-		materialCB_.data_->emissiveColor,
-		materialCB_.data_->emissiveIntensity,
-		emissiveRadius_,
-		emissiveDecay_
-	);
-
+	LightManager::GetInstance()->RegisterEmissiveLight(worldPosition, materialCB_.data_->emissiveColor, materialCB_.data_->emissiveIntensity, emissiveRadius_, emissiveDecay_);
 }
 
-void Object3D::SetEmissiveAsAreaLight(const Float3& color, float intensity, float range, LightManager::AreaLightType type) { 
+void Object3D::SetEmissiveAsAreaLight(const Float3& color, float intensity, float range, LightManager::AreaLightType type) {
 	isEmissive_ = true;
 	materialCB_.data_->emissiveColor = color;
 	materialCB_.data_->emissiveIntensity = intensity;
@@ -231,7 +219,8 @@ void Object3D::SetEmissiveAsAreaLight(const Float3& color, float intensity, floa
 }
 
 void Object3D::UpdateEmissiveAreaLight() {
-	if (!isEmissive_) return;
+	if (!isEmissive_)
+		return;
 
 	// ワールド行列を計算
 	Matrix worldMatrix = transform_.MakeAffineMatrix();
@@ -243,24 +232,47 @@ void Object3D::UpdateEmissiveAreaLight() {
 	// ワールド座標系での位置を取得
 	Float3 position = {worldMatrix.r[3][0], worldMatrix.r[3][1], worldMatrix.r[3][2]};
 
-	// ワールド座標系での方向を取得
-	Float3 right = {worldMatrix.r[0][0], worldMatrix.r[0][1], worldMatrix.r[0][2]};
-	Float3 up = {worldMatrix.r[1][0], worldMatrix.r[1][1], worldMatrix.r[1][2]};
+	// Tubeタイプの場合
+	if (emissiveAreaLightType_ == LightManager::AreaLightType::Tube) {
+		// ワールド座標系での方向を取得
+		Float3 right = {worldMatrix.r[0][0], worldMatrix.r[0][1], worldMatrix.r[0][2]};
 
-	// スケールを考慮した幅と高さを計算
-	float width = transform_.scale_.x * 2.0f;
-	float height = transform_.scale_.y * 2.0f;
+		// チューブの長さを計算
+		float length = transform_.scale_.x * 2.0f;
 
-	// エリアライトとしてRightManagerに登録
-	LightManager::GetInstance()->RegisterAreaLight(
-		position, 
-		right, 
-		up, 
-		width, 
-		height, 
-		materialCB_.data_->emissiveColor, 
-		materialCB_.data_->emissiveIntensity, 
-		emissiveRadius_, 
-		emissiveAreaLightType_
-	);
+		// チューブの両端点を計算
+		Float3 halfRight = right * (length * 0.5f);
+		Float3 start = position - halfRight;
+		Float3 end = position + halfRight;
+
+		// RightManagerに登録
+		LightManager::GetInstance()->RegisterTubeLight(
+			start,
+			end, 
+			materialCB_.data_->emissiveColor, 
+			materialCB_.data_->emissiveIntensity, 
+			emissiveRadius_
+		);
+	// Rectangle, Disk, Sphereの場合
+	} else {
+		// ワールド座標系での方向を取得
+		Float3 right = {worldMatrix.r[0][0], worldMatrix.r[0][1], worldMatrix.r[0][2]};
+		Float3 up = {worldMatrix.r[1][0], worldMatrix.r[1][1], worldMatrix.r[1][2]};
+
+		// スケールを考慮した幅と高さを計算
+		float width = transform_.scale_.x * 2.0f;
+		float height = transform_.scale_.y * 2.0f;
+
+		// エリアライトとしてRightManagerに登録
+		LightManager::GetInstance()->RegisterAreaLight(
+		    position, 
+			right, 
+			up, 
+			width, 
+			height, 
+			materialCB_.data_->emissiveColor, 
+			materialCB_.data_->emissiveIntensity, 
+			emissiveRadius_, emissiveAreaLightType_
+		);
+	}
 }
