@@ -141,6 +141,11 @@ public:
 	void TransferContantBuffer();
 
 	/// <summary>
+	/// ライトのデバッグ描画を行います。
+	/// </summary>
+	void DrawDebug();
+
+	/// <summary>
 	/// エミッシブライトを登録します。
 	/// </summary>
 	/// <param name="position">位置</param>
@@ -195,8 +200,42 @@ public:
 
 private:
 	// =========================================================
+	// Internal Methods
+	// =========================================================
+	
+	/// <summary>
+	/// 矩形エリアライトのデバッグ描画を行います。
+	/// </summary>
+	/// <param name="light">エリアライト</param>
+	void DrawDebugRectangle(const LightManager::AreaLight& light);
+
+	/// <summary>
+	/// 円盤エリアライトのデバッグ描画を行います。
+	/// </summary>
+	/// <param name="light">エリアライト</param>
+	void DrawDebugDisk(const LightManager::AreaLight& light);
+
+	/// <summary>
+	/// チューブエリアライトのデバッグ描画を行います。
+	/// </summary>
+	/// <param name="light">エリアライト</param>
+	void DrawDebugTube(const LightManager::AreaLight& light);
+
+	/// <summary>
+	/// スフィアエリアライトのデバッグ描画を行います。
+	/// </summary>
+	/// <param name="light">エリアライト</param>
+	/// <param name="radius">半径</param>
+	void DrawDebugSphere(const LightManager::AreaLight& light);
+
+private:
+	// =========================================================
 	// Constants
 	// =========================================================
+
+	// ----- Debug -----
+	static constexpr Float4 kDebugDrawColor = {1.0f, 1.0f, 1.0f, 1.0f};			/* デバッグ描画用の線の色 */
+	static constexpr uint32_t kDebugSubdivision = 16;							/* 球体/円盤の可視化用分割数 */
 
 	// ----- RootParameterIndex -----
 	static constexpr uint32_t kRootParameterIndexDirectionalLight = 3; /* 平行光源用ルートパラメーターインデックス */

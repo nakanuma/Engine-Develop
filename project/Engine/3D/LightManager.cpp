@@ -1,6 +1,10 @@
 #include "LightManager.h"
-#include "DirectXBase.h"
 
+// Engine
+#include <DirectXBase.h>
+#include <LineDrawer.h>
+
+// C++
 #include <numbers>
 
 LightManager* LightManager::GetInstance() {
@@ -79,6 +83,42 @@ void LightManager::TransferContantBuffer() {
 	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexEmissiveLight, emissiveLightsCB_.resource_->GetGPUVirtualAddress());
 	// エリアライトの定数バッファをセット
 	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexAreaLight, areaLightsCB_.resource_->GetGPUVirtualAddress());
+}
+
+void LightManager::DrawDebug() {
+	// 有効化されているエリアライトがなければスキップ
+	if (areaLightsCB_.data_->numActiveLights == 0) return;
+
+	auto drawer = LineDrawer::GetInstance();
+
+	for (size_t i = 0; i < areaLightsCB_.data_->numActiveLights; ++i) {
+		const AreaLight& light = areaLightsCB_.data_->areaLights[i];
+
+		// 無効化状態ならスキップ
+		if (light.isActive == 0 && light.intensity == 0.0f) {
+			continue;
+		}
+
+		AreaLightType type = static_cast<AreaLightType>(light.lightType);
+
+		// 各ライトタイプに応じた発光面を描画
+		switch (type) {
+		case LightManager::AreaLightType::RectAngle:
+			DrawDebugRectangle(light);
+			break;
+		case LightManager::AreaLightType::Disk:
+			DrawDebugDisk(light);
+			break;
+		case LightManager::AreaLightType::Tube:
+			DrawDebugTube(light);
+			break;
+		case LightManager::AreaLightType::Sphere:
+			DrawDebugSphere(light);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void LightManager::RegisterEmissiveLight(const Float3& position, const Float3& color, float intensity, float radius, float decay)
@@ -201,4 +241,141 @@ void LightManager::ClearAreaLights() {
 	}
 	currentAreaLightCount_ = 0;
 	areaLightsCB_.data_->numActiveLights = 0;
+}
+
+void LightManager::DrawDebugRectangle(const LightManager::AreaLight& light) { 
+	auto drawer = LineDrawer::GetInstance();
+
+	Float3 center = light.position; 
+	Float3 rightHalf = light.right * (light.width * 0.5f);
+	Float3 upHalf = light.up * (light.height * 0.5f);
+
+	// 4隅の頂点を計算
+	Float3 p1 = center + rightHalf + upHalf;
+	Float3 p2 = center - rightHalf + upHalf;
+	Float3 p3 = center - rightHalf - upHalf;
+	Float3 p4 = center + rightHalf - upHalf;
+
+	// 4辺を描画
+	drawer->RegisterLine(p1, p2, kDebugDrawColor);
+	drawer->RegisterLine(p2, p3, kDebugDrawColor);
+	drawer->RegisterLine(p3, p4, kDebugDrawColor);
+	drawer->RegisterLine(p4, p1, kDebugDrawColor);
+}
+
+void LightManager::DrawDebugDisk(const LightManager::AreaLight& light) { 
+	auto drawer = LineDrawer::GetInstance(); 
+
+	// Widthを半径として使用
+	float radius = light.width * 0.5f;
+	Float3 center = light.position;
+	Float3 normal = light.normal;
+
+	// upとrightを基底とする
+	Float3 u_axis = light.right;
+	Float3 v_axis = light.up;
+
+	Float3 prevPoint;
+	bool first = true;
+
+	for (size_t i = 0; i <= kDebugSubdivision; ++i) {
+		float angle = (2.0f * PIf / kDebugSubdivision) * i;
+
+		// 円周上の点を計算
+		Float3 currentPoint = center + (u_axis * std::cosf(angle) * radius) + (v_axis * std::sinf(angle) * radius);
+
+		if (!first) {
+			drawer->RegisterLine(prevPoint, currentPoint, kDebugDrawColor);
+		}
+		prevPoint = currentPoint;
+		first = false;
+	}
+}
+
+void LightManager::DrawDebugTube(const LightManager::AreaLight& light) { 
+	auto drawer = LineDrawer::GetInstance(); 
+
+	// 半分の長さを取得
+	float halfLength = light.width * 0.5f;
+
+	// 始点と終点の計算
+	Float3 start = light.position - light.right * halfLength;
+	Float3 end = light.position + light.right * halfLength;
+
+	// 線分（チューブの中心線）を描画
+	drawer->RegisterLine(start, end, kDebugDrawColor);
+
+	// 両端の円（チューブの半径）を描画
+	Float3 u_axis = light.up;
+	Float3 v_axis = light.normal;
+	float radius = light.height;
+
+	Float3 prevPointStart, prevPointEnd;
+	bool first = true;
+
+	for (size_t i = 0; i < kDebugSubdivision; ++i) {
+		float angle = (2.0f * PIf / kDebugSubdivision) * i;
+
+		// 円周上のオフセットを計算
+		Float3 offset = (u_axis * std::cosf(angle) * radius) + (v_axis * std::sinf(angle) * radius);
+
+		Float3 currentPointStart = start + offset;
+		Float3 currentPointEnd = end + offset;
+
+		if (!first) {
+			// 両端の円を描画
+			drawer->RegisterLine(prevPointStart, currentPointStart, kDebugDrawColor);
+			drawer->RegisterLine(prevPointEnd, currentPointEnd, kDebugDrawColor);
+
+			// 側線（チューブの両端を結ぶ線）を描画
+			if (i % (kDebugSubdivision / 4) == 0) {
+				drawer->RegisterLine(currentPointStart, currentPointEnd, kDebugDrawColor);
+			}
+			prevPointStart = currentPointStart;
+			prevPointEnd = currentPointEnd;
+			first = false;
+		}
+	}
+}
+
+void LightManager::DrawDebugSphere(const LightManager::AreaLight& light) {
+	if (light.range <= 0.0f) return;
+
+	auto drawer = LineDrawer::GetInstance(); 
+
+	const float kLonEvery = (PIf * 2.0f) / kDebugSubdivision;
+	const float kLatEvery = PIf / kDebugSubdivision;
+
+	for (uint32_t latIndex = 0; latIndex < kDebugSubdivision; ++latIndex) {
+		float lat = -PIf / 2.0f + kLatEvery * latIndex;
+
+		for (uint32_t lonIndex = 0; lonIndex < kDebugSubdivision; ++lonIndex) {
+			float lon = lonIndex * kLonEvery;
+
+			// 頂点a, b, cを求める
+			Float3 a = {
+			    cosf(lat) * cosf(lon) * light.range,
+			    sinf(lat) * light.range,
+			    cosf(lat) * sinf(lon) * light.range,
+			};
+			Float3 b = {
+			    cosf(lat + kLatEvery) * cosf(lon) * light.range,
+			    sinf(lat + kLatEvery) * light.range,
+			    cosf(lat + kLatEvery) * sinf(lon) * light.range,
+			};
+			Float3 c = {
+			    cosf(lat) * cosf(lon + kLonEvery) * light.range,
+			    sinf(lat) * light.range,
+			    cosf(lat) * sinf(lon + kLonEvery) * light.range,
+			};
+
+			// ワールド座標に移動
+			a = a + light.position;
+			b = b + light.position;
+			c = c + light.position;
+
+			drawer->RegisterLine(a, b, kDebugDrawColor);
+			drawer->RegisterLine(a, c, kDebugDrawColor);
+		}
+	}
 }
