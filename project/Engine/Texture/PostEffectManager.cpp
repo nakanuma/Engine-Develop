@@ -6,14 +6,17 @@
 #include <Sprite.h>
 
 void PostEffectManager::Initialize() {
-	// 既に初期化済みならスキップ
+	// 初期化済みならスキップ
 	if (initialized_) return;
 	initialized_ = true;
 
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
-	// レンダーテクスチャ作成
-	renderTextureHandle_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
+	// レンダーターゲット作成
+	mainSceneRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
+	bloomResultRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
+	bloomExtractRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
+	bloomBlurRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
 
 	// 頂点バッファ
 	vertexBuffer_ = CreateBufferResource(dxBase->GetDevice(), sizeof(Sprite::VertexData) * kVertexCount);
@@ -71,20 +74,10 @@ void PostEffectManager::Initialize() {
 	materialMap_->enableLighting = false;
 	materialMap_->uvTransform = Matrix::Identity();
 
-	/*アウトライン*/
-
-	// レンダーテクスチャ
-	outlineRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kOutlineClearColor);
-	outlineGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kOutlineClearColor);
-
-	// Outline Material
-	outlineMaterial_.data_->color = kOutlineMaterialColor;
-	outlineMaterial_.data_->enableLighting = false;
-	outlineMaterial_.data_->uvTransform = Matrix::Identity();
-
-	/*Bloom*/
-	bloomExtractGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kBloomClearColor);
-	bloomBlurGH_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kBloomClearColor);
+	// Black Material
+	blackMaterial_.data_->color = kBlackMaterialColor;
+	blackMaterial_.data_->enableLighting = false;
+	blackMaterial_.data_->uvTransform = Matrix::Identity();
 
 	/*WaveDistortion*/
 	waveCB_.data_->gTime = kWaveTimeInitial;
@@ -105,221 +98,208 @@ void PostEffectManager::TransfarConstantBuffer() {
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexGlitch, glitchCB_.resource_->GetGPUVirtualAddress());
 }
 
-void PostEffectManager::BeginRenderToTexture() {
-	if (effectType_ == PostEffectType::None) {
-		return;
-	}
+void PostEffectManager::BeginMainScene() {
+	// エフェクトなしの場合はバックバッファに直接描画
+	if (effectType_ == PostEffectType::None) return;
 
-	RTVManager::SetRenderTarget(renderTextureHandle_);
-	RTVManager::ClearRTV(renderTextureHandle_);
+	// オフスクリーンレンダーターゲットに切り替え
+	RTVManager::SetRenderTarget(mainSceneRT_);
+	RTVManager::ClearRTV(mainSceneRT_);
+	isRenderingToOffscreen_ = true;
 }
 
-void PostEffectManager::ApplyEffect() {
+void PostEffectManager::EndMainScene() {
+	if (effectType_ == PostEffectType::None) return;
+
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
-	// レンダーターゲットをバックバッファに設定
+	// バックバッファに切り替え
 	RTVManager::SetRTtoBB();
+	isRenderingToOffscreen_ = false;
 
-	if (effectType_ == PostEffectType::None) {
-		return;
-	}
-
-	// 選択中のタイプによって適用するPSOを選択
+	// エフェクトPSOを選択
+	ID3D12PipelineState* pso = nullptr;
 	switch (effectType_) {
 	case PostEffectType::RadialBlur:
-		cmd->SetPipelineState(dxBase->GetPipelineStateRadialBlur());
+		pso = dxBase->GetPipelineStateRadialBlur();
 		break;
-
 	case PostEffectType::GrayScale:
-		cmd->SetPipelineState(dxBase->GetPipelineStateGrayscale());
+		pso = dxBase->GetPipelineStateGrayscale();
 		break;
-
 	case PostEffectType::Vignette:
-		cmd->SetPipelineState(dxBase->GetPipelineStateVignette());
+		pso = dxBase->GetPipelineStateVignette();
 		break;
-
 	case PostEffectType::BoxFilter:
-		cmd->SetPipelineState(dxBase->GetPipelineStateBoxFilter());
+		pso = dxBase->GetPipelineStateBoxFilter();
 		break;
-
 	case PostEffectType::GaussianFilter:
-		cmd->SetPipelineState(dxBase->GetPipelineStateGaussianFilter());
+		pso = dxBase->GetPipelineStateGaussianFilter();
 		break;
-
 	case PostEffectType::InvertColor:
-		cmd->SetPipelineState(dxBase->GetPipelineStateInvertColor());
+		pso = dxBase->GetPipelineStateInvertColor();
 		break;
-
 	case PostEffectType::Sepia:
-		cmd->SetPipelineState(dxBase->GetPipelineStateSepia());
+		pso = dxBase->GetPipelineStateSepia();
 		break;
-
 	case PostEffectType::Posterize:
-		cmd->SetPipelineState(dxBase->GetPipelineStatePosterize());
+		pso = dxBase->GetPipelineStatePosterize();
 		break;
-
 	case PostEffectType::Emboss:
-		cmd->SetPipelineState(dxBase->GetPipelineStateEmboss());
+		pso = dxBase->GetPipelineStateEmboss();
 		break;
-
 	case PostEffectType::Sharpen:
-		cmd->SetPipelineState(dxBase->GetPipelineStateSharpen());
+		pso = dxBase->GetPipelineStateSharpen();
 		break;
-
 	case PostEffectType::ColorAberration:
-		cmd->SetPipelineState(dxBase->GetPipelineStateColorAberration());
+		pso = dxBase->GetPipelineStateColorAberration();
 		break;
-
 	case PostEffectType::BarrelDistortion:
-		cmd->SetPipelineState(dxBase->GetPipelineStateBarrelDistortion());
+		pso = dxBase->GetPipelineStateBarrelDistortion();
 		break;
-
 	case PostEffectType::WaveDistortion:
-		cmd->SetPipelineState(dxBase->GetPipelineStateWaveDistortion());
+		pso = dxBase->GetPipelineStateWaveDistortion();
 		break;
-
 	case PostEffectType::Pixelation:
-		cmd->SetPipelineState(dxBase->GetPipelineStatePixelation());
+		pso = dxBase->GetPipelineStatePixelation();
 		break;
-
 	case PostEffectType::GlitchEffect:
-		cmd->SetPipelineState(dxBase->GetPipelineStateGlitchEffect());
+		pso = dxBase->GetPipelineStateGlitchEffect();
+		break;
+	default:
+		pso = dxBase->GetPipelineState();
 		break;
 	}
 
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
+	// エフェクト適用してバックバッファに適用
+	DrawWithPSO(pso, mainSceneRT_);
 
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, renderTextureHandle_);
+	// メインシーンの深度情報をバックバッファの深度バッファにコピー
+	CopyDepthBuffer(mainSceneRT_);
 
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-}
-
-void PostEffectManager::BeginRenderToOutlineTexture() {
-	// レンダーターゲットをアウトライン用テクスチャに設定
-	RTVManager::SetRenderTarget(outlineRT_);
-	// レンダーターゲットをクリア
-	RTVManager::ClearRTV(outlineRT_, kOutlineClearColor);
-}
-
-void PostEffectManager::ApplyOutline() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
-
-#pragma region 深度値を元にアウトライン生成
-	// レンダーターゲットをアウトライン用テクスチャに設定
-	RTVManager::SetRenderTarget(outlineGH_);
-	// レンダーターゲットをクリア
-	RTVManager::ClearRTV(outlineGH_, kOutlineClearColor);
-
-	cmd->SetPipelineState(dxBase->GetPipelineStateSobelFilter()); // SobelFilterのPSOを設定
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, outlineMaterial_.resource_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, RTVManager::GetDepthSRVHandle(outlineRT_));
-
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-#pragma endregion
-}
-
-void PostEffectManager::DrawOutline() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
-
-#pragma region renderTextureGHをバックバッファにそのまま描画
-	// レンダーターゲットをバックバッファに設定
-	RTVManager::SetRTtoBB();
-
+	// 通常PSOに戻す
 	cmd->SetPipelineState(dxBase->GetPipelineState());
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, renderTextureHandle_);
-
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-#pragma endregion
-
-#pragma region outlineをバックバッファにそのまま描画
-	cmd->SetPipelineState(dxBase->GetPipelineState()); // 通常PSOに戻す
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, outlineGH_);
-
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-#pragma endregion
 }
 
-void PostEffectManager::ApplyBloom() {
+void PostEffectManager::BeginBloom() {
+	// Bloom結果用のレンダーターゲットに切り替え
+	RTVManager::SetRenderTarget(bloomResultRT_);
+	RTVManager::ClearRTV(bloomResultRT_, kTransparentClearColor);
+	isRenderingToOffscreen_ = true;
+}
+
+void PostEffectManager::EndBloom() { 
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
-#pragma region 明るい部分の抽出
-	// レンダーターゲットをブルーム抽出用のテクスチャに設定
-	RTVManager::SetRenderTarget(bloomExtractGH_);
-	// レンダーターゲットをクリア
-	RTVManager::ClearRTV(bloomExtractGH_, kBloomClearColor);
+	// 明度抽出
+	ApplyBloomExtract(bloomResultRT_, bloomExtractRT_);
+	// ガウシアンブラー適用
+	ApplyBloomBlur(bloomResultRT_, bloomBlurRT_);
+	// バックバッファに戻す
+	RTVManager::SetRTtoBB();
+	isRenderingToOffscreen_ = false;
+	// 元のシーンを描画
+	DrawWithPSO(dxBase->GetPipelineState(), bloomResultRT_);
+	// ブラー結果を加算合成
+	DrawWithPSO(dxBase->GetPipelineStateBlendModeAdd(), bloomBlurRT_);
+	// 通常PSOに戻す
+	cmd->SetPipelineState(dxBase->GetPipelineState());
+}
 
-	cmd->SetPipelineState(dxBase->GetPipelineStateBloomExtract()); // ブルーム抽出用PSOを設定
+void PostEffectManager::RestoreBackBuffer(bool resetPSO) {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = dxBase->GetCommandList();
+
+	UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxBase->GetRTVHandle(backBufferIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxBase->GetDSVHeap()->GetCPUHandle(0);
+
+	cmd->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+
+	cmd->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+	if (resetPSO) {
+		cmd->SetPipelineState(dxBase->GetPipelineState());
+	}
+
+	isRenderingToOffscreen_ = false;
+}
+
+void PostEffectManager::CopyDepthBuffer(uint32_t sourceRT) {
+	DirectXBase* dxBase = DirectXBase::GetInstance(); 
+	auto cmd = dxBase->GetCommandList();
+
+	// バックバッファの深度バッファハンドルを取得
+	D3D12_CPU_DESCRIPTOR_HANDLE backBufferDSV = dxBase->GetDSVHeap()->GetCPUHandle(0);
+
+	// メインシーンの深度テクスチャSRVを取得
+	uint32_t depthSRV = RTVManager::GetDepthSRVHandle(sourceRT);
+
+	// 深度バッファ書き込み専用のPSOを設定
+	cmd->SetPipelineState(dxBase->GetPipelineStateDepthWrite());
+
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, outlineMaterial_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, blackMaterial_.resource_->GetGPUVirtualAddress());
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, renderTextureHandle_);
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, depthSRV);
 
+	// 深度値をコピー
 	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-#pragma endregion
+}
 
-	ParticleEffectManager::GetInstance()->Draw();
+void PostEffectManager::DrawFullScreenQuad(uint32_t textureHandle) { 
+	auto cmd = DirectXBase::GetInstance()->GetCommandList(); 
 
-#pragma region ガウスブラー
-	// レンダーターゲットをブルームブラーテクスチャに設定
-	RTVManager::SetRenderTarget(bloomBlurGH_);
-	// レンダーターゲットをクリア
-	RTVManager::ClearRTV(bloomBlurGH_, kBloomClearColor);
+	cmd->IASetVertexBuffers(0, 1, &vbView_);
+	cmd->IASetIndexBuffer(&ibView_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, textureHandle);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
+}
+
+void PostEffectManager::DrawWithPSO(ID3D12PipelineState* pso, uint32_t textureHandle) { 
+	auto cmd = DirectXBase::GetInstance()->GetCommandList(); 
+
+	cmd->SetPipelineState(pso);
+	cmd->IASetVertexBuffers(0, 1, &vbView_);
+	cmd->IASetIndexBuffer(&ibView_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, textureHandle);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
+}
+
+void PostEffectManager::ApplyBloomExtract(uint32_t sourceTexture, uint32_t targetRT) {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = dxBase->GetCommandList();
+
+	RTVManager::SetRenderTarget(targetRT);
+	RTVManager::ClearRTV(targetRT, kTransparentClearColor);
+
+	cmd->SetPipelineState(dxBase->GetPipelineStateBloomExtract());
+	cmd->IASetVertexBuffers(0, 1, &vbView_);
+	cmd->IASetIndexBuffer(&ibView_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, sourceTexture);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
+}
+
+void PostEffectManager::ApplyBloomBlur(uint32_t sourceTexture, uint32_t targetRT) {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = dxBase->GetCommandList();
+
+	RTVManager::SetRenderTarget(targetRT);
+	RTVManager::ClearRTV(targetRT, kTransparentClearColor);
 
 	cmd->SetPipelineState(dxBase->GetPipelineStateGaussianFilter());
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, outlineMaterial_.resource_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, bloomExtractGH_); // 明るさ抽出結果にブラーをかける
-
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-#pragma endregion
-}
-
-void PostEffectManager::DrawBloom() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
-
-#pragma region renderTextureGHをバックバッファに描画
-	// レンダーターゲットをバックバッファに設定
-	RTVManager::SetRTtoBB();
-
-	cmd->SetPipelineState(dxBase->GetPipelineState()); // 通常PSOに戻す
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, renderTextureHandle_);
-
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, sourceTexture);
 	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-#pragma endregion
-
-#pragma region ブラー画像をバックバッファに描画
-	cmd->SetPipelineState(dxBase->GetPipelineStateBlendModeAdd()); // 加算合成を行う
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, bloomBlurGH_);
-
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-#pragma endregion
 }

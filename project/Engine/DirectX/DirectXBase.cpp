@@ -1168,6 +1168,21 @@ void DirectXBase::CreatePipelineStateObject()
 	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateAlpha();
 	graphicsPipelineStateInstancedObjectAlpha_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectAlpha_));
+
+	///
+	///	深度バッファ書き込み用のPSOを生成
+	/// 
+	
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDepthWriteDesc = graphicsPipelineStateDefault;
+	// カラー書き込みを無効化
+	graphicsPipelineStateDepthWriteDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = 0;
+	// 深度ステンシル設定
+	graphicsPipelineStateDepthWriteDesc.DepthStencilState.DepthEnable = TRUE;
+	graphicsPipelineStateDepthWriteDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	graphicsPipelineStateDepthWriteDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に書き込む
+
+	graphicsPipelineStateDepthWrite_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDepthWriteDesc, IID_PPV_ARGS(&graphicsPipelineStateDepthWrite_));
 }
 
 void DirectXBase::SetViewport()

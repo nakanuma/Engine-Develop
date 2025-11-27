@@ -250,6 +250,8 @@ public:
 	ID3D12PipelineState* GetPipelineStateInstancedObjectMultiply() { return graphicsPipelineStateInstancedObjectMultiply_.Get(); }
 	ID3D12PipelineState* GetPipelineStateInstancedObjectScreen() { return graphicsPipelineStateInstancedObjectScreen_.Get(); }
 	ID3D12PipelineState* GetPipelineStateInstancedObjectAlpha() { return graphicsPipelineStateInstancedObjectAlpha_.Get(); }
+	// 深度バッファ書き込み用PSOを取得
+	ID3D12PipelineState* GetPipelineStateDepthWrite() { return graphicsPipelineStateDepthWrite_.Get(); }
 
 	friend RTVManager;
 private:
@@ -403,6 +405,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectMultiply_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectScreen_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectAlpha_;
+	// 深度バッファ書き込み用PSO
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateDepthWrite_;
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 

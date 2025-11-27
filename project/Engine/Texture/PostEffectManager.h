@@ -11,43 +11,43 @@
 /// 波形ディストーション用の定数バッファ構造体
 /// </summary>
 struct WaveCBData {
-	float gTime;				/* 経過時間 */
-	float amplitude;			/* 振幅 */
-	float frequency;			/* 周波数 */
-	float speed;				/* 速度 */
+	float gTime;     /* 経過時間 */
+	float amplitude; /* 振幅 */
+	float frequency; /* 周波数 */
+	float speed;     /* 速度 */
 };
 
 /// <summary>
 /// グリッチエフェクト用の定数バッファ構造体
 /// </summary>
 struct GlitchCBData {
-	float gTime;				/* 経過時間 */
-	float intensity;			/* 強度 */
-	float speed;				/* 速度 */
-	float padding;				/* パディング */
+	float gTime;     /* 経過時間 */
+	float intensity; /* 強度 */
+	float speed;     /* 速度 */
+	float padding;   /* パディング */
 };
 
 /// <summary>
 /// ポストエフェクトの種類を列挙する列挙型
 /// </summary>
 enum class PostEffectType {
-	None,						/* エフェクトなし */
-	RadialBlur,					/* 放射状ブラー */
-	GrayScale,					/* グレースケール */
-	Vignette,					/* ビネット */
-	Bloom,						/* ブルーム */
-	BoxFilter,					/* ボックスフィルター */
-	GaussianFilter,				/* ガウシアンフィルター */
-	InvertColor,				/* 色反転 */
-	Sepia,						/* セピア調 */
-	Posterize,					/* ポスタリゼーション */
-	Emboss,						/* エンボス */
-	Sharpen,					/* シャープ */
-	ColorAberration,			/* 色収差 */
-	BarrelDistortion,			/* バレルディストーション */
-	WaveDistortion,				/* 波形ディストーション */
-	Pixelation,					/* ピクセル化 */
-	GlitchEffect,				/* グリッチエフェクト */
+	None,             /* エフェクトなし */
+	RadialBlur,       /* 放射状ブラー */
+	GrayScale,        /* グレースケール */
+	Vignette,         /* ビネット */
+	Bloom,            /* ブルーム */
+	BoxFilter,        /* ボックスフィルター */
+	GaussianFilter,   /* ガウシアンフィルター */
+	InvertColor,      /* 色反転 */
+	Sepia,            /* セピア調 */
+	Posterize,        /* ポスタリゼーション */
+	Emboss,           /* エンボス */
+	Sharpen,          /* シャープ */
+	ColorAberration,  /* 色収差 */
+	BarrelDistortion, /* バレルディストーション */
+	WaveDistortion,   /* 波形ディストーション */
+	Pixelation,       /* ピクセル化 */
+	GlitchEffect,     /* グリッチエフェクト */
 };
 
 // =========================================================
@@ -66,82 +66,106 @@ public:
 	void TransfarConstantBuffer();
 
 	/// <summary>
-	/// レンダリングを開始します。
+	/// メインシーンのレンダリングを開始します。（全ての3Dオブジェクトをレンダーテクスチャに描画する前に呼ぶ）
 	/// </summary>
-	void BeginRenderToTexture();
+	void BeginMainScene();
 
 	/// <summary>
-	/// ポストエフェクトを適用します。
+	/// メインシーンのレンダリングを終了します。
 	/// </summary>
-	void ApplyEffect();
+	void EndMainScene();
 
 	/// <summary>
-	/// レンダーテクスチャのハンドルを取得します。
+	/// Bloomエフェクト描画用のレンダリングを開始します。
 	/// </summary>
-	/// <returns>レンダーテクスチャハンドル</returns>
-	uint32_t GetRenderTextureHandle() const { return renderTextureHandle_; }
+	void BeginBloom();
 
 	/// <summary>
-	/// エフェクトタイプを設定します。
+	/// Bloomエフェクト描画用のレンダリングを終了します。
+	/// </summary>
+	void EndBloom();
+
+	/// <summary>
+	/// バックバッファへの描画状態を強制的に戻します。（直接バックバッファに描画したい場合に使用）
+	/// </summary>
+	void RestoreBackBuffer(bool resetPSO);
+
+	/// <summary>
+	/// 深度バッファをバックバッファの深度バッファにコピーします。
+	/// </summary>
+	/// <param name="sourceRT"></param>
+	void CopyDepthBuffer(uint32_t sourceRT);
+
+	// =========================================================
+	// Getter / Setter
+	// =========================================================
+
+	/// <summary>
+	/// エフェクトタイプの設定を行います。
 	/// </summary>
 	/// <param name="type">エフェクトタイプ</param>
 	void SetEffectType(PostEffectType type) { effectType_ = type; }
 
 	/// <summary>
-	/// エフェクトタイプを取得します。
+	/// 現在のエフェクトタイプを取得します。
 	/// </summary>
-	/// <returns>エフェクトタイプ</returns>
+	/// <returns></returns>
 	PostEffectType GetEffectType() const { return effectType_; }
 
 	/// <summary>
-	/// アウトライン用のレンダリングを開始します。
+	/// メインシーンのレンダーテクスチャを取得します。
 	/// </summary>
-	void BeginRenderToOutlineTexture();
-
-	/// <summary>
-	/// アウトラインエフェクトを適用します。
-	/// </summary>
-	void ApplyOutline();
-
-	/// <summary>
-	/// アウトラインを描画します。
-	/// </summary>
-	void DrawOutline();
-
-	/// <summary>
-	/// ブルームエフェクトを適用します。
-	/// </summary>
-	void ApplyBloom();
-
-	/// <summary>
-	/// ブルーム効果を描画します。
-	/// </summary>
-	void DrawBloom();
+	/// <returns></returns>
+	uint32_t GetRenderTextureHandle() const { return mainSceneRT_; }
 
 public:
 	// =========================================================
 	// Member Variables
 	// =========================================================
 
-	ConstBuffer<WaveCBData> waveCB_;								/* 波形ディストーション用定数バッファ */
-	ConstBuffer<GlitchCBData> glitchCB_;							/* グリッチエフェクト用定数バッファ */
-
-	uint32_t outlineRT_ = 0;										/* アウトライン用レンダーテクスチャハンドル */
-	uint32_t outlineGH_ = 0;										/* アウトライン用ガウシアンハンドル */
-	ConstBuffer<Sprite::Material> outlineMaterial_;					/* アウトライン用マテリアル定数バッファ */
-
-	uint32_t bloomExtractGH_ = 0;									/* ブルーム抽出用ガウシアンハンドル */
-	uint32_t bloomBlurGH_ = 0;										/* ブルームブラー用ガウシアンハンドル */
+	ConstBuffer<WaveCBData> waveCB_;     /* 波形ディストーション用定数バッファ */
+	ConstBuffer<GlitchCBData> glitchCB_; /* グリッチエフェクト用定数バッファ */
 
 private:
 	// =========================================================
+	// Internal Methods
+	// =========================================================
+
+	/// <summary>
+	/// 共通の描画処理を行います。
+	/// </summary>
+	/// <param name="textureHandle">レンダーテクスチャハンドル</param>
+	void DrawFullScreenQuad(uint32_t textureHandle);
+
+	/// <summary>
+	/// 指定したPSOでフルスクリーン描画を行います。
+	/// </summary>
+	/// <param name="pso">パイプラインステート</param>
+	/// <param name="textureHandle">レンダーテクスチャハンドル</param>
+	void DrawWithPSO(ID3D12PipelineState* pso, uint32_t textureHandle);
+
+	/// <summary>
+	/// Bloom抽出を行います。
+	/// </summary>
+	/// <param name="sourceTexture"></param>
+	/// <param name="targetRT"></param>
+	void ApplyBloomExtract(uint32_t sourceTexture, uint32_t targetRT);
+
+	/// <summary>
+	/// ブラー適用を行います。
+	/// </summary>
+	/// <param name="sourceTexture"></param>
+	/// <param name="targetRT"></param>
+	void ApplyBloomBlur(uint32_t sourceTexture, uint32_t targetRT);
+
+	// =========================================================
 	// Constants
 	// =========================================================
-	static constexpr size_t kVertexCount = 4;	/* 頂点バッファの要素数 */
-	static constexpr size_t kIndexCount = 6;	/* インデックスバッファの要素数 */
+	static constexpr size_t kVertexCount = 4; /* 頂点バッファの要素数 */
+	static constexpr size_t kIndexCount = 6;  /* インデックスバッファの要素数 */
 
-	static constexpr uint32_t kDrawIndexedCount = 6;	/* 描画するインデックス数 */
-	static constexpr uint32_t kInstancedCount = 1;		/* 描画するプリミティブのインスタンス数 */
+	static constexpr uint32_t kDrawIndexedCount = 6; /* 描画するインデックス数 */
+	static constexpr uint32_t kInstancedCount = 1;   /* 描画するプリミティブのインスタンス数 */
 
 	/* 頂点座標 */
 	static constexpr float kNDCMin = -1.0f;
@@ -161,11 +185,9 @@ private:
 	static constexpr uint32_t kIndex2 = 2;
 	static constexpr uint32_t kIndex3 = 3;
 
-	static constexpr Float4 kDefaultMaterialColor = { 1.0f, 1.0f, 1.0f, 1.0f };	/* マテリアルのデフォルトカラー（白） */
-	static constexpr Float4 kOutlineMaterialColor = { 0.0f, 0.0f, 0.0f, 1.0f };	/* アウトラインのマテリアルカラー（黒） */
-
-	static constexpr Float4 kOutlineClearColor = { 0.0f, 0.0f, 0.0f, 0.0f };	/* アウトラインのクリアカラー */
-	static constexpr Float4 kBloomClearColor = { 0.0f, 0.0f, 0.0f, 0.0f };		/* ブルームのクリアカラー */
+	static constexpr Float4 kDefaultMaterialColor = {1.0f, 1.0f, 1.0f, 1.0f};
+	static constexpr Float4 kBlackMaterialColor = {0.0f, 0.0f, 0.0f, 1.0f};
+	static constexpr Float4 kTransparentClearColor = {0.0f, 0.0f, 0.0f, 0.0f};
 
 	/* WaveDistortionの初期値 */
 	static constexpr float kWaveTimeInitial = 0.0f;
@@ -178,29 +200,44 @@ private:
 	static constexpr float kGlitchIntensityInitial = 1.0f;
 	static constexpr float kGlitchSpeedInitial = 0.5f;
 
-	static constexpr uint32_t kRootParameterIndexMaterial = 0;	/* マテリアル用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexTransform = 1;	/* 変換行列用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexTexture = 2;	/* テクスチャ用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexWave = 9;		/* WaveDistortionCBV用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexGlitch = 10;	/* GlitchEffectCBV用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexMaterial = 0;  /* マテリアル用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTransform = 1; /* 変換行列用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTexture = 2;   /* テクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexWave = 9;      /* WaveDistortionCBV用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexGlitch = 10;   /* GlitchEffectCBV用ルートパラメーターインデックス */
 
 	// =========================================================
 	// Member Variables
 	// =========================================================
-	PostEffectType effectType_ = PostEffectType::RadialBlur;		/* エフェクトタイプ */
+	PostEffectType effectType_ = PostEffectType::None;
 
-	uint32_t renderTextureHandle_ = 0;								/* レンダーテクスチャハンドル */
+	//// レンダーターゲット
+	//uint32_t mainSceneRT_ = 0;     /* メインシーン描画用テクスチャ */
+	//uint32_t bloomResultRT_ = 0;   /* ブルーム適用済みテクスチャ */
+	//uint32_t bloomExtractRT_ = 0;  /* ブルーム抽出結果テクスチャ */
+	//uint32_t bloomBlurRT_ = 0;     /* ブルームブラー結果テクスチャ */
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer_;			/* 頂点バッファ */
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer_;			/* インデックスバッファ */
-	Microsoft::WRL::ComPtr<ID3D12Resource> transformCB_;			/* 変換行列用定数バッファ */
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialCB_;				/* マテリアル用定数バッファ */
+	// 頂点・インデックスバッファ
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer_;
+	D3D12_VERTEX_BUFFER_VIEW vbView_;
+	D3D12_INDEX_BUFFER_VIEW ibView_;
 
-	D3D12_VERTEX_BUFFER_VIEW vbView_;								/* 頂点バッファビュー */
-	D3D12_INDEX_BUFFER_VIEW ibView_;								/* インデックスバッファビュー */
+	// 定数バッファ
+	Microsoft::WRL::ComPtr<ID3D12Resource> transformCB_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialCB_;
+	Object3D::TransformationMatrix* transformMap_ = nullptr;
+	Object3D::Material* materialMap_ = nullptr;
 
-	Object3D::TransformationMatrix* transformMap_ = nullptr;		/* 変換行列マップ */
-	Object3D::Material* materialMap_ = nullptr;						/* マテリアルマップ */
+	ConstBuffer<Object3D::Material> blackMaterial_;
 
-	bool initialized_ = false;										/* 初期化フラグ */
+	bool initialized_ = false;            // 初期化済みフラグ
+	bool isRenderingToOffscreen_ = false; // オフスクリーン描画中フラグ
+
+public:
+	// レンダーターゲット
+	uint32_t mainSceneRT_ = 0;    /* メインシーン描画用テクスチャ */
+	uint32_t bloomResultRT_ = 0;  /* ブルーム適用済みテクスチャ */
+	uint32_t bloomExtractRT_ = 0; /* ブルーム抽出結果テクスチャ */
+	uint32_t bloomBlurRT_ = 0;    /* ブルームブラー結果テクスチャ */
 };
