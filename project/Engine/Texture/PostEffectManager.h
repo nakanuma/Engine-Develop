@@ -91,10 +91,9 @@ public:
 	void RestoreBackBuffer(bool resetPSO);
 
 	/// <summary>
-	/// 深度バッファをバックバッファの深度バッファにコピーします。
+	/// デプスバッファのリソースステートを読み取り状態に戻します。（直接バックバッファへ描画した後に使用）
 	/// </summary>
-	/// <param name="sourceRT"></param>
-	void CopyDepthBuffer(uint32_t sourceRT);
+	void RestoreDepthBufferState();
 
 	// =========================================================
 	// Getter / Setter

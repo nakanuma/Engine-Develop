@@ -197,6 +197,8 @@ public:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle(UINT index);
 
+	ID3D12Resource* GetDepthStencilResource() { return depthStencilResource_.Get(); }
+
 	// BlendMode変更用PSOのgetter
 	ID3D12PipelineState* GetPipelineStateBlendModeNone() { return graphicsPipelineStateBlendModeNone_.Get(); };
 	ID3D12PipelineState* GetPipelineStateBlendModeAdd() { return graphicsPipelineStateBlendModeAdd_.Get(); };

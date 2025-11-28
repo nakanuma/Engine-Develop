@@ -174,9 +174,6 @@ void PostEffectManager::EndMainScene() {
 	// エフェクト適用してバックバッファに適用
 	DrawWithPSO(pso, mainSceneRT_);
 
-	// メインシーンの深度情報をバックバッファの深度バッファにコピー
-	CopyDepthBuffer(mainSceneRT_);
-
 	// 通常PSOに戻す
 	cmd->SetPipelineState(dxBase->GetPipelineState());
 }
@@ -213,11 +210,20 @@ void PostEffectManager::RestoreBackBuffer(bool resetPSO) {
 
 	UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxBase->GetRTVHandle(backBufferIndex);
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxBase->GetDSVHeap()->GetCPUHandle(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = RTVManager::GetDSVHandle(mainSceneRT_);
+	ID3D12Resource* depthBufferResource = RTVManager::GetDepthResource(mainSceneRT_);
+
+	D3D12_RESOURCE_BARRIER barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = depthBufferResource;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+
+	cmd->ResourceBarrier(1, &barrier);
 
 	cmd->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-
-	cmd->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	if (resetPSO) {
 		cmd->SetPipelineState(dxBase->GetPipelineState());
@@ -226,27 +232,20 @@ void PostEffectManager::RestoreBackBuffer(bool resetPSO) {
 	isRenderingToOffscreen_ = false;
 }
 
-void PostEffectManager::CopyDepthBuffer(uint32_t sourceRT) {
-	DirectXBase* dxBase = DirectXBase::GetInstance(); 
-	auto cmd = dxBase->GetCommandList();
+void PostEffectManager::RestoreDepthBufferState()
+{
+	ID3D12Resource* depthBufferResource = RTVManager::GetDepthResource(mainSceneRT_);
+	auto cmd = DirectXBase::GetInstance()->GetCommandList();
 
-	// バックバッファの深度バッファハンドルを取得
-	D3D12_CPU_DESCRIPTOR_HANDLE backBufferDSV = dxBase->GetDSVHeap()->GetCPUHandle(0);
+	D3D12_RESOURCE_BARRIER returnBarrier = {};
+	returnBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	returnBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	returnBarrier.Transition.pResource = depthBufferResource;
+	returnBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	returnBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+	returnBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
 
-	// メインシーンの深度テクスチャSRVを取得
-	uint32_t depthSRV = RTVManager::GetDepthSRVHandle(sourceRT);
-
-	// 深度バッファ書き込み専用のPSOを設定
-	cmd->SetPipelineState(dxBase->GetPipelineStateDepthWrite());
-
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, blackMaterial_.resource_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, depthSRV);
-
-	// 深度値をコピー
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
+	cmd->ResourceBarrier(1, &returnBarrier);
 }
 
 void PostEffectManager::DrawFullScreenQuad(uint32_t textureHandle) { 

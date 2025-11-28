@@ -133,3 +133,28 @@ void RTVManager::ClearRTV(int32_t textureHandle, Float4 clearColor) {
 }
 
 int32_t RTVManager::GetDepthSRVHandle(int32_t textureHandle) { return GetInstance().depthSRVHandleMap_[textureHandle]; }
+
+D3D12_CPU_DESCRIPTOR_HANDLE RTVManager::GetDSVHandle(uint32_t textureHandle)
+{
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	
+	auto it = GetInstance().rtvHandleMap_.find(textureHandle);
+
+	if(it != GetInstance().rtvHandleMap_.end()){
+		UINT dsvIndex = it->second;
+		return dxBase->GetDSVHeap()->GetCPUHandle(dsvIndex);
+	}
+
+	return {0};
+}
+
+ID3D12Resource* RTVManager::GetDepthResource(uint32_t textureHandle)
+{
+	auto it = GetInstance().dsvResourceMap_.find(textureHandle);
+
+	if(it != GetInstance().dsvResourceMap_.end()){
+		return it->second.Get();
+	}
+
+	return nullptr;
+}

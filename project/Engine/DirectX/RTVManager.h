@@ -68,6 +68,20 @@ public:
 	/// <returns>デプスステンシルビュー（DSV）ハンドル</returns>
 	static int32_t GetDepthSRVHandle(int32_t textureHandle);
 
+	/// <summary>
+	/// デプスステンシルビュー（DSV）ハンドルを取得します。
+	/// </summary>
+	/// <param name="textureHandle">テクスチャハンドル</param>
+	/// <returns>デプスステンシルビュー（DSV）ハンドル</returns>
+	static D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle(uint32_t textureHandle);
+
+	/// <summary>
+	/// 深度リソースを取得します。
+	/// </summary>
+	/// <param name="textureHandle">テクスチャハンドル</param>
+	/// <returns>深度リソース</returns>
+	static ID3D12Resource* GetDepthResource(uint32_t textureHandle);
+
 private:
 	// =========================================================
 	// Member Variables

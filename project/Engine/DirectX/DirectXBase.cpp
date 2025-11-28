@@ -774,26 +774,31 @@ void DirectXBase::CreatePipelineStateObject()
 	/// BlendMode変更用のPSOを生成
 	/// 
 
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateBlend = graphicsPipelineStateDesc;
+	graphicsPipelineStateBlend.DepthStencilState.DepthEnable = TRUE;
+	graphicsPipelineStateBlend.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	graphicsPipelineStateBlend.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
 	//　無し
-	graphicsPipelineStateDesc.BlendState = blendDescNone_;
+	graphicsPipelineStateBlend.BlendState = blendDescNone_;
 	graphicsPipelineStateBlendModeNone_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeNone_));
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeNone_));
 	//　加算
-	graphicsPipelineStateDesc.BlendState = blendDescAdd_;
+	graphicsPipelineStateBlend.BlendState = blendDescAdd_;
 	graphicsPipelineStateBlendModeAdd_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeAdd_));
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeAdd_));
 	//　減算
-	graphicsPipelineStateDesc.BlendState = blendDescSubtract_;
+	graphicsPipelineStateBlend.BlendState = blendDescSubtract_;
 	graphicsPipelineStateBlendModeSubtract_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeSubtract_));
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeSubtract_));
 	//　乗算
-	graphicsPipelineStateDesc.BlendState = blendDescMultiply_;
+	graphicsPipelineStateBlend.BlendState = blendDescMultiply_;
 	graphicsPipelineStateBlendModeMultiply_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeMultiply_));
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeMultiply_));
 	//　スクリーン
-	graphicsPipelineStateDesc.BlendState = blendDescScreen_;
+	graphicsPipelineStateBlend.BlendState = blendDescScreen_;
 	graphicsPipelineStateBlendModeScreen_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeScreen_));
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeScreen_));
 
 
 
