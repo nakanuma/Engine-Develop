@@ -72,6 +72,16 @@ public:
 		if (particles_.empty())
 			return;
 
+		// カメラ位置を取得
+		Float3 cameraPos = Camera::GetCurrent()->transform_.translate_;
+
+		// 遠い順に距離でソートする
+		std::sort(particles_.begin(), particles_.end(), [&cameraPos](const ParticleType& a, const ParticleType& b){
+				float distA = Float3::LengthSq(a.transform.translate_ - cameraPos);
+				float distB = Float3::LengthSq(b.transform.translate_ - cameraPos);
+				return distA > distB;
+			});
+
 		auto* dx = DirectXBase::GetInstance();
 		// ブレンドモードに応じてPSOを変更
 		if (blendMode_ == BlendMode::None) {
