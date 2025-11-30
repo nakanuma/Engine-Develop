@@ -918,6 +918,18 @@ void DirectXBase::CreatePipelineStateObject()
 	graphicsPipelineStateGaussianFilter_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGaussianFilterDesc, IID_PPV_ARGS(&graphicsPipelineStateGaussianFilter_));
 
+	/* 水平方向のガウスぼかし */
+	auto psGaussianHorizontal = shaderManager->GetShader("GaussianHorizontal_PS");
+	graphicsPipelineStateGaussianFilterDesc.PS = { psGaussianHorizontal->GetBufferPointer(), psGaussianHorizontal->GetBufferSize() };
+	psoGaussianHorizontal_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGaussianFilterDesc, IID_PPV_ARGS(&psoGaussianHorizontal_));
+
+	/* 垂直方向のガウスぼかし */
+	auto psGaussianVertical = shaderManager->GetShader("GaussianVertical_PS");
+	graphicsPipelineStateGaussianFilterDesc.PS = { psGaussianVertical->GetBufferPointer(), psGaussianVertical->GetBufferSize() };
+	psoGaussianVertical_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGaussianFilterDesc, IID_PPV_ARGS(&psoGaussianVertical_));
+
 	///
 	///	RadialBlurのPSOを生成
 	/// 

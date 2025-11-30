@@ -16,6 +16,7 @@ void PostEffectManager::Initialize() {
 	mainSceneRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
 	bloomResultRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
 	bloomExtractRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
+	bloomHorizontalRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
 	bloomBlurRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
 
 	// 頂点バッファ
@@ -179,6 +180,9 @@ void PostEffectManager::EndMainScene() {
 }
 
 void PostEffectManager::BeginBloom() {
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = dxBase->GetCommandList();
+
 	// Bloom結果用のレンダーターゲットに切り替え
 	RTVManager::SetRenderTarget(bloomResultRT_);
 	RTVManager::ClearRTV(bloomResultRT_, kTransparentClearColor);
@@ -191,8 +195,9 @@ void PostEffectManager::EndBloom() {
 
 	// 明度抽出
 	ApplyBloomExtract(bloomResultRT_, bloomExtractRT_);
-	// ガウシアンブラー適用
-	ApplyBloomBlur(bloomResultRT_, bloomBlurRT_);
+	// ブラー適用
+	ApplyBloomBlurHorizontal(bloomExtractRT_, bloomHorizontalRT_);
+	ApplyBloomBlur(bloomHorizontalRT_, bloomBlurRT_);
 	// バックバッファに戻す
 	RTVManager::SetRTtoBB();
 	isRenderingToOffscreen_ = false;
@@ -294,7 +299,24 @@ void PostEffectManager::ApplyBloomBlur(uint32_t sourceTexture, uint32_t targetRT
 	RTVManager::SetRenderTarget(targetRT);
 	RTVManager::ClearRTV(targetRT, kTransparentClearColor);
 
-	cmd->SetPipelineState(dxBase->GetPipelineStateGaussianFilter());
+	cmd->SetPipelineState(dxBase->GetPipelineStateGaussianVertical());
+	cmd->IASetVertexBuffers(0, 1, &vbView_);
+	cmd->IASetIndexBuffer(&ibView_);
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, sourceTexture);
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
+}
+
+void PostEffectManager::ApplyBloomBlurHorizontal(uint32_t sourceTexture, uint32_t targetRT)
+{
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = dxBase->GetCommandList();
+
+	RTVManager::SetRenderTarget(targetRT);
+	RTVManager::ClearRTV(targetRT, kTransparentClearColor);
+
+	cmd->SetPipelineState(dxBase->GetPipelineStateGaussianHorizontal());
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());

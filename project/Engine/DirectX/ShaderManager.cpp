@@ -1,4 +1,4 @@
-﻿#include "ShaderManager.h"
+#include "ShaderManager.h"
 
 // Engine
 #include <Logger.h>
@@ -63,6 +63,8 @@ void ShaderManager::Initialize() {
 
 	// GaussianFilter
 	LoadShader("GaussianFilter_PS", L"resources/Shaders/GaussianFilter.PS.hlsl", L"ps_6_0");
+	LoadShader("GaussianHorizontal_PS", L"resources/Shaders/GaussianHorizontal.PS.hlsl", L"ps_6_0");
+	LoadShader("GaussianVertical_PS", L"resources/Shaders/GaussianVertical.PS.hlsl", L"ps_6_0");
 
 	// RadialBlur
 	LoadShader("RadialBlur_PS", L"resources/Shaders/RadialBlur.PS.hlsl", L"ps_6_0");

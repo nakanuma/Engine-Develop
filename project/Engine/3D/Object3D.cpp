@@ -238,7 +238,7 @@ void Object3D::UpdateEmissiveAreaLight() {
 		Float3 right = {worldMatrix.r[0][0], worldMatrix.r[0][1], worldMatrix.r[0][2]};
 
 		// チューブの長さを計算
-		float length = transform_.scale_.x * 2.0f;
+		float length = transform_.scale_.x;
 
 		// チューブの両端点を計算
 		Float3 halfRight = right * (length * 0.5f);

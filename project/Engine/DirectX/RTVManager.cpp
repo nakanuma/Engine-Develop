@@ -69,6 +69,34 @@ void RTVManager::SetRenderTarget(int32_t textureHandle) {
 	GetInstance().currentRenderTarget_ = textureHandle;
 }
 
+void RTVManager::SetRenderTarget(int32_t textureHandle, int32_t depthSourceHandle)
+{
+	DirectXBase* dxBase = DirectXBase::GetInstance();
+
+	// 元のレンダーターゲットのリソースバリアを戻す
+	ResetResourceBarrier();
+
+	// リソースバリアを書き込み可能な状態にする
+	dxBase->barrier_.Transition.pResource = TextureManager::GetResource(textureHandle);
+	dxBase->barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	dxBase->barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	dxBase->GetCommandList()->ResourceBarrier(1, &dxBase->barrier_);
+	// そのテクスチャの深度情報のリソースバリアを書込み可能な状態にする
+	dxBase->barrier_.Transition.pResource = GetInstance().dsvResourceMap_[depthSourceHandle].Get();
+	dxBase->barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
+	dxBase->barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+	dxBase->GetCommandList()->ResourceBarrier(1, &dxBase->barrier_);
+
+	// レンダーターゲットをセットする
+	auto cpuHandle = dxBase->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]);
+	auto dsvHandle = dxBase->dsvDescriptorHeap_.GetCPUHandle(GetInstance().rtvHandleMap_[depthSourceHandle]);
+
+	dxBase->GetCommandList()->OMSetRenderTargets(1, &cpuHandle, false, &dsvHandle);
+
+	// 現在のレンダーターゲットを保存する
+	GetInstance().currentRenderTarget_ = textureHandle;
+}
+
 void RTVManager::SetRTtoBB() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 

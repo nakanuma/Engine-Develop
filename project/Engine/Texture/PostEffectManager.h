@@ -157,6 +157,13 @@ private:
 	/// <param name="targetRT"></param>
 	void ApplyBloomBlur(uint32_t sourceTexture, uint32_t targetRT);
 
+	/// <summary>
+	/// ブラー適用を行います。
+	/// </summary>
+	/// <param name="sourceTexture"></param>
+	/// <param name="targetRT"></param>
+	void ApplyBloomBlurHorizontal(uint32_t sourceTexture, uint32_t targetRT);
+
 	// =========================================================
 	// Constants
 	// =========================================================
@@ -210,12 +217,6 @@ private:
 	// =========================================================
 	PostEffectType effectType_ = PostEffectType::None;
 
-	//// レンダーターゲット
-	//uint32_t mainSceneRT_ = 0;     /* メインシーン描画用テクスチャ */
-	//uint32_t bloomResultRT_ = 0;   /* ブルーム適用済みテクスチャ */
-	//uint32_t bloomExtractRT_ = 0;  /* ブルーム抽出結果テクスチャ */
-	//uint32_t bloomBlurRT_ = 0;     /* ブルームブラー結果テクスチャ */
-
 	// 頂点・インデックスバッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer_;
@@ -235,8 +236,9 @@ private:
 
 public:
 	// レンダーターゲット
-	uint32_t mainSceneRT_ = 0;    /* メインシーン描画用テクスチャ */
-	uint32_t bloomResultRT_ = 0;  /* ブルーム適用済みテクスチャ */
-	uint32_t bloomExtractRT_ = 0; /* ブルーム抽出結果テクスチャ */
-	uint32_t bloomBlurRT_ = 0;    /* ブルームブラー結果テクスチャ */
+	uint32_t mainSceneRT_ = 0;			/* メインシーン描画用テクスチャ */
+	uint32_t bloomResultRT_ = 0;		/* ブルーム適用済みテクスチャ */
+	uint32_t bloomExtractRT_ = 0;		/* ブルーム抽出結果テクスチャ */
+	uint32_t bloomHorizontalRT_ = 0;
+	uint32_t bloomBlurRT_ = 0;			/* ブルームブラー結果テクスチャ */
 };

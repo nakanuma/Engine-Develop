@@ -237,6 +237,8 @@ public:
 	ID3D12PipelineState* GetPipelineStateWaveDistortion() { return graphicsPipelineStateWaveDistortion_.Get(); }
 	ID3D12PipelineState* GetPipelineStatePixelation() { return graphicsPipelineStatePixelation_.Get(); }
 	ID3D12PipelineState* GetPipelineStateGlitchEffect() { return graphicsPipelineStateGlitchEffect_.Get(); }
+	ID3D12PipelineState* GetPipelineStateGaussianHorizontal() { return psoGaussianHorizontal_.Get(); }
+	ID3D12PipelineState* GetPipelineStateGaussianVertical() { return psoGaussianVertical_.Get(); }
 
 	// Skybox用PSOを取得
 	ID3D12PipelineState* GetPipelineStateSkybox() { return graphicsPipelineStateSkybox_.Get(); }
@@ -392,6 +394,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateWaveDistortion_; // WaveDistortion
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStatePixelation_; // Pixelation
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateGlitchEffect_; // GlitchEffect
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> psoGaussianHorizontal_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> psoGaussianVertical_;
 
 	// Skybox用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkybox_;

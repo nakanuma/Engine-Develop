@@ -45,6 +45,13 @@ public:
 	static void SetRenderTarget(int32_t textureHandle);
 
 	/// <summary>
+	/// レンダーターゲットを設定します。（別のレンダーターゲットの深度バッファを使用）
+	/// </summary>
+	/// <param name="textureHandle">テクスチャハンドル</param>
+	/// <param name="depthSourceHandle">深度バッファを使用するテクスチャ</param>
+	static void SetRenderTarget(int32_t textureHandle, int32_t depthSourceHandle);
+
+	/// <summary>
 	/// レンダーターゲットをバックバッファに設定します。
 	/// </summary>
 	static void SetRTtoBB();
