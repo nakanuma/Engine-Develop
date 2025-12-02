@@ -28,7 +28,7 @@ public:
 	/// <param name="translate">位置（Float3）</param>
 	/// <param name="rotate">回転（Euler）</param>
 	/// <param name="fov">視野角（radian）</param>
-	Camera(Float3 translate, Float3 rotate = Float3(0.0f, 0.0f, 0.0f), float fov = PIf / 2.0f);
+	Camera(const Float3& translate, const Float3& rotate = Float3(0.0f, 0.0f, 0.0f), float fov = PIf / 2.0f);
 
 	/// <summary>
 	/// 定数バッファを転送します。

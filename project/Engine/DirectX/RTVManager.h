@@ -36,7 +36,7 @@ public:
 	/// <param name="height">高さ</param>
 	/// <param name="clearColor">クリアカラー</param>
 	/// <returns>テクスチャハンドル</returns>
-	static int32_t CreateRenderTargetTexture(uint32_t width, uint32_t height, Float4 clearColor = {0.1f, 0.25f, 0.5f, 1.0f});
+	static int32_t CreateRenderTargetTexture(uint32_t width, uint32_t height, const Float4& clearColor = {0.1f, 0.25f, 0.5f, 1.0f});
 
 	/// <summary>
 	/// レンダーターゲットを設定します。
@@ -66,7 +66,7 @@ public:
 	/// </summary>
 	/// <param name="textureHandle">テクスチャハンドル</param>
 	/// <param name="clearColor">クリアカラー</param>
-	static void ClearRTV(int32_t textureHandle, Float4 clearColor = {0.1f, 0.25f, 0.5f, 1.0f});
+	static void ClearRTV(int32_t textureHandle, const Float4& clearColor = {0.1f, 0.25f, 0.5f, 1.0f});
 
 	/// <summary>
 	/// デプスステンシルビュー（DSV）ハンドルを取得します。

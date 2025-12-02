@@ -109,7 +109,7 @@ public:
 	/// スキンアニメーションの描画処理を行います。
 	/// </summary>
 	/// <param name="skinCluster">スキンクラスター</param>
-	void Draw(SkinCluster skinCluster);
+	void Draw(const SkinCluster& skinCluster);
 
 	/// <summary>
 	/// インスタンシング描画を行います。
@@ -134,7 +134,7 @@ public:
 	/// スキンアニメーションのシャドウマップ描画を行います。
 	/// </summary>
 	/// <param name="skinCluster">スキンクラスター</param>
-	void DrawShadow(SkinCluster skinCluster);
+	void DrawShadow(const SkinCluster& skinCluster);
 
 	/// <summary>
 	/// エミッシブを設定します。

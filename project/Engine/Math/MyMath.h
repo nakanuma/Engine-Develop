@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -20,4 +20,4 @@ static constexpr float PIf = 3.14159265359f;	/* float型の円周率 */
 /// </summary>
 /// <param name="degree">変換する角度（度）</param>
 /// <returns>変換後の角度（ラジアン）</returns>
-static float DegToRad(const float degree) { return degree * (PIf / 180.0f); }
+static float DegToRad(float degree) { return degree * (PIf / 180.0f); }

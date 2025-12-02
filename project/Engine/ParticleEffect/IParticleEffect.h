@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -25,7 +25,7 @@ public:
 	/// <param name="pos">位置</param>
 	/// <param name="velocity">速度ベクトル</param>
 	/// <param name="angle">角度</param>
-	virtual void Emit(const Float3& pos, const Float3& velocity, const float& angle) = 0;
+	virtual void Emit(const Float3& pos, const Float3& velocity, float angle) = 0;
 
 	/// <summary>
 	/// パーティクルの発生処理を行います。
@@ -34,7 +34,7 @@ public:
 	/// <param name="count">発生させるパーティクルの数</param>
 	/// <param name="velocity">速度ベクトル</param>
 	/// <param name="angle">角度</param>
-	virtual void Emit(const Float3& pos, uint32_t count, const Float3& velocity, const float& angle) {
+	virtual void Emit(const Float3& pos, uint32_t count, const Float3& velocity, float angle) {
 		for (uint32_t i = 0; i < count; ++i) {
 			Emit(pos, velocity, angle);
 		}

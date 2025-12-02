@@ -9,7 +9,7 @@ RTVManager& RTVManager::GetInstance() {
 	return instance;
 }
 
-int32_t RTVManager::CreateRenderTargetTexture(uint32_t width, uint32_t height, Float4 clearColor) {
+int32_t RTVManager::CreateRenderTargetTexture(uint32_t width, uint32_t height, const Float4& clearColor) {
 	// 空のテクスチャを作成
 	int32_t emptyTexture = TextureManager::CreateEmptyTexture(width, height, clearColor);
 	// TextureHandleとRTVHandleを対応させる
@@ -152,7 +152,7 @@ void RTVManager::ResetResourceBarrier() {
 	}
 }
 
-void RTVManager::ClearRTV(int32_t textureHandle, Float4 clearColor) {
+void RTVManager::ClearRTV(int32_t textureHandle, const Float4& clearColor) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 指定した色で画面全体をクリアする

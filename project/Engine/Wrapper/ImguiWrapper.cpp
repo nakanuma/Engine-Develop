@@ -109,7 +109,7 @@ void ImguiWrapper::ShowMainDockSpace() {
 #endif
 }
 
-void ImGuiUtil::ImageWindow(std::string windowName, int32_t textureHandle) {
+void ImGuiUtil::ImageWindow(const std::string& windowName, int32_t textureHandle) {
 #ifdef USE_IMGUI
 	ImGui::Begin(windowName.c_str());
 
@@ -142,7 +142,7 @@ void ImGuiUtil::ImageWindow(std::string windowName, int32_t textureHandle) {
 #endif
 }
 
-void ImGuiUtil::DepthWindow(std::string windowName, int32_t textureHandle) {
+void ImGuiUtil::DepthWindow(const std::string& windowName, int32_t textureHandle) {
 #ifdef USE_IMGUI
 	ImGui::Begin(windowName.c_str());
 

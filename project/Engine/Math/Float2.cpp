@@ -12,9 +12,9 @@ Float2& Float2::operator+=(const Float2& other) {
 	return *this;
 }
 
-float Float2::Dot(const Float2& a, const Float2& b) { return a.x * b.x + a.y * b.y; }
+float Float2::Dot(Float2 a, Float2 b) { return a.x * b.x + a.y * b.y; }
 
-Float2 Float2::Lerp(const Float2& a, const Float2& b, float t) {
+Float2 Float2::Lerp(Float2 a, Float2 b, float t) {
 	return {
 		a.x * (1.0f - t) + b.x * t,
 		a.y * (1.0f - t) + b.y * t

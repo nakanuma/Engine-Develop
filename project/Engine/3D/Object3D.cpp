@@ -89,7 +89,7 @@ void Object3D::Draw() {
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::Draw(SkinCluster skinCluster) {
+void Object3D::Draw(const SkinCluster& skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {
@@ -168,7 +168,7 @@ void Object3D::DrawShadow() {
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::DrawShadow(SkinCluster skinCluster) {
+void Object3D::DrawShadow(const SkinCluster& skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {model_->vertexBufferView, skinCluster.influenceBufferView_};

@@ -19,7 +19,7 @@ struct Float2 {
 	/// <param name="a">Float2</param>
 	/// <param name="b">Float2</param>
 	/// <returns>ドット積（Float2）</returns>
-	static float Dot(const Float2& a, const Float2& b);
+	static float Dot(Float2 a, Float2 b);
 
 	/// <summary>
 	/// 線形補間を行います。
@@ -28,5 +28,5 @@ struct Float2 {
 	/// <param name="b">終了点</param>
 	/// <param name="t">補間係数（0.0f から 1.0f の範囲）</param>
 	/// <returns>補間結果（Float2）</returns>
-	static Float2 Lerp(const Float2& a, const Float2& b, float t);
+	static Float2 Lerp(Float2 a, Float2 b, float t);
 };

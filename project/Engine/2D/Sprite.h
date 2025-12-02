@@ -84,7 +84,7 @@ public:
 	/// スプライトの位置を設定します。
 	/// </summary>
 	/// <param name="position">新しい位置（Float2）</param>
-	void SetPosition(const Float2& position) { this->position_ = position; }
+	void SetPosition(Float2 position) { this->position_ = position; }
 
 	/// <summary>
 	/// スプライトの回転を取得します。
@@ -120,7 +120,7 @@ public:
 	/// スプライトのサイズを設定します。
 	/// </summary>
 	/// <param name="size">新しいサイズ（Float2）</param>
-	void SetSize(const Float2& size) { this->size_ = size; }
+	void SetSize(Float2 size) { this->size_ = size; }
 
 	/// <summary>
 	/// スプライトのアンカーポイントを取得します。
@@ -132,7 +132,7 @@ public:
 	/// スプライトのアンカーポイントを設定します。
 	/// </summary>
 	/// <param name="anchorPoint">新しいアンカーポイント（Float2）</param>
-	void SetAnchorPoint(const Float2& anchorPoint) { this->anchorPoint = anchorPoint; }
+	void SetAnchorPoint(Float2 anchorPoint) { this->anchorPoint = anchorPoint; }
 
 	/// <summary>
 	/// スプライトの左右フリップ状態を取得します。
@@ -168,7 +168,7 @@ public:
 	/// スプライトのテクスチャ左上座標を設定します。
 	/// </summary>
 	/// <param name="textureLeftTop">新しいテクスチャ左上座標（Float2）</param>
-	void SetTextureLeftTop(const Float2& textureLeftTop) { this->textureLeftTop_ = textureLeftTop; }
+	void SetTextureLeftTop(Float2 textureLeftTop) { this->textureLeftTop_ = textureLeftTop; }
 
 	/// <summary>
 	/// スプライトのテクスチャサイズを取得します。
@@ -180,7 +180,7 @@ public:
 	/// スプライトのテクスチャサイズを設定します。
 	/// </summary>
 	/// <param name="textureSize">新しいテクスチャサイズ（Float2）</param>
-	void SetTextureSize(const Float2& textureSize) { this->textureSize_ = textureSize; }
+	void SetTextureSize(Float2 textureSize) { this->textureSize_ = textureSize; }
 
 	Material* materialData_ = nullptr;				/* マテリアルデータ */
 

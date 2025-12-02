@@ -40,7 +40,7 @@ public:
 	/// <param name="pos">位置</param>
 	/// <param name="velocity">速度ベクトル</param>
 	/// <param name="angle">角度</param>
-	void Emit(const Float3& pos, const Float3& velocity, const float& angle) override {
+	void Emit(const Float3& pos, const Float3& velocity, float angle) override {
 		if (particles_.size() >= kMaxParticles)
 			return;
 		particles_.emplace_back(CreateParticle(pos, velocity, angle));
@@ -122,7 +122,7 @@ protected:
 	/// <param name="velocity">速度ベクトル</param>
 	/// <param name="angle">角度</param>
 	/// <returns>パーティクル</returns>
-	virtual ParticleType CreateParticle(const Float3& pos, const Float3& velocity, const float& angle) = 0;
+	virtual ParticleType CreateParticle(const Float3& pos, const Float3& velocity, float angle) = 0;
 
 	/// <summary>
 	/// パーティクル固有の毎フレーム更新処理を行います。

@@ -391,7 +391,7 @@ public:
 	/// </summary>
 	/// <param name="func">条件判定関数</param>
 	/// <param name="name">ノード名</param>
-	ConditionNode(ConditionFunc func, const std::string& name = "") : conditionFunc_(func) 
+	ConditionNode(ConditionFunc func, const std::string& name = "") : conditionFunc_(std::move(func)) 
 	{
 		this->name_ = name;
 	}
@@ -436,7 +436,7 @@ public:
 	/// </summary>
 	/// <param name="func">行動関数</param>
 	/// <param name="name">ノード名</param>
-	ActionNode(ActionFunc func, const std::string& name = "") : actionFunc_(func)
+	ActionNode(ActionFunc func, const std::string& name = "") : actionFunc_(std::move(func))
 	{
 		this->name_ = name;
 	}

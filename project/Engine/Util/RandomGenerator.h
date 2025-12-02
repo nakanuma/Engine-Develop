@@ -43,7 +43,7 @@ public:
 	/// <param name="min">最小値</param>
 	/// <param name="max">最大値</param>
 	/// <returns></returns>
-	Float2 RandomValue(const Float2& min, const Float2& max);
+	Float2 RandomValue(Float2 min, Float2 max);
 
 	/// <summary>
 	/// ランダムなFloat3値を生成します。

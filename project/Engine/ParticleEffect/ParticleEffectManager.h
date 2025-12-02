@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -32,7 +32,7 @@ public:
 	/// </summary>
 	/// <param name="name">任意の名前（string）</param>
 	/// <param name="effect">パーティクルエフェクト</param>
-	void Register(const std::string& name, std::shared_ptr<IParticleEffect> effect);
+	void Register(const std::string& name, const std::shared_ptr<IParticleEffect>& effect);
 
 	/// <summary>
 	/// パーティクルを発生させます。
@@ -42,7 +42,7 @@ public:
 	/// <param name="count">発生させるパーティクルの数</param>
 	/// <param name="velocity">発生させるパーティクルの初速度</param>
 	/// <param name="angle">発生させるパーティクルの初回転角</param>
-	void Emit(const std::string& name, const Float3& pos, uint32_t count, const Float3& velocity = {0.0f, 0.0f, 0.0f}, const float& angle = 0.0f);
+	void Emit(const std::string& name, const Float3& pos, uint32_t count, const Float3& velocity = {0.0f, 0.0f, 0.0f}, float angle = 0.0f);
 
 	/// <summary>
 	/// 毎フレームの更新処理を行います。

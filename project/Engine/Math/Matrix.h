@@ -48,7 +48,7 @@ public:
 	/// </summary>
 	/// <param name="m">逆行列を求める行列</param>
 	/// <returns>逆行列（4x4Matrix）</returns>
-	static Matrix Inverse(Matrix m);
+	static Matrix Inverse(const Matrix& m);
 
 	/// <summary>
 	/// 転置行列を計算します。
@@ -103,14 +103,14 @@ public:
 	/// </summary>
 	/// <param name="scale">スケールベクトル</param>
 	/// <returns>スケーリング行列（4x4Matrix）</returns>
-	static Matrix Scaling(Float3 scale);
+	static Matrix Scaling(const Float3& scale);
 
 	/// <summary>
 	/// 平行移動行列を計算します。
 	/// </summary>
 	/// <param name="translation">平行移動ベクトル</param>
 	/// <returns>平行移動行列（4x4Matrix）</returns>
-	static Matrix Translation(Float3 translation);
+	static Matrix Translation(const Float3& translation);
 
 	/// <summary>
 	/// X軸周りの回転行列を計算します。
@@ -183,7 +183,7 @@ public:
 	/// </summary>
 	/// <param name="q">クォータニオン</param>
 	/// <returns>回転行列（4x4Matrix）</returns>
-	static Matrix QuaternionToRotation(Quaternion q);
+	static Matrix QuaternionToRotation(const Quaternion& q);
 
 	/// <summary>
 	/// アフィン変換行列を作成します。
@@ -192,7 +192,7 @@ public:
 	/// <param name="rotate">回転クォータニオン</param>
 	/// <param name="translate">平行移動ベクトル</param>
 	/// <returns>アフィン変換行列（4x4Matrix）</returns>
-	static Matrix MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3 translate);
+	static Matrix MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3& translate);
 
 private:
 	// =========================================================

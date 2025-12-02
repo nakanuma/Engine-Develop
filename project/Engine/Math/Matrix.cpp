@@ -200,7 +200,7 @@ Float4 Matrix::operator*(const Float4& vec) {
 
 Matrix Matrix::Identity() { return Matrix(); }
 
-Matrix Matrix::Inverse(Matrix m) { return -m; }
+Matrix Matrix::Inverse(const Matrix& m) { return -m; }
 
 Matrix Matrix::Transpose(const Matrix& m) {
 	Matrix result;
@@ -300,7 +300,7 @@ Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& u
 	);
 }
 
-Matrix Matrix::Scaling(Float3 scale) {
+Matrix Matrix::Scaling(const Float3& scale) {
 	Matrix ret = Matrix();
 	ret.r[0][0] = scale.x;
 	ret.r[1][1] = scale.y;
@@ -309,7 +309,7 @@ Matrix Matrix::Scaling(Float3 scale) {
 	return ret;
 }
 
-Matrix Matrix::Translation(Float3 translation) {
+Matrix Matrix::Translation(const Float3& translation) {
 	Matrix ret = Matrix();
 	ret.r[3][0] = translation.x;
 	ret.r[3][1] = translation.y;
@@ -425,7 +425,7 @@ Matrix Matrix::RotationRollPitchYaw(float roll, float pitch, float yaw) {
 	return result;
 }
 
-Matrix Matrix::QuaternionToRotation(Quaternion q) {
+Matrix Matrix::QuaternionToRotation(const Quaternion& q) {
 	Matrix result;
 
 	// X軸方向
@@ -455,7 +455,7 @@ Matrix Matrix::QuaternionToRotation(Quaternion q) {
 	return result;
 }
 
-Matrix Matrix::MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3 translate) {
+Matrix Matrix::MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3& translate) {
 	Matrix result = Matrix();
 
 	// スケーリング行列を掛ける

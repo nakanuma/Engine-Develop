@@ -2,7 +2,7 @@
 #include "DirectXBase.h"
 #include "MyWindow.h"
 
-Camera::Camera(Float3 argTranslate, Float3 argRotate, float argFov) {
+Camera::Camera(const Float3& argTranslate, const Float3& argRotate, float argFov) {
 	// 引数で受け取った位置、回転、視野角を設定
 	transform_.translate_ = argTranslate;
 	transform_.rotate_ = argRotate;

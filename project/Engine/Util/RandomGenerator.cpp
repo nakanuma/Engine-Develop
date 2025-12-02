@@ -15,7 +15,7 @@ int RandomGenerator::RandomValue(int min, int max) {
 	return dist(rng_);
 }
 
-Float2 RandomGenerator::RandomValue(const Float2& min, const Float2& max) { 
+Float2 RandomGenerator::RandomValue(Float2 min, Float2 max) { 
 	return Float2{
 		RandomValue(min.x, max.x), 
 		RandomValue(min.y, max.y)
