@@ -1,4 +1,4 @@
-﻿#include "SceneManager.h"
+#include "SceneManager.h"
 #include <cassert>
 
 SceneManager* SceneManager::GetInstance() {
@@ -8,8 +8,9 @@ SceneManager* SceneManager::GetInstance() {
 
 SceneManager::~SceneManager() {
 	// 最後のシーンの終了と開放
-	scene_->Finalize();
-	delete scene_;
+	if (scene_) {
+		scene_->Finalize();
+	}
 }
 
 void SceneManager::ChangeScene(const std::string& sceneName) {
@@ -30,20 +31,23 @@ void SceneManager::Update() {
 		// 旧シーンの終了
 		if (scene_) {
 			scene_->Finalize();
-			delete scene_;
 		}
 
 		// シーン切り替え
-		scene_ = nextScene_;
-		nextScene_->Finalize();
+		scene_ = std::move(nextScene_);
+		// 次シーンの予約をクリア
 		nextScene_ = nullptr;
 	}
 
 	// 実行中シーンを更新する
-	scene_->Update();
+	if (scene_) {
+		scene_->Update();
+	}
 }
 
 void SceneManager::Draw() {
 	// 実行中シーンの描画
-	scene_->Draw();
+	if (scene_) {
+		scene_->Draw();
+	}
 }

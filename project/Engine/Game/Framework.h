@@ -99,12 +99,12 @@ protected:
 	// =========================================================
 
 	// ----- System -----
-	Window* window_ = nullptr;							/* ウィンドウクラス */
-	DirectXBase* dxBase_ = nullptr;						/* DirectX基盤クラス */
-	SRVManager* srvManager_ = nullptr;					/* SRV管理クラス */
-	SpriteCommon* spriteCommon_ = nullptr;				/* スプライト共通処理クラス */
-	SoundManager* soundManager_ = nullptr;				/* サウンド管理クラス */
-	AbstractSceneFactory* sceneFactory_ = nullptr;		/* シーンファクトリクラス */
+	std::unique_ptr<Window> window_ = nullptr;				/* ウィンドウクラス */
+	DirectXBase* dxBase_ = nullptr;							/* DirectX基盤クラス */
+	SRVManager* srvManager_ = nullptr;						/* SRV管理クラス */
+	std::unique_ptr<SpriteCommon> spriteCommon_ = nullptr;	/* スプライト共通処理クラス */
+	std::unique_ptr <SoundManager> soundManager_ = nullptr; /* サウンド管理クラス */
+	AbstractSceneFactory* sceneFactory_ = nullptr;			/* シーンファクトリクラス */
 
 private:
 	bool endRequest_;									/* 終了リクエストフラグ */

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -53,7 +53,7 @@ private:
 	// Member Variables
 	// =========================================================
 
-	BaseScene* scene_ = nullptr;							/* 現在のシーン */
-	BaseScene* nextScene_ = nullptr;						/* 次のシーン */
+	std::unique_ptr<BaseScene> scene_ = nullptr;			/* 現在のシーン */
+	std::unique_ptr<BaseScene> nextScene_ = nullptr;		/* 次のシーン */
 	AbstractSceneFactory* sceneFactory_ = nullptr;			/* シーンファクトリー */
 };

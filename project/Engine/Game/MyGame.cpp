@@ -18,11 +18,11 @@ void MyGame::Initialize() {
 	GameResourceLoader::GetInstance()->Initialize();
 
 	// シーンファクトリーを生成し、マネージャにセット
-	sceneFactory_ = new SceneFactory();
+	sceneFactory_ = SceneFactory::GetInstance();
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_);
 	// シーンマネージャに最初のシーンをセット
-	std::string sceneName = "GAMEPLAY";
-	SceneManager::GetInstance()->ChangeScene(sceneName);
+	std::string initialSceneName = sceneFactory_->GetInitialSceneName();
+	SceneManager::GetInstance()->ChangeScene(initialSceneName);
 }
 
 void MyGame::Finalize() {

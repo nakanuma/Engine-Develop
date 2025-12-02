@@ -81,8 +81,8 @@ SoundManager::SoundData SoundManager::LoadWave(const char* filename) {
 	}
 
 	// Dataチャンクのデータ部（波形データ）の読み込み
-	char* pBuffer = new char[data.size];
-	file.read(pBuffer, data.size);
+	std::unique_ptr<BYTE[]> buffer = std::make_unique<BYTE[]>(data.size);
+	file.read(reinterpret_cast<char*>(buffer.get()), data.size);
 
 	///
 	/// 3, ファイルクローズ
@@ -99,19 +99,21 @@ SoundManager::SoundData SoundManager::LoadWave(const char* filename) {
 	SoundData soundData = {};
 
 	soundData.wfex = format.fmt;
-	soundData.pBuffer = reinterpret_cast<BYTE*>(pBuffer);
+	soundData.pBuffer = std::move(buffer);
 	soundData.bufferSize = data.size;
 
 	return soundData;
 }
 
-void SoundManager::Unload(SoundData* soundData) {
-	// バッファのメモリを開放
-	delete[] soundData->pBuffer;
+void SoundManager::Unload(SoundData& soundData) {
+	if (soundData.pSourceVoice) {
+		soundData.pSourceVoice->DestroyVoice();
+		soundData.pSourceVoice = nullptr;
+	}
 
-	soundData->pBuffer = 0;
-	soundData->bufferSize = 0;
-	soundData->wfex = {};
+	soundData.pBuffer.reset();
+	soundData.bufferSize = 0;
+	soundData.wfex = {};
 }
 
 void SoundManager::PlayWave(SoundData& soundData, bool loopFlag, float volume) {
@@ -123,7 +125,7 @@ void SoundManager::PlayWave(SoundData& soundData, bool loopFlag, float volume) {
 
 	// 再生する波形データの設定
 	XAUDIO2_BUFFER buf{};
-	buf.pAudioData = soundData.pBuffer;
+	buf.pAudioData = soundData.pBuffer.get();
 	buf.AudioBytes = soundData.bufferSize;
 	buf.Flags = XAUDIO2_END_OF_STREAM;
 

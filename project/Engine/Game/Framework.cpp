@@ -9,7 +9,7 @@ void Framework::Initialize() {
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 
 	// ゲームウィンドウの生成
-	window_ = new Window;
+	window_ = std::make_unique<Window>();
 	window_->Create(L"ファクトリコイル", kWindowWidth, kWindowHeight);
 
 	// DirectX初期化処理
@@ -21,10 +21,10 @@ void Framework::Initialize() {
 	srvManager_->Initialize(dxBase_);
 
 	// 入力デバイスの生成と初期化
-	Input::GetInstance()->Initialize(window_);
+	Input::GetInstance()->Initialize(window_.get());
 
 	// スプライト共通部の初期化
-	spriteCommon_ = new SpriteCommon;
+	spriteCommon_ = std::make_unique<SpriteCommon>();
 	spriteCommon_->Initialize(dxBase_);
 
 	// TextureManagerの初期化
@@ -34,7 +34,7 @@ void Framework::Initialize() {
 	ImguiWrapper::Initialize(dxBase_->GetDevice(), dxBase_->GetSwapChainDesc().BufferCount, dxBase_->GetRtvDesc().Format, srvManager_->descriptorHeap_.heap_.Get());
 
 	// SoundManagerの生成と初期化
-	soundManager_ = new SoundManager;
+	soundManager_ = std::make_unique<SoundManager>();
 	soundManager_->Initialize();
 
 	// LineDrawer初期化
@@ -45,13 +45,6 @@ void Framework::Initialize() {
 }
 
 void Framework::Finalize() {
-	// シーンファクトリ開放
-	delete sceneFactory_;
-	// スプライト共通処理開放
-	delete spriteCommon_;
-	// SoundManager開放
-	delete soundManager_;
-
 	// ImGuiの終了処理
 	ImguiWrapper::Finalize();
 	// COMの終了処理

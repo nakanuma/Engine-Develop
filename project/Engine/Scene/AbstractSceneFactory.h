@@ -1,9 +1,10 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
 // ---------------------------------------------------------
 #include <string>
+#include <memory>
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -29,5 +30,11 @@ public:
 	/// </summary>
 	/// <param name="sceneName">シーン名</param>
 	/// <returns>生成されたシーン</returns>
-	virtual BaseScene* CreateScene(const std::string& sceneName) = 0;
+	virtual std::unique_ptr<BaseScene> CreateScene(const std::string& sceneName) = 0;
+
+	/// <summary>
+	/// 初期化時のシーン名を取得します。
+	/// </summary>
+	/// <returns>初期化シーン名</returns>
+	virtual std::string GetInitialSceneName() = 0;
 };

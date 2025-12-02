@@ -42,7 +42,7 @@ public:
 	/// </summary>
 	struct SoundData {
 		WAVEFORMATEX wfex;					/* 波形フォーマット */
-		BYTE* pBuffer;						/* 音声バッファ */
+		std::unique_ptr<BYTE[]> pBuffer;    /* 音声バッファ */
 		unsigned int bufferSize;			/* バッファサイズ */
 		IXAudio2SourceVoice* pSourceVoice;	/* ソースボイス */
 	};
@@ -79,7 +79,7 @@ public:
 	/// 音声データを解放します。
 	/// </summary>
 	/// <param name="soundData">音声データ</param>
-	void Unload(SoundData* soundData);
+	void Unload(SoundData& soundData);
 
 	/// <summary>
 	/// 音声データを再生します。
