@@ -102,6 +102,9 @@ void ShaderManager::Initialize() {
 	// GlitchEffect
 	LoadShader("GlitchEffect_PS", L"resources/Shaders/GlitchEffect.PS.hlsl", L"ps_6_0");
 
+	// DamageVignette
+	LoadShader("DamageVignette_PS", L"resources/Shaders/DamageVignette.PS.hlsl", L"ps_6_0");
+
 	// Skybox
 	LoadShader("Skybox_VS", L"resources/Shaders/Skybox.VS.hlsl", L"vs_6_0");
 	LoadShader("Skybox_PS", L"resources/Shaders/Skybox.PS.hlsl", L"ps_6_0");

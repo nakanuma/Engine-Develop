@@ -28,26 +28,37 @@ struct GlitchCBData {
 };
 
 /// <summary>
+/// ダメージビネット用の定数バッファ構造体
+/// </summary>
+struct DamageVignetteCBData{
+	float intensity;	/* ダメージの強度 */
+	float radius;		/* 赤くなる範囲の半径 */
+	float softness;		/* エッジのぼかし具合 */
+	float padding;		/* パディング */
+};
+
+/// <summary>
 /// ポストエフェクトの種類を列挙する列挙型
 /// </summary>
 enum class PostEffectType {
-	None,             /* エフェクトなし */
-	RadialBlur,       /* 放射状ブラー */
-	GrayScale,        /* グレースケール */
-	Vignette,         /* ビネット */
-	Bloom,            /* ブルーム */
-	BoxFilter,        /* ボックスフィルター */
-	GaussianFilter,   /* ガウシアンフィルター */
-	InvertColor,      /* 色反転 */
-	Sepia,            /* セピア調 */
-	Posterize,        /* ポスタリゼーション */
-	Emboss,           /* エンボス */
-	Sharpen,          /* シャープ */
-	ColorAberration,  /* 色収差 */
-	BarrelDistortion, /* バレルディストーション */
-	WaveDistortion,   /* 波形ディストーション */
-	Pixelation,       /* ピクセル化 */
-	GlitchEffect,     /* グリッチエフェクト */
+	None,				/* エフェクトなし */
+	RadialBlur,			/* 放射状ブラー */
+	GrayScale,			/* グレースケール */
+	Vignette,			/* ビネット */
+	Bloom,				/* ブルーム */
+	BoxFilter,			/* ボックスフィルター */
+	GaussianFilter,		/* ガウシアンフィルター */
+	InvertColor,		/* 色反転 */
+	Sepia,				/* セピア調 */
+	Posterize,			/* ポスタリゼーション */
+	Emboss,				/* エンボス */
+	Sharpen,			/* シャープ */
+	ColorAberration,	/* 色収差 */
+	BarrelDistortion,	/* バレルディストーション */
+	WaveDistortion,		/* 波形ディストーション */
+	Pixelation,			/* ピクセル化 */
+	GlitchEffect,		/* グリッチエフェクト */
+	DamageVignette,		/* ダメージビネット */
 };
 
 // =========================================================
@@ -122,8 +133,9 @@ public:
 	// Member Variables
 	// =========================================================
 
-	ConstBuffer<WaveCBData> waveCB_;     /* 波形ディストーション用定数バッファ */
-	ConstBuffer<GlitchCBData> glitchCB_; /* グリッチエフェクト用定数バッファ */
+	ConstBuffer<WaveCBData> waveCB_;						/* 波形ディストーション用定数バッファ */
+	ConstBuffer<GlitchCBData> glitchCB_;					/* グリッチエフェクト用定数バッファ */
+	ConstBuffer<DamageVignetteCBData> damageVignetteCB_;	/* ダメージビネット用定数バッファ */
 
 private:
 	// =========================================================
@@ -206,11 +218,17 @@ private:
 	static constexpr float kGlitchIntensityInitial = 1.0f;
 	static constexpr float kGlitchSpeedInitial = 0.5f;
 
-	static constexpr uint32_t kRootParameterIndexMaterial = 0;  /* マテリアル用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexTransform = 1; /* 変換行列用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexTexture = 2;   /* テクスチャ用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexWave = 9;      /* WaveDistortionCBV用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexGlitch = 10;   /* GlitchEffectCBV用ルートパラメーターインデックス */
+	/* DamageVignetteの初期値 */
+	static constexpr float kDamageIntensityInitial = 0.0f;
+	static constexpr float kDamageRadiusInitial = 0.4f;
+	static constexpr float kDamageSoftnessInitial = 0.3f;
+
+	static constexpr uint32_t kRootParameterIndexMaterial = 0;			/* マテリアル用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTransform = 1;			/* 変換行列用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexTexture = 2;			/* テクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexWave = 9;				/* WaveDistortionCBV用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexGlitch = 10;			/* GlitchEffectCBV用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexDamageVignette = 16;	/* DamageVignetteCBV用ルートパラメーターインデックス */
 
 	// =========================================================
 	// Member Variables

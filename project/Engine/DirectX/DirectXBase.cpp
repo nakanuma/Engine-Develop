@@ -308,6 +308,11 @@ void DirectXBase::CreateRootSignature()
 	rootParameters[kRootParameterIndexAreaLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[kRootParameterIndexAreaLight].Descriptor.ShaderRegister = kAreaLightCBVRegister;
 
+	// DamageVignette（CBV）
+	rootParameters[kRootParameterIndexDamageVignette].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexDamageVignette].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexDamageVignette].Descriptor.ShaderRegister = kDamageVignetteCBVRegister;
+
 	descriptionRootSignature.pParameters = rootParameters; // ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
 
@@ -543,6 +548,11 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 	rootParameters[kRootParameterIndexAreaLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[kRootParameterIndexAreaLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[kRootParameterIndexAreaLight].Descriptor.ShaderRegister = kAreaLightCBVRegister;
+
+	// DamageVignette（CBV）
+	rootParameters[kRootParameterIndexDamageVignette].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kRootParameterIndexDamageVignette].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kRootParameterIndexDamageVignette].Descriptor.ShaderRegister = kDamageVignetteCBVRegister;
 
 	descriptionRootSignature.pParameters = rootParameters;             // ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
@@ -1086,6 +1096,18 @@ void DirectXBase::CreatePipelineStateObject()
 	graphicsPipelineStateGlitchEffect_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGlitchEffectDesc, IID_PPV_ARGS(&graphicsPipelineStateGlitchEffect_));
 
+	///
+	///	DamageVignetteのPSOを生成
+	/// 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDamageVignetteDesc = graphicsPipelineStateDefault;
+
+	auto psDamageVignette = shaderManager->GetShader("DamageVignette_PS");
+	graphicsPipelineStateDamageVignetteDesc.PS = { psDamageVignette->GetBufferPointer(), psDamageVignette ->GetBufferSize()};
+
+	// 生成
+	graphicsPipelineStateDamageVignette_ = nullptr;
+	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDamageVignetteDesc, IID_PPV_ARGS(&graphicsPipelineStateDamageVignette_));
 
 	///
 	/// SkyboxのPSOを作成

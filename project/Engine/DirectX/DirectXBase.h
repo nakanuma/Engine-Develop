@@ -239,6 +239,7 @@ public:
 	ID3D12PipelineState* GetPipelineStateGlitchEffect() { return graphicsPipelineStateGlitchEffect_.Get(); }
 	ID3D12PipelineState* GetPipelineStateGaussianHorizontal() { return psoGaussianHorizontal_.Get(); }
 	ID3D12PipelineState* GetPipelineStateGaussianVertical() { return psoGaussianVertical_.Get(); }
+	ID3D12PipelineState* GetPipelineStateDamageVignette() { return graphicsPipelineStateDamageVignette_.Get(); }
 
 	// Skybox用PSOを取得
 	ID3D12PipelineState* GetPipelineStateSkybox() { return graphicsPipelineStateSkybox_.Get(); }
@@ -265,7 +266,7 @@ private:
 
 	// RootSignatureCounts
 	static constexpr uint32_t kDescriptorRangeCount = 2;	/* ディスクリプタレンジの数 */
-	static constexpr uint32_t kRootParameterCount = 16;		/* ルートパラメーターの数 */
+	static constexpr uint32_t kRootParameterCount = 17;		/* ルートパラメーターの数 */
 	static constexpr uint32_t kStaticSamplerCount = 2;		/* スタティックサンプラーの数 */
 
 	// RootSignatureCounts - Particle
@@ -274,7 +275,7 @@ private:
 
 	// RootSignatureCounts - InstancedObject
 	static constexpr uint32_t kInstancedObjectDescriptorRangeCount = 2;		/* ディスクリプタレンジの数 */
-	static constexpr uint32_t kInstancedObjectRootParameterCount = 16;		/* ルートパラメーターの数 */
+	static constexpr uint32_t kInstancedObjectRootParameterCount = 17;		/* ルートパラメーターの数 */
 	static constexpr uint32_t kInstancedObjectStaticSamplerCount = 2;		/* スタティックサンプラーの数 */
 
 	static constexpr uint32_t kMaterialCBVRegister = 0;			/* マテリアル用レジスタ番号 */
@@ -288,6 +289,7 @@ private:
 	static constexpr uint32_t kLightViewProjCBVRegister = 7;	/* ライト行列用レジスタ番号 */
 	static constexpr uint32_t kEmissiveLightCBVRegister = 8;	/* エミッシブライト用レジスタ番号 */
 	static constexpr uint32_t kAreaLightCBVRegister = 9;        /* エリアライト用レジスタ番号 */
+	static constexpr uint32_t kDamageVignetteCBVRegister = 10;	/* ダメージビネット用レジスタ番号 */
 
 	static constexpr uint32_t kRootParameterIndexMaterial = 0;			/* マテリアル用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexTransform = 1;			/* 変換行列用ルートパラメーターインデックス */
@@ -305,6 +307,7 @@ private:
 	static constexpr uint32_t kRootParameterIndexLightViewProj = 13;	/* ライト行列用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexEmissiveLight = 14;	/* エミッシブライト用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexAreaLight = 15;        /* エリアライト用ルートパラメータインデックス */
+	static constexpr uint32_t kRootParameterIndexDamageVignette = 16;	/* ダメージビネット用ルートパラメーターインデックス */
 
 	static constexpr uint32_t kNormalSamplerRegister = 0;	/* 通常テクスチャ用サンプラーのインデックス */
 	static constexpr uint32_t kShadowSamplerRegister = 1;	/* シャドウマップテクスチャ用サンプラーのインデックス */
@@ -396,6 +399,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateGlitchEffect_; // GlitchEffect
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> psoGaussianHorizontal_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> psoGaussianVertical_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateDamageVignette_; // DamageVignette
 
 	// Skybox用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkybox_;

@@ -90,13 +90,22 @@ void PostEffectManager::Initialize() {
 	glitchCB_.data_->gTime = kGlitchTimeInitial;
 	glitchCB_.data_->intensity = kGlitchIntensityInitial;
 	glitchCB_.data_->speed = kGlitchSpeedInitial;
+
+	/*DamageVignette*/
+	damageVignetteCB_.data_->intensity = kDamageIntensityInitial;
+	damageVignetteCB_.data_->radius = kDamageRadiusInitial;
+	damageVignetteCB_.data_->softness = kDamageSoftnessInitial;
 }
 
 void PostEffectManager::TransfarConstantBuffer() {
-	/*WaveDistrotion*/
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexWave, waveCB_.resource_->GetGPUVirtualAddress());
-	/*GlitchEffect*/
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexGlitch, glitchCB_.resource_->GetGPUVirtualAddress());
+	auto cmd = DirectXBase::GetInstance()->GetCommandList();
+
+	/* WaveDistrotion */
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexWave, waveCB_.resource_->GetGPUVirtualAddress());
+	/* GlitchEffect */
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexGlitch, glitchCB_.resource_->GetGPUVirtualAddress());
+	/* DamageVignette */
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexDamageVignette, damageVignetteCB_.resource_->GetGPUVirtualAddress());
 }
 
 void PostEffectManager::BeginMainScene() {
@@ -166,6 +175,9 @@ void PostEffectManager::EndMainScene() {
 		break;
 	case PostEffectType::GlitchEffect:
 		pso = dxBase->GetPipelineStateGlitchEffect();
+		break;
+	case PostEffectType::DamageVignette:
+		pso = dxBase->GetPipelineStateDamageVignette();
 		break;
 	default:
 		pso = dxBase->GetPipelineState();
