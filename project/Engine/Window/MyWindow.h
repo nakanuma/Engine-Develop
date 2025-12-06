@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <windows.h>
 
+namespace Cygnus {
 /// <summary>
 /// WindowsAPIを用いたウインドウ管理クラス
 /// </summary>
@@ -80,3 +81,4 @@ private:
 
 	inline static WNDCLASS wc{};				/* ウィンドウクラス */
 };
+}

@@ -18,6 +18,7 @@
 #include <ImguiWrapper.h>
 #include <Input/Input.h>
 
+namespace Cygnus {
 // ---------------------------------------------------------
 // Foward Declaration
 // ---------------------------------------------------------
@@ -298,3 +299,4 @@ public:
 
 	bool isLoaded_ = false;									/* 設定が読み込まれたかどうか */
 };
+}

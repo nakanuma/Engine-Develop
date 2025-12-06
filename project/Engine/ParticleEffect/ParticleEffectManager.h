@@ -12,6 +12,7 @@
 // ---------------------------------------------------------
 #include <Engine/ParticleEffect/IParticleEffect.h>
 
+namespace Cygnus {
 // =========================================================
 // パーティクルエフェクト管理クラス
 // =========================================================
@@ -67,3 +68,4 @@ private:
 
 	std::unordered_map<std::string, std::shared_ptr<IParticleEffect>> effects_;			/* パーティクルエフェクトのマップ */
 };
+}

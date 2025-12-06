@@ -6,20 +6,20 @@
 #include "DirectXUtil.h"
 #include "RTVManager.h" 
 
-DirectXBase::~DirectXBase()
+Cygnus::DirectXBase::~DirectXBase()
 {
 	CloseHandle(fenceEvent_);
 
 	Log("Released DirectXBase\n");
 }
 
-DirectXBase* DirectXBase::GetInstance()
+Cygnus::DirectXBase* Cygnus::DirectXBase::GetInstance()
 {
 	static DirectXBase instance;
 	return &instance;
 }
 
-void DirectXBase::InitializeDXGIDevice([[maybe_unused]]bool enableDebugLayer)
+void Cygnus::DirectXBase::InitializeDXGIDevice([[maybe_unused]]bool enableDebugLayer)
 {
 #ifdef _DEBUG
 	Microsoft::WRL::ComPtr<ID3D12Debug1> debugController = nullptr;
@@ -108,7 +108,7 @@ void DirectXBase::InitializeDXGIDevice([[maybe_unused]]bool enableDebugLayer)
 #endif
 }
 
-void DirectXBase::InitializeCommand()
+void Cygnus::DirectXBase::InitializeCommand()
 {
 	HRESULT result = S_FALSE;
 
@@ -129,7 +129,7 @@ void DirectXBase::InitializeCommand()
 	assert(SUCCEEDED(result));
 }
 
-void DirectXBase::CreateSwapChain()
+void Cygnus::DirectXBase::CreateSwapChain()
 {
 	HRESULT result = S_FALSE;
 
@@ -148,7 +148,7 @@ void DirectXBase::CreateSwapChain()
 	assert(SUCCEEDED(result));
 }
 
-void DirectXBase::CreateFinalRenderTargets()
+void Cygnus::DirectXBase::CreateFinalRenderTargets()
 {
 	HRESULT result = S_FALSE;
 
@@ -177,7 +177,7 @@ void DirectXBase::CreateFinalRenderTargets()
 	device_->CreateRenderTargetView(swapChainResources_[1].Get(), &rtvDesc_, rtvHandles_[1]);
 }
 
-void DirectXBase::CreateFence()
+void Cygnus::DirectXBase::CreateFence()
 {
 	HRESULT result = S_FALSE;
 
@@ -191,7 +191,7 @@ void DirectXBase::CreateFence()
 	assert(fenceEvent_ != nullptr);
 }
 
-void DirectXBase::CreateRootSignature()
+void Cygnus::DirectXBase::CreateRootSignature()
 {
 	HRESULT result = S_FALSE;
 
@@ -356,7 +356,7 @@ void DirectXBase::CreateRootSignature()
 	assert(SUCCEEDED(result));
 }
 
-void DirectXBase::CreateRootSignatureParticle()
+void Cygnus::DirectXBase::CreateRootSignatureParticle()
 {
 	HRESULT result = S_FALSE;
 
@@ -433,7 +433,7 @@ void DirectXBase::CreateRootSignatureParticle()
 	assert(SUCCEEDED(result));
 }
 
-void DirectXBase::CreateRootSignatureInstancedObject() 
+void Cygnus::DirectXBase::CreateRootSignatureInstancedObject()
 {
 	HRESULT result = S_FALSE;
 
@@ -597,7 +597,7 @@ void DirectXBase::CreateRootSignatureInstancedObject()
 	assert(SUCCEEDED(result));
 }
 
-void DirectXBase::SetInputLayout()
+void Cygnus::DirectXBase::SetInputLayout()
 {
 	// InputLayout
 	inputElementDescs_[kInputElementIndexPositon].SemanticName = "POSITION";
@@ -631,7 +631,7 @@ void DirectXBase::SetInputLayout()
 	inputLayoutDesc_.NumElements = _countof(inputElementDescs_);
 }
 
-D3D12_BLEND_DESC DirectXBase::SetBlendState()
+D3D12_BLEND_DESC Cygnus::DirectXBase::SetBlendState()
 {
 	///
 	///	kBlendModeNormal
@@ -651,14 +651,14 @@ D3D12_BLEND_DESC DirectXBase::SetBlendState()
 	return blendDesc_;
 }
 
-D3D12_BLEND_DESC DirectXBase::SetBlendStateNone()
+D3D12_BLEND_DESC Cygnus::DirectXBase::SetBlendStateNone()
 {
 	blendDescNone_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDescNone_;
 }
 
-D3D12_BLEND_DESC DirectXBase::SetBlendStateAdd()
+D3D12_BLEND_DESC Cygnus::DirectXBase::SetBlendStateAdd()
 {
 	blendDescAdd_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDescAdd_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
@@ -672,7 +672,7 @@ D3D12_BLEND_DESC DirectXBase::SetBlendStateAdd()
 	return blendDescAdd_;
 }
 
-D3D12_BLEND_DESC DirectXBase::SetBlendStateSubtract()
+D3D12_BLEND_DESC Cygnus::DirectXBase::SetBlendStateSubtract()
 {
 	blendDescSubtract_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDescSubtract_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
@@ -686,7 +686,7 @@ D3D12_BLEND_DESC DirectXBase::SetBlendStateSubtract()
 	return blendDescSubtract_;
 }
 
-D3D12_BLEND_DESC DirectXBase::SetBlendStateMultiply()
+D3D12_BLEND_DESC Cygnus::DirectXBase::SetBlendStateMultiply()
 {
 	blendDescMultiply_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDescMultiply_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
@@ -700,7 +700,7 @@ D3D12_BLEND_DESC DirectXBase::SetBlendStateMultiply()
 	return blendDescMultiply_;
 }
 
-D3D12_BLEND_DESC DirectXBase::SetBlendStateScreen()
+D3D12_BLEND_DESC Cygnus::DirectXBase::SetBlendStateScreen()
 {
 	blendDescScreen_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDescScreen_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
@@ -714,7 +714,7 @@ D3D12_BLEND_DESC DirectXBase::SetBlendStateScreen()
 	return blendDescScreen_;
 }
 
-D3D12_BLEND_DESC DirectXBase::SetBlendStateAlpha()
+D3D12_BLEND_DESC Cygnus::DirectXBase::SetBlendStateAlpha()
 {
 	blendDescAlpha_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDescAlpha_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
@@ -728,7 +728,7 @@ D3D12_BLEND_DESC DirectXBase::SetBlendStateAlpha()
 	return blendDescAlpha_;
 }
 
-D3D12_RASTERIZER_DESC DirectXBase::SetRasterizerState()
+D3D12_RASTERIZER_DESC Cygnus::DirectXBase::SetRasterizerState()
 {
 	// 裏面（時計回り）を表示しない
 	rasterizerDesc_.CullMode = D3D12_CULL_MODE_BACK;
@@ -738,7 +738,7 @@ D3D12_RASTERIZER_DESC DirectXBase::SetRasterizerState()
 	return rasterizerDesc_;
 }
 
-void DirectXBase::CreatePipelineStateObject()
+void Cygnus::DirectXBase::CreatePipelineStateObject()
 {
 	HRESULT result = S_FALSE;
 
@@ -1224,7 +1224,7 @@ void DirectXBase::CreatePipelineStateObject()
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDepthWriteDesc, IID_PPV_ARGS(&graphicsPipelineStateDepthWrite_));
 }
 
-void DirectXBase::SetViewport()
+void Cygnus::DirectXBase::SetViewport()
 {
 	// クライアント領域のサイズと一緒にして画面全体に表示
 	viewport_.Width = static_cast<float>(Window::GetWidth());
@@ -1235,7 +1235,7 @@ void DirectXBase::SetViewport()
 	viewport_.MaxDepth = kViewportMaxDepth;
 }
 
-void DirectXBase::SetScissor()
+void Cygnus::DirectXBase::SetScissor()
 {
 	// 基本的にビューポートと同じ矩形が構成されるようにする
 	scissorRect_.left = 0;
@@ -1244,7 +1244,7 @@ void DirectXBase::SetScissor()
 	scissorRect_.bottom = Window::GetHeight();
 }
 
-void DirectXBase::CreateDepthBuffer()
+void Cygnus::DirectXBase::CreateDepthBuffer()
 {
 	// DepthStencilTextureをウィンドウのサイズで作成
 	depthStencilResource_ = CreateDepthStencilTextureResource(device_.Get(), Window::GetWidth(), Window::GetHeight(), false);
@@ -1267,7 +1267,7 @@ void DirectXBase::CreateDepthBuffer()
 	depthStencilDesc_.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 }
 
-void DirectXBase::BeginFrame()
+void Cygnus::DirectXBase::BeginFrame()
 {
 	HRESULT result = S_FALSE;
 
@@ -1297,7 +1297,7 @@ void DirectXBase::BeginFrame()
 	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 
-void DirectXBase::EndFrame()
+void Cygnus::DirectXBase::EndFrame()
 {
 	HRESULT result = S_FALSE;
 
@@ -1325,7 +1325,7 @@ void DirectXBase::EndFrame()
 	assert(SUCCEEDED(result));
 }
 
-void DirectXBase::PreDraw()
+void Cygnus::DirectXBase::PreDraw()
 {
 	// 描画に必要な情報をコマンドリストに積む
 	commandList_->RSSetViewports(1, &viewport_); // Viewportを設定
@@ -1337,7 +1337,7 @@ void DirectXBase::PreDraw()
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void DirectXBase::PostDraw()
+void Cygnus::DirectXBase::PostDraw()
 {
 	HRESULT result = S_FALSE;
 
@@ -1356,53 +1356,53 @@ void DirectXBase::PostDraw()
 	FPSController::GetInstance()->UpdateFixFPS();
 }
 
-ID3D12Device* DirectXBase::GetDevice()
+ID3D12Device* Cygnus::DirectXBase::GetDevice()
 {
 	return device_.Get();
 }
 
-ID3D12GraphicsCommandList* DirectXBase::GetCommandList()
+ID3D12GraphicsCommandList* Cygnus::DirectXBase::GetCommandList()
 {
 	return commandList_.Get();
 }
 
-IDXGISwapChain4* DirectXBase::GetSwapChain() { 
+IDXGISwapChain4* Cygnus::DirectXBase::GetSwapChain() {
 	return swapChain_.Get(); 
 }
 
-DXGI_SWAP_CHAIN_DESC1 DirectXBase::GetSwapChainDesc() {
+DXGI_SWAP_CHAIN_DESC1 Cygnus::DirectXBase::GetSwapChainDesc() {
 	return swapChainDesc_; }
 
-DescriptorHeap* DirectXBase::GetRTVHeap() { 
+Cygnus::DescriptorHeap* Cygnus::DirectXBase::GetRTVHeap() {
 	return &rtvDescriptorHeap_;
 }
 
-D3D12_RENDER_TARGET_VIEW_DESC DirectXBase::GetRtvDesc()
+D3D12_RENDER_TARGET_VIEW_DESC Cygnus::DirectXBase::GetRtvDesc()
 {
 	return rtvDesc_;
 }
 
-ID3D12PipelineState* DirectXBase::GetPipelineState()
+ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineState()
 {
 	return graphicsPipelineState_.Get();
 }
 
-ID3D12PipelineState* DirectXBase::GetPipelineStateOutline()
+ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineStateOutline()
 {
 	return graphicsPipelineStateOutline_.Get();
 }
 
-ID3D12PipelineState* DirectXBase::GetPipelineStateNoCulling()
+ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineStateNoCulling()
 {
 	return graphicsPipelineStateNoCulling_.Get(); 
 }
 
-DescriptorHeap* DirectXBase::GetDSVHeap() 
+Cygnus::DescriptorHeap* Cygnus::DirectXBase::GetDSVHeap()
 { 
 	return &dsvDescriptorHeap_;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DirectXBase::GetRTVHandle(UINT index)
+D3D12_CPU_DESCRIPTOR_HANDLE Cygnus::DirectXBase::GetRTVHandle(UINT index)
 {
 	if (index >= kBackBufferCount) {
 		throw std::out_of_range("GetRTVHandle: index out of range");
@@ -1411,7 +1411,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE DirectXBase::GetRTVHandle(UINT index)
 	return rtvHandles_[index];
 }
 
-D3DResourceLeakChecker::~D3DResourceLeakChecker()
+Cygnus::D3DResourceLeakChecker::~D3DResourceLeakChecker()
 {
 	Microsoft::WRL::ComPtr<IDXGIDebug1> debug;
 	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {

@@ -1,5 +1,6 @@
-﻿#pragma once
+#pragma once
 
+namespace Cygnus {
 // ---------------------------------------------------------
 // Foward Declaration
 // ---------------------------------------------------------
@@ -38,3 +39,4 @@ struct Float4 {
 	/// <returns>補間結果（Float4）</returns>
 	static Float4 Lerp(const Float4& a, const Float4& b, float t);
 };
+}

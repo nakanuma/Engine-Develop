@@ -3,7 +3,7 @@
 
 #pragma comment(lib, "winmm.lib")
 
-void Window::Create(LPCWSTR windowTitle, uint32_t width, uint32_t height) {
+void Cygnus::Window::Create(LPCWSTR windowTitle, uint32_t width, uint32_t height) {
 	// システムタイマーの分解能を上げる
 	timeBeginPeriod(kTimeBeginPeriodValue);
 
@@ -36,7 +36,7 @@ void Window::Create(LPCWSTR windowTitle, uint32_t width, uint32_t height) {
 	ShowWindow(hwnd, SW_SHOW);
 }
 
-bool Window::ProcessMessage() {
+bool Cygnus::Window::ProcessMessage() {
 	MSG msg{};
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -49,15 +49,15 @@ bool Window::ProcessMessage() {
 	return msg.message == WM_QUIT;
 }
 
-uint32_t const Window::GetWidth() { return winWidth; }
+uint32_t const Cygnus::Window::GetWidth() { return winWidth; }
 
-uint32_t const Window::GetHeight() { return winHeight; }
+uint32_t const Cygnus::Window::GetHeight() { return winHeight; }
 
-HWND Window::GetHandle() { return hwnd; }
+HWND Cygnus::Window::GetHandle() { return hwnd; }
 
-HINSTANCE Window::GetHInstance() { return wc.hInstance; }
+HINSTANCE Cygnus::Window::GetHInstance() { return wc.hInstance; }
 
-LRESULT Window::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+LRESULT Cygnus::Window::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 #ifdef USE_IMGUI
 	// ImGuiでのマウスの操作を可能にする
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {

@@ -2,17 +2,17 @@
 
 #include <algorithm>
 
-LightCamera* LightCamera::GetInstance() {
-	static LightCamera instance;
+Cygnus::LightCamera* Cygnus::LightCamera::GetInstance() {
+	static Cygnus::LightCamera instance;
 	return &instance;
 }
 
-void LightCamera::SetDirectionalLight(const Float3& dir) {
+void Cygnus::LightCamera::SetDirectionalLight(const Float3& dir) {
 	lightDir_ = dir;
 	lightDir_ = Float3::Normalize(lightDir_);
 }
 
-void LightCamera::UpdateViewProjection(const BoundingBox& sceneBB) {
+void Cygnus::LightCamera::UpdateViewProjection(const BoundingBox& sceneBB) {
 	// 平行光源位置はシーン中心からライト方向に適度に離す
 	Float3 center = sceneBB.Center();
 	Float3 pos = center - lightDir_ * kLightPosDistance;
@@ -55,7 +55,7 @@ void LightCamera::UpdateViewProjection(const BoundingBox& sceneBB) {
 	viewProj_ = view_ * proj_;
 }
 
-void LightCamera::TransferConstantBuffer() {
+void Cygnus::LightCamera::TransferConstantBuffer() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	cb_.data_->lightViewProj = viewProj_;

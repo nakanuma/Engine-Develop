@@ -7,6 +7,7 @@
 #include <Engine/3D/InstancedObject.h>
 #include <Engine/ParticleEffect/IParticleEffect.h>
 
+namespace Cygnus {
 /// <summary>
 /// ブレンドモード
 /// </summary>
@@ -231,3 +232,4 @@ protected:
 	std::vector<ParticleType> particles_;							/* パーティクルコンテナ */
 	Matrix billboardMatrix_;										/* ビルボード行列 */
 };
+}

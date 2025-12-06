@@ -6,7 +6,7 @@
 // Externals
 #include <externals/nlohmann/json.hpp>
 
-void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT rtvFormat, ID3D12DescriptorHeap* srvHeap) {
+void Cygnus::ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT rtvFormat, ID3D12DescriptorHeap* srvHeap) {
 #ifdef USE_IMGUI
 	// ImGuiのバージョンチェック + コンテキスト作成
 	IMGUI_CHECKVERSION();
@@ -45,7 +45,7 @@ void ImguiWrapper::Initialize(ID3D12Device* device, int bufferCount, DXGI_FORMAT
 #endif
 }
 
-void ImguiWrapper::Finalize() {
+void Cygnus::ImguiWrapper::Finalize() {
 #ifdef USE_IMGUI
 	// imnodesコンテキスト破棄
 	ImNodes::DestroyContext();
@@ -59,7 +59,7 @@ void ImguiWrapper::Finalize() {
 #endif
 }
 
-void ImguiWrapper::NewFrame() {
+void Cygnus::ImguiWrapper::NewFrame() {
 #ifdef USE_IMGUI
 	// DX12 / Win32用フレーム処理
 	ImGui_ImplDX12_NewFrame();
@@ -71,14 +71,14 @@ void ImguiWrapper::NewFrame() {
 #endif
 }
 
-void ImguiWrapper::Render(ID3D12GraphicsCommandList* commandList) {
+void Cygnus::ImguiWrapper::Render(ID3D12GraphicsCommandList* commandList) {
 #ifdef USE_IMGUI
 	ImGui::Render();
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 #endif
 }
 
-void ImguiWrapper::ShowMainDockSpace() {
+void Cygnus::ImguiWrapper::ShowMainDockSpace() {
 #ifdef USE_IMGUI
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -109,7 +109,7 @@ void ImguiWrapper::ShowMainDockSpace() {
 #endif
 }
 
-void ImGuiUtil::ImageWindow(const std::string& windowName, int32_t textureHandle) {
+void Cygnus::ImGuiUtil::ImageWindow(const std::string& windowName, int32_t textureHandle) {
 #ifdef USE_IMGUI
 	ImGui::Begin(windowName.c_str());
 
@@ -142,7 +142,7 @@ void ImGuiUtil::ImageWindow(const std::string& windowName, int32_t textureHandle
 #endif
 }
 
-void ImGuiUtil::DepthWindow(const std::string& windowName, int32_t textureHandle) {
+void Cygnus::ImGuiUtil::DepthWindow(const std::string& windowName, int32_t textureHandle) {
 #ifdef USE_IMGUI
 	ImGui::Begin(windowName.c_str());
 
@@ -175,7 +175,7 @@ void ImGuiUtil::DepthWindow(const std::string& windowName, int32_t textureHandle
 #endif
 }
 
-void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) {
+void Cygnus::ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) {
 #ifdef USE_IMGUI
 	ImGuiStyle& style = ImGui::GetStyle();
 	nlohmann::json j;
@@ -201,7 +201,7 @@ void ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) {
 #endif
 }
 
-void ImGuiUtil::LoadImGuiStyleFromJson(const std::string& filepath) {
+void Cygnus::ImGuiUtil::LoadImGuiStyleFromJson(const std::string& filepath) {
 #ifdef USE_IMGUI
 	// ファイルを開く
 	std::ifstream file(filepath);

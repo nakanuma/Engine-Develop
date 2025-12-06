@@ -1,9 +1,9 @@
-﻿#include "BaseScene.h"
+#include "BaseScene.h"
 
-void BaseScene::Initialize() {}
+void Cygnus::BaseScene::Initialize() {}
 
-void BaseScene::Finalize() {}
+void Cygnus::BaseScene::Finalize() {}
 
-void BaseScene::Update() {}
+void Cygnus::BaseScene::Update() {}
 
-void BaseScene::Draw() {}
+void Cygnus::BaseScene::Draw() {}

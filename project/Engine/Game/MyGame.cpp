@@ -3,7 +3,7 @@
 #include "../Application/src/Game/GameResourceLoader/GameResourceLoader.h"
 #include <StringUtil.h>
 
-void MyGame::Initialize() {
+void Cygnus::MyGame::Initialize() {
 	///
 	/// 基底クラスの初期化処理
 	///
@@ -25,7 +25,7 @@ void MyGame::Initialize() {
 	SceneManager::GetInstance()->ChangeScene(initialSceneName);
 }
 
-void MyGame::Finalize() {
+void Cygnus::MyGame::Finalize() {
 	///
 	/// ゲーム固有の終了処理
 	///
@@ -37,7 +37,7 @@ void MyGame::Finalize() {
 	Framework::Finalize();
 }
 
-void MyGame::Update() {
+void Cygnus::MyGame::Update() {
 	///
 	/// 基底クラスの更新処理
 	///
@@ -49,7 +49,7 @@ void MyGame::Update() {
 	///
 }
 
-void MyGame::Draw() {
+void Cygnus::MyGame::Draw() {
 	// シーンの描画処理
 	SceneManager::GetInstance()->Draw();
 }

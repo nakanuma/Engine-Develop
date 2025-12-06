@@ -6,6 +6,7 @@
 #include "AbstractSceneFactory.h"
 #include "BaseScene.h"
 
+namespace Cygnus {
 // =========================================================
 // シーン管理クラス
 // =========================================================
@@ -57,3 +58,4 @@ private:
 	std::unique_ptr<BaseScene> nextScene_ = nullptr;		/* 次のシーン */
 	AbstractSceneFactory* sceneFactory_ = nullptr;			/* シーンファクトリー */
 };
+}

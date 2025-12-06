@@ -4,7 +4,7 @@
 #include "SRVManager.h"
 #include <cassert>
 
-void SpriteCommon::Initialize(DirectXBase* dxBase) {
+void Cygnus::SpriteCommon::Initialize(DirectXBase* dxBase) {
 	// 引数で受け取ってメンバ変数に記録する
 	dxBase_ = dxBase;
 
@@ -29,7 +29,7 @@ void SpriteCommon::Initialize(DirectXBase* dxBase) {
 	CreateGraphicsPipeline();
 }
 
-void SpriteCommon::PreDraw() {
+void Cygnus::SpriteCommon::PreDraw() {
 	// ルートシグネチャをセット
 	dxBase_->GetCommandList()->SetGraphicsRootSignature(rootSignature_.Get());
 	// グラフィックスパイプラインステートをセット
@@ -38,7 +38,7 @@ void SpriteCommon::PreDraw() {
 	dxBase_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void SpriteCommon::PostDraw() {
+void Cygnus::SpriteCommon::PostDraw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { SRVManager::GetInstance()->descriptorHeap_.heap_.Get() };
@@ -53,7 +53,7 @@ void SpriteCommon::PostDraw() {
 	dxBase->GetCommandList()->SetDescriptorHeaps(kDescriptorHeapCount, descriptorHeaps);
 }
 
-void SpriteCommon::CreateRootSignature() {
+void Cygnus::SpriteCommon::CreateRootSignature() {
 	HRESULT result = S_FALSE;
 
 	// RootSignature作成
@@ -120,7 +120,7 @@ void SpriteCommon::CreateRootSignature() {
 	assert(SUCCEEDED(result));
 }
 
-void SpriteCommon::CreateGraphicsPipeline() {
+void Cygnus::SpriteCommon::CreateGraphicsPipeline() {
 	HRESULT result = S_FALSE;
 
 	ShaderManager* shaderManager = ShaderManager::GetInstance();
@@ -176,7 +176,7 @@ void SpriteCommon::CreateGraphicsPipeline() {
 	result = dxBase_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeScreen_));
 }
 
-void SpriteCommon::SetInputLayout() {
+void Cygnus::SpriteCommon::SetInputLayout() {
 	inputElementDescs_[kInputElementIndexPositon].SemanticName = "POSITION";
 	inputElementDescs_[kInputElementIndexPositon].SemanticIndex = kSemanticIndex;
 	inputElementDescs_[kInputElementIndexPositon].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -193,7 +193,7 @@ void SpriteCommon::SetInputLayout() {
 	inputLayoutDesc_.NumElements = _countof(inputElementDescs_);
 }
 
-void SpriteCommon::InitializeDXC() {
+void Cygnus::SpriteCommon::InitializeDXC() {
 	HRESULT result = S_FALSE;
 
 	// dxcCompilerを初期化
@@ -210,7 +210,7 @@ void SpriteCommon::InitializeDXC() {
 	assert(SUCCEEDED(result));
 }
 
-D3D12_RASTERIZER_DESC SpriteCommon::SetRasterizerState() {
+D3D12_RASTERIZER_DESC Cygnus::SpriteCommon::SetRasterizerState() {
 	// 裏面（時計回り）を表示しない
 	rasterizerDesc_.CullMode = D3D12_CULL_MODE_NONE;
 	// 三角形の中を塗りつぶす
@@ -219,7 +219,7 @@ D3D12_RASTERIZER_DESC SpriteCommon::SetRasterizerState() {
 	return rasterizerDesc_;
 }
 
-void SpriteCommon::CreateDepthBuffer() {
+void Cygnus::SpriteCommon::CreateDepthBuffer() {
 	// DepthStencilTextureをウィンドウのサイズで作成
 	depthStencilResource_ = CreateDepthStencilTextureResource(dxBase_->GetDevice(), Window::GetWidth(), Window::GetHeight(), false);
 
@@ -241,7 +241,7 @@ void SpriteCommon::CreateDepthBuffer() {
 	depthStencilDesc_.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 }
 
-D3D12_BLEND_DESC SpriteCommon::SetBlendState() {
+D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendState() {
 	blendDesc_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDesc_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
 	blendDesc_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
@@ -254,13 +254,13 @@ D3D12_BLEND_DESC SpriteCommon::SetBlendState() {
 	return blendDesc_;
 }
 
-D3D12_BLEND_DESC SpriteCommon::SetBlendStateNone() {
+D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateNone() {
 	blendDescNone_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDescNone_;
 }
 
-D3D12_BLEND_DESC SpriteCommon::SetBlendStateAdd() {
+D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateAdd() {
 	blendDescAdd_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDescAdd_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
 	blendDescAdd_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
@@ -273,7 +273,7 @@ D3D12_BLEND_DESC SpriteCommon::SetBlendStateAdd() {
 	return blendDescAdd_;
 }
 
-D3D12_BLEND_DESC SpriteCommon::SetBlendStateSubtract() {
+D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateSubtract() {
 	blendDescSubtract_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDescSubtract_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
 	blendDescSubtract_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
@@ -286,7 +286,7 @@ D3D12_BLEND_DESC SpriteCommon::SetBlendStateSubtract() {
 	return blendDescSubtract_;
 }
 
-D3D12_BLEND_DESC SpriteCommon::SetBlendStateMultiply() {
+D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateMultiply() {
 	blendDescMultiply_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDescMultiply_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
 	blendDescMultiply_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_ZERO;
@@ -299,7 +299,7 @@ D3D12_BLEND_DESC SpriteCommon::SetBlendStateMultiply() {
 	return blendDescMultiply_;
 }
 
-D3D12_BLEND_DESC SpriteCommon::SetBlendStateScreen() {
+D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateScreen() {
 	blendDescScreen_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDescScreen_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
 	blendDescScreen_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;

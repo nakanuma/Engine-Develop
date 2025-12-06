@@ -1,6 +1,6 @@
 #include "QuaternionTransform.h"
 
-Matrix QuaternionTransform::MakeAffineMatrix() {
+Cygnus::Matrix Cygnus::QuaternionTransform::MakeAffineMatrix() {
 	Matrix result = Matrix::Identity();
 
 	// SRTの順番で行列を生成してかける

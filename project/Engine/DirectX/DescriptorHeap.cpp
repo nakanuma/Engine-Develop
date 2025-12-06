@@ -1,7 +1,7 @@
-﻿#include "DescriptorHeap.h"
+#include "DescriptorHeap.h"
 #include <cassert>
 
-void DescriptorHeap::Create(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
+void Cygnus::DescriptorHeap::Create(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
 	heap_ = nullptr;
 	type_ = heapType;
 	size_ = device->GetDescriptorHandleIncrementSize(type_);
@@ -15,7 +15,7 @@ void DescriptorHeap::Create(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE hea
 	assert(SUCCEEDED(result));
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUHandle(uint32_t index) {
+D3D12_CPU_DESCRIPTOR_HANDLE Cygnus::DescriptorHeap::GetCPUHandle(uint32_t index) {
 	// ヒープの先頭CPUアドレスを取得
 	D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = heap_->GetCPUDescriptorHandleForHeapStart();
 	// index番目のCPUアドレスに移動
@@ -23,7 +23,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUHandle(uint32_t index) {
 	return handleCPU;
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUHandle(uint32_t index) {
+D3D12_GPU_DESCRIPTOR_HANDLE Cygnus::DescriptorHeap::GetGPUHandle(uint32_t index) {
 	// ヒープの先頭GPUアドレスを取得
 	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = heap_->GetGPUDescriptorHandleForHeapStart();
 	// index番目のGPUアドレスに移動

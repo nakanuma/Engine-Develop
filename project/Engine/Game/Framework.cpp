@@ -2,7 +2,7 @@
 
 #include <StringUtil.h>
 
-void Framework::Initialize() {
+void Cygnus::Framework::Initialize() {
 	// リークチェッカー
 	D3DResourceLeakChecker::GetInstance();
 	// COMの初期化
@@ -24,7 +24,7 @@ void Framework::Initialize() {
 	Input::GetInstance()->Initialize(window_.get());
 
 	// スプライト共通部の初期化
-	spriteCommon_ = std::make_unique<SpriteCommon>();
+	spriteCommon_ = std::make_unique<Cygnus::SpriteCommon>();
 	spriteCommon_->Initialize(dxBase_);
 
 	// TextureManagerの初期化
@@ -44,14 +44,14 @@ void Framework::Initialize() {
 	ShadowMapManager::GetInstance()->Initialize();
 }
 
-void Framework::Finalize() {
+void Cygnus::Framework::Finalize() {
 	// ImGuiの終了処理
 	ImguiWrapper::Finalize();
 	// COMの終了処理
 	CoUninitialize();
 }
 
-void Framework::Update() {
+void Cygnus::Framework::Update() {
 	// ウィンドウのメッセージを処理して終了リクエストを設定
 	if (window_->ProcessMessage()) {
 		RequestEnd();
@@ -69,7 +69,7 @@ void Framework::Update() {
 	TimeManager::GetInstance()->Update();
 }
 
-void Framework::Run() {
+void Cygnus::Framework::Run() {
 	// ゲームの初期化
 	Initialize();
 

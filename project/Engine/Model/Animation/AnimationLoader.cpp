@@ -1,9 +1,9 @@
-﻿#include "AnimationLoader.h"
+#include "AnimationLoader.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-AnimationLoader::Animation AnimationLoader::LoadAnimation(const std::string& directoryPath, const std::string& filename) {
+Cygnus::AnimationLoader::Animation Cygnus::AnimationLoader::LoadAnimation(const std::string& directoryPath, const std::string& filename) {
 	Animation animation; // 今回作るアニメーション
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
@@ -46,7 +46,7 @@ AnimationLoader::Animation AnimationLoader::LoadAnimation(const std::string& dir
 	return animation;
 }
 
-Float3 AnimationLoader::CalculateValue(const std::vector<KeyframeFloat3>& keyframes, float time) {
+Cygnus::Float3 Cygnus::AnimationLoader::CalculateValue(const std::vector<KeyframeFloat3>& keyframes, float time) {
 	assert(!keyframes.empty());                               // キーがないものは返す値がわからないのでダメ
 	if (keyframes.size() == 1 || time <= keyframes[0].time) { // キーが1つか、時刻がキーフレーム前なら最初の軸とする
 		return keyframes[0].value;
@@ -65,7 +65,7 @@ Float3 AnimationLoader::CalculateValue(const std::vector<KeyframeFloat3>& keyfra
 	return (*keyframes.rbegin()).value;
 }
 
-Quaternion AnimationLoader::CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time) {
+Cygnus::Quaternion Cygnus::AnimationLoader::CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time) {
 	assert(!keyframes.empty());                               // キーがないものは返す値がわからないのでダメ
 	if (keyframes.size() == 1 || time <= keyframes[0].time) { // キーが1つか、時刻がキーフレーム前なら最初の軸とする
 		return keyframes[0].value;

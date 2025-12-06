@@ -6,12 +6,12 @@
 
 #pragma comment(lib, "xinput.lib")
 
-Input* Input::GetInstance() {
+Cygnus::Input* Cygnus::Input::GetInstance() {
 	static Input instance;
 	return &instance;
 }
 
-void Input::Initialize(Window* window) {
+void Cygnus::Input::Initialize(Window* window) {
 	// 借りてきたwinAppのインスタンスを記録
 	this->window_ = window;
 
@@ -57,7 +57,7 @@ void Input::Initialize(Window* window) {
 	}
 }
 
-void Input::Update() {
+void Cygnus::Input::Update() {
 	HRESULT result;
 
 	// 前回のキー入力を保存
@@ -82,7 +82,7 @@ void Input::Update() {
 	ScreenToClient(window_->GetHandle(), &mousePosition_);
 }
 
-bool Input::PushKey(BYTE keyNumber) {
+bool Cygnus::Input::PushKey(BYTE keyNumber) {
 	// 指定キーを押していればtrueを返す
 	if (key_[keyNumber]) {
 		return true;
@@ -91,7 +91,7 @@ bool Input::PushKey(BYTE keyNumber) {
 	return false;
 }
 
-bool Input::TriggerKey(BYTE keyNumber) {
+bool Cygnus::Input::TriggerKey(BYTE keyNumber) {
 	// 指定キーが押された瞬間のみtrueを返す
 	if (key_[keyNumber] && !keyPre_[keyNumber]) {
 		return true;
@@ -100,7 +100,7 @@ bool Input::TriggerKey(BYTE keyNumber) {
 	return false;
 }
 
-bool Input::ReleaseKey(BYTE keyNumber) {
+bool Cygnus::Input::ReleaseKey(BYTE keyNumber) {
 	// 指定キーが離された瞬間のみtrueを返す
 	if (!key_[keyNumber] && keyPre_[keyNumber]) {
 		return true;
@@ -109,7 +109,7 @@ bool Input::ReleaseKey(BYTE keyNumber) {
 	return false;
 }
 
-bool Input::IsPressMouse(int32_t mouseNumber) const {
+bool Cygnus::Input::IsPressMouse(int32_t mouseNumber) const {
 	// ボタン番号の範囲チェック
 	if (mouseNumber < kMouseIndexMin || mouseNumber > kMouseIndexMax) {
 		return false;
@@ -118,7 +118,7 @@ bool Input::IsPressMouse(int32_t mouseNumber) const {
 	return (mouseState_.rgbButtons[mouseNumber] & kMouseButtonPressMask) != 0;
 }
 
-bool Input::IsTriggerMouse(int32_t mouseNumber) const {
+bool Cygnus::Input::IsTriggerMouse(int32_t mouseNumber) const {
 	// ボタン番号の範囲チェック
 	if (mouseNumber < kMouseIndexMin || mouseNumber > kMouseIndexMax) {
 		return false;
@@ -128,16 +128,16 @@ bool Input::IsTriggerMouse(int32_t mouseNumber) const {
 	return !(mouseStatePre_.rgbButtons[mouseNumber] & kMouseButtonPressMask) && (mouseState_.rgbButtons[mouseNumber] & kMouseButtonPressMask);
 }
 
-POINT Input::GetMouseMove() const {
+POINT Cygnus::Input::GetMouseMove() const {
 	POINT move = {mouseState_.lX, mouseState_.lY};
 	return move;
 }
 
-int32_t Input::GetWheel() const { return mouseState_.lZ; }
+int32_t Cygnus::Input::GetWheel() const { return mouseState_.lZ; }
 
-const POINT& Input::GetMousePosition() const { return mousePosition_; }
+const POINT& Cygnus::Input::GetMousePosition() const { return mousePosition_; }
 
-bool Input::GetJoystickState(int32_t stickNo, XINPUT_STATE& out) const {
+bool Cygnus::Input::GetJoystickState(int32_t stickNo, XINPUT_STATE& out) const {
 	// stickNoが範囲内かチェック
 	if (stickNo < 0 || stickNo >= joysticks_.size()) {
 		return false; // 無効なジョイスティック番号
@@ -179,7 +179,7 @@ bool Input::GetJoystickState(int32_t stickNo, XINPUT_STATE& out) const {
 	return true; // 正常に取得
 }
 
-void Input::SetJoystickDeadZone(int32_t stickNo, int32_t deadZoneL, int32_t deadZoneR) {
+void Cygnus::Input::SetJoystickDeadZone(int32_t stickNo, int32_t deadZoneL, int32_t deadZoneR) {
 	// ジョイスティック番号が有効か確認
 	if (stickNo < 0 || stickNo >= joysticks_.size()) {
 		return; // 無効なジョイスティック番号の場合は終了

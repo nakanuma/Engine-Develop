@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_map>
 
+namespace Cygnus {
 // =========================================================
 // シェーダー管理クラス
 // =========================================================
@@ -75,3 +76,4 @@ private:
 
 	std::unordered_map<std::string, Microsoft::WRL::ComPtr<IDxcBlob>> shaders_;		/* シェーダーマップ */
 };
+}

@@ -8,6 +8,7 @@
 #include <Float4.h>
 #include <Quaternion.h>
 
+namespace Cygnus {
 // =========================================================
 // 4x4行列クラス
 // =========================================================
@@ -206,4 +207,4 @@ private:
 
 	static constexpr float kEpsilon = 1e-6f;	/* 微小値 */
 };
-
+}

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -18,6 +18,7 @@
 #include <Logger.h>
 #include <StringUtil.h>
 
+namespace Cygnus {
 /// <summary>
 /// シェーダーのコンパイルを行います。
 /// </summary>
@@ -61,3 +62,4 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ID3D12D
 /// <param name="beforeState">遷移前のステート</param>
 /// <param name="afterState">遷移後のステート</param>
 void TransitionResource(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
+}

@@ -1,8 +1,8 @@
-﻿#include "Float4.h"
+#include "Float4.h"
 
 #include <Matrix.h>
 
-Float4 Float4::operator*(const Matrix& mat) {
+Cygnus::Float4 Cygnus::Float4::operator*(const Matrix& mat) {
 	return Float4(
 	    mat.r[0][0] * x + mat.r[0][1] * y + mat.r[0][2] * z + mat.r[0][3] * w, 
 		mat.r[1][0] * x + mat.r[1][1] * y + mat.r[1][2] * z + mat.r[1][3] * w,
@@ -11,7 +11,7 @@ Float4 Float4::operator*(const Matrix& mat) {
 	);
 }
 
-Float4& Float4::operator/=(float scalar) {
+Cygnus::Float4& Cygnus::Float4::operator/=(float scalar) {
 	x /= scalar;
 	y /= scalar;
 	z /= scalar;
@@ -20,7 +20,7 @@ Float4& Float4::operator/=(float scalar) {
 	return *this;
 }
 
-Float4 Float4::Transform(const Float4& v, const Matrix& m) {
+Cygnus::Float4 Cygnus::Float4::Transform(const Float4& v, const Matrix& m) {
 	Float4 result = {};
 	result.x = v.x * m.r[0][0] + v.y * m.r[1][0] + v.z * m.r[2][0] + v.w * m.r[3][0]; // X成分
 	result.y = v.x * m.r[0][1] + v.y * m.r[1][1] + v.z * m.r[2][1] + v.w * m.r[3][1]; // Y成分
@@ -29,7 +29,7 @@ Float4 Float4::Transform(const Float4& v, const Matrix& m) {
 	return result;
 }
 
-Float4 Float4::Lerp(const Float4& a, const Float4& b, float t) { 
+Cygnus::Float4 Cygnus::Float4::Lerp(const Float4& a, const Float4& b, float t) {
 	return {
 		a.x * (1.0f - t) + b.x * t, // X成分
 		a.y * (1.0f - t) + b.y * t, // Y成分

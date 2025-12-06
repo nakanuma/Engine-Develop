@@ -6,6 +6,7 @@
 #include <DescriptorHeap.h>
 #include <DirectXBase.h>
 
+namespace Cygnus{
 // =========================================================
 // スプライト描画に関する共通処理をまとめたクラス
 // =========================================================
@@ -192,3 +193,4 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeMultiply_;	/* グラフィックスパイプラインステート(BlendMode::Multiply用) */
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeScreen_;		/* グラフィックスパイプラインステート(BlendMode::Screen用) */
 };
+}

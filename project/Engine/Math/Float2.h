@@ -1,5 +1,6 @@
 #pragma once
 
+namespace Cygnus {
 // =========================================================
 // 2次元ベクトル
 // =========================================================
@@ -30,3 +31,4 @@ struct Float2 {
 	/// <returns>補間結果（Float2）</returns>
 	static Float2 Lerp(Float2 a, Float2 b, float t);
 };
+}

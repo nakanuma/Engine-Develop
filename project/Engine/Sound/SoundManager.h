@@ -8,6 +8,7 @@
 #include <xaudio2.h>
 #pragma comment(lib, "xaudio2.lib")
 
+namespace Cygnus {
 // =========================================================
 // サウンド管理クラス
 // =========================================================
@@ -103,3 +104,4 @@ private:
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;			/* XAudio2 インターフェース */
 	IXAudio2MasteringVoice* masterVoice_;				/* マスターボイス */
 };
+}

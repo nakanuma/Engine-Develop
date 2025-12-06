@@ -5,7 +5,7 @@
 #include <RTVManager.h>
 #include <Sprite.h>
 
-void PostEffectManager::Initialize() {
+void Cygnus::PostEffectManager::Initialize() {
 	// 初期化済みならスキップ
 	if (initialized_) return;
 	initialized_ = true;
@@ -20,12 +20,12 @@ void PostEffectManager::Initialize() {
 	bloomBlurRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
 
 	// 頂点バッファ
-	vertexBuffer_ = CreateBufferResource(dxBase->GetDevice(), sizeof(Sprite::VertexData) * kVertexCount);
+	vertexBuffer_ = CreateBufferResource(dxBase->GetDevice(), sizeof(Cygnus::Sprite::VertexData) * kVertexCount);
 	vbView_.BufferLocation = vertexBuffer_->GetGPUVirtualAddress();
-	vbView_.SizeInBytes = sizeof(Sprite::VertexData) * kVertexCount;
-	vbView_.StrideInBytes = sizeof(Sprite::VertexData);
+	vbView_.SizeInBytes = sizeof(Cygnus::Sprite::VertexData) * kVertexCount;
+	vbView_.StrideInBytes = sizeof(Cygnus::Sprite::VertexData);
 
-	Sprite::VertexData* vbData = nullptr;
+	Cygnus::Sprite::VertexData* vbData = nullptr;
 	vertexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
 	vbData[0] = {
 		{kNDCMin, kNDCMin, kNDCZ, kNDCW},
@@ -97,7 +97,7 @@ void PostEffectManager::Initialize() {
 	damageVignetteCB_.data_->softness = kDamageSoftnessInitial;
 }
 
-void PostEffectManager::TransfarConstantBuffer() {
+void Cygnus::PostEffectManager::TransfarConstantBuffer() {
 	auto cmd = DirectXBase::GetInstance()->GetCommandList();
 
 	/* WaveDistrotion */
@@ -108,7 +108,7 @@ void PostEffectManager::TransfarConstantBuffer() {
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexDamageVignette, damageVignetteCB_.resource_->GetGPUVirtualAddress());
 }
 
-void PostEffectManager::BeginMainScene() {
+void Cygnus::PostEffectManager::BeginMainScene() {
 	// エフェクトなしの場合はバックバッファに直接描画
 	if (effectType_ == PostEffectType::None) return;
 
@@ -118,7 +118,7 @@ void PostEffectManager::BeginMainScene() {
 	isRenderingToOffscreen_ = true;
 }
 
-void PostEffectManager::EndMainScene() {
+void Cygnus::PostEffectManager::EndMainScene() {
 	if (effectType_ == PostEffectType::None) return;
 
 	DirectXBase* dxBase = DirectXBase::GetInstance();
@@ -191,7 +191,7 @@ void PostEffectManager::EndMainScene() {
 	cmd->SetPipelineState(dxBase->GetPipelineState());
 }
 
-void PostEffectManager::BeginBloom() {
+void Cygnus::PostEffectManager::BeginBloom() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
@@ -201,7 +201,7 @@ void PostEffectManager::BeginBloom() {
 	isRenderingToOffscreen_ = true;
 }
 
-void PostEffectManager::EndBloom() { 
+void Cygnus::PostEffectManager::EndBloom() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
@@ -221,7 +221,7 @@ void PostEffectManager::EndBloom() {
 	cmd->SetPipelineState(dxBase->GetPipelineState());
 }
 
-void PostEffectManager::RestoreBackBuffer(bool resetPSO) {
+void Cygnus::PostEffectManager::RestoreBackBuffer(bool resetPSO) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
@@ -249,7 +249,7 @@ void PostEffectManager::RestoreBackBuffer(bool resetPSO) {
 	isRenderingToOffscreen_ = false;
 }
 
-void PostEffectManager::RestoreDepthBufferState()
+void Cygnus::PostEffectManager::RestoreDepthBufferState()
 {
 	ID3D12Resource* depthBufferResource = RTVManager::GetDepthResource(mainSceneRT_);
 	auto cmd = DirectXBase::GetInstance()->GetCommandList();
@@ -265,7 +265,7 @@ void PostEffectManager::RestoreDepthBufferState()
 	cmd->ResourceBarrier(1, &returnBarrier);
 }
 
-void PostEffectManager::DrawFullScreenQuad(uint32_t textureHandle) { 
+void Cygnus::PostEffectManager::DrawFullScreenQuad(uint32_t textureHandle) {
 	auto cmd = DirectXBase::GetInstance()->GetCommandList(); 
 
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
@@ -276,7 +276,7 @@ void PostEffectManager::DrawFullScreenQuad(uint32_t textureHandle) {
 	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 }
 
-void PostEffectManager::DrawWithPSO(ID3D12PipelineState* pso, uint32_t textureHandle) { 
+void Cygnus::PostEffectManager::DrawWithPSO(ID3D12PipelineState* pso, uint32_t textureHandle) {
 	auto cmd = DirectXBase::GetInstance()->GetCommandList(); 
 
 	cmd->SetPipelineState(pso);
@@ -288,7 +288,7 @@ void PostEffectManager::DrawWithPSO(ID3D12PipelineState* pso, uint32_t textureHa
 	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 }
 
-void PostEffectManager::ApplyBloomExtract(uint32_t sourceTexture, uint32_t targetRT) {
+void Cygnus::PostEffectManager::ApplyBloomExtract(uint32_t sourceTexture, uint32_t targetRT) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
@@ -304,7 +304,7 @@ void PostEffectManager::ApplyBloomExtract(uint32_t sourceTexture, uint32_t targe
 	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 }
 
-void PostEffectManager::ApplyBloomBlur(uint32_t sourceTexture, uint32_t targetRT) {
+void Cygnus::PostEffectManager::ApplyBloomBlur(uint32_t sourceTexture, uint32_t targetRT) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
@@ -320,7 +320,7 @@ void PostEffectManager::ApplyBloomBlur(uint32_t sourceTexture, uint32_t targetRT
 	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 }
 
-void PostEffectManager::ApplyBloomBlurHorizontal(uint32_t sourceTexture, uint32_t targetRT)
+void Cygnus::PostEffectManager::ApplyBloomBlurHorizontal(uint32_t sourceTexture, uint32_t targetRT)
 {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();

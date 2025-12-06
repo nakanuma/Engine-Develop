@@ -6,6 +6,7 @@
 #include <DirectXBase.h>
 #include <MyMath.h>
 
+namespace Cygnus{
 // ---------------------------------------------------------
 // Foward Declaration
 // ---------------------------------------------------------
@@ -280,3 +281,4 @@ private:
 	Float2 textureLeftTop_ = { 0.0f, 0.0f };									/* テクスチャ左上座標 */
 	Float2 textureSize_ = { 100.0f, 100.0f };									/* テクスチャサイズ */
 };
+}

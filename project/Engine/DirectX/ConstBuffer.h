@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
@@ -6,6 +6,7 @@
 #include <DirectXBase.h>
 #include <DirectXUtil.h>
 
+namespace Cygnus {
 // =========================================================
 // 定数バッファのラッパークラス
 // =========================================================
@@ -51,3 +52,4 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource_;		/* 定数バッファリソース */
 	Type* data_;											/* 定数バッファデータ ポインタ */
 };
+}

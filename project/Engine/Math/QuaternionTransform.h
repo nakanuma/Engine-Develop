@@ -7,6 +7,7 @@
 #include <Matrix.h>
 #include <Quaternion.h>
 
+namespace Cygnus {
 // =========================================================
 // スケール・回転（Quaternion）・平行移動をまとめた変換
 // =========================================================
@@ -26,3 +27,4 @@ public:
 	/// <returns>生成されたアフィン変換行列</returns>
 	Matrix MakeAffineMatrix();
 };
+}

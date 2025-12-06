@@ -1,9 +1,9 @@
-﻿#include "StringUtil.h"
+#include "StringUtil.h"
 
 #include <fstream>
 #include <string>
 
-std::wstring ConvertString(const std::string& str) {
+std::wstring Cygnus::ConvertString(const std::string& str) {
 	if (str.empty()) {
 		return std::wstring();
 	}
@@ -21,7 +21,7 @@ std::wstring ConvertString(const std::string& str) {
 	return result;
 }
 
-std::string ConvertString(const std::wstring& str) {
+std::string Cygnus::ConvertString(const std::wstring& str) {
 	if (str.empty()) {
 		return std::string();
 	}

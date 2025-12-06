@@ -7,6 +7,7 @@
 #include <DirectXBase.h>
 #include <MyMath.h>
 
+namespace Cygnus {
 // =========================================================
 // 平行光源視点のカメラ管理クラス
 // シャドウマップ生成に使用
@@ -128,3 +129,4 @@ private:
 
 	ConstBuffer<LightCameraCB> cb_;			/* ライトカメラ用定数バッファ */
 };
+}

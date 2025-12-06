@@ -14,6 +14,7 @@
 #include <Float4.h>
 #include <DirectXBase.h>
 
+namespace Cygnus {
 // =========================================================
 //  レンダーターゲットビュー（RTV）管理クラス
 // =========================================================
@@ -102,3 +103,4 @@ private:
 	std::unordered_map<int32_t, Microsoft::WRL::ComPtr<ID3D12Resource>> dsvResourceMap_;	/* デプスステンシルビュー（DSV）リソースマップ */
 	std::unordered_map<int32_t, int32_t> depthSRVHandleMap_;								/* デプスシェンシルビュー（DSV）シェーダリソースビュー（SRV）ハンドルマップ */
 };
+}

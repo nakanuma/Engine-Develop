@@ -1,11 +1,11 @@
 #include "ParameterSystem.h"
 
-void ParameterManager::DrawAll() {
+void Cygnus::ParameterManager::DrawAll() {
 	for (auto& p : params_)
 		p->Draw();
 }
 
-bool ParameterManager::SaveToFile(const std::string& filename) {
+bool Cygnus::ParameterManager::SaveToFile(const std::string& filename) {
 	nlohmann::json j;
 
 	// パラメーターをJSON形式にして保存
@@ -27,7 +27,7 @@ bool ParameterManager::SaveToFile(const std::string& filename) {
 	return true;
 }
 
-bool ParameterManager::LoadFromFile(const std::string& filename) {
+bool Cygnus::ParameterManager::LoadFromFile(const std::string& filename) {
 	// 入力ファイルストリームを開く
 	std::ifstream ifs(filename);
 
@@ -48,7 +48,7 @@ bool ParameterManager::LoadFromFile(const std::string& filename) {
 	return true;
 }
 
-void ParameterManager::PushHistory(const ParameterChange& change) {
+void Cygnus::ParameterManager::PushHistory(const ParameterChange& change) {
 	// 新しい変更履歴をundoStackに追加
 	undoStack_.push_back(change);
 	// redoStackは意味をなさなくなるのでクリア
@@ -57,7 +57,7 @@ void ParameterManager::PushHistory(const ParameterChange& change) {
 	needsSave_ = true;
 }
 
-void ParameterManager::Undo() {
+void Cygnus::ParameterManager::Undo() {
 	if (undoStack_.empty())
 		return;
 
@@ -79,7 +79,7 @@ void ParameterManager::Undo() {
 	needsSave_ = true;
 }
 
-void ParameterManager::Redo() {
+void Cygnus::ParameterManager::Redo() {
 	if (redoStack_.empty())
 		return;
 
@@ -101,7 +101,7 @@ void ParameterManager::Redo() {
 	needsSave_ = true;
 }
 
-void Configurator::InitConfig() {
+void Cygnus::Configurator::InitConfig() {
 	// 初回だけ読み込み
 	if (!isLoaded_) {
 		LoadConfig(kBasePath + subPath_);
@@ -109,7 +109,7 @@ void Configurator::InitConfig() {
 	}
 }
 
-void Configurator::DrawConfigWindow(const char* title) {
+void Cygnus::Configurator::DrawConfigWindow(const char* title) {
 #ifdef USE_IMGUI
 	if (ImGui::Begin(title)) {
 		// 調整項目を全て描画

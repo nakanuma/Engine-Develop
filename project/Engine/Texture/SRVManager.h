@@ -6,6 +6,7 @@
 #include <DescriptorHeap.h>
 #include <DirectXBase.h>
 
+namespace Cygnus {
 // =========================================================
 // シェーダーリソースビュー（SRV）管理クラス
 // =========================================================
@@ -107,3 +108,4 @@ private:
 	uint32_t descriptorSize_;				/* ディスクリプタサイズ */
 	uint32_t useIndex_ = 1;					/* 使用中のSRVインデックス */
 };
+}

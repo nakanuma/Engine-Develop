@@ -7,19 +7,19 @@
 
 using Microsoft::WRL::ComPtr;
 
-ShadowMapManager* ShadowMapManager::GetInstance() {
+Cygnus::ShadowMapManager* Cygnus::ShadowMapManager::GetInstance() {
 	static ShadowMapManager instance;
 	return &instance;
 }
 
-void ShadowMapManager::Initialize() {
+void Cygnus::ShadowMapManager::Initialize() {
 	// 通常オブジェクト用PSO生成
 	CreateShadowPSO();
 	// スキニング用PSO生成
 	CreateShadowSkinnedPSO();
 }
 
-int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height) {
+int32_t Cygnus::ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	ID3D12Device* device = dxBase->GetDevice();
 
@@ -64,7 +64,7 @@ int32_t ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t height) {
 	return srvIndex;
 }
 
-void ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle) {
+void Cygnus::ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// シャドウマップ用PSOをセット
@@ -97,7 +97,7 @@ void ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle) {
 	ClearShadowMap(shadowMapHandle);
 }
 
-void ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle) {
+void Cygnus::ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 描画後、SRVとして使えるように遷移
@@ -116,9 +116,9 @@ void ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle) {
 	dxBase->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
 
-int32_t ShadowMapManager::GetShadowSRVHandle(int32_t handle) { return shadowResources_[handle].srvIndex; }
+int32_t Cygnus::ShadowMapManager::GetShadowSRVHandle(int32_t handle) { return shadowResources_[handle].srvIndex; }
 
-ID3D12Resource* ShadowMapManager::GetShadowTexture(int32_t handle) const {
+ID3D12Resource* Cygnus::ShadowMapManager::GetShadowTexture(int32_t handle) const {
 	auto it = shadowResources_.find(handle);
 	if (it != shadowResources_.end()) {
 		return it->second.resource.Get();
@@ -126,7 +126,7 @@ ID3D12Resource* ShadowMapManager::GetShadowTexture(int32_t handle) const {
 	return nullptr;
 }
 
-void ShadowMapManager::SetShadowDSV(int32_t handle) {
+void Cygnus::ShadowMapManager::SetShadowDSV(int32_t handle) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	ID3D12GraphicsCommandList* cmdList = dxBase->GetCommandList();
 
@@ -135,7 +135,7 @@ void ShadowMapManager::SetShadowDSV(int32_t handle) {
 	cmdList->OMSetRenderTargets(0, nullptr, FALSE, &res.dsvHandle);
 }
 
-void ShadowMapManager::ClearShadowMap(int32_t handle, float clearDepth) {
+void Cygnus::ShadowMapManager::ClearShadowMap(int32_t handle, float clearDepth) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	ID3D12GraphicsCommandList* cmdList = dxBase->GetCommandList();
 
@@ -143,7 +143,7 @@ void ShadowMapManager::ClearShadowMap(int32_t handle, float clearDepth) {
 	cmdList->ClearDepthStencilView(res.dsvHandle, D3D12_CLEAR_FLAG_DEPTH, clearDepth, 0, 0, nullptr);
 }
 
-void ShadowMapManager::TransitionShadowResource(ID3D12GraphicsCommandList* cmdList, int32_t handle, D3D12_RESOURCE_STATES newState) {
+void Cygnus::ShadowMapManager::TransitionShadowResource(ID3D12GraphicsCommandList* cmdList, int32_t handle, D3D12_RESOURCE_STATES newState) {
 	auto& shadow = shadowResources_.at(handle);
 	if (shadow.currentState != newState) {
 		D3D12_RESOURCE_BARRIER barrier = {};
@@ -161,7 +161,7 @@ void ShadowMapManager::TransitionShadowResource(ID3D12GraphicsCommandList* cmdLi
 	}
 }
 
-void ShadowMapManager::CreateShadowPSO() {
+void Cygnus::ShadowMapManager::CreateShadowPSO() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	ID3D12Device* device = dxBase->GetDevice();
 
@@ -198,7 +198,7 @@ void ShadowMapManager::CreateShadowPSO() {
 	}
 }
 
-void ShadowMapManager::CreateShadowSkinnedPSO() {
+void Cygnus::ShadowMapManager::CreateShadowSkinnedPSO() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	ID3D12Device* device = dxBase->GetDevice();
 

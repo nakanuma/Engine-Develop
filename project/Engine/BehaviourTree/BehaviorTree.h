@@ -1,10 +1,11 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // Engine Includes
 // ---------------------------------------------------------
 #include <Engine/BehaviourTree/BehaviorNode.h>
 
+namespace Cygnus {
 // =========================================================
 // ビヘイビアツリークラス
 // : 全てのノードを管理
@@ -50,3 +51,4 @@ private:
 
 	std::unique_ptr<BehaviorNode<AgentType>> root_;			/* ルートノード */
 };
+}

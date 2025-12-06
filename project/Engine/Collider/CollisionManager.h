@@ -13,6 +13,7 @@
 // ---------------------------------------------------------
 #include <Collider/Collider.h>
 
+namespace Cygnus {
 /// <summary>
 /// レイキャスト結果を保持する構造体
 /// </summary>
@@ -110,3 +111,4 @@ private:
 	std::vector<Collider*> colliders_;									/* 全てのコライダーのコンテナ */
 	std::set<std::pair<Collider*, Collider*>> previousCollisions_;		/* 前フレームの衝突ペア情報 */
 };
+}

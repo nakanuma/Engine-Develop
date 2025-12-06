@@ -7,6 +7,7 @@
 #include <Float3.h>
 #include <Float4.h>
 
+namespace Cygnus {
 // =========================================================
 // 各ライトの管理クラス
 // =========================================================
@@ -291,3 +292,4 @@ private:
 	int32_t currentEmissiveLightCount_ = 0; /* 現在登録されているエミッシブライトの数 */
 	int32_t currentAreaLightCount_ = 0;     /* 現在登録されているエリアライトの数 */
 };
+}

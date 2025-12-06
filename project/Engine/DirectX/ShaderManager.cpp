@@ -7,12 +7,12 @@
 // C++
 #include <cassert>
 
-ShaderManager* ShaderManager::GetInstance() {
+Cygnus::ShaderManager* Cygnus::ShaderManager::GetInstance() {
 	static ShaderManager instance;
 	return &instance;
 }
 
-void ShaderManager::Initialize() {
+void Cygnus::ShaderManager::Initialize() {
 	HRESULT result = S_FALSE;
 
 	// dxcCompilerを初期化
@@ -122,14 +122,14 @@ void ShaderManager::Initialize() {
 	LoadShader("ShadowMapSkinned_VS", L"resources/Shaders/ShadowMapSkinned.VS.hlsl", L"vs_6_0");
 }
 
-void ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) {
+void Cygnus::ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) {
 	// シェーダーのコンパイル
 	IDxcBlob* blob = CompileShader(path, profile);
 	// コンパイルしたシェーダーを登録
 	shaders_[name] = blob;
 }
 
-IDxcBlob* ShaderManager::GetShader(const std::string& name) const {
+IDxcBlob* Cygnus::ShaderManager::GetShader(const std::string& name) const {
 	// マップから名前で検索して、見つかった場合にポインタを返す
 	auto it = shaders_.find(name);
 	if (it != shaders_.end()) {
@@ -138,7 +138,7 @@ IDxcBlob* ShaderManager::GetShader(const std::string& name) const {
 	return nullptr;
 }
 
-IDxcBlob* ShaderManager::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
+IDxcBlob* Cygnus::ShaderManager::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
 	HRESULT result = S_FALSE;
 
 	// これからシェーダーをコンパイルする旨をログに出す

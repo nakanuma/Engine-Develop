@@ -7,12 +7,12 @@
 // C++
 #include <numbers>
 
-LightManager* LightManager::GetInstance() {
-	static LightManager instance;
+Cygnus::LightManager* Cygnus::LightManager::GetInstance() {
+	static Cygnus::LightManager instance;
 	return &instance;
 }
 
-void LightManager::Initialize() {
+void Cygnus::LightManager::Initialize() {
 	// 平行光源の初期化
 	directionalLightCB_.data_->color = kDefaultLightColor;
 	directionalLightCB_.data_->direction = kDefaultDirection;
@@ -70,7 +70,7 @@ void LightManager::Initialize() {
 	currentAreaLightCount_ = 0;
 }
 
-void LightManager::TransferContantBuffer() {
+void Cygnus::LightManager::TransferContantBuffer() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 平行光源の定数バッファをセット
@@ -85,7 +85,7 @@ void LightManager::TransferContantBuffer() {
 	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexAreaLight, areaLightsCB_.resource_->GetGPUVirtualAddress());
 }
 
-void LightManager::DrawDebug() {
+void Cygnus::LightManager::DrawDebug() {
 	// 有効化されているエリアライトがなければスキップ
 	if (areaLightsCB_.data_->numActiveLights == 0) return;
 
@@ -121,7 +121,7 @@ void LightManager::DrawDebug() {
 	}
 }
 
-void LightManager::RegisterEmissiveLight(const Float3& position, const Float3& color, float intensity, float radius, float decay)
+void Cygnus::LightManager::RegisterEmissiveLight(const Float3& position, const Float3& color, float intensity, float radius, float decay)
 {
 	// 最大数を超えていたら登録しない
 	if(currentEmissiveLightCount_ >= kMaxEmissiveLight){
@@ -141,7 +141,7 @@ void LightManager::RegisterEmissiveLight(const Float3& position, const Float3& c
 	emissiveLightsCB_.data_->numActiveLights = currentEmissiveLightCount_;
 }
 
-void LightManager::ClearEmissiveLights()
+void Cygnus::LightManager::ClearEmissiveLights()
 {
 	// 毎フレーム開始時に呼び出してリセット
 	for(size_t i = 0; i < currentEmissiveLightCount_; i++){
@@ -151,7 +151,7 @@ void LightManager::ClearEmissiveLights()
 	emissiveLightsCB_.data_->numActiveLights = 0;
 }
 
-void LightManager::RegisterAreaLight(const Float3& position, const Float3& right, const Float3& up, float width, float height, const Float3& color, float intensity, float range, AreaLightType type) {
+void Cygnus::LightManager::RegisterAreaLight(const Float3& position, const Float3& right, const Float3& up, float width, float height, const Float3& color, float intensity, float range, AreaLightType type) {
 	// 最大数を超えていたら登録しない
 	if (currentAreaLightCount_ >= kMaxAreaLight) {
 		return;
@@ -195,7 +195,7 @@ void LightManager::RegisterAreaLight(const Float3& position, const Float3& right
 	areaLightsCB_.data_->numActiveLights = currentAreaLightCount_;
 }
 
-void LightManager::RegisterTubeLight(const Float3& start, const Float3& end, const Float3& color, float intensity, float range) {
+void Cygnus::LightManager::RegisterTubeLight(const Float3& start, const Float3& end, const Float3& color, float intensity, float range) {
 	// チューブの方向を計算
 	Float3 direction = end - start;
 	float length = Float3::Length(direction);
@@ -234,7 +234,7 @@ void LightManager::RegisterTubeLight(const Float3& start, const Float3& end, con
 	);
 }
 
-void LightManager::ClearAreaLights() {
+void Cygnus::LightManager::ClearAreaLights() {
 	// 毎フレーム開始時に呼び出してリセット
 	for (size_t i = 0; i < currentAreaLightCount_; i++) {
 		areaLightsCB_.data_->areaLights[i].isActive = 0;
@@ -243,7 +243,7 @@ void LightManager::ClearAreaLights() {
 	areaLightsCB_.data_->numActiveLights = 0;
 }
 
-void LightManager::DrawDebugRectangle(const LightManager::AreaLight& light) { 
+void Cygnus::LightManager::DrawDebugRectangle(const LightManager::AreaLight& light) {
 	auto drawer = LineDrawer::GetInstance();
 
 	Float3 center = light.position; 
@@ -263,7 +263,7 @@ void LightManager::DrawDebugRectangle(const LightManager::AreaLight& light) {
 	drawer->RegisterLine(p4, p1, kDebugDrawColor);
 }
 
-void LightManager::DrawDebugDisk(const LightManager::AreaLight& light) { 
+void Cygnus::LightManager::DrawDebugDisk(const LightManager::AreaLight& light) {
 	auto drawer = LineDrawer::GetInstance(); 
 
 	// Widthを半径として使用
@@ -292,7 +292,7 @@ void LightManager::DrawDebugDisk(const LightManager::AreaLight& light) {
 	}
 }
 
-void LightManager::DrawDebugTube(const LightManager::AreaLight& light) { 
+void Cygnus::LightManager::DrawDebugTube(const LightManager::AreaLight& light) {
 	auto drawer = LineDrawer::GetInstance(); 
 
 	// 半分の長さを取得
@@ -338,7 +338,7 @@ void LightManager::DrawDebugTube(const LightManager::AreaLight& light) {
 	}
 }
 
-void LightManager::DrawDebugSphere(const LightManager::AreaLight& light) {
+void Cygnus::LightManager::DrawDebugSphere(const LightManager::AreaLight& light) {
 	if (light.range <= 0.0f) return;
 
 	auto drawer = LineDrawer::GetInstance(); 

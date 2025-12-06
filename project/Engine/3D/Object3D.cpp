@@ -5,7 +5,7 @@
 
 #include <numbers>
 
-Object3D::Object3D() {
+Cygnus::Object3D::Object3D() {
 	transform_.translate_ = kDefaultTranslate;
 	transform_.rotate_ = kDefaultRotation;
 	transform_.scale_ = kDefaultScale;
@@ -28,7 +28,7 @@ Object3D::Object3D() {
 	materialCB_.data_->emissiveIntensity = kDefaultEmissiveIntensity;
 }
 
-void Object3D::UpdateMatrix() {
+void Cygnus::Object3D::UpdateMatrix() {
 	Matrix worldMatrix = transform_.MakeAffineMatrix();
 	// 親が存在する場合、親の行列を考慮する
 	if (parent_) {
@@ -49,7 +49,7 @@ void Object3D::UpdateMatrix() {
 	wvpCB_.data_->WorldInverseTranspose = worldInverseTransposeMatrix;
 }
 
-void Object3D::UpdateShadowMatrix() {
+void Cygnus::Object3D::UpdateShadowMatrix() {
 	Matrix worldMatrix = transform_.MakeAffineMatrix();
 
 	// 親が存在する場合、親の行列を考慮する
@@ -62,7 +62,7 @@ void Object3D::UpdateShadowMatrix() {
 	shadowWvpCB_.data_->LightViewProj = LightCamera::GetInstance()->GetViewProj();
 }
 
-void Object3D::ScaleUV(float scaleU) {
+void Cygnus::Object3D::ScaleUV(float scaleU) {
 	// UV変換行列を作成する（U方向にスケール）
 	Matrix uvScaleMatrix = Matrix::Scaling({scaleU, kDefaultUVScale, kDefaultUVScale});
 
@@ -70,7 +70,7 @@ void Object3D::ScaleUV(float scaleU) {
 	materialCB_.data_->uvTransform = uvScaleMatrix;
 }
 
-void Object3D::Draw() {
+void Cygnus::Object3D::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// commandListにVBVを設定
@@ -89,7 +89,7 @@ void Object3D::Draw() {
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::Draw(const SkinCluster& skinCluster) {
+void Cygnus::Object3D::Draw(const SkinCluster& skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {
@@ -115,7 +115,7 @@ void Object3D::Draw(const SkinCluster& skinCluster) {
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer, uint32_t numInstance, const uint32_t TextureHandle) {
+void Cygnus::Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer, uint32_t numInstance, const uint32_t TextureHandle) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// パーティクル用ルートシグネチャを設定
@@ -134,7 +134,7 @@ void Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer
 	dxBase->GetCommandList()->DrawInstanced(UINT(model_->vertices.size()), numInstance, 0, 0);
 }
 
-void Object3D::DrawPartial(uint32_t indexCount) {
+void Cygnus::Object3D::DrawPartial(uint32_t indexCount) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// commandListにVBVを設定
@@ -153,7 +153,7 @@ void Object3D::DrawPartial(uint32_t indexCount) {
 	dxBase->GetCommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }
 
-void Object3D::DrawShadow() {
+void Cygnus::Object3D::DrawShadow() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 頂点バッファ・インデックスバッファの設定
@@ -168,7 +168,7 @@ void Object3D::DrawShadow() {
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::DrawShadow(const SkinCluster& skinCluster) {
+void Cygnus::Object3D::DrawShadow(const SkinCluster& skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {model_->vertexBufferView, skinCluster.influenceBufferView_};
@@ -184,7 +184,7 @@ void Object3D::DrawShadow(const SkinCluster& skinCluster) {
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Object3D::SetEmissive(const Float3& color, float intensity, float radius, float decay) {
+void Cygnus::Object3D::SetEmissive(const Float3& color, float intensity, float radius, float decay) {
 	isEmissive_ = true;
 	materialCB_.data_->emissiveColor = color;
 	materialCB_.data_->emissiveIntensity = intensity;
@@ -192,7 +192,7 @@ void Object3D::SetEmissive(const Float3& color, float intensity, float radius, f
 	emissiveDecay_ = decay;
 }
 
-void Object3D::UpdateEmissiveLight() {
+void Cygnus::Object3D::UpdateEmissiveLight() {
 	if (!isEmissive_)
 		return;
 
@@ -210,7 +210,7 @@ void Object3D::UpdateEmissiveLight() {
 	LightManager::GetInstance()->RegisterEmissiveLight(worldPosition, materialCB_.data_->emissiveColor, materialCB_.data_->emissiveIntensity, emissiveRadius_, emissiveDecay_);
 }
 
-void Object3D::SetEmissiveAsAreaLight(const Float3& color, float intensity, float range, LightManager::AreaLightType type) {
+void Cygnus::Object3D::SetEmissiveAsAreaLight(const Float3& color, float intensity, float range, LightManager::AreaLightType type) {
 	isEmissive_ = true;
 	materialCB_.data_->emissiveColor = color;
 	materialCB_.data_->emissiveIntensity = intensity;
@@ -218,7 +218,7 @@ void Object3D::SetEmissiveAsAreaLight(const Float3& color, float intensity, floa
 	emissiveAreaLightType_ = type;
 }
 
-void Object3D::UpdateEmissiveAreaLight() {
+void Cygnus::Object3D::UpdateEmissiveAreaLight() {
 	if (!isEmissive_)
 		return;
 

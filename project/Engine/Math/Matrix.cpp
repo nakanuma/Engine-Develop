@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdexcept>
 
-Matrix::Matrix() {
+Cygnus::Matrix::Matrix() {
 	r[0][0] = 1.0f;
 	r[0][1] = 0.0f;
 	r[0][2] = 0.0f;
@@ -24,7 +24,7 @@ Matrix::Matrix() {
 	r[3][3] = 1.0f;
 }
 
-Matrix::Matrix(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33) {
+Cygnus::Matrix::Matrix(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33) {
 	r[0][0] = m00;
 	r[0][1] = m01;
 	r[0][2] = m02;
@@ -46,7 +46,7 @@ Matrix::Matrix(float m00, float m01, float m02, float m03, float m10, float m11,
 	r[3][3] = m33;
 }
 
-Matrix Matrix::operator-() const {
+Cygnus::Matrix Cygnus::Matrix::operator-() const {
 	Matrix result;
 	// 左側に元行列、右側に単位行列を置く拡大行列を用意
 	float temp[kRowSize][kAugmentedColSize] = {};
@@ -95,7 +95,7 @@ Matrix Matrix::operator-() const {
 	return result;
 }
 
-Matrix Matrix::operator+(const Matrix& m) const {
+Cygnus::Matrix Cygnus::Matrix::operator+(const Matrix& m) const {
 	return Matrix(
 		r[0][0] + m.r[0][0], r[0][1] + m.r[0][1], r[0][2] + m.r[0][2], r[0][3] + m.r[0][3],
 		r[1][0] + m.r[1][0], r[1][1] + m.r[1][1], r[1][2] + m.r[1][2], r[1][3] + m.r[1][3],
@@ -104,7 +104,7 @@ Matrix Matrix::operator+(const Matrix& m) const {
 	);
 }
 
-Matrix Matrix::operator-(const Matrix& m) const {
+Cygnus::Matrix Cygnus::Matrix::operator-(const Matrix& m) const {
 	return Matrix(
 		r[0][0] - m.r[0][0], r[0][1] - m.r[0][1], r[0][2] - m.r[0][2], r[0][3] - m.r[0][3],
 		r[1][0] - m.r[1][0], r[1][1] - m.r[1][1], r[1][2] - m.r[1][2], r[1][3] - m.r[1][3],
@@ -113,7 +113,7 @@ Matrix Matrix::operator-(const Matrix& m) const {
 	);
 }
 
-Matrix Matrix::operator*(const Matrix& m) const {
+Cygnus::Matrix Cygnus::Matrix::operator*(const Matrix& m) const {
 	return Matrix(
 		r[0][0] * m.r[0][0] + r[0][1] * m.r[1][0] + r[0][2] * m.r[2][0] + r[0][3] * m.r[3][0],
 		r[0][0] * m.r[0][1] + r[0][1] * m.r[1][1] + r[0][2] * m.r[2][1] + r[0][3] * m.r[3][1],
@@ -136,7 +136,7 @@ Matrix Matrix::operator*(const Matrix& m) const {
 		r[3][0] * m.r[0][3] + r[3][1] * m.r[1][3] + r[3][2] * m.r[2][3] + r[3][3] * m.r[3][3]);
 }
 
-Matrix& Matrix::operator+=(const Matrix& m) {
+Cygnus::Matrix& Cygnus::Matrix::operator+=(const Matrix& m) {
 	r[0][0] += m.r[0][0];
 	r[0][1] += m.r[0][1];
 	r[0][2] += m.r[0][2];
@@ -160,7 +160,7 @@ Matrix& Matrix::operator+=(const Matrix& m) {
 	return *this;
 }
 
-Matrix& Matrix::operator-=(const Matrix& m) {
+Cygnus::Matrix& Cygnus::Matrix::operator-=(const Matrix& m) {
 	r[0][0] -= m.r[0][0];
 	r[0][1] -= m.r[0][1];
 	r[0][2] -= m.r[0][2];
@@ -184,12 +184,12 @@ Matrix& Matrix::operator-=(const Matrix& m) {
 	return *this;
 }
 
-Matrix& Matrix::operator*=(const Matrix& m) {
+Cygnus::Matrix& Cygnus::Matrix::operator*=(const Matrix& m) {
 	*this = *this * m;
 	return *this;
 }
 
-Float4 Matrix::operator*(const Float4& vec) {
+Cygnus::Float4 Cygnus::Matrix::operator*(const Float4& vec) {
 	return Float4(
 		r[0][0] * vec.x + r[0][1] * vec.y + r[0][2] * vec.z + r[0][3] * vec.w,
 		r[1][0] * vec.x + r[1][1] * vec.y + r[1][2] * vec.z + r[1][3] * vec.w,
@@ -198,11 +198,11 @@ Float4 Matrix::operator*(const Float4& vec) {
 	);
 }
 
-Matrix Matrix::Identity() { return Matrix(); }
+Cygnus::Matrix Cygnus::Matrix::Identity() { return Matrix(); }
 
-Matrix Matrix::Inverse(const Matrix& m) { return -m; }
+Cygnus::Matrix Cygnus::Matrix::Inverse(const Matrix& m) { return -m; }
 
-Matrix Matrix::Transpose(const Matrix& m) {
+Cygnus::Matrix Cygnus::Matrix::Transpose(const Matrix& m) {
 	Matrix result;
 
 	// 行と列を入れ替え
@@ -215,7 +215,7 @@ Matrix Matrix::Transpose(const Matrix& m) {
 	return result;
 }
 
-Matrix Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float farZ) {
+Cygnus::Matrix Cygnus::Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float farZ) {
 	Matrix result = Matrix();
 
 	// Y方向スケーリング
@@ -232,7 +232,7 @@ Matrix Matrix::PerspectiveFovLH(float fov, float aspectRatio, float nearZ, float
 	return result;
 }
 
-Matrix Matrix::Orthographic(float width, float height, float nearClip, float farClip) {
+Cygnus::Matrix Cygnus::Matrix::Orthographic(float width, float height, float nearClip, float farClip) {
 	return Matrix(
 		kTwo / width, 0.0f, 0.0f, 0.0f, // Xスケーリング
 		0.0f, kTwo / -height, 0.0f, 0.0f, // Yスケーリング
@@ -241,7 +241,7 @@ Matrix Matrix::Orthographic(float width, float height, float nearClip, float far
 	);
 }
 
-Matrix Matrix::OrthographicOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ) {
+Cygnus::Matrix Cygnus::Matrix::OrthographicOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ) {
 	Matrix m;
 
 	// Xスケーリング
@@ -271,7 +271,7 @@ Matrix Matrix::OrthographicOffCenterLH(float left, float right, float bottom, fl
 	return m;
 }
 
-Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& up) {
+Cygnus::Matrix Cygnus::Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& up) {
 	// forward
 	Float3 zaxis = target - eye;
 	if (Float3::Length(zaxis) < kEpsilon) {
@@ -300,7 +300,7 @@ Matrix Matrix::LookAtLH(const Float3& eye, const Float3& target, const Float3& u
 	);
 }
 
-Matrix Matrix::Scaling(const Float3& scale) {
+Cygnus::Matrix Cygnus::Matrix::Scaling(const Float3& scale) {
 	Matrix ret = Matrix();
 	ret.r[0][0] = scale.x;
 	ret.r[1][1] = scale.y;
@@ -309,7 +309,7 @@ Matrix Matrix::Scaling(const Float3& scale) {
 	return ret;
 }
 
-Matrix Matrix::Translation(const Float3& translation) {
+Cygnus::Matrix Cygnus::Matrix::Translation(const Float3& translation) {
 	Matrix ret = Matrix();
 	ret.r[3][0] = translation.x;
 	ret.r[3][1] = translation.y;
@@ -318,7 +318,7 @@ Matrix Matrix::Translation(const Float3& translation) {
 	return ret;
 }
 
-Matrix Matrix::RotationX(float rad) {
+Cygnus::Matrix Cygnus::Matrix::RotationX(float rad) {
 	Matrix result = Matrix();
 
 	result.r[1][1] = cosf(rad);
@@ -329,7 +329,7 @@ Matrix Matrix::RotationX(float rad) {
 	return result;
 }
 
-Matrix Matrix::RotationY(float rad) {
+Cygnus::Matrix Cygnus::Matrix::RotationY(float rad) {
 	Matrix result = Matrix();
 
 	result.r[0][0] = cosf(rad);
@@ -340,7 +340,7 @@ Matrix Matrix::RotationY(float rad) {
 	return result;
 }
 
-Matrix Matrix::RotationZ(float rad) {
+Cygnus::Matrix Cygnus::Matrix::RotationZ(float rad) {
 	Matrix result = Matrix();
 
 	result.r[0][0] = cosf(rad);
@@ -351,9 +351,9 @@ Matrix Matrix::RotationZ(float rad) {
 	return result;
 }
 
-Matrix Matrix::Rotation(const Float3& eulerAngles) { return RotationY(eulerAngles.y) * RotationX(eulerAngles.x) * RotationZ(eulerAngles.z); }
+Cygnus::Matrix Cygnus::Matrix::Rotation(const Float3& eulerAngles) { return RotationY(eulerAngles.y) * RotationX(eulerAngles.x) * RotationZ(eulerAngles.z); }
 
-Matrix Matrix::Pitch(float rad) {
+Cygnus::Matrix Cygnus::Matrix::Pitch(float rad) {
 	Matrix result = Matrix();
 
 	result.r[1][1] = cosf(rad);	// Y->Y
@@ -364,7 +364,7 @@ Matrix Matrix::Pitch(float rad) {
 	return result;
 }
 
-Matrix Matrix::Yaw(float rad) {
+Cygnus::Matrix Cygnus::Matrix::Yaw(float rad) {
 	Matrix result = Matrix();
 
 	result.r[0][0] = cosf(rad); // X->X
@@ -375,7 +375,7 @@ Matrix Matrix::Yaw(float rad) {
 	return result;
 }
 
-Matrix Matrix::Roll(float rad) {
+Cygnus::Matrix Cygnus::Matrix::Roll(float rad) {
 	Matrix result = Matrix();
 
 	result.r[0][0] = cosf(rad); // X->X
@@ -386,7 +386,7 @@ Matrix Matrix::Roll(float rad) {
 	return result;
 }
 
-Matrix Matrix::LookRotation(const Float3& forward_, const Float3& up_) {
+Cygnus::Matrix Cygnus::Matrix::LookRotation(const Float3& forward_, const Float3& up_) {
 	Float3 forward = Float3::Normalize(forward_);
 	Float3 right = Float3::Normalize(Float3::Cross(up_, forward_));
 	Float3 up = Float3::Cross(forward_, right);
@@ -420,12 +420,12 @@ Matrix Matrix::LookRotation(const Float3& forward_, const Float3& up_) {
 	return result;
 }
 
-Matrix Matrix::RotationRollPitchYaw(float roll, float pitch, float yaw) {
+Cygnus::Matrix Cygnus::Matrix::RotationRollPitchYaw(float roll, float pitch, float yaw) {
 	Matrix result = Matrix::Identity() * Roll(roll) * Pitch(pitch) * Yaw(yaw);
 	return result;
 }
 
-Matrix Matrix::QuaternionToRotation(const Quaternion& q) {
+Cygnus::Matrix Cygnus::Matrix::QuaternionToRotation(const Quaternion& q) {
 	Matrix result;
 
 	// X軸方向
@@ -455,7 +455,7 @@ Matrix Matrix::QuaternionToRotation(const Quaternion& q) {
 	return result;
 }
 
-Matrix Matrix::MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3& translate) {
+Cygnus::Matrix Cygnus::Matrix::MakeAffine(const Float3& scale, const Quaternion& rotate, const Float3& translate) {
 	Matrix result = Matrix();
 
 	// スケーリング行列を掛ける

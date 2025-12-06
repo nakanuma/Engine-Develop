@@ -1,11 +1,11 @@
-﻿#include "DirectXUtil.h"
+#include "DirectXUtil.h"
 #include <assert.h>
 
-IDxcBlob* CompileShader(const std::wstring& filePath, const wchar_t* profile, IDxcUtils* dxcUtils, IDxcCompiler3* dxcCompiler, IDxcIncludeHandler* includeHandler) {
+IDxcBlob* Cygnus::CompileShader(const std::wstring& filePath, const wchar_t* profile, IDxcUtils* dxcUtils, IDxcCompiler3* dxcCompiler, IDxcIncludeHandler* includeHandler) {
 	HRESULT result = S_FALSE;
 
 	// これからシェーダーをコンパイルする旨をログに出す
-	Log(ConvertString(std::format(L"Begin CompilerShader, path:{}, profile:{}\n", filePath, profile)));
+	Cygnus::Log(Cygnus::ConvertString(std::format(L"Begin CompilerShader, path:{}, profile:{}\n", filePath, profile)));
 
 	// 1. hlslファイルを読む
 	IDxcBlobEncoding* shaderSource = nullptr;
@@ -47,7 +47,7 @@ IDxcBlob* CompileShader(const std::wstring& filePath, const wchar_t* profile, ID
 	IDxcBlobUtf8* shaderError = nullptr;
 	shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
 	if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
-		Log(shaderError->GetStringPointer());
+		Cygnus::Log(shaderError->GetStringPointer());
 		assert(false);
 	}
 
@@ -57,7 +57,7 @@ IDxcBlob* CompileShader(const std::wstring& filePath, const wchar_t* profile, ID
 	result = shaderResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBlob), nullptr);
 	assert(SUCCEEDED(result));
 	// 成功したログを出す
-	Log(ConvertString(std::format(L"Compile Succeeded, path:{}, profile:{}\n", filePath, profile)));
+	Cygnus::Log(Cygnus::ConvertString(std::format(L"Compile Succeeded, path:{}, profile:{}\n", filePath, profile)));
 	// もう使わないリソースを開放
 	shaderSource->Release();
 	shaderResult->Release();
@@ -65,7 +65,7 @@ IDxcBlob* CompileShader(const std::wstring& filePath, const wchar_t* profile, ID
 	return shaderBlob;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
+Microsoft::WRL::ComPtr<ID3D12Resource> Cygnus::CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
 	// 頂点リソース用のヒープの設定
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
 	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD; // UploadHeapを使う
@@ -89,7 +89,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device
 	return std::move(vertexResource); // デストラクタを呼ばないように返す
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ID3D12Device* device, int32_t width, int32_t height, bool isReading) {
+Microsoft::WRL::ComPtr<ID3D12Resource> Cygnus::CreateDepthStencilTextureResource(ID3D12Device* device, int32_t width, int32_t height, bool isReading) {
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Width = width;                                   // Textureの幅
 	resourceDesc.Height = height;                                 // Textureの高さ
@@ -123,7 +123,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ID3D12D
 	return std::move(resource);
 }
 
-void TransitionResource(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) {
+void Cygnus::TransitionResource(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) {
 	// 既に目的のステートなら早期リターン
 	if (beforeState == afterState)
 		return;

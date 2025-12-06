@@ -1,15 +1,15 @@
 #include "SoundManager.h"
 #include <cassert>
 
-SoundManager* SoundManager::GetInstance() {
+Cygnus::SoundManager* Cygnus::SoundManager::GetInstance() {
 	static SoundManager instance;
 	instance.Initialize();
 	return &instance;
 }
 
-SoundManager::~SoundManager() { xAudio2_.Reset(); }
+Cygnus::SoundManager::~SoundManager() { xAudio2_.Reset(); }
 
-void SoundManager::Initialize() {
+void Cygnus::SoundManager::Initialize() {
 	HRESULT result;
 	// メインインターフェースを生成
 	result = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
@@ -19,7 +19,7 @@ void SoundManager::Initialize() {
 	assert(SUCCEEDED(result));
 }
 
-SoundManager::SoundData SoundManager::LoadWave(const char* filename) {
+Cygnus::SoundManager::SoundData Cygnus::SoundManager::LoadWave(const char* filename) {
 	///
 	/// 1, ファイルオープン
 	///
@@ -105,7 +105,7 @@ SoundManager::SoundData SoundManager::LoadWave(const char* filename) {
 	return soundData;
 }
 
-void SoundManager::Unload(SoundData& soundData) {
+void Cygnus::SoundManager::Unload(SoundData& soundData) {
 	if (soundData.pSourceVoice) {
 		soundData.pSourceVoice->DestroyVoice();
 		soundData.pSourceVoice = nullptr;
@@ -116,7 +116,7 @@ void SoundManager::Unload(SoundData& soundData) {
 	soundData.wfex = {};
 }
 
-void SoundManager::PlayWave(SoundData& soundData, bool loopFlag, float volume) {
+void Cygnus::SoundManager::PlayWave(SoundData& soundData, bool loopFlag, float volume) {
 	HRESULT result;
 
 	// 波形フォーマットを元にSourceVoiceの生成
@@ -138,7 +138,7 @@ void SoundManager::PlayWave(SoundData& soundData, bool loopFlag, float volume) {
 	result = soundData.pSourceVoice->Start();
 }
 
-void SoundManager::StopWave(SoundData& soundData) {
+void Cygnus::SoundManager::StopWave(SoundData& soundData) {
 	if (soundData.pSourceVoice) {
 		// 再生を停止
 		HRESULT result = soundData.pSourceVoice->Stop();

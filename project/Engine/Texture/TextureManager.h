@@ -21,6 +21,7 @@
 #include <SRVManager.h>
 #include <StringUtil.h>
 
+namespace Cygnus {
 // =========================================================
 // テクスチャ管理クラス
 // =========================================================
@@ -177,3 +178,4 @@ private:
 	std::array<DirectX::TexMetadata, kMaxTextureValue> texMetadata_;						/* テクスチャメタデータ配列 */
 	std::unordered_map<std::string, TextureData> textureDatas_;								/* テクスチャデータマップ */
 };
+}

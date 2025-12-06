@@ -1,8 +1,8 @@
 #include "InstancedObject.h"
 
-InstancedObject::InstancedObject() { Object3D::Object3D(); }
+Cygnus::InstancedObject::InstancedObject() { Object3D::Object3D(); }
 
-void InstancedObject::InstancedDraw() {
+void Cygnus::InstancedObject::InstancedDraw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// commandListにVBVを設定

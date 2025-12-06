@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -11,6 +11,7 @@
 // ---------------------------------------------------------
 #include <MyMath.h>
 
+namespace Cygnus {
 // =========================================================
 // アニメーションの読み込み・補間を行うクラス
 // =========================================================
@@ -77,3 +78,4 @@ public:
 	/// <returns>任意の時刻の値（Quaternion）</returns>
 	static Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time);
 };
+}

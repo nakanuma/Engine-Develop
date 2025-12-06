@@ -1,19 +1,19 @@
 #include "SceneManager.h"
 #include <cassert>
 
-SceneManager* SceneManager::GetInstance() {
+Cygnus::SceneManager* Cygnus::SceneManager::GetInstance() {
 	static SceneManager instance;
 	return &instance;
 }
 
-SceneManager::~SceneManager() {
+Cygnus::SceneManager::~SceneManager() {
 	// 最後のシーンの終了と開放
 	if (scene_) {
 		scene_->Finalize();
 	}
 }
 
-void SceneManager::ChangeScene(const std::string& sceneName) {
+void Cygnus::SceneManager::ChangeScene(const std::string& sceneName) {
 	assert(sceneFactory_);
 	assert(nextScene_ == nullptr);
 
@@ -21,7 +21,7 @@ void SceneManager::ChangeScene(const std::string& sceneName) {
 	nextScene_ = sceneFactory_->CreateScene(sceneName);
 }
 
-void SceneManager::Update() {
+void Cygnus::SceneManager::Update() {
 	///
 	///	シーン切り替え機構
 	///
@@ -45,7 +45,7 @@ void SceneManager::Update() {
 	}
 }
 
-void SceneManager::Draw() {
+void Cygnus::SceneManager::Draw() {
 	// 実行中シーンの描画
 	if (scene_) {
 		scene_->Draw();

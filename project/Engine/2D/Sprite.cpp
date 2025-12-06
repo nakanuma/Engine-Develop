@@ -3,7 +3,7 @@
 #include "SpriteCommon.h"
 #include "TextureManager.h"
 
-void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
+void Cygnus::Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 	// 引数で受け取ってメンバ変数に記録する
 	this->spriteCommon_ = spriteCommon;
 	// テクスチャを保存
@@ -60,7 +60,7 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 	AdjustTextureSize();
 }
 
-void Sprite::Update() {
+void Cygnus::Sprite::Update() {
 	// 座標を反映
 	transform_.translate_ = { position_.x, position_.y, kDefaultTranslation.z };
 	// 回転を反映
@@ -126,7 +126,7 @@ void Sprite::Update() {
 	transformationMatrixData_->World = worldMatrix;
 }
 
-void Sprite::Draw() {
+void Cygnus::Sprite::Draw() {
 	// VertexBufferViewを設定
 	spriteCommon_->GetDxBase()->GetCommandList()->IASetVertexBuffers(kVertexBufferSlot, kVertexBufferCount, &vertexBufferView_);
 	// IBVを設定
@@ -141,7 +141,7 @@ void Sprite::Draw() {
 	spriteCommon_->GetDxBase()->GetCommandList()->DrawIndexedInstanced(kDrawIndexCount, kDrawInstanceCount, kDrawStartIndexLocation, kDrawBaseVertexLocation, kDrawStartInstanceLocation);
 }
 
-void Sprite::AdjustTextureSize() {
+void Cygnus::Sprite::AdjustTextureSize() {
 	// テクスチャメタデータを取得
 	const DirectX::TexMetadata& metadata = TextureManager::GetInstance().GetMetaData(textureIndex_);
 

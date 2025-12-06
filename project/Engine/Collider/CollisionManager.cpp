@@ -13,12 +13,12 @@
 #include <Engine/3D/LineDrawer.h>
 #include <Engine/Collider/CollisionMath.h>
 
-CollisionManager* CollisionManager::GetInstance() {
+Cygnus::CollisionManager* Cygnus::CollisionManager::GetInstance() {
 	static CollisionManager instance;
 	return &instance;
 }
 
-void CollisionManager::Register(Collider* collider) {
+void Cygnus::CollisionManager::Register(Collider* collider) {
 	if (collider == nullptr) {
 		return;
 	}
@@ -26,7 +26,7 @@ void CollisionManager::Register(Collider* collider) {
 	colliders_.push_back(collider);
 }
 
-void CollisionManager::Unregister(Collider* collider) {
+void Cygnus::CollisionManager::Unregister(Collider* collider) {
 	// colliders_から削除
 	auto it = std::remove(colliders_.begin(), colliders_.end(), collider);
 	if (it != colliders_.end()) {
@@ -43,7 +43,7 @@ void CollisionManager::Unregister(Collider* collider) {
 	}
 }
 
-void CollisionManager::Update() {
+void Cygnus::CollisionManager::Update() {
 	// 今フレームで衝突しているコライダーのペアを一時的に保持
 	std::set<std::pair<Collider*, Collider*>> currentCollisions;
 
@@ -88,7 +88,7 @@ void CollisionManager::Update() {
 	previousCollisions_ = currentCollisions;
 }
 
-void CollisionManager::Draw() {
+void Cygnus::CollisionManager::Draw() {
 	auto drawer = LineDrawer::GetInstance();
 
 	for (auto* collider : colliders_) {
@@ -222,7 +222,7 @@ void CollisionManager::Draw() {
 	}
 }
 
-void CollisionManager::Debug() {
+void Cygnus::CollisionManager::Debug() {
 #ifdef USE_IMGUI
 	if (ImGui::Begin("Colliders")) {
 
@@ -308,7 +308,7 @@ void CollisionManager::Debug() {
 	Draw();
 }
 
-bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit, const std::unordered_set<std::string>& ignoreTags) {
+bool Cygnus::CollisionManager::RayCast(const Float3& origin, const Float3& direction, float maxDistance, RayCastHit* outHit, const std::unordered_set<std::string>& ignoreTags) {
 	bool hitAny = false;
 	float closestDistance = maxDistance;
 	Collider* closestCollider = nullptr;
@@ -363,7 +363,7 @@ bool CollisionManager::RayCast(const Float3& origin, const Float3& direction, fl
 	return hitAny;
 }
 
-bool CollisionManager::CheckSphereCollisionWithTag(const Float3& center, float radius, const std::unordered_set<std::string>& targetTags) {
+bool Cygnus::CollisionManager::CheckSphereCollisionWithTag(const Float3& center, float radius, const std::unordered_set<std::string>& targetTags) {
 	// 疑似SphereColliderを作成
 	SphereCollider tempSphere;
 	tempSphere.SetCenter(center);

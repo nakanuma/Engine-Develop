@@ -6,6 +6,7 @@
 #include <Object3D.h>
 #include <StructuredBuffer.h>
 
+namespace Cygnus{
 // =========================================================
 // インスタンシング描画用の3Dオブジェクトクラス
 // =========================================================
@@ -40,3 +41,4 @@ public:
 	// ----- Resources -----
 	StructuredBuffer<Object3D::InstancingObject> gTransformationMatrices_ = StructuredBuffer<Object3D::InstancingObject>(0, true); /* 空っぽのStructuredBuffer */
 };
+}

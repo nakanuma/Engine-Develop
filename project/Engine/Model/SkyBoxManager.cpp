@@ -1,11 +1,11 @@
 #include "SkyBoxManager.h"
 
-SkyBoxManager* SkyBoxManager::GetInstance() {
+Cygnus::SkyBoxManager* Cygnus::SkyBoxManager::GetInstance() {
 	static SkyBoxManager instance;
 	return &instance;
 }
 
-void SkyBoxManager::Initialize(const std::string& filePath) {
+void Cygnus::SkyBoxManager::Initialize(const std::string& filePath) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// ddsファイルの読み込み
@@ -21,12 +21,12 @@ void SkyBoxManager::Initialize(const std::string& filePath) {
 	objectSkybox_->transform_.scale_ = { kSkyBoxScale, kSkyBoxScale, kSkyBoxScale };
 }
 
-void SkyBoxManager::Update() {
+void Cygnus::SkyBoxManager::Update() {
 	// Skybox更新
 	objectSkybox_->UpdateMatrix();
 }
 
-void SkyBoxManager::Draw() {
+void Cygnus::SkyBoxManager::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// Skybox用PSOに変更 -> Skybox描画 -> 通常PSOに変更
@@ -39,4 +39,4 @@ void SkyBoxManager::Draw() {
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
 }
 
-uint32_t SkyBoxManager::GetEnvironmentTextureHandle() { return modelSkybox_.material.textureHandle; }
+uint32_t Cygnus::SkyBoxManager::GetEnvironmentTextureHandle() { return modelSkybox_.material.textureHandle; }

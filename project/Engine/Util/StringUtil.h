@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -7,6 +7,7 @@
 #include <format>
 #include <string>
 
+namespace Cygnus {
 /// <summary>
 /// stringをwstringに変換します。
 /// </summary>
@@ -20,3 +21,4 @@ std::wstring ConvertString(const std::string& str);
 /// <param name="str">wstring文字列</param>
 /// <returns>string文字列</returns>
 std::string ConvertString(const std::wstring& str);
+}

@@ -23,6 +23,7 @@
 #include <DirectX/ShaderManager.h>
 #include <Util/FPSController.h>
 
+namespace Cygnus {
 /// <summary>
 /// リソースリーク検出用ユーティリティクラス
 /// </summary>
@@ -431,3 +432,4 @@ private:
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc_;
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc_;
 };
+}

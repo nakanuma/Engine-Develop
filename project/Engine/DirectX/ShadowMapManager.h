@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <wrl.h>
 
+namespace Cygnus {
 // =========================================================
 // シャドウマップ管理クラス
 // =========================================================
@@ -158,3 +159,4 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> shadowPSO_;						/* シャドウマップ用PSO */
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> shadowSkinnedPSO_;				/* スキニング用シャドウマップPSO */
 };
+}

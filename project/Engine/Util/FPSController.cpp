@@ -3,17 +3,17 @@
 // C++
 #include <thread>
 
-FPSController* FPSController::GetInstance() {
+Cygnus::FPSController* Cygnus::FPSController::GetInstance() {
 	static FPSController instance;
 	return &instance;
 }
 
-void FPSController::InitializeFixFPS() {
+void Cygnus::FPSController::InitializeFixFPS() {
 	// 現在時間を記録する
 	reference_ = std::chrono::steady_clock::now();
 }
 
-void FPSController::UpdateFixFPS() {
+void Cygnus::FPSController::UpdateFixFPS() {
 	// 1/60秒ぴったりの時間
 	const std::chrono::microseconds kMinTime(uint64_t(kMicrosecondsInSecond / kTargetFPS));
 	// 1/60秒よりわずかに短い時間

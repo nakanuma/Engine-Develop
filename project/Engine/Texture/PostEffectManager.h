@@ -7,6 +7,7 @@
 #include <Object3D.h>
 #include <Sprite.h>
 
+namespace Cygnus {
 /// <summary>
 /// 波形ディストーション用の定数バッファ構造体
 /// </summary>
@@ -260,3 +261,4 @@ public:
 	uint32_t bloomHorizontalRT_ = 0;
 	uint32_t bloomBlurRT_ = 0;			/* ブルームブラー結果テクスチャ */
 };
+}

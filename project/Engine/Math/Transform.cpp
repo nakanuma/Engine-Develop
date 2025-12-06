@@ -1,6 +1,6 @@
 #include "Transform.h"
 
-Matrix Transform::MakeAffineMatrix() {
+Cygnus::Matrix Cygnus::Transform::MakeAffineMatrix() {
 	Matrix result = Matrix::Identity();
 
 	// SRTの順番で行列を生成してかける

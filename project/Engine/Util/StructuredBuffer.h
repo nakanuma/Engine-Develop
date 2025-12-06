@@ -9,6 +9,7 @@
 #include "SRVManager.h"
 #include "TextureManager.h"
 
+namespace Cygnus {
 // =========================================================
 // ストラクチャードバッファのラッパークラス
 // =========================================================
@@ -83,4 +84,5 @@ template<class Type> inline void StructuredBuffer<Type>::CreateSRV() {
 	heapIndex_ = SRVManager::GetInstance()->GetIndex(); // heapのIndexを記録
 	SRVManager::GetInstance()->IncrementIndex();        // indexをインクリメント
 	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(resource_.Get(), &instancingSrvDesc, instancingSrvHandleCPU);
+}
 }

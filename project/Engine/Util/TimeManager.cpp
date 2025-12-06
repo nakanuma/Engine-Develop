@@ -1,11 +1,11 @@
-﻿#include "TimeManager.h"
+#include "TimeManager.h"
 
-TimeManager* TimeManager::GetInstance() {
+Cygnus::TimeManager* Cygnus::TimeManager::GetInstance() {
 	static TimeManager instance;
 	return &instance;
 }
 
-void TimeManager::Update() {
+void Cygnus::TimeManager::Update() {
 	// 現在時刻を取得
 	auto currentTime = Clock::now();
 
@@ -20,4 +20,4 @@ void TimeManager::Update() {
 	previousTime_ = currentTime;
 }
 
-float TimeManager::GetDeltaTime() const { return deltaTime_; }
+float Cygnus::TimeManager::GetDeltaTime() const { return deltaTime_; }

@@ -1,4 +1,4 @@
-﻿#include "SkinCluster.h"
+#include "SkinCluster.h"
 
 // C++
 #include <cassert>
@@ -6,7 +6,7 @@
 // Engine
 #include <DirectXUtil.h>
 
-void SkinCluster::CreateSkinCluster(const Microsoft::WRL::ComPtr<ID3D12Device>& device, const Skeleton& skeleton, const ModelManager::ModelData& modelData) {
+void Cygnus::SkinCluster::CreateSkinCluster(const Microsoft::WRL::ComPtr<ID3D12Device>& device, const Skeleton& skeleton, const ModelManager::ModelData& modelData) {
 	SRVManager* srvManager = SRVManager::GetInstance();
 
 	// palette用のResourceを確保
@@ -66,7 +66,7 @@ void SkinCluster::CreateSkinCluster(const Microsoft::WRL::ComPtr<ID3D12Device>& 
 	}
 }
 
-void SkinCluster::Update(const Skeleton& skeleton) {
+void Cygnus::SkinCluster::Update(const Skeleton& skeleton) {
 	// 各ジョイントを順に処理
 	for (size_t jointIndex = 0; jointIndex < skeleton.joints_.size(); ++jointIndex) {
 		assert(jointIndex < inverseBindPoseMatrices_.size());

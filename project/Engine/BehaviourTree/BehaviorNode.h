@@ -12,6 +12,7 @@
 // ---------------------------------------------------------
 #include <Engine/Util/RandomGenerator.h>
 
+namespace Cygnus {
 /// <summary>
 /// 行動の状態を表す列挙型
 /// </summary>
@@ -518,3 +519,4 @@ private:
 
 	bool isWaiting_;			/* 待機中フラグ */
 };
+}

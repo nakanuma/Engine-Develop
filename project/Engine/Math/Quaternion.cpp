@@ -1,13 +1,13 @@
 #include "Quaternion.h"
 #include "cmath"
 
-Quaternion Quaternion::operator+(const Quaternion& other) const { return {x + other.x, y + other.y, z + other.z, w + other.w}; }
+Cygnus::Quaternion Cygnus::Quaternion::operator+(const Quaternion& other) const { return { x + other.x, y + other.y, z + other.z, w + other.w }; }
 
-Quaternion Quaternion::operator-(const Quaternion& other) const { return {x - other.x, y - other.y, z - other.z, w - other.w}; }
+Cygnus::Quaternion Cygnus::Quaternion::operator-(const Quaternion& other) const { return { x - other.x, y - other.y, z - other.z, w - other.w }; }
 
-Quaternion Quaternion::operator*(float scalar) const { return {x * scalar, y * scalar, z * scalar, w * scalar}; }
+Cygnus::Quaternion Cygnus::Quaternion::operator*(float scalar) const { return { x * scalar, y * scalar, z * scalar, w * scalar }; }
 
-Quaternion& Quaternion::operator+=(const Quaternion& other) {
+Cygnus::Quaternion& Cygnus::Quaternion::operator+=(const Quaternion& other) {
 	x += other.x;
 	y += other.y;
 	z += other.z;
@@ -15,7 +15,7 @@ Quaternion& Quaternion::operator+=(const Quaternion& other) {
 	return *this;
 }
 
-Quaternion& Quaternion::operator-=(const Quaternion& other) {
+Cygnus::Quaternion& Cygnus::Quaternion::operator-=(const Quaternion& other) {
 	x -= other.x;
 	y -= other.y;
 	z -= other.z;
@@ -23,7 +23,7 @@ Quaternion& Quaternion::operator-=(const Quaternion& other) {
 	return *this;
 }
 
-Quaternion Quaternion::MakeRotateAxisAngleQuaternion(const Float3& axis, float angle) {
+Cygnus::Quaternion Cygnus::Quaternion::MakeRotateAxisAngleQuaternion(const Float3& axis, float angle) {
 	// 回転軸を正規化
 	Float3 normalizedAxis = Float3::Normalize(axis);
 	// 回転角の半分を求める
@@ -40,7 +40,7 @@ Quaternion Quaternion::MakeRotateAxisAngleQuaternion(const Float3& axis, float a
 	return Quaternion(x, y, z, w);
 }
 
-Quaternion Quaternion::Slerp(const Quaternion& a, const Quaternion& b, float t) {
+Cygnus::Quaternion Cygnus::Quaternion::Slerp(const Quaternion& a, const Quaternion& b, float t) {
 	// コサイン角度の計算
 	float dot = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 
@@ -55,7 +55,7 @@ Quaternion Quaternion::Slerp(const Quaternion& a, const Quaternion& b, float t) 
 	// コサイン角度の範囲内に収める
 	if (dot < 0.0f) {
 		dot = -dot;
-		Quaternion bNegated = {-b.x, -b.y, -b.z, -b.w};
+		Quaternion bNegated = { -b.x, -b.y, -b.z, -b.w };
 		return Slerp(a, bNegated, t);
 	}
 
@@ -72,4 +72,6 @@ Quaternion Quaternion::Slerp(const Quaternion& a, const Quaternion& b, float t) 
 	return result;
 }
 
-Quaternion operator*(float scalar, const Quaternion& quat) { return {quat.x * scalar, quat.y * scalar, quat.z * scalar, quat.w * scalar}; }
+namespace Cygnus {
+	Cygnus::Quaternion operator*(float scalar, const Cygnus::Quaternion& quat) { return { quat.x * scalar, quat.y * scalar, quat.z * scalar, quat.w * scalar }; }
+}

@@ -5,6 +5,7 @@
 // ---------------------------------------------------------
 #include <MyMath.h>
 
+namespace Cygnus {
 // ---------------------------------------------------------
 // Foward Declaration
 // ---------------------------------------------------------
@@ -90,3 +91,4 @@ private:
 	static constexpr size_t kSeparatingAxisCount = 15;	/* 分離軸候補の総数（Aの軸3 + Bの軸3 + A*Bの軸9） */
 	static constexpr float kAxisZeroEpsilon = 1e-6f;	/* 軸がゼロベクトルでないかを判定する微小な値 */
 };
+}

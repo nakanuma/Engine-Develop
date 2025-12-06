@@ -6,6 +6,7 @@
 #include <ConstBuffer.h>
 #include <MyMath.h>
 
+namespace Cygnus{
 /// <summary>
 /// カメラ用の定数バッファデータ構造体
 /// </summary>
@@ -90,3 +91,4 @@ private:
 	inline static Camera* current_;				/* 現在のカメラ */
 	ConstBuffer<CameraCBData> cameraCB_;		/* カメラ用定数バッファ */
 };
+}

@@ -7,12 +7,12 @@
 
 #include <SRVManager.h>
 
-ModelManager* ModelManager::GetInstance() {
+Cygnus::ModelManager* Cygnus::ModelManager::GetInstance() {
 	static ModelManager instance;
 	return &instance;
 }
 
-void ModelManager::LoadAndRegisterModel(const std::string& key, const std::string& modelFilename, const std::string& textureFilename)
+void Cygnus::ModelManager::LoadAndRegisterModel(const std::string& key, const std::string& modelFilename, const std::string& textureFilename)
 {
 	// モデルの読み込み
 	ModelManager::ModelData model = LoadModelFile(modelFilename);
@@ -22,7 +22,7 @@ void ModelManager::LoadAndRegisterModel(const std::string& key, const std::strin
 	models_[key] = model;
 }
 
-ModelManager::ModelData& ModelManager::GetModel(const std::string& key)
+Cygnus::ModelManager::ModelData& Cygnus::ModelManager::GetModel(const std::string& key)
 {
 	// モデルが登録されているか確認
 	auto it = models_.find(key);
@@ -33,7 +33,7 @@ ModelManager::ModelData& ModelManager::GetModel(const std::string& key)
 	return it->second;
 }
 
-ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device, float outerRadius, float innerRadius) {
+Cygnus::ModelManager::ModelData Cygnus::ModelManager::CreateRingModel(ID3D12Device* device, float outerRadius, float innerRadius) {
 	ModelManager::ModelData modelData;
 
 	const float radianPerDivide = 2.0f * PIf / float(kRingDivision);
@@ -115,7 +115,7 @@ ModelManager::ModelData ModelManager::CreateRingModel(ID3D12Device* device, floa
 	return modelData;
 }
 
-ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) {
+Cygnus::ModelManager::ModelData Cygnus::ModelManager::CreateCylinderModel(ID3D12Device* device) {
 	ModelManager::ModelData modelData;
 	const float radianPerDivide = 2.0f * PIf / float(kCylinderDivision);
 
@@ -208,7 +208,7 @@ ModelManager::ModelData ModelManager::CreateCylinderModel(ID3D12Device* device) 
 	return modelData;
 }
 
-ModelManager::ModelData ModelManager::CreateSkyBoxModel(ID3D12Device* device) {
+Cygnus::ModelManager::ModelData Cygnus::ModelManager::CreateSkyBoxModel(ID3D12Device* device) {
 	ModelManager::ModelData modelData;
 
 	// 頂点データとインデックスデータのコンテナ
@@ -297,7 +297,7 @@ ModelManager::ModelData ModelManager::CreateSkyBoxModel(ID3D12Device* device) {
 	return modelData;
 }
 
-ModelManager::ModelData ModelManager::LoadModelFile(const std::string& filename) {
+Cygnus::ModelManager::ModelData Cygnus::ModelManager::LoadModelFile(const std::string& filename) {
 	// directoryPath
 	std::string directoryPath = kModelDirectoryPath;
 	// device
@@ -408,7 +408,7 @@ ModelManager::ModelData ModelManager::LoadModelFile(const std::string& filename)
 	return modelData;
 }
 
-ModelManager::MaterialData ModelManager::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, ID3D12Device* device) {
+Cygnus::ModelManager::MaterialData Cygnus::ModelManager::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, ID3D12Device* device) {
 	// 1. 中で必要となる変数の宣言
 	MaterialData materialData; // 構築するMaterialData
 	std::string line;          // ファイルから読んだ1行を格納するもの
@@ -438,7 +438,7 @@ ModelManager::MaterialData ModelManager::LoadMaterialTemplateFile(const std::str
 	return materialData;
 }
 
-ModelManager::Node ModelManager::ReadNode(aiNode* node) {
+Cygnus::ModelManager::Node Cygnus::ModelManager::ReadNode(aiNode* node) {
 	Node result;
 
 	aiVector3D scale, translate;

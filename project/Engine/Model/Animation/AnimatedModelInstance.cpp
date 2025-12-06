@@ -1,9 +1,9 @@
-﻿#include "AnimatedModelInstance.h"
+#include "AnimatedModelInstance.h"
 
 // Engine
 #include <TextureManager.h>
 
-void AnimatedModelInstance::Initialize(const AnimatedModelData& data) {
+void Cygnus::AnimatedModelInstance::Initialize(const AnimatedModelData& data) {
 	object_ = std::make_unique<Object3D>();
 
 	data_.modelData = data.modelData;
@@ -17,14 +17,14 @@ void AnimatedModelInstance::Initialize(const AnimatedModelData& data) {
 	data_.skinCluster.CreateSkinCluster(DirectXBase::GetInstance()->GetDevice(), data_.skeleton, data_.modelData);
 }
 
-void AnimatedModelInstance::SetData(const AnimatedModelData& data) {
+void Cygnus::AnimatedModelInstance::SetData(const AnimatedModelData& data) {
 	data_.animation = data.animation;
 
 	// モデルのセット
 	object_->model_ = &data_.modelData;
 }
 
-void AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {
+void Cygnus::AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {
 	// アニメーション更新
 	if (isPlaying) {
 		animationTime_ += deltaTime * playbackSpeed_;
@@ -44,7 +44,7 @@ void AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {
 	object_->UpdateMatrix();
 }
 
-void AnimatedModelInstance::Draw() {
+void Cygnus::AnimatedModelInstance::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// Skinning用PSOに変更
@@ -53,7 +53,7 @@ void AnimatedModelInstance::Draw() {
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
 }
 
-void AnimatedModelInstance::DrawShadow() {
+void Cygnus::AnimatedModelInstance::DrawShadow() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 骨行列SRVのバインド
@@ -62,7 +62,7 @@ void AnimatedModelInstance::DrawShadow() {
 	object_->DrawShadow(data_.skinCluster);
 }
 
-void AnimatedModelInstance::SetAnimation(const AnimationLoader::Animation& animation) {
+void Cygnus::AnimatedModelInstance::SetAnimation(const AnimationLoader::Animation& animation) {
 	data_.animation = animation;
 	animationTime_ = 0.0f;
 }

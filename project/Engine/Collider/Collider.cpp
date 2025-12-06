@@ -3,7 +3,7 @@
 // Engine
 #include <Collider/CollisionMath.h>
 
-bool SphereCollider::CheckCollision(Collider* other) {
+bool Cygnus::SphereCollider::CheckCollision(Collider* other) {
 	// vs Sphere
 	if (other->GetType() == "Sphere") {
 		auto* sphere = dynamic_cast<SphereCollider*>(other);
@@ -23,14 +23,14 @@ bool SphereCollider::CheckCollision(Collider* other) {
 	return false;
 }
 
-void SphereCollider::Update() {
+void Cygnus::SphereCollider::Update() {
 	// 位置を追従させる
 	if (followTarget_) {
 		center_ = *followTarget_;
 	}
 }
 
-bool AABBCollider::CheckCollision(Collider* other) {
+bool Cygnus::AABBCollider::CheckCollision(Collider* other) {
 	// vs Sphere
 	if (other->GetType() == "Sphere") {
 		auto* sphere = dynamic_cast<SphereCollider*>(other);
@@ -50,7 +50,7 @@ bool AABBCollider::CheckCollision(Collider* other) {
 	return false;
 }
 
-void AABBCollider::Update()
+void Cygnus::AABBCollider::Update()
 {
 	// minとmaxの更新
 	if (followTarget_) {
@@ -60,7 +60,7 @@ void AABBCollider::Update()
 	}
 }
 
-Float3 AABBCollider::GetPushBackVector(const AABBCollider& other) const {
+Cygnus::Float3 Cygnus::AABBCollider::GetPushBackVector(const AABBCollider& other) const {
 	// それぞれの中心座標を取得
 	Float3 centerA = (min_ + max_) * kHalfSize;
 	Float3 centerB = (other.min_ + other.max_) * kHalfSize;
@@ -91,7 +91,7 @@ Float3 AABBCollider::GetPushBackVector(const AABBCollider& other) const {
 	}
 }
 
-Float3 AABBCollider::GetContactNormalFromSphere(const Float3& sphereCenter) const {
+Cygnus::Float3 Cygnus::AABBCollider::GetContactNormalFromSphere(const Float3& sphereCenter) const {
 	Float3 clamped;
 	// 球の中心をAABB内部にクランプして最近傍点を求める
 	clamped.x = std::max(min_.x, std::min(sphereCenter.x, max_.x));
@@ -114,7 +114,7 @@ Float3 AABBCollider::GetContactNormalFromSphere(const Float3& sphereCenter) cons
 	}
 }
 
-bool OBBCollider::CheckCollision(Collider* other) {
+bool Cygnus::OBBCollider::CheckCollision(Collider* other) {
 	// vs Sphere
 	if (other->GetType() == "Sphere") {
 		auto* sphere = dynamic_cast<SphereCollider*>(other);
@@ -134,7 +134,7 @@ bool OBBCollider::CheckCollision(Collider* other) {
 	return false;
 }
 
-void OBBCollider::Update()
+void Cygnus::OBBCollider::Update()
 {
 	if (followTarget_) {
 		// 位置を更新

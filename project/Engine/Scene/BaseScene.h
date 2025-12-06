@@ -1,5 +1,6 @@
-﻿#pragma once
+#pragma once
 
+namespace Cygnus {
 // ---------------------------------------------------------
 // Foward Declaration
 // ---------------------------------------------------------
@@ -39,3 +40,4 @@ public:
 	/// </summary>
 	virtual void Draw();
 };
+}

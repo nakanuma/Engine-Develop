@@ -1,6 +1,6 @@
 #include "Skeleton.h"
 
-void Skeleton::CreateSkeleton(const ModelManager::Node& rootNode) {
+void Cygnus::Skeleton::CreateSkeleton(const ModelManager::Node& rootNode) {
 	root_ = CreateJoint(rootNode, {}, joints_);
 
 	// 名前とindexのマッピングを行いアクセスしやすくする
@@ -12,7 +12,7 @@ void Skeleton::CreateSkeleton(const ModelManager::Node& rootNode) {
 	Update();
 }
 
-int32_t Skeleton::CreateJoint(const ModelManager::Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints) {
+int32_t Cygnus::Skeleton::CreateJoint(const ModelManager::Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints) {
 	Joint joint;
 	joint.name = node.name;
 	joint.localMatrix = node.localMatrix;
@@ -30,7 +30,7 @@ int32_t Skeleton::CreateJoint(const ModelManager::Node& node, const std::optiona
 	return joint.index;
 }
 
-void Skeleton::Update() {
+void Cygnus::Skeleton::Update() {
 	// すべてのJointを更新
 	for (Joint& joint : joints_) {
 		joint.localMatrix = joint.transform.MakeAffineMatrix();
@@ -42,7 +42,7 @@ void Skeleton::Update() {
 	}
 }
 
-void Skeleton::ApplyAnimation(const AnimationLoader::Animation& animation, float animationTime) {
+void Cygnus::Skeleton::ApplyAnimation(const AnimationLoader::Animation& animation, float animationTime) {
 	for (Joint& joint : joints_) {
 		// 対象のJointのAnimationがあれば、他の適用を行う
 		if (auto it = animation.nodeAnimations.find(joint.name); it != animation.nodeAnimations.end()) {
@@ -54,7 +54,7 @@ void Skeleton::ApplyAnimation(const AnimationLoader::Animation& animation, float
 	}
 }
 
-void Skeleton::ApplyBlendedAnimation(const AnimationLoader::Animation& a, const AnimationLoader::Animation& b, float timeA, float timeB, float blendRate) {
+void Cygnus::Skeleton::ApplyBlendedAnimation(const AnimationLoader::Animation& a, const AnimationLoader::Animation& b, float timeA, float timeB, float blendRate) {
 	for (auto& joint : joints_) {
 		const std::string& name = joint.name;
 

@@ -16,6 +16,7 @@
 #include <Engine/BehaviourTree/BehaviorTree.h>
 #include <ImguiWrapper.h>
 
+namespace Cygnus {
 // =========================================================
 // ビヘイビアツリーエディタークラス
 // =========================================================
@@ -240,3 +241,4 @@ private:
 	ImNodesContext* context_ = nullptr;                          /* ImNodesコンテキスト */
 	std::string fileName_ = "";                                  /* 保存ファイル名 (拡張子含む) */
 };
+}

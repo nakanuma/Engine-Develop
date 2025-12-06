@@ -29,6 +29,7 @@
 /// <returns>結果</returns>
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+namespace Cygnus {
 // =========================================================
 // ImGuiのラッパークラス
 // =========================================================
@@ -130,3 +131,4 @@ private:
 	// =========================================================
 	static constexpr float kImageCenterScale = 0.5f;	/* 画像の中央揃えに使用するスケール値 */
 };
+}

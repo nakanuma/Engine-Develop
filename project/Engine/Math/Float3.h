@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -7,6 +7,7 @@
 #include <cmath>
 #include <vector>
 
+namespace Cygnus {
 // ---------------------------------------------------------
 // Foward Declaration
 // ---------------------------------------------------------
@@ -148,3 +149,4 @@ struct Float3 {
 	/// <returns>スケール（Float3）</returns>
 	static Float3 ExtractScale(const Matrix& m);
 };
+}

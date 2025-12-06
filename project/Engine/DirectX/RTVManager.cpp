@@ -3,13 +3,13 @@
 #include "DirectXUtil.h"
 #include "TextureManager.h"
 
-RTVManager& RTVManager::GetInstance() {
+Cygnus::RTVManager& Cygnus::RTVManager::GetInstance() {
 	static RTVManager instance;
 
 	return instance;
 }
 
-int32_t RTVManager::CreateRenderTargetTexture(uint32_t width, uint32_t height, const Float4& clearColor) {
+int32_t Cygnus::RTVManager::CreateRenderTargetTexture(uint32_t width, uint32_t height, const Float4& clearColor) {
 	// 空のテクスチャを作成
 	int32_t emptyTexture = TextureManager::CreateEmptyTexture(width, height, clearColor);
 	// TextureHandleとRTVHandleを対応させる
@@ -42,7 +42,7 @@ int32_t RTVManager::CreateRenderTargetTexture(uint32_t width, uint32_t height, c
 	return emptyTexture;
 }
 
-void RTVManager::SetRenderTarget(int32_t textureHandle) {
+void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 元のレンダーターゲットのリソースバリアを戻す
@@ -69,7 +69,7 @@ void RTVManager::SetRenderTarget(int32_t textureHandle) {
 	GetInstance().currentRenderTarget_ = textureHandle;
 }
 
-void RTVManager::SetRenderTarget(int32_t textureHandle, int32_t depthSourceHandle)
+void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle, int32_t depthSourceHandle)
 {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
@@ -97,7 +97,7 @@ void RTVManager::SetRenderTarget(int32_t textureHandle, int32_t depthSourceHandl
 	GetInstance().currentRenderTarget_ = textureHandle;
 }
 
-void RTVManager::SetRTtoBB() {
+void Cygnus::RTVManager::SetRTtoBB() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 元のレンダーターゲットのリソースバリアを戻す
@@ -126,7 +126,7 @@ void RTVManager::SetRTtoBB() {
 	GetInstance().currentRenderTarget_ = -1;
 }
 
-void RTVManager::ResetResourceBarrier() {
+void Cygnus::RTVManager::ResetResourceBarrier() {
 	int32_t rt = GetInstance().currentRenderTarget_;
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
@@ -152,7 +152,7 @@ void RTVManager::ResetResourceBarrier() {
 	}
 }
 
-void RTVManager::ClearRTV(int32_t textureHandle, const Float4& clearColor) {
+void Cygnus::RTVManager::ClearRTV(int32_t textureHandle, const Float4& clearColor) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// 指定した色で画面全体をクリアする
@@ -160,9 +160,9 @@ void RTVManager::ClearRTV(int32_t textureHandle, const Float4& clearColor) {
 	dxBase->GetCommandList()->ClearDepthStencilView(dxBase->GetDSVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 
-int32_t RTVManager::GetDepthSRVHandle(int32_t textureHandle) { return GetInstance().depthSRVHandleMap_[textureHandle]; }
+int32_t Cygnus::RTVManager::GetDepthSRVHandle(int32_t textureHandle) { return GetInstance().depthSRVHandleMap_[textureHandle]; }
 
-D3D12_CPU_DESCRIPTOR_HANDLE RTVManager::GetDSVHandle(uint32_t textureHandle)
+D3D12_CPU_DESCRIPTOR_HANDLE Cygnus::RTVManager::GetDSVHandle(uint32_t textureHandle)
 {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	
@@ -176,7 +176,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE RTVManager::GetDSVHandle(uint32_t textureHandle)
 	return {0};
 }
 
-ID3D12Resource* RTVManager::GetDepthResource(uint32_t textureHandle)
+ID3D12Resource* Cygnus::RTVManager::GetDepthResource(uint32_t textureHandle)
 {
 	auto it = GetInstance().dsvResourceMap_.find(textureHandle);
 

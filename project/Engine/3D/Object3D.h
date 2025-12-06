@@ -11,6 +11,7 @@
 #include <Model/Animation/SkinCluster.h>
 #include <LightManager.h>
 
+namespace Cygnus {
 // =========================================================
 // 3Dオブジェクトクラス
 // =========================================================
@@ -215,3 +216,4 @@ private:
 	static constexpr float kDefaultEmissiveRadius = 5.0f;				/* デフォルトの発光時影響範囲 */
 	static constexpr float kDefaultEmissiveDecay = 2.0f;				/* デフォルトの発光時減衰率 */
 };
+}

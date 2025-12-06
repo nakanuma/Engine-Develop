@@ -4,12 +4,12 @@
 #include <Camera.h>
 #include <ShaderManager.h>
 
-LineDrawer* LineDrawer::GetInstance() {
-	static LineDrawer instance;
+Cygnus::LineDrawer* Cygnus::LineDrawer::GetInstance() {
+	static Cygnus::LineDrawer instance;
 	return &instance;
 }
 
-void LineDrawer::Initialize() {
+void Cygnus::LineDrawer::Initialize() {
 	dxBase_ = DirectXBase::GetInstance();
 
 	CreateRootSignature();
@@ -39,12 +39,12 @@ void LineDrawer::Initialize() {
 	constanceBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&constMap_));
 }
 
-void LineDrawer::RegisterLine(const Float3& start, const Float3& end, const Float4& color) {
+void Cygnus::LineDrawer::RegisterLine(const Float3& start, const Float3& end, const Float4& color) {
 	lineVertices_.push_back({ start, color });
 	lineVertices_.push_back({ end, color });
 }
 
-void LineDrawer::RegisterSector(
+void Cygnus::LineDrawer::RegisterSector(
 	const Float3& center, float innerRadius, float outerRadius, float startAngleRad, float endAngleRad, uint32_t segments, const Float4& innerColor, const Float4& outerColor, float yOffset) {
 	if (segments < 1)
 		return;
@@ -78,7 +78,7 @@ void LineDrawer::RegisterSector(
 	}
 }
 
-void LineDrawer::RegisterTracer(const Float3& start, const Float3& end, float thickness, const Float4& headColor, const Float4& tailColor) {
+void Cygnus::LineDrawer::RegisterTracer(const Float3& start, const Float3& end, float thickness, const Float4& headColor, const Float4& tailColor) {
 	// 方向ベクトルと長さ
 	Float3 dir = end - start;
 	float len = Float3::Length(dir);
@@ -107,7 +107,7 @@ void LineDrawer::RegisterTracer(const Float3& start, const Float3& end, float th
 	triVertices_.push_back({ v3, headColor });
 }
 
-void LineDrawer::Draw() {
+void Cygnus::LineDrawer::Draw() {
 	auto device = dxBase_->GetDevice();
 	auto cmdList = dxBase_->GetCommandList();
 
@@ -248,7 +248,7 @@ void LineDrawer::Draw() {
 	tracerStrip_.clear();
 }
 
-void LineDrawer::CreateRootSignature() {
+void Cygnus::LineDrawer::CreateRootSignature() {
 	// ルートパラメーター配列を作成
 	D3D12_ROOT_PARAMETER rootParams[1] = {};
 	rootParams[kRootParameterIndexWVP].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;     // 定数バッファを渡す
@@ -269,7 +269,7 @@ void LineDrawer::CreateRootSignature() {
 	assert(SUCCEEDED(hr));
 }
 
-void LineDrawer::CreateGraphicsPipeline() {
+void Cygnus::LineDrawer::CreateGraphicsPipeline() {
 	HRESULT result = S_FALSE;
 
 	auto makeDesk = [&](D3D12_PRIMITIVE_TOPOLOGY_TYPE topo, const std::string& vsName, const std::string& psName, D3D12_INPUT_LAYOUT_DESC inputLayout) {
@@ -311,7 +311,7 @@ void LineDrawer::CreateGraphicsPipeline() {
 	dxBase_->GetDevice()->CreateGraphicsPipelineState(&tracerDesc, IID_PPV_ARGS(&pipelineStateTracer_));
 }
 
-void LineDrawer::SetInputLayout() {
+void Cygnus::LineDrawer::SetInputLayout() {
 	// InputLayout
 	inputElementDescs_[kInputElementIndexPositon].SemanticName = "POSITION";
 	inputElementDescs_[kInputElementIndexPositon].SemanticIndex = kSemanticIndex;
@@ -327,7 +327,7 @@ void LineDrawer::SetInputLayout() {
 	inputLayoutDesc_.NumElements = _countof(inputElementDescs_);
 }
 
-void LineDrawer::InitializeDXC() {
+void Cygnus::LineDrawer::InitializeDXC() {
 	HRESULT result = S_FALSE;
 
 	// dxcCompilerを初期化
@@ -340,7 +340,7 @@ void LineDrawer::InitializeDXC() {
 	assert(SUCCEEDED(result));
 }
 
-D3D12_RASTERIZER_DESC LineDrawer::SetRasterizerState() {
+D3D12_RASTERIZER_DESC Cygnus::LineDrawer::SetRasterizerState() {
 	// 裏面（時計回り）を表示しない
 	rasterizerDesc_.CullMode = D3D12_CULL_MODE_NONE;
 	// 塗りつぶす
@@ -349,7 +349,7 @@ D3D12_RASTERIZER_DESC LineDrawer::SetRasterizerState() {
 	return rasterizerDesc_;
 }
 
-void LineDrawer::CreateDepthBuffer() {
+void Cygnus::LineDrawer::CreateDepthBuffer() {
 	// DepthStencilTextureをウィンドウのサイズで作成
 	depthStencilResource_ = CreateDepthStencilTextureResource(dxBase_->GetDevice(), Window::GetWidth(), Window::GetHeight(), false);
 
@@ -371,7 +371,7 @@ void LineDrawer::CreateDepthBuffer() {
 	depthStencilDesc_.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 }
 
-D3D12_BLEND_DESC LineDrawer::SetBlendState() {
+D3D12_BLEND_DESC Cygnus::LineDrawer::SetBlendState() {
 	blendDesc_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDesc_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
 	blendDesc_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;

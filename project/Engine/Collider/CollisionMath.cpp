@@ -6,7 +6,7 @@
 // Engine
 #include <Collider/Collider.h>
 
-bool CollisionMath::CheckSphereToSphere(const SphereCollider* a, const SphereCollider* b) {
+bool Cygnus::CollisionMath::CheckSphereToSphere(const SphereCollider* a, const SphereCollider* b) {
 	// 2つの球の中心点間の距離を求める
 	Float3 diff = a->GetCenter() - b->GetCenter();
 	float distSq = Float3::Dot(diff, diff);
@@ -16,7 +16,7 @@ bool CollisionMath::CheckSphereToSphere(const SphereCollider* a, const SphereCol
 	return distSq <= (radiusSum * radiusSum);
 }
 
-bool CollisionMath::CheckSphereToAABB(const SphereCollider* sphere, const AABBCollider* aabb) {
+bool Cygnus::CollisionMath::CheckSphereToAABB(const SphereCollider* sphere, const AABBCollider* aabb) {
 	// 最近接点を求める
 	Float3 closestPoint{
 		std::clamp(sphere->GetCenter().x, aabb->GetMin().x, aabb->GetMax().x),
@@ -31,11 +31,11 @@ bool CollisionMath::CheckSphereToAABB(const SphereCollider* sphere, const AABBCo
 	return distSq <= (sphere->GetRadius() * sphere->GetRadius());
 }
 
-bool CollisionMath::CheckAABBToAABB(const AABBCollider* a, const AABBCollider* b) {
+bool Cygnus::CollisionMath::CheckAABBToAABB(const AABBCollider* a, const AABBCollider* b) {
 	return (a->GetMin().x <= b->GetMax().x && a->GetMax().x >= b->GetMin().x) && (a->GetMin().y <= b->GetMax().y && a->GetMax().y >= b->GetMin().y) && (a->GetMin().z <= b->GetMax().z && a->GetMax().z >= b->GetMin().z);
 }
 
-bool CollisionMath::CheckAABBToOBB(const AABBCollider* aabb, const OBBCollider* obb) {
+bool Cygnus::CollisionMath::CheckAABBToOBB(const AABBCollider* aabb, const OBBCollider* obb) {
 	// AABBの中心と半サイズ
 	Float3 aabbCenter = (aabb->GetMin() + aabb->GetMax()) * kAABBCenterScale;
 	Float3 aabbHalfSize = (aabb->GetMax() - aabb->GetMin()) * kAABBCenterScale;
@@ -54,7 +54,7 @@ bool CollisionMath::CheckAABBToOBB(const AABBCollider* aabb, const OBBCollider* 
 	return CheckOBBToOBB(&aabbAsOBB, obb);
 }
 
-bool CollisionMath::CheckOBBToOBB(const OBBCollider* a, const OBBCollider* b) {
+bool Cygnus::CollisionMath::CheckOBBToOBB(const OBBCollider* a, const OBBCollider* b) {
 	// 軸候補（分離軸）
 	Float3 axis[kSeparatingAxisCount] = {
 		// Aのローカル軸
@@ -89,7 +89,7 @@ bool CollisionMath::CheckOBBToOBB(const OBBCollider* a, const OBBCollider* b) {
 	return true;
 }
 
-bool CollisionMath::CheckOBBToSphere(const OBBCollider* obb, const SphereCollider* sphere) {
+bool Cygnus::CollisionMath::CheckOBBToSphere(const OBBCollider* obb, const SphereCollider* sphere) {
 	// 球の中心をOBB空間に射影
 	Float3 d = sphere->GetCenter() - obb->GetCenter();
 
@@ -106,7 +106,7 @@ bool CollisionMath::CheckOBBToSphere(const OBBCollider* obb, const SphereCollide
 	return distSq <= sphere->GetRadius() * sphere->GetRadius();
 }
 
-bool CollisionMath::IsSeparatedByAxis(const Float3& axis, const OBBCollider* obbA, const OBBCollider* obbB) {
+bool Cygnus::CollisionMath::IsSeparatedByAxis(const Float3& axis, const OBBCollider* obbA, const OBBCollider* obbB) {
 	// 軸がゼロベクトルでないことを確認
 	if (Float3::LengthSq(axis) < kAxisZeroEpsilon) {
 		return false; // 分離軸ではない

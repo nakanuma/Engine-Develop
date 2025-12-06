@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
@@ -14,6 +14,7 @@
 #include <ModelManager.h>
 #include <MyMath.h>
 
+namespace Cygnus {
 // =========================================================
 // スケルトンクラス（ジョイント階層と空間変換の管理）
 // =========================================================
@@ -81,3 +82,4 @@ public:
 	std::map<std::string, int32_t> jointMap_;		/* Joint名とIndexとの辞書 */
 	std::vector<Joint> joints_;						/* 所属しているジョイント */
 };
+}

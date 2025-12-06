@@ -14,6 +14,7 @@
 #include <ModelManager.h>
 #include <MyMath.h>
 
+namespace Cygnus {
 // =========================================================
 // スキンクラスター（スキニング関連データの生成・更新）
 // =========================================================
@@ -68,3 +69,4 @@ public:
 	std::span<WellForGPU> mappedPalette_;													/* マッピング後のジョイント変換行列配列 */
 	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> paletteSrvHandle_;	/* ジョイント変換行列SRVハンドル */
 };
+}

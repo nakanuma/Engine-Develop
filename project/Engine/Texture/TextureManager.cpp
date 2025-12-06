@@ -1,12 +1,12 @@
 #include "TextureManager.h"
 #include <cassert>
 
-void TextureManager::Initialize(ID3D12Device* device, SRVManager* srvManager) {
+void Cygnus::TextureManager::Initialize(ID3D12Device* device, SRVManager* srvManager) {
 	/*GetInstance().srvHeap_.Create(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);*/
 	GetInstance().srvManager_ = srvManager;
 }
 
-int TextureManager::Load(const std::string& filePath) {
+int Cygnus::TextureManager::Load(const std::string& filePath) {
 	// directoryPath
 	std::string directoryPath = kDirectoryPath;
 	// device
@@ -69,19 +69,19 @@ int TextureManager::Load(const std::string& filePath) {
 	return GetInstance().srvManager_->Allocate();
 }
 
-TextureManager& TextureManager::GetInstance() {
+Cygnus::TextureManager& Cygnus::TextureManager::GetInstance() {
 	static TextureManager instance;
 
 	return instance;
 }
 
-void TextureManager::SetDescriptorTable(UINT rootParamIndex, ID3D12GraphicsCommandList* commandList, uint32_t textureHandle) {
+void Cygnus::TextureManager::SetDescriptorTable(UINT rootParamIndex, ID3D12GraphicsCommandList* commandList, uint32_t textureHandle) {
 	commandList->SetGraphicsRootDescriptorTable(rootParamIndex, GetInstance().srvManager_->descriptorHeap_.GetGPUHandle(textureHandle));
 }
 
-const DirectX::TexMetadata& TextureManager::GetMetaData(uint32_t textureHandle) { return GetInstance().texMetadata_[textureHandle]; }
+const DirectX::TexMetadata& Cygnus::TextureManager::GetMetaData(uint32_t textureHandle) { return GetInstance().texMetadata_[textureHandle]; }
 
-int TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, Float4 clearColor) {
+int Cygnus::TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, Float4 clearColor) {
 	// テクスチャ読み込みの最大値に達した場合、ログを出力
 	if (SRVManager::GetInstance()->GetIndex() >= kMaxTextureValue) {
 		Log(std::format("Maximum texture loading has been reached.\n"));
@@ -114,9 +114,9 @@ int TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, Float4 c
 	return SRVManager::GetInstance()->Allocate();
 }
 
-ID3D12Resource* TextureManager::GetResource(int textureHandle) { return GetInstance().texResources_[textureHandle].Get(); }
+ID3D12Resource* Cygnus::TextureManager::GetResource(int textureHandle) { return GetInstance().texResources_[textureHandle].Get(); }
 
-uint32_t TextureManager::CreateSRV(ID3D12Resource* targetResource, DXGI_FORMAT format) {
+uint32_t Cygnus::TextureManager::CreateSRV(ID3D12Resource* targetResource, DXGI_FORMAT format) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// metaDataを基にSRVの設定
@@ -133,7 +133,7 @@ uint32_t TextureManager::CreateSRV(ID3D12Resource* targetResource, DXGI_FORMAT f
 	return SRVManager::GetInstance()->Allocate();
 }
 
-DirectX::ScratchImage TextureManager::LoadTexture(const std::string& filePath) {
+DirectX::ScratchImage Cygnus::TextureManager::LoadTexture(const std::string& filePath) {
 	HRESULT result = S_FALSE;
 
 	// テクスチャファイルを読み込んでプログラムで扱えるようにする
@@ -159,7 +159,7 @@ DirectX::ScratchImage TextureManager::LoadTexture(const std::string& filePath) {
 	return mipImages;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> TextureManager::CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata, bool isRenderTarget, Float4 clearColor) {
+Microsoft::WRL::ComPtr<ID3D12Resource> Cygnus::TextureManager::CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata, bool isRenderTarget, Float4 clearColor) {
 	HRESULT result = S_FALSE;
 
 	// metadataを基にResourceの設定
@@ -202,7 +202,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> TextureManager::CreateTextureResource(ID3
 	return std::move(resource);
 }
 
-void TextureManager::UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages) {
+void Cygnus::TextureManager::UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages) {
 	HRESULT result = S_FALSE;
 
 	// Meta情報を取得

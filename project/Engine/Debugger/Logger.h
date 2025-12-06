@@ -1,10 +1,11 @@
-﻿#pragma once
+#pragma once
 
 // ---------------------------------------------------------
 // C++ Includes
 // ---------------------------------------------------------
 #include <string>
 
+namespace Cygnus {
 /// <summary>
 /// stringの文字列を出力します。
 /// </summary>
@@ -16,3 +17,4 @@ void Log(const std::string& message);
 /// </summary>
 /// <param name="message">文字列（wstring）</param>
 void Log(const std::wstring& message);
+}
