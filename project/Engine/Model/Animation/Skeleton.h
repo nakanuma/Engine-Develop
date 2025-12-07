@@ -81,5 +81,17 @@ public:
 	int32_t root_;									/* RootJointのIndex */
 	std::map<std::string, int32_t> jointMap_;		/* Joint名とIndexとの辞書 */
 	std::vector<Joint> joints_;						/* 所属しているジョイント */
+
+private:
+	// =========================================================
+	// Internal Methods
+	// =========================================================
+
+	/// <summary>
+	/// アニメーションデータと時刻からQuaternionTransformを計算します。
+	/// </summary>
+	/// <param name="nodeAnimation">アニメーションデータ</param>
+	/// <param name="time">時刻</param>
+	Cygnus::QuaternionTransform GetPoseFromAnimation(const Cygnus::AnimationLoader::NodeAnimation& nodeAnimation, float time);
 };
 }

@@ -100,11 +100,6 @@ private:
 	void CreateRootSignature();
 
 	/// <summary>
-	/// グラフィックスパイプラインを作成します。
-	/// </summary>
-	void CreateGraphicsPipeline();
-
-	/// <summary>
 	/// 入力レイアウトを設定します。
 	/// </summary>
 	void SetInputLayout();
@@ -128,6 +123,23 @@ private:
 	/// ブレンドステートを設定します。
 	/// </summary>
 	D3D12_BLEND_DESC SetBlendState();
+
+	/// <summary>
+	/// 頂点バッファの更新・生成を行います。
+	/// </summary>
+	/// <typeparam name="T">任意の型</typeparam>
+	/// <param name="vertices">頂点バッファ</param>
+	/// <param name="resource">頂点バッファリソース</param>
+	/// <param name="vbv">頂点バッファビュー</param>
+	template <typename T>
+	void UpdateVertexBuffer(const std::vector<T>& vertices, Microsoft::WRL::ComPtr<ID3D12Resource>& resource, D3D12_VERTEX_BUFFER_VIEW& vbv);
+
+	/// <summary>
+	/// プリミティブトポロジを指定してPSOを生成します。
+	/// </summary>
+	/// <param name="topo">トポロジタイプ</param>
+	/// <param name="pso">生成先のPSO</param>
+	void CreatePipelineState(D3D12_PRIMITIVE_TOPOLOGY_TYPE topo, Microsoft::WRL::ComPtr<ID3D12PipelineState>& pso);
 
 private:
 	// =========================================================

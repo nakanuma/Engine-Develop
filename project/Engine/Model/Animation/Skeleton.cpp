@@ -47,9 +47,7 @@ void Cygnus::Skeleton::ApplyAnimation(const AnimationLoader::Animation& animatio
 		// 対象のJointのAnimationがあれば、他の適用を行う
 		if (auto it = animation.nodeAnimations.find(joint.name); it != animation.nodeAnimations.end()) {
 			const AnimationLoader::NodeAnimation& rootNodeAnimation = (*it).second;
-			joint.transform.translate_ = AnimationLoader::CalculateValue(rootNodeAnimation.translate, animationTime);
-			joint.transform.rotate_ = AnimationLoader::CalculateValue(rootNodeAnimation.rotate, animationTime);
-			joint.transform.scale_ = AnimationLoader::CalculateValue(rootNodeAnimation.scale, animationTime);
+			joint.transform = GetPoseFromAnimation(rootNodeAnimation, animationTime);
 		}
 	}
 }
@@ -65,16 +63,12 @@ void Cygnus::Skeleton::ApplyBlendedAnimation(const AnimationLoader::Animation& a
 		// アニメーションAのジョイント情報を取得
 		if (auto it = a.nodeAnimations.find(name); it != a.nodeAnimations.end()) {
 			// timeAにおけるトランスフォームを取得
-			poseA.translate_ = AnimationLoader::CalculateValue(it->second.translate, timeA);
-			poseA.rotate_ = AnimationLoader::CalculateValue(it->second.rotate, timeA);
-			poseA.scale_ = AnimationLoader::CalculateValue(it->second.scale, timeA);
+			poseA = GetPoseFromAnimation(it->second, timeA);
 		}
 		// アニメーションBでのジョイント情報を取得
 		if (auto it = b.nodeAnimations.find(name); it != b.nodeAnimations.end()) {
 			// timeBにおけるトランスフォームを取得
-			poseB.translate_ = AnimationLoader::CalculateValue(it->second.translate, timeB);
-			poseB.rotate_ = AnimationLoader::CalculateValue(it->second.rotate, timeB);
-			poseB.scale_ = AnimationLoader::CalculateValue(it->second.scale, timeB);
+			poseB = GetPoseFromAnimation(it->second, timeB);
 		}
 
 		// 2つのアニメーションを補間して適用
@@ -83,4 +77,15 @@ void Cygnus::Skeleton::ApplyBlendedAnimation(const AnimationLoader::Animation& a
 		joint.transform.rotate_ = Quaternion::Slerp(poseA.rotate_, poseB.rotate_, blendRate);
 		joint.transform.scale_ = Float3::Lerp(poseA.scale_, poseB.scale_, blendRate);
 	}
+}
+
+Cygnus::QuaternionTransform Cygnus::Skeleton::GetPoseFromAnimation(const Cygnus::AnimationLoader::NodeAnimation& nodeAnimation, float time)
+{
+	Cygnus::QuaternionTransform result;
+
+	result.translate_ = AnimationLoader::CalculateValue(nodeAnimation.translate, time);
+	result.rotate_ = AnimationLoader::CalculateValue(nodeAnimation.rotate, time);
+	result.scale_ = AnimationLoader::CalculateValue(nodeAnimation.scale, time);
+
+	return result;
 }

@@ -121,12 +121,6 @@ public:
 	void DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer, uint32_t numInstance, const uint32_t TextureHandle);
 
 	/// <summary>
-	/// 部分的に描画を行います。
-	/// </summary>
-	/// <param name="indexCount">描画するインデックス数</param>
-	void DrawPartial(uint32_t indexCount);
-
-	/// <summary>
 	/// シャドウマップ描画を行います。
 	/// </summary>
 	void DrawShadow();
@@ -177,6 +171,27 @@ public:
 	ModelManager::ModelData* model_ = nullptr;		/* モデルデータ */
 
 	Transform transform_;							/* 変換行列 */
+
+private:
+	// =========================================================
+	// Internal Methods
+	// =========================================================
+
+	/// <summary>
+	/// ワールド行列の計算を行います。
+	/// </summary>
+	/// <returns>ワールド行列</returns>
+	Cygnus::Matrix CalculateWorldMatrix();
+
+	/// <summary>
+	/// オブジェクト描画時の共通セットアップを行います。
+	/// </summary>
+	void DrawSetup();
+
+	/// <summary>
+	/// シャドウ描画時の共通セットアップを行います。
+	/// </summary>
+	void DrawShadowSetup();
 
 private:
 	Object3D* parent_ = nullptr;					/* 親オブジェクトへのポインタ */

@@ -62,12 +62,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE Cygnus::SRVManager::GetGPUDescriptorHandle(uint32_t 
 }
 
 bool Cygnus::SRVManager::CanAllocate() {
-	// 上限に達しているか確認
-	if (useIndex_ >= kMaxSRVCount) {
-		return false;
-	} else {
-		return true;
-	}
+	return useIndex_ < kMaxSRVCount;
 }
 
 uint32_t Cygnus::SRVManager::Allocate() {

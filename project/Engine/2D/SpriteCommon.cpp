@@ -19,12 +19,13 @@ void Cygnus::SpriteCommon::Initialize(DirectXBase* dxBase) {
 	// 深度バッファ生成
 	CreateDepthBuffer();
 	// 各種ブレンドステートの設定
-	SetBlendState();
-	SetBlendStateNone();
-	SetBlendStateAdd();
-	SetBlendStateSubtract();
-	SetBlendStateMultiply();
-	SetBlendStateScreen();
+	CreateBlendStateDesc(blendDesc_, TRUE, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_OP_ADD, D3D12_BLEND_INV_SRC_ALPHA);			// Normal
+	CreateBlendStateDesc(blendDescNone_, FALSE, D3D12_BLEND_ONE, D3D12_BLEND_OP_ADD, D3D12_BLEND_ZERO);						// None
+	CreateBlendStateDesc(blendDescAdd_, TRUE, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_OP_ADD, D3D12_BLEND_ONE);					// Add
+	CreateBlendStateDesc(blendDescSubtract_, TRUE, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_OP_REV_SUBTRACT, D3D12_BLEND_ONE);	// Subtract
+	CreateBlendStateDesc(blendDescMultiply_, TRUE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD, D3D12_BLEND_SRC_COLOR);			// Multiply
+	CreateBlendStateDesc(blendDescScreen_, TRUE, D3D12_BLEND_INV_DEST_COLOR, D3D12_BLEND_OP_ADD, D3D12_BLEND_ONE);			// Screen
+
 	// グラフィックスパイプラインの生成
 	CreateGraphicsPipeline();
 }
@@ -154,26 +155,11 @@ void Cygnus::SpriteCommon::CreateGraphicsPipeline() {
 	/// BlendMode変更用のPSOを生成
 	///
 
-	// 　無し
-	graphicsPipelineStateDesc.BlendState = blendDescNone_;
-	graphicsPipelineStateBlendModeNone_ = nullptr;
-	result = dxBase_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeNone_));
-	// 　加算
-	graphicsPipelineStateDesc.BlendState = blendDescAdd_;
-	graphicsPipelineStateBlendModeAdd_ = nullptr;
-	result = dxBase_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeAdd_));
-	// 　減算
-	graphicsPipelineStateDesc.BlendState = blendDescSubtract_;
-	graphicsPipelineStateBlendModeSubtract_ = nullptr;
-	result = dxBase_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeSubtract_));
-	// 　乗算
-	graphicsPipelineStateDesc.BlendState = blendDescMultiply_;
-	graphicsPipelineStateBlendModeMultiply_ = nullptr;
-	result = dxBase_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeMultiply_));
-	// 　スクリーン
-	graphicsPipelineStateDesc.BlendState = blendDescScreen_;
-	graphicsPipelineStateBlendModeScreen_ = nullptr;
-	result = dxBase_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateBlendModeScreen_));
+	CreatePipelineState(graphicsPipelineStateDesc, blendDescNone_, graphicsPipelineStateBlendModeNone_);			// None
+	CreatePipelineState(graphicsPipelineStateDesc, blendDescAdd_, graphicsPipelineStateBlendModeAdd_);				// Add
+	CreatePipelineState(graphicsPipelineStateDesc, blendDescSubtract_, graphicsPipelineStateBlendModeSubtract_);	// Subtract
+	CreatePipelineState(graphicsPipelineStateDesc, blendDescMultiply_, graphicsPipelineStateBlendModeMultiply_);	// Multiply
+	CreatePipelineState(graphicsPipelineStateDesc, blendDescScreen_, graphicsPipelineStateBlendModeScreen_);		// Screen
 }
 
 void Cygnus::SpriteCommon::SetInputLayout() {
@@ -241,73 +227,34 @@ void Cygnus::SpriteCommon::CreateDepthBuffer() {
 	depthStencilDesc_.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 }
 
-D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendState() {
-	blendDesc_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDesc_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
-	blendDesc_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
+void Cygnus::SpriteCommon::CreateBlendStateDesc(D3D12_BLEND_DESC& blendDesc, bool blendEnable, D3D12_BLEND srcBlend, D3D12_BLEND_OP blendOp, D3D12_BLEND destBlend)
+{
+	// 全てのブレンドステート共通ですべてのカラーチャンネル書き込みを有効化する
+	blendDesc.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-	return blendDesc_;
+	if(blendEnable){
+		blendDesc.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;		// ブレンド有効化
+		blendDesc.RenderTarget[kRenderTargetIndex].SrcBlend = srcBlend;		// SrcBlend設定
+		blendDesc.RenderTarget[kRenderTargetIndex].BlendOp = blendOp;		// BlendOp設定
+		blendDesc.RenderTarget[kRenderTargetIndex].DestBlend = destBlend;	// DestBlend設定
+
+		// アルファブレンド設定は共通
+		blendDesc.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
+		blendDesc.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
+	} else {
+		blendDesc.RenderTarget[kRenderTargetIndex].BlendEnable = FALSE;		// ブレンド無効化
+	}
 }
 
-D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateNone() {
-	blendDescNone_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+void Cygnus::SpriteCommon::CreatePipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc, const D3D12_BLEND_DESC& blendDesc, Microsoft::WRL::ComPtr<ID3D12PipelineState>& pso)
+{
+	HRESULT result = S_FALSE;
 
-	return blendDescNone_;
-}
+	// ブレンドステートのみ書き換える
+	psoDesc.BlendState = blendDesc;
 
-D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateAdd() {
-	blendDescAdd_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDescAdd_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
-	blendDescAdd_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDescAdd_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDescAdd_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_ONE;
-	blendDescAdd_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDescAdd_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDescAdd_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
-
-	return blendDescAdd_;
-}
-
-D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateSubtract() {
-	blendDescSubtract_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDescSubtract_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
-	blendDescSubtract_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDescSubtract_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_REV_SUBTRACT;
-	blendDescSubtract_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_ONE;
-	blendDescSubtract_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDescSubtract_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDescSubtract_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
-
-	return blendDescSubtract_;
-}
-
-D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateMultiply() {
-	blendDescMultiply_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDescMultiply_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
-	blendDescMultiply_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_ZERO;
-	blendDescMultiply_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDescMultiply_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_SRC_COLOR;
-	blendDescMultiply_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDescMultiply_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDescMultiply_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
-
-	return blendDescMultiply_;
-}
-
-D3D12_BLEND_DESC Cygnus::SpriteCommon::SetBlendStateScreen() {
-	blendDescScreen_.RenderTarget[kRenderTargetIndex].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDescScreen_.RenderTarget[kRenderTargetIndex].BlendEnable = TRUE;
-	blendDescScreen_.RenderTarget[kRenderTargetIndex].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;
-	blendDescScreen_.RenderTarget[kRenderTargetIndex].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDescScreen_.RenderTarget[kRenderTargetIndex].DestBlend = D3D12_BLEND_ONE;
-	blendDescScreen_.RenderTarget[kRenderTargetIndex].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDescScreen_.RenderTarget[kRenderTargetIndex].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDescScreen_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
-
-	return blendDescScreen_;
+	// PSOを生成
+	result = dxBase_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
+	assert(SUCCEEDED(result));
 }

@@ -205,13 +205,15 @@ void Cygnus::PostEffectManager::EndBloom() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
 
-	// 明度抽出
-	ApplyBloomExtract(bloomResultRT_, bloomExtractRT_);
-	// ブラー適用
-	ApplyBloomBlurHorizontal(bloomExtractRT_, bloomHorizontalRT_);
-	ApplyBloomBlur(bloomHorizontalRT_, bloomBlurRT_);
+	// ブルーム適用箇所のみ描画されたテクスチャを使用して明度抽出
+	ApplyEffect(dxBase->GetPipelineStateBloomExtract(), bloomResultRT_, bloomExtractRT_);
+	// 明度抽出されたテクスチャを使用して縦ブラーテクスチャを生成
+	ApplyEffect(dxBase->GetPipelineStateGaussianHorizontal(), bloomExtractRT_, bloomHorizontalRT_);
+	// 縦ブラーテクスチャに横ブラーを適用してブラー結果テクスチャを生成
+	ApplyEffect(dxBase->GetPipelineStateGaussianVertical(), bloomHorizontalRT_, bloomBlurRT_);
 	// バックバッファに戻す
 	RTVManager::SetRTtoBB();
+
 	isRenderingToOffscreen_ = false;
 	// 元のシーンを描画
 	DrawWithPSO(dxBase->GetPipelineState(), bloomResultRT_);
@@ -265,17 +267,6 @@ void Cygnus::PostEffectManager::RestoreDepthBufferState()
 	cmd->ResourceBarrier(1, &returnBarrier);
 }
 
-void Cygnus::PostEffectManager::DrawFullScreenQuad(uint32_t textureHandle) {
-	auto cmd = DirectXBase::GetInstance()->GetCommandList(); 
-
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, textureHandle);
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-}
-
 void Cygnus::PostEffectManager::DrawWithPSO(ID3D12PipelineState* pso, uint32_t textureHandle) {
 	auto cmd = DirectXBase::GetInstance()->GetCommandList(); 
 
@@ -288,51 +279,14 @@ void Cygnus::PostEffectManager::DrawWithPSO(ID3D12PipelineState* pso, uint32_t t
 	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 }
 
-void Cygnus::PostEffectManager::ApplyBloomExtract(uint32_t sourceTexture, uint32_t targetRT) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
-
-	RTVManager::SetRenderTarget(targetRT);
-	RTVManager::ClearRTV(targetRT, kTransparentClearColor);
-
-	cmd->SetPipelineState(dxBase->GetPipelineStateBloomExtract());
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, sourceTexture);
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-}
-
-void Cygnus::PostEffectManager::ApplyBloomBlur(uint32_t sourceTexture, uint32_t targetRT) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
-
-	RTVManager::SetRenderTarget(targetRT);
-	RTVManager::ClearRTV(targetRT, kTransparentClearColor);
-
-	cmd->SetPipelineState(dxBase->GetPipelineStateGaussianVertical());
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, sourceTexture);
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
-}
-
-void Cygnus::PostEffectManager::ApplyBloomBlurHorizontal(uint32_t sourceTexture, uint32_t targetRT)
+void Cygnus::PostEffectManager::ApplyEffect(ID3D12PipelineState* pso, uint32_t sourceTexture, uint32_t targetRT)
 {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
+	auto cmd = DirectXBase::GetInstance()->GetCommandList();
 
+	// レンダーターゲットの設定
 	RTVManager::SetRenderTarget(targetRT);
 	RTVManager::ClearRTV(targetRT, kTransparentClearColor);
 
-	cmd->SetPipelineState(dxBase->GetPipelineStateGaussianHorizontal());
-	cmd->IASetVertexBuffers(0, 1, &vbView_);
-	cmd->IASetIndexBuffer(&ibView_);
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
-	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, sourceTexture);
-	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
+	// 指定したPSOで描画
+	DrawWithPSO(pso, sourceTexture);
 }

@@ -4,6 +4,42 @@
 #include <Camera.h>
 #include <ShaderManager.h>
 
+template <typename T>
+void Cygnus::LineDrawer::UpdateVertexBuffer(const std::vector<T>& vertices, Microsoft::WRL::ComPtr<ID3D12Resource>& resource, D3D12_VERTEX_BUFFER_VIEW& vbv){
+	if(vertices.empty()) return;
+
+	auto device = dxBase_->GetDevice();
+
+	size_t vbSize = sizeof(T) * vertices.size();
+
+	// 頂点バッファのディスクリプタ設定
+	D3D12_HEAP_PROPERTIES heapProp = {};
+	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+	D3D12_RESOURCE_DESC resDesc = {};
+	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	resDesc.Width = vbSize;
+	resDesc.Height = 1;
+	resDesc.DepthOrArraySize = 1;
+	resDesc.MipLevels = 1;
+	resDesc.SampleDesc.Count = 1;
+	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	// リソース作成
+	HRESULT result = device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&resource));
+	assert(SUCCEEDED(result));
+
+	// データ転送
+	T* mapped = nullptr;
+	triVertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mapped));
+	std::memcpy(mapped, vertices.data(), vbSize);
+	resource->Unmap(0, nullptr);
+	
+	// VBV設定
+	vbv.BufferLocation = resource->GetGPUVirtualAddress();
+	vbv.SizeInBytes = static_cast<UINT>(vbSize);
+	vbv.StrideInBytes = sizeof(T);
+}
+
 Cygnus::LineDrawer* Cygnus::LineDrawer::GetInstance() {
 	static Cygnus::LineDrawer instance;
 	return &instance;
@@ -18,7 +54,10 @@ void Cygnus::LineDrawer::Initialize() {
 	SetRasterizerState();
 	CreateDepthBuffer();
 	SetBlendState();
-	CreateGraphicsPipeline();
+	// PSO生成
+	CreatePipelineState(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE, pipelineStateLine_);		// Line
+	CreatePipelineState(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, pipelineStateTri_);		// Triangle
+	CreatePipelineState(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, pipelineStateTracer_);	// Tracer
 
 	// 定数バッファ作成
 	D3D12_HEAP_PROPERTIES heapProp = {};
@@ -128,32 +167,10 @@ void Cygnus::LineDrawer::Draw() {
 	///
 
 	if (!triVertices_.empty()) {
-		size_t vbSize = sizeof(Vertex) * triVertices_.size();
+		// 頂点バッファの更新・生成
+		UpdateVertexBuffer(triVertices_, triVertexResource_, triVBV_);
 
-		// 頂点バッファ作成
-		D3D12_HEAP_PROPERTIES heapProp = {};
-		heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
-		D3D12_RESOURCE_DESC resDesc = {};
-		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		resDesc.Width = vbSize;
-		resDesc.Height = 1;
-		resDesc.DepthOrArraySize = 1;
-		resDesc.MipLevels = 1;
-		resDesc.SampleDesc.Count = 1;
-		resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-		device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&triVertexResource_));
-
-		Vertex* mapped = nullptr;
-		triVertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mapped));
-		std::memcpy(mapped, triVertices_.data(), vbSize);
-		triVertexResource_->Unmap(0, nullptr);
-
-		triVBV_.BufferLocation = triVertexResource_->GetGPUVirtualAddress();
-		triVBV_.SizeInBytes = static_cast<UINT>(vbSize);
-		triVBV_.StrideInBytes = sizeof(Vertex);
-
-		// PSO + トポロジ
+		// PSO + トポロジ設定
 		cmdList->SetPipelineState(pipelineStateTri_.Get());
 		cmdList->IASetVertexBuffers(0, 1, &triVBV_);
 		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -167,31 +184,8 @@ void Cygnus::LineDrawer::Draw() {
 	///
 
 	if (!lineVertices_.empty()) {
-		size_t vbSize = sizeof(Vertex) * lineVertices_.size();
-
-		// 頂点バッファ作成
-		D3D12_HEAP_PROPERTIES heapProp = {};
-		heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
-
-		D3D12_RESOURCE_DESC resDesc = {};
-		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		resDesc.Width = vbSize;
-		resDesc.Height = 1;
-		resDesc.DepthOrArraySize = 1;
-		resDesc.MipLevels = 1;
-		resDesc.SampleDesc.Count = 1;
-		resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-		device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&lineVertexResource_));
-
-		Vertex* vbData = nullptr;
-		lineVertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
-		std::memcpy(vbData, lineVertices_.data(), vbSize);
-		lineVertexResource_->Unmap(0, nullptr);
-
-		lineVBV_.BufferLocation = lineVertexResource_->GetGPUVirtualAddress();
-		lineVBV_.SizeInBytes = static_cast<UINT>(vbSize);
-		lineVBV_.StrideInBytes = sizeof(Vertex);
+		// 頂点バッファの更新・生成
+		UpdateVertexBuffer(lineVertices_, lineVertexResource_, lineVBV_);
 
 		// PSO + トポロジ
 		cmdList->SetPipelineState(pipelineStateLine_.Get());
@@ -207,31 +201,8 @@ void Cygnus::LineDrawer::Draw() {
 	///
 
 	if (!tracerStrip_.empty()) {
-		size_t vbSize = sizeof(TrailVertex) * tracerStrip_.size();
-
-		// 頂点バッファ作成
-		D3D12_HEAP_PROPERTIES heapProp = {};
-		heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
-
-		D3D12_RESOURCE_DESC resDesc = {};
-		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		resDesc.Width = vbSize;
-		resDesc.Height = 1;
-		resDesc.DepthOrArraySize = 1;
-		resDesc.MipLevels = 1;
-		resDesc.SampleDesc.Count = 1;
-		resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-		device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&tracerStripResource_));
-
-		TrailVertex* vbData = nullptr;
-		tracerStripResource_->Map(0, nullptr, reinterpret_cast<void**>(&vbData));
-		std::memcpy(vbData, tracerStrip_.data(), vbSize);
-		tracerStripResource_->Unmap(0, nullptr);
-
-		tracerStripVBV_.BufferLocation = tracerStripResource_->GetGPUVirtualAddress();
-		tracerStripVBV_.SizeInBytes = static_cast<UINT>(vbSize);
-		tracerStripVBV_.StrideInBytes = sizeof(TrailVertex);
+		// 頂点バッファの更新・生成
+		UpdateVertexBuffer(tracerStrip_, tracerStripResource_, tracerStripVBV_);
 
 		// PSO + トポロジ
 		cmdList->SetPipelineState(pipelineStateTracer_.Get());
@@ -267,48 +238,6 @@ void Cygnus::LineDrawer::CreateRootSignature() {
 
 	hr = dxBase_->GetDevice()->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
 	assert(SUCCEEDED(hr));
-}
-
-void Cygnus::LineDrawer::CreateGraphicsPipeline() {
-	HRESULT result = S_FALSE;
-
-	auto makeDesk = [&](D3D12_PRIMITIVE_TOPOLOGY_TYPE topo, const std::string& vsName, const std::string& psName, D3D12_INPUT_LAYOUT_DESC inputLayout) {
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC d{};
-		d.pRootSignature = rootSignature_.Get();
-		d.InputLayout = inputLayout;
-
-		ShaderManager* shaderManager = ShaderManager::GetInstance();
-		auto vs = shaderManager->GetShader(vsName);
-		auto ps = shaderManager->GetShader(psName);
-		d.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
-		d.PS = { ps->GetBufferPointer(), ps->GetBufferSize() };
-		d.BlendState = blendDesc_;
-		d.RasterizerState = rasterizerDesc_;
-		// 書き込むRTVの情報
-		d.NumRenderTargets = kRenderTargetCount;
-		d.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-		// 利用するトポロジのタイプ
-		d.PrimitiveTopologyType = topo;
-		// どのように画面に色を打ち込むかの設定
-		d.SampleDesc.Count = kSampleDescCount;
-		d.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-		// DepthStencil
-		d.DepthStencilState = depthStencilDesc_;
-		d.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		return d;
-		};
-
-	// 線分用
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC lineDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE, "LineDrawer_VS", "LineDrawer_PS", inputLayoutDesc_);
-	dxBase_->GetDevice()->CreateGraphicsPipelineState(&lineDesc, IID_PPV_ARGS(&pipelineStateLine_));
-
-	// 三角形用
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC triDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, "LineDrawer_VS", "LineDrawer_PS", inputLayoutDesc_);
-	dxBase_->GetDevice()->CreateGraphicsPipelineState(&triDesc, IID_PPV_ARGS(&pipelineStateTri_));
-
-	// トレーサー用
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC tracerDesc = makeDesk(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, "LineDrawer_VS", "LineDrawer_PS", inputLayoutDesc_);
-	dxBase_->GetDevice()->CreateGraphicsPipelineState(&tracerDesc, IID_PPV_ARGS(&pipelineStateTracer_));
 }
 
 void Cygnus::LineDrawer::SetInputLayout() {
@@ -382,4 +311,36 @@ D3D12_BLEND_DESC Cygnus::LineDrawer::SetBlendState() {
 	blendDesc_.RenderTarget[kRenderTargetIndex].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 	return blendDesc_;
+}
+
+void Cygnus::LineDrawer::CreatePipelineState(D3D12_PRIMITIVE_TOPOLOGY_TYPE topo, Microsoft::WRL::ComPtr<ID3D12PipelineState>& pso)
+{
+	HRESULT result = S_FALSE;
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+	psoDesc.pRootSignature = rootSignature_.Get();
+	psoDesc.InputLayout = inputLayoutDesc_;
+
+	ShaderManager* shaderManager = ShaderManager::GetInstance();
+	auto vs = shaderManager->GetShader("LineDrawer_VS");
+	auto ps = shaderManager->GetShader("LineDrawer_PS");
+	psoDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
+	psoDesc.PS = { ps->GetBufferPointer(), ps->GetBufferSize() };
+	psoDesc.BlendState = blendDesc_;
+	psoDesc.RasterizerState = rasterizerDesc_;
+	// 書き込むRTVの情報
+	psoDesc.NumRenderTargets = kRenderTargetCount;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	// 利用するトポロジのタイプ
+	psoDesc.PrimitiveTopologyType = topo;
+	// どのように画面に色を打ち込むかの設定
+	psoDesc.SampleDesc.Count = kSampleDescCount;
+	psoDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+	// DepthStencil
+	psoDesc.DepthStencilState = depthStencilDesc_;
+	psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+	// 実際に生成
+	result = dxBase_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
+	assert(SUCCEEDED(result));
 }

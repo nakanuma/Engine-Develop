@@ -85,32 +85,8 @@ Cygnus::ModelManager::ModelData Cygnus::ModelManager::CreateRingModel(ID3D12Devi
 	modelData.vertices = vertices;
 	modelData.indices = indices;
 
-	// 頂点バッファリソースを作成
-	modelData.vertexResource = CreateBufferResource(device, sizeof(ModelManager::VertexData) * vertices.size());
-
-	// 頂点バッファビューを設定
-	modelData.vertexBufferView;
-	modelData.vertexBufferView.BufferLocation = modelData.vertexResource->GetGPUVirtualAddress();
-	modelData.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * vertices.size());
-	modelData.vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-	// 頂点データをコピー
-	VertexData* vertexData = nullptr;
-	modelData.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
-
-	// インデックスバッファリソースを作成
-	modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * indices.size());
-
-	// インデックスバッファビューを設定
-	modelData.indexBufferView.BufferLocation = modelData.indexResource->GetGPUVirtualAddress();
-	modelData.indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * indices.size());
-	modelData.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-
-	// インデックスデータをコピー
-	uint32_t* indexData = nullptr;
-	modelData.indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	std::memcpy(indexData, indices.data(), sizeof(uint32_t) * indices.size());
+	// 頂点・インデックスのバッファ構築
+	ModelManager::GetInstance()->CreateBuffersForModel(modelData);
 
 	return modelData;
 }
@@ -178,32 +154,8 @@ Cygnus::ModelManager::ModelData Cygnus::ModelManager::CreateCylinderModel(ID3D12
 	modelData.vertices = vertices;
 	modelData.indices = indices;
 
-	// 頂点バッファリソースを作成
-	modelData.vertexResource = CreateBufferResource(device, sizeof(ModelManager::VertexData) * vertices.size());
-
-	// 頂点バッファビューを設定
-	modelData.vertexBufferView;
-	modelData.vertexBufferView.BufferLocation = modelData.vertexResource->GetGPUVirtualAddress();
-	modelData.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * vertices.size());
-	modelData.vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-	// 頂点データをコピー
-	VertexData* vertexData = nullptr;
-	modelData.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
-
-	// インデックスバッファリソースを作成
-	modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * indices.size());
-
-	// インデックスバッファビューを設定
-	modelData.indexBufferView.BufferLocation = modelData.indexResource->GetGPUVirtualAddress();
-	modelData.indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * indices.size());
-	modelData.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-
-	// インデックスデータをコピー
-	uint32_t* indexData = nullptr;
-	modelData.indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	std::memcpy(indexData, indices.data(), sizeof(uint32_t) * indices.size());
+	// 頂点・インデックスのバッファ構築
+	ModelManager::GetInstance()->CreateBuffersForModel(modelData);
 
 	return modelData;
 }
@@ -267,32 +219,8 @@ Cygnus::ModelManager::ModelData Cygnus::ModelManager::CreateSkyBoxModel(ID3D12De
 	modelData.vertices = vertices;
 	modelData.indices = indices;
 
-	// 頂点バッファリソースを作成
-	modelData.vertexResource = CreateBufferResource(device, sizeof(ModelManager::VertexData) * vertices.size());
-
-	// 頂点バッファビューを設定
-	modelData.vertexBufferView;
-	modelData.vertexBufferView.BufferLocation = modelData.vertexResource->GetGPUVirtualAddress();
-	modelData.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * vertices.size());
-	modelData.vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-	// 頂点データをコピー
-	VertexData* vertexData = nullptr;
-	modelData.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
-
-	// インデックスバッファリソースを作成
-	modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * indices.size());
-
-	// インデックスバッファビューを設定
-	modelData.indexBufferView.BufferLocation = modelData.indexResource->GetGPUVirtualAddress();
-	modelData.indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * indices.size());
-	modelData.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-
-	// インデックスデータをコピー
-	uint32_t* indexData = nullptr;
-	modelData.indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	std::memcpy(indexData, indices.data(), sizeof(uint32_t) * indices.size());
+	// 頂点・インデックスのバッファ構築
+	ModelManager::GetInstance()->CreateBuffersForModel(modelData);
 
 	return modelData;
 }
@@ -372,37 +300,8 @@ Cygnus::ModelManager::ModelData Cygnus::ModelManager::LoadModelFile(const std::s
 		}
 	}
 
-	// vertexResourceの作成
-	modelData.vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
-
-	// 頂点バッファビューを作成する
-	modelData.vertexBufferView;
-	// リソースの先頭のアドレスから使う
-	modelData.vertexBufferView.BufferLocation = modelData.vertexResource->GetGPUVirtualAddress();
-	// 使用するリソースのサイズは頂点のサイズ
-	modelData.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
-	// 1頂点あたりのサイズ
-	modelData.vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-	// 頂点リソースにデータを書き込む
-	VertexData* vertexData = nullptr;
-	// 書き込むためのアドレスを取得
-	modelData.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	// 頂点データをリソースにコピー
-	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
-
-	// indexResourceの作成
-	modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * modelData.indices.size());
-
-	// インデックスバッファビューを作成する
-	modelData.indexBufferView.BufferLocation = modelData.indexResource->GetGPUVirtualAddress();
-	modelData.indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * modelData.indices.size());
-	modelData.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-
-	// インデックスリソースにデータを書き込む
-	uint32_t* indexData = nullptr;
-	modelData.indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	std::memcpy(indexData, modelData.indices.data(), sizeof(uint32_t) * modelData.indices.size());
+	// 頂点・インデックスのバッファ構築
+	ModelManager::GetInstance()->CreateBuffersForModel(modelData);
 
 	// 4. ModelDataを返す
 	return modelData;
@@ -436,6 +335,38 @@ Cygnus::ModelManager::MaterialData Cygnus::ModelManager::LoadMaterialTemplateFil
 
 	// 4. MaterialDataを返す
 	return materialData;
+}
+
+void Cygnus::ModelManager::CreateBuffersForModel(ModelData& modelData)
+{
+	auto device = DirectXBase::GetInstance()->GetDevice();
+
+	// 頂点バッファリソースを作成
+	modelData.vertexResource = CreateBufferResource(device, sizeof(ModelManager::VertexData) * modelData.vertices.size());
+
+	// 頂点バッファビューを設定
+	modelData.vertexBufferView;
+	modelData.vertexBufferView.BufferLocation = modelData.vertexResource->GetGPUVirtualAddress();
+	modelData.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
+	modelData.vertexBufferView.StrideInBytes = sizeof(VertexData);
+
+	// 頂点データをコピー
+	VertexData* vertexData = nullptr;
+	modelData.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+
+	// インデックスバッファリソースを作成
+	modelData.indexResource = CreateBufferResource(device, sizeof(uint32_t) * modelData.indices.size());
+
+	// インデックスバッファビューを設定
+	modelData.indexBufferView.BufferLocation = modelData.indexResource->GetGPUVirtualAddress();
+	modelData.indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * modelData.indices.size());
+	modelData.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+
+	// インデックスデータをコピー
+	uint32_t* indexData = nullptr;
+	modelData.indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+	std::memcpy(indexData, modelData.indices.data(), sizeof(uint32_t) * modelData.indices.size());
 }
 
 Cygnus::ModelManager::Node Cygnus::ModelManager::ReadNode(aiNode* node) {

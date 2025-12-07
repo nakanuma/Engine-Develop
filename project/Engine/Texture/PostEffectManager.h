@@ -144,38 +144,19 @@ private:
 	// =========================================================
 
 	/// <summary>
-	/// 共通の描画処理を行います。
-	/// </summary>
-	/// <param name="textureHandle">レンダーテクスチャハンドル</param>
-	void DrawFullScreenQuad(uint32_t textureHandle);
-
-	/// <summary>
-	/// 指定したPSOでフルスクリーン描画を行います。
+	/// 指定したPSOで描画を行います。
 	/// </summary>
 	/// <param name="pso">パイプラインステート</param>
 	/// <param name="textureHandle">レンダーテクスチャハンドル</param>
 	void DrawWithPSO(ID3D12PipelineState* pso, uint32_t textureHandle);
 
 	/// <summary>
-	/// Bloom抽出を行います。
+	/// エフェクト適用を行います。
 	/// </summary>
-	/// <param name="sourceTexture"></param>
-	/// <param name="targetRT"></param>
-	void ApplyBloomExtract(uint32_t sourceTexture, uint32_t targetRT);
-
-	/// <summary>
-	/// ブラー適用を行います。
-	/// </summary>
-	/// <param name="sourceTexture"></param>
-	/// <param name="targetRT"></param>
-	void ApplyBloomBlur(uint32_t sourceTexture, uint32_t targetRT);
-
-	/// <summary>
-	/// ブラー適用を行います。
-	/// </summary>
-	/// <param name="sourceTexture"></param>
-	/// <param name="targetRT"></param>
-	void ApplyBloomBlurHorizontal(uint32_t sourceTexture, uint32_t targetRT);
+	/// <param name="pso">指定するPSO</param>
+	/// <param name="sourceTexture">使用するテクスチャ</param>
+	/// <param name="targetRT">描画先テクスチャ</param>
+	void ApplyEffect(ID3D12PipelineState* pso, uint32_t sourceTexture, uint32_t targetRT);
 
 	// =========================================================
 	// Constants
@@ -256,7 +237,7 @@ private:
 public:
 	// レンダーターゲット
 	uint32_t mainSceneRT_ = 0;			/* メインシーン描画用テクスチャ */
-	uint32_t bloomResultRT_ = 0;		/* ブルーム適用済みテクスチャ */
+	uint32_t bloomResultRT_ = 0;		/* ブルーム適用箇所テクスチャ */
 	uint32_t bloomExtractRT_ = 0;		/* ブルーム抽出結果テクスチャ */
 	uint32_t bloomHorizontalRT_ = 0;
 	uint32_t bloomBlurRT_ = 0;			/* ブルームブラー結果テクスチャ */

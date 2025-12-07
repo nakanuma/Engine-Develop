@@ -29,12 +29,7 @@ Cygnus::Object3D::Object3D() {
 }
 
 void Cygnus::Object3D::UpdateMatrix() {
-	Matrix worldMatrix = transform_.MakeAffineMatrix();
-	// 親が存在する場合、親の行列を考慮する
-	if (parent_) {
-		Matrix parentWorldMatrix = parent_->transform_.MakeAffineMatrix(); // 親のワールド行列
-		worldMatrix = worldMatrix * parentWorldMatrix;                     // 子の行列に親の行列を掛ける
-	}
+	Matrix worldMatrix = CalculateWorldMatrix();
 
 	Matrix viewMatrix = Camera::GetCurrent()->MakeViewMatrix();
 	Matrix projectionMatrix = Camera::GetCurrent()->MakePerspectiveFovMatrix();
@@ -50,13 +45,7 @@ void Cygnus::Object3D::UpdateMatrix() {
 }
 
 void Cygnus::Object3D::UpdateShadowMatrix() {
-	Matrix worldMatrix = transform_.MakeAffineMatrix();
-
-	// 親が存在する場合、親の行列を考慮する
-	if (parent_) {
-		Matrix parentWorldMatrix = parent_->transform_.MakeAffineMatrix(); // 親のワールド行列
-		worldMatrix = worldMatrix * parentWorldMatrix;                     // 子の行列に親の行列を掛ける
-	}
+	Matrix worldMatrix = CalculateWorldMatrix();
 
 	shadowWvpCB_.data_->World = worldMatrix;
 	shadowWvpCB_.data_->LightViewProj = LightCamera::GetInstance()->GetViewProj();
@@ -73,24 +62,20 @@ void Cygnus::Object3D::ScaleUV(float scaleU) {
 void Cygnus::Object3D::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
+	// 共通セットアップ
+	DrawSetup();
+
 	// commandListにVBVを設定
 	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
-	// commandListにIBVを設定
-	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
-	// プリミティブトポロジーの設定
-	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
-	// wvp用のCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
-	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
 	// 描画を行う（DrawCall/ドローコール）
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
 void Cygnus::Object3D::Draw(const SkinCluster& skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
+
+	// 共通セットアップ
+	DrawSetup();
 
 	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {
 	    model_->vertexBufferView,        // VertexDataのVBV
@@ -99,16 +84,6 @@ void Cygnus::Object3D::Draw(const SkinCluster& skinCluster) {
 
 	// 配列を渡す（開始Slot番号、使用Slot番号、VBV配列へのポインタ）
 	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kSkinMeshVBVCount, vbvs);
-	// commandListにIBVを設定
-	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
-	// プリミティブトポロジーの設定
-	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
-	// wvp用のCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
-	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
 	// PaletteのSRVを設定
 	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(kRootParameterIndexSkinPaletteSRV, skinCluster.paletteSrvHandle_.second);
 	// 描画を行う（DrawCall/ドローコール）
@@ -134,35 +109,14 @@ void Cygnus::Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structur
 	dxBase->GetCommandList()->DrawInstanced(UINT(model_->vertices.size()), numInstance, 0, 0);
 }
 
-void Cygnus::Object3D::DrawPartial(uint32_t indexCount) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-
-	// commandListにVBVを設定
-	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
-	// commandListにIBVを設定
-	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
-	// プリミティブトポロジーの設定
-	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
-	// wvp用のCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
-	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, dxBase->GetCommandList(), model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
-	// 描画を行う（DrawCall/ドローコール）
-	dxBase->GetCommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
-}
-
 void Cygnus::Object3D::DrawShadow() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
-	// 頂点バッファ・インデックスバッファの設定
-	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
-	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
-	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// 共通セットアップ
+	DrawShadowSetup();
 
-	// WVP（World * LightViewProj）のみを使う
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexShadowCBV, shadowWvpCB_.resource_->GetGPUVirtualAddress());
+	// 頂点バッファの設定
+	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
 
 	// DrawCall
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
@@ -171,14 +125,12 @@ void Cygnus::Object3D::DrawShadow() {
 void Cygnus::Object3D::DrawShadow(const SkinCluster& skinCluster) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
+	// 共通セットアップ
+	DrawShadowSetup();
+
+	// 頂点バッファの設定
 	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {model_->vertexBufferView, skinCluster.influenceBufferView_};
-
 	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kSkinMeshVBVCount, vbvs);
-	dxBase->GetCommandList()->IASetIndexBuffer(&model_->indexBufferView);
-	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// World行列とLightViewProj行列の定数バッファを設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexShadowCBV, shadowWvpCB_.resource_->GetGPUVirtualAddress());
 
 	// DrawCall
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
@@ -275,4 +227,43 @@ void Cygnus::Object3D::UpdateEmissiveAreaLight() {
 			emissiveRadius_, emissiveAreaLightType_
 		);
 	}
+}
+
+Cygnus::Matrix Cygnus::Object3D::CalculateWorldMatrix()
+{
+	Matrix worldMatrix = transform_.MakeAffineMatrix();
+	// 親が存在する場合、親の行列を考慮する
+	if (parent_) {
+		Matrix parentWorldMatrix = parent_->transform_.MakeAffineMatrix(); // 親のワールド行列
+		worldMatrix = worldMatrix * parentWorldMatrix;                     // 子の行列に親の行列を掛ける
+	}
+	return worldMatrix;
+}
+
+void Cygnus::Object3D::DrawSetup()
+{
+	auto cmd = DirectXBase::GetInstance()->GetCommandList();
+
+	// commandListにIBVを設定
+	cmd->IASetIndexBuffer(&model_->indexBufferView);
+	// プリミティブトポロジーの設定
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// マテリアルCBufferの場所を設定
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
+	// wvp用のCBufferの場所を設定
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
+	// SRVのDescriptorTableの先頭を設定（Textureの設定）
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
+}
+
+void Cygnus::Object3D::DrawShadowSetup()
+{
+	auto cmd = DirectXBase::GetInstance()->GetCommandList();
+
+	// インデックスバッファの設定
+	cmd->IASetIndexBuffer(&model_->indexBufferView);
+	// プリミティブトポロジーの設定
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// WVP（World * LightViewProj）のみを使う
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexShadowCBV, shadowWvpCB_.resource_->GetGPUVirtualAddress());
 }

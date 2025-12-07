@@ -78,34 +78,22 @@ private:
 	void CreateDepthBuffer();
 
 	/// <summary>
-	/// ブレンドステートを設定します。
+	/// ブレンドステートを生成します。
 	/// </summary>
-	D3D12_BLEND_DESC SetBlendState();
+	/// <param name="blendDesc">指定するBlendState構造体</param>
+	/// <param name="blendEnable">Blend有効化フラグ</param>
+	/// <param name="srcBlend">SrcBlend設定</param>
+	/// <param name="blendOp">BlendOp設定</param>
+	/// <param name="destBlend">DestBlend設定</param>
+	void CreateBlendStateDesc(D3D12_BLEND_DESC& blendDesc, bool blendEnable, D3D12_BLEND srcBlend, D3D12_BLEND_OP blendOp, D3D12_BLEND destBlend);
 
 	/// <summary>
-	/// ブレンドステート(BlendMode::None用)を設定します。
+	/// ブレンドステートを指定してPSOを生成します。
 	/// </summary>
-	D3D12_BLEND_DESC SetBlendStateNone();
-
-	/// <summary>
-	/// ブレンドステート(BlendMode::Add用)を設定します。
-	/// </summary>
-	D3D12_BLEND_DESC SetBlendStateAdd();
-
-	/// <summary>
-	/// ブレンドステート(BlendMode::Subtract用)を設定します。
-	/// </summary>
-	D3D12_BLEND_DESC SetBlendStateSubtract();
-
-	/// <summary>
-	/// ブレンドステート(BlendMode::Multiply用)を設定します。
-	/// </summary>
-	D3D12_BLEND_DESC SetBlendStateMultiply();
-
-	/// <summary>
-	/// ブレンドステート(BlendMode::Screen用)を設定します。
-	/// </summary>
-	D3D12_BLEND_DESC SetBlendStateScreen();
+	/// <param name="psoDesc">PSO構造体</param>
+	/// <param name="blendDesc">BlendState構造体</param>
+	/// <param name="pso">生成先のPSO</param>
+	void CreatePipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc, const D3D12_BLEND_DESC& blendDesc, Microsoft::WRL::ComPtr<ID3D12PipelineState>& pso);
 
 private:
 	// =========================================================

@@ -164,6 +164,16 @@ public:
 	/// <returns>マテリアルデータ</returns>
 	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, ID3D12Device* device);
 
+private:
+	// =========================================================
+	// Internal Methods
+	// =========================================================
+
+	/// <summary>
+	/// モデルデータを元に頂点・インデックスのリソースとビューを作成します。
+	/// </summary>
+	/// <param name="modelData"></param>
+	void CreateBuffersForModel(ModelData& modelData);
 
 private:
 	// =========================================================

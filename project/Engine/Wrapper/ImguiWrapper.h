@@ -107,13 +107,6 @@ public:
 	static void ImageWindow(const std::string& windowName, int32_t textureHandle);
 
 	/// <summary>
-	/// 深度ウィンドウを表示します。
-	/// </summary>
-	/// <param name="windowName">ウィンドウ名</param>
-	/// <param name="textureHandle">テクスチャハンドル</param>
-	static void DepthWindow(const std::string& windowName, int32_t textureHandle);
-
-	/// <summary>
 	/// ImGuiのスタイルをJSONファイルに保存します。
 	/// </summary>
 	/// <param name="filepath">ファイルパス</param>

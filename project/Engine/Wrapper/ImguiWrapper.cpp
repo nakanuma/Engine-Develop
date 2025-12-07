@@ -142,39 +142,6 @@ void Cygnus::ImGuiUtil::ImageWindow(const std::string& windowName, int32_t textu
 #endif
 }
 
-void Cygnus::ImGuiUtil::DepthWindow(const std::string& windowName, int32_t textureHandle) {
-#ifdef USE_IMGUI
-	ImGui::Begin(windowName.c_str());
-
-	// タブ等を除いたウィンドウのサイズを取得(計算)
-	ImVec2 cntRegionMax = ImGui::GetWindowContentRegionMax();
-	ImVec2 cntRegionMin = ImGui::GetWindowContentRegionMin();
-	ImVec2 wndSize = {cntRegionMax.x - cntRegionMin.x, cntRegionMax.y - cntRegionMin.y};
-
-	// 元のアス比とImGuiウィンドウのアス比を比較
-	float imageAspectRatio = static_cast<float>(Window::GetWidth()) / static_cast<float>(Window::GetHeight());
-	float innerWindowAspectRatio = wndSize.x / wndSize.y;
-	ImVec2 finalImageSize = wndSize;
-
-	// 横幅が大きかったら縦基準で画像サイズを決定
-	if (imageAspectRatio <= innerWindowAspectRatio) {
-		finalImageSize.x *= imageAspectRatio / innerWindowAspectRatio;
-	}
-	// 縦幅が大きかったら横基準で画像サイズを決定
-	else {
-		finalImageSize.y *= innerWindowAspectRatio / imageAspectRatio;
-	}
-
-	// 画像を中央に持ってくる
-	ImVec2 topLeft = {(wndSize.x - finalImageSize.x) * kImageCenterScale + cntRegionMin.x, (wndSize.y - finalImageSize.y) * kImageCenterScale + cntRegionMin.y};
-	ImGui::SetCursorPos(topLeft);
-
-	ImGui::Image((SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(textureHandle).ptr), finalImageSize);
-
-	ImGui::End();
-#endif
-}
-
 void Cygnus::ImGuiUtil::SaveImGuiStyleToJson(const std::string& filepath) {
 #ifdef USE_IMGUI
 	ImGuiStyle& style = ImGui::GetStyle();
