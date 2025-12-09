@@ -2,6 +2,7 @@
 
 // Engine
 #include <TextureManager.h>
+#include <PipelineStateManager.h>
 
 void Cygnus::AnimatedModelInstance::Initialize(const AnimatedModelData& data) {
 	object_ = std::make_unique<Object3D>();
@@ -50,7 +51,7 @@ void Cygnus::AnimatedModelInstance::Draw() {
 	// Skinning用PSOに変更
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateSkinning());
 	object_->Draw(data_.skinCluster);
-	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 }
 
 void Cygnus::AnimatedModelInstance::DrawShadow() {

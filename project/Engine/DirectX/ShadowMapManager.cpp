@@ -1,9 +1,11 @@
 #include "ShadowMapManager.h"
 
+// Engine
 #include <DirectXBase.h>
 #include <LightCamera.h>
 #include <SRVManager.h>
 #include <TextureManager.h>
+#include <PipelineStateManager.h>
 
 using Microsoft::WRL::ComPtr;
 
@@ -108,7 +110,7 @@ void Cygnus::ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle) {
 	LightCamera::GetInstance()->TransferConstantBuffer();
 
 	// バックバッファ用PSOに切り替え
-	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 	// バックバッファDSVに切り替え
 	UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxBase->GetRTVHandle(backBufferIndex);

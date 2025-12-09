@@ -20,23 +20,6 @@
 
 namespace Cygnus {
 /// <summary>
-/// シェーダーのコンパイルを行います。
-/// </summary>
-/// <param name="filePath">ファイルパス</param>
-/// <param name="profile">コンパイルに使用するプロファイル</param>
-/// <param name="dxcUtils">DXCユーティリティ</param>
-/// <param name="dxcCompiler">DXCコンパイラ</param>
-/// <param name="includeHandler">インクルードハンドラ</param>
-/// <returns></returns>
-IDxcBlob* CompileShader(
-    // CompileするShaderファイルへのパス
-    const std::wstring& filePath,
-    // Compileに使用するProfile
-    const wchar_t* profile,
-    // 初期化で生成したものを3つ
-    IDxcUtils* dxcUtils, IDxcCompiler3* dxcCompiler, IDxcIncludeHandler* includeHandler);
-
-/// <summary>
 /// バッファリソースを作成します。
 /// </summary>
 /// <param name="device">デバイス</param>

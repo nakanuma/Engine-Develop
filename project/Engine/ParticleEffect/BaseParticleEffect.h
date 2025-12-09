@@ -6,6 +6,7 @@
 #include <Engine/3D/Camera.h>
 #include <Engine/3D/InstancedObject.h>
 #include <Engine/ParticleEffect/IParticleEffect.h>
+#include <Engine/DirectX/PipelineStateManager.h>
 
 namespace Cygnus {
 /// <summary>
@@ -84,6 +85,8 @@ public:
 			});
 
 		auto* dx = DirectXBase::GetInstance();
+		auto* psoManager = PipelineStateManager::GetInstance();
+
 		// ブレンドモードに応じてPSOを変更
 		if (blendMode_ == BlendMode::None) {
 			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectNone());
@@ -104,7 +107,7 @@ public:
 		// オブジェクト描画
 		object_.InstancedDraw();
 
-		dx->GetCommandList()->SetPipelineState(dx->GetPipelineState());
+		dx->GetCommandList()->SetPipelineState(psoManager->GetPSO(PSOType::Default));
 	}
 
 	/// <summary>

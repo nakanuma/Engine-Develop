@@ -4,6 +4,9 @@
 #include "SRVManager.h"
 #include <cassert>
 
+// Engine
+#include <PipelineStateManager.h>
+
 void Cygnus::SpriteCommon::Initialize(DirectXBase* dxBase) {
 	// 引数で受け取ってメンバ変数に記録する
 	dxBase_ = dxBase;
@@ -47,7 +50,7 @@ void Cygnus::SpriteCommon::PostDraw() {
 	// ルートシグネチャをセット
 	dxBase->GetCommandList()->SetGraphicsRootSignature(dxBase->GetRootSignature());
 	// 通常PSOをセット
-	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 	// プリミティブトポロジーをセット
 	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// ディスクリプタヒープをセット

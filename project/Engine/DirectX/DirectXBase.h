@@ -73,64 +73,7 @@ public:
 	/// <summary>
 	/// DirectX基盤の初期化処理を行います。
 	/// </summary>
-	void Initialize()
-	{
-		// FPS固定初期化
-		FPSController::GetInstance()->InitializeFixFPS();
-
-		// DXGIデバイス初期化
-		InitializeDXGIDevice();
-
-		// コマンド関連初期化
-		InitializeCommand();
-
-		// スワップチェーンの生成
-		CreateSwapChain();
-
-		// レンダーターゲット生成
-		CreateFinalRenderTargets();
-
-		// 深度バッファ生成
-		CreateDepthBuffer();
-
-		// フェンス生成
-		CreateFence();
-
-		// RootSignature生成
-		CreateRootSignature();
-		// RootSignature生成(Particle用)
-		CreateRootSignatureParticle();
-		// RootSignature生成（InstancedObject用）
-		CreateRootSignatureInstancedObject();
-
-		// InputLayoutの設定
-		SetInputLayout();
-
-		// BlendStateの設定
-		SetBlendState();
-		SetBlendStateNone();
-		SetBlendStateAdd();
-		SetBlendStateSubtract();
-		SetBlendStateMultiply();
-		SetBlendStateScreen();
-		SetBlendStateAlpha();
-
-		// RasterizerStateの設定
-		SetRasterizerState();
-
-		// ShaderManagerの初期化（PSO作成前に必ず行う）
-		ShaderManager::GetInstance()->Initialize();
-
-		// PipelineStateObjectの生成
-		CreatePipelineStateObject();
-
-		// Viewportの設定
-		SetViewport();
-
-		// Scissorの設定
-		SetScissor();
-	}
-
+	void Initialize();
 	// DXGIデバイス初期化
 	void InitializeDXGIDevice(bool enableDebugLayer = true);
 	// コマンド関連初期化
@@ -191,7 +134,7 @@ public:
 	DXGI_SWAP_CHAIN_DESC1 GetSwapChainDesc();
 	DescriptorHeap* GetRTVHeap();
 	D3D12_RENDER_TARGET_VIEW_DESC GetRtvDesc();
-	ID3D12PipelineState* GetPipelineState();
+	/*ID3D12PipelineState* GetPipelineState();*/
 	ID3D12PipelineState* GetPipelineStateOutline();
 	ID3D12PipelineState* GetPipelineStateNoCulling();
 	DescriptorHeap* GetDSVHeap();
@@ -421,7 +364,7 @@ private:
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
+	/*Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;*/
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateOutline_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateNoCulling_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateParticle_;

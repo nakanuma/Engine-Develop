@@ -1,5 +1,8 @@
 #include "SkyBoxManager.h"
 
+// Engine
+#include <PipelineStateManager.h>
+
 Cygnus::SkyBoxManager* Cygnus::SkyBoxManager::GetInstance() {
 	static SkyBoxManager instance;
 	return &instance;
@@ -36,7 +39,7 @@ void Cygnus::SkyBoxManager::Draw() {
 	TextureManager::SetDescriptorTable(kRootParameterIndexCubeMap, dxBase->GetCommandList(), modelSkybox_.material.textureHandle);
 
 	objectSkybox_->Draw();
-	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 }
 
 uint32_t Cygnus::SkyBoxManager::GetEnvironmentTextureHandle() { return modelSkybox_.material.textureHandle; }

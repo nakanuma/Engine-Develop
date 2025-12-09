@@ -1,10 +1,14 @@
 #include "DirectXBase.h" 
+
+// C++
 #include <cassert>
-// MyClass
-#include "Logger.h"
-#include "StringUtil.h"
-#include "DirectXUtil.h"
-#include "RTVManager.h" 
+
+// Engine
+#include <Logger.h>
+#include <StringUtil.h>
+#include <DirectXUtil.h>
+#include <RTVManager.h> 
+#include <PipelineStateManager.h>
 
 Cygnus::DirectXBase::~DirectXBase()
 {
@@ -17,6 +21,80 @@ Cygnus::DirectXBase* Cygnus::DirectXBase::GetInstance()
 {
 	static DirectXBase instance;
 	return &instance;
+}
+
+void Cygnus::DirectXBase::Initialize() {
+	// FPS固定初期化
+	FPSController::GetInstance()->InitializeFixFPS();
+
+	// DXGIデバイス初期化
+	InitializeDXGIDevice();
+
+	// コマンド関連初期化
+	InitializeCommand();
+
+	// スワップチェーンの生成
+	CreateSwapChain();
+
+	// レンダーターゲット生成
+	CreateFinalRenderTargets();
+
+	// 深度バッファ生成
+	CreateDepthBuffer();
+
+	// フェンス生成
+	CreateFence();
+
+	// RootSignature生成
+	CreateRootSignature();
+	// RootSignature生成(Particle用)
+	CreateRootSignatureParticle();
+	// RootSignature生成（InstancedObject用）
+	CreateRootSignatureInstancedObject();
+
+	// InputLayoutの設定
+	SetInputLayout();
+
+	// BlendStateの設定
+	SetBlendState();
+	SetBlendStateNone();
+	SetBlendStateAdd();
+	SetBlendStateSubtract();
+	SetBlendStateMultiply();
+	SetBlendStateScreen();
+	SetBlendStateAlpha();
+
+	// RasterizerStateの設定
+	SetRasterizerState();
+
+	// ShaderManagerの初期化（PSO作成前に必ず行う）
+	ShaderManager::GetInstance()->Initialize();
+	// PipelineStateManagerの初期化
+	PipelineStateManager::GetInstance()->Initialize(
+		device_.Get(),
+		rootSignature_.Get(),
+		rootSignatureParticle_.Get(),
+		rootSignatureInstancedObject_.Get(),
+		inputLayoutDesc_,
+		blendDesc_,
+		blendDescNone_,
+		blendDescAdd_,
+		blendDescSubtract_,
+		blendDescMultiply_,
+		blendDescScreen_,
+		blendDescAlpha_,
+		rasterizerDesc_,
+		depthStencilDesc_
+	);
+
+	// PipelineStateObjectの生成
+	CreatePipelineStateObject();
+
+	// Viewportの設定
+	SetViewport();
+
+	// Scissorの設定
+	SetScissor();
 }
 
 void Cygnus::DirectXBase::InitializeDXGIDevice([[maybe_unused]]bool enableDebugLayer)
@@ -772,9 +850,9 @@ void Cygnus::DirectXBase::CreatePipelineStateObject()
 	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc_;
 	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	// 実際に生成
-	graphicsPipelineState_ = nullptr;
+	/*graphicsPipelineState_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState_));
-	assert(SUCCEEDED(result));
+	assert(SUCCEEDED(result));*/
 
 	// デフォルトのPSOを保存
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDefault = graphicsPipelineStateDesc;
@@ -1332,7 +1410,7 @@ void Cygnus::DirectXBase::PreDraw()
 	commandList_->RSSetScissorRects(1, &scissorRect_); // Scirssorを設定
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
-	commandList_->SetPipelineState((graphicsPipelineState_.Get())); // PSOを設定
+	commandList_->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default)); // PSOを設定
 	// 形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておければ良い
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -1382,10 +1460,10 @@ D3D12_RENDER_TARGET_VIEW_DESC Cygnus::DirectXBase::GetRtvDesc()
 	return rtvDesc_;
 }
 
-ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineState()
-{
-	return graphicsPipelineState_.Get();
-}
+//ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineState()
+//{
+//	return graphicsPipelineState_.Get();
+//}
 
 ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineStateOutline()
 {

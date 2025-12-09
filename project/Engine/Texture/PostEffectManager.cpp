@@ -4,6 +4,7 @@
 #include <ParticleEffect/ParticleEffectManager.h>
 #include <RTVManager.h>
 #include <Sprite.h>
+#include <PipelineStateManager.h>
 
 void Cygnus::PostEffectManager::Initialize() {
 	// 初期化済みならスキップ
@@ -180,7 +181,7 @@ void Cygnus::PostEffectManager::EndMainScene() {
 		pso = dxBase->GetPipelineStateDamageVignette();
 		break;
 	default:
-		pso = dxBase->GetPipelineState();
+		pso = PipelineStateManager::GetInstance()->GetPSO(PSOType::Default);
 		break;
 	}
 
@@ -188,7 +189,7 @@ void Cygnus::PostEffectManager::EndMainScene() {
 	DrawWithPSO(pso, mainSceneRT_);
 
 	// 通常PSOに戻す
-	cmd->SetPipelineState(dxBase->GetPipelineState());
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 }
 
 void Cygnus::PostEffectManager::BeginBloom() {
@@ -216,11 +217,11 @@ void Cygnus::PostEffectManager::EndBloom() {
 
 	isRenderingToOffscreen_ = false;
 	// 元のシーンを描画
-	DrawWithPSO(dxBase->GetPipelineState(), bloomResultRT_);
+	DrawWithPSO(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default), bloomResultRT_);
 	// ブラー結果を加算合成
 	DrawWithPSO(dxBase->GetPipelineStateBlendModeAdd(), bloomBlurRT_);
 	// 通常PSOに戻す
-	cmd->SetPipelineState(dxBase->GetPipelineState());
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 }
 
 void Cygnus::PostEffectManager::RestoreBackBuffer(bool resetPSO) {
@@ -245,7 +246,7 @@ void Cygnus::PostEffectManager::RestoreBackBuffer(bool resetPSO) {
 	cmd->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
 	if (resetPSO) {
-		cmd->SetPipelineState(dxBase->GetPipelineState());
+		cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 	}
 
 	isRenderingToOffscreen_ = false;
