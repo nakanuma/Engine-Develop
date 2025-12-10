@@ -1,10 +1,7 @@
 #include "PostEffectManager.h"
 
 // Engine
-#include <ParticleEffect/ParticleEffectManager.h>
 #include <RTVManager.h>
-#include <Sprite.h>
-#include <PipelineStateManager.h>
 
 void Cygnus::PostEffectManager::Initialize() {
 	// 初期化済みならスキップ
@@ -110,9 +107,6 @@ void Cygnus::PostEffectManager::TransfarConstantBuffer() {
 }
 
 void Cygnus::PostEffectManager::BeginMainScene() {
-	// エフェクトなしの場合はバックバッファに直接描画
-	if (effectType_ == PostEffectType::None) return;
-
 	// オフスクリーンレンダーターゲットに切り替え
 	RTVManager::SetRenderTarget(mainSceneRT_);
 	RTVManager::ClearRTV(mainSceneRT_);
@@ -120,10 +114,9 @@ void Cygnus::PostEffectManager::BeginMainScene() {
 }
 
 void Cygnus::PostEffectManager::EndMainScene() {
-	if (effectType_ == PostEffectType::None) return;
-
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
+	auto psoManager = PipelineStateManager::GetInstance();
 
 	// バックバッファに切り替え
 	RTVManager::SetRTtoBB();
@@ -132,56 +125,60 @@ void Cygnus::PostEffectManager::EndMainScene() {
 	// エフェクトPSOを選択
 	ID3D12PipelineState* pso = nullptr;
 	switch (effectType_) {
-	case PostEffectType::RadialBlur:
-		pso = dxBase->GetPipelineStateRadialBlur();
+	case PSOType::Default:
+		pso = psoManager->GetPSO(PSOType::Default);
 		break;
-	case PostEffectType::GrayScale:
-		pso = dxBase->GetPipelineStateGrayscale();
+
+	case PSOType::Grayscale:
+		pso = psoManager->GetPSO(PSOType::Grayscale);
 		break;
-	case PostEffectType::Vignette:
-		pso = dxBase->GetPipelineStateVignette();
+	case PSOType::Vignette:
+		pso = psoManager->GetPSO(PSOType::Vignette);
 		break;
-	case PostEffectType::BoxFilter:
-		pso = dxBase->GetPipelineStateBoxFilter();
+	case PSOType::BoxFilter:
+		pso = psoManager->GetPSO(PSOType::BoxFilter);
 		break;
-	case PostEffectType::GaussianFilter:
-		pso = dxBase->GetPipelineStateGaussianFilter();
+	case PSOType::GaussianFilter:
+		pso = psoManager->GetPSO(PSOType::GaussianFilter);
 		break;
-	case PostEffectType::InvertColor:
-		pso = dxBase->GetPipelineStateInvertColor();
+	case PSOType::RadialBlur:
+		pso = psoManager->GetPSO(PSOType::RadialBlur);
 		break;
-	case PostEffectType::Sepia:
-		pso = dxBase->GetPipelineStateSepia();
+	case PSOType::InvertColor:
+		pso = psoManager->GetPSO(PSOType::InvertColor);
 		break;
-	case PostEffectType::Posterize:
-		pso = dxBase->GetPipelineStatePosterize();
+	case PSOType::Sepia:
+		pso = psoManager->GetPSO(PSOType::Sepia);
 		break;
-	case PostEffectType::Emboss:
-		pso = dxBase->GetPipelineStateEmboss();
+	case PSOType::Posterize:
+		pso = psoManager->GetPSO(PSOType::Posterize);
 		break;
-	case PostEffectType::Sharpen:
-		pso = dxBase->GetPipelineStateSharpen();
+	case PSOType::Emboss:
+		pso = psoManager->GetPSO(PSOType::Emboss);
 		break;
-	case PostEffectType::ColorAberration:
-		pso = dxBase->GetPipelineStateColorAberration();
+	case PSOType::Sharpen:
+		pso = psoManager->GetPSO(PSOType::Sharpen);
 		break;
-	case PostEffectType::BarrelDistortion:
-		pso = dxBase->GetPipelineStateBarrelDistortion();
+	case PSOType::ColorAberration:
+		pso = psoManager->GetPSO(PSOType::ColorAberration);
 		break;
-	case PostEffectType::WaveDistortion:
-		pso = dxBase->GetPipelineStateWaveDistortion();
+	case PSOType::BarrelDistortion:
+		pso = psoManager->GetPSO(PSOType::BarrelDistortion);
 		break;
-	case PostEffectType::Pixelation:
-		pso = dxBase->GetPipelineStatePixelation();
+	case PSOType::WaveDistortion:
+		pso = psoManager->GetPSO(PSOType::WaveDistortion);
 		break;
-	case PostEffectType::GlitchEffect:
-		pso = dxBase->GetPipelineStateGlitchEffect();
+	case PSOType::Pixelation:
+		pso = psoManager->GetPSO(PSOType::Pixelation);
 		break;
-	case PostEffectType::DamageVignette:
-		pso = dxBase->GetPipelineStateDamageVignette();
+	case PSOType::GlitchEffect:
+		pso = psoManager->GetPSO(PSOType::GlitchEffect);
+		break;
+	case PSOType::DamageVignette:
+		pso = psoManager->GetPSO(PSOType::DamageVignette);
 		break;
 	default:
-		pso = PipelineStateManager::GetInstance()->GetPSO(PSOType::Default);
+		pso = psoManager->GetPSO(PSOType::Default);
 		break;
 	}
 
@@ -205,13 +202,14 @@ void Cygnus::PostEffectManager::BeginBloom() {
 void Cygnus::PostEffectManager::EndBloom() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = dxBase->GetCommandList();
+	auto psoManager = PipelineStateManager::GetInstance();
 
 	// ブルーム適用箇所のみ描画されたテクスチャを使用して明度抽出
-	ApplyEffect(dxBase->GetPipelineStateBloomExtract(), bloomResultRT_, bloomExtractRT_);
-	// 明度抽出されたテクスチャを使用して縦ブラーテクスチャを生成
-	ApplyEffect(dxBase->GetPipelineStateGaussianHorizontal(), bloomExtractRT_, bloomHorizontalRT_);
-	// 縦ブラーテクスチャに横ブラーを適用してブラー結果テクスチャを生成
-	ApplyEffect(dxBase->GetPipelineStateGaussianVertical(), bloomHorizontalRT_, bloomBlurRT_);
+	ApplyEffect(psoManager->GetPSO(PSOType::BloomExtract), bloomResultRT_, bloomExtractRT_);
+	// 明度抽出されたテクスチャを使用して水平ブラーテクスチャを生成
+	ApplyEffect(psoManager->GetPSO(PSOType::GaussianHorizontal), bloomExtractRT_, bloomHorizontalRT_);
+	// 縦ブラーテクスチャに垂直ブラーを適用してブラー結果テクスチャを生成
+	ApplyEffect(psoManager->GetPSO(PSOType::GaussianVertical), bloomHorizontalRT_, bloomBlurRT_);
 	// バックバッファに戻す
 	RTVManager::SetRTtoBB();
 

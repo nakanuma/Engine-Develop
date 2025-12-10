@@ -134,7 +134,7 @@ public:
 	DXGI_SWAP_CHAIN_DESC1 GetSwapChainDesc();
 	DescriptorHeap* GetRTVHeap();
 	D3D12_RENDER_TARGET_VIEW_DESC GetRtvDesc();
-	/*ID3D12PipelineState* GetPipelineState();*/
+	
 	ID3D12PipelineState* GetPipelineStateOutline();
 	ID3D12PipelineState* GetPipelineStateNoCulling();
 	DescriptorHeap* GetDSVHeap();
@@ -163,27 +163,6 @@ public:
 	// Zバッファ無効用PSOを取得
 	ID3D12PipelineState* GetPipelineStateDisableZBuffer() { return graphicsPipelineStateDisableZBuffer_.Get(); }
 
-	// ポストエフェクト用PSOを取得
-	ID3D12PipelineState* GetPipelineStateSobelFilter() { return graphicsPipelineStateSobelFilter_.Get(); } // Outline（SobelFilter）
-	ID3D12PipelineState* GetPipelineStateGrayscale() { return graphicsPipelineStateGrayscale_.Get(); } // Grayscale
-	ID3D12PipelineState* GetPipelineStateVignette() { return graphicsPipelineStateVignette_.Get(); } // Vignette
-	ID3D12PipelineState* GetPipelineStateBoxFilter() { return graphicsPipelineStateBoxFilter_.Get(); } // Smooting（BoxFilter）
-	ID3D12PipelineState* GetPipelineStateGaussianFilter() { return graphicsPipelineStateGaussianFilter_.Get(); } // Smooting（GaussianFilter）
-	ID3D12PipelineState* GetPipelineStateRadialBlur() { return graphicsPipelineStateRadialBlur_.Get(); }
-	ID3D12PipelineState* GetPipelineStateBloomExtract() { return graphicsPipelineStateBloomExtract_.Get(); }
-	ID3D12PipelineState* GetPipelineStateInvertColor() { return graphicsPipelineStateInvertColor_.Get(); }
-	ID3D12PipelineState* GetPipelineStateSepia() { return graphicsPipelineStateSepia_.Get(); }
-	ID3D12PipelineState* GetPipelineStatePosterize() { return graphicsPipelineStatePosterize_.Get(); }
-	ID3D12PipelineState* GetPipelineStateEmboss() { return graphicsPipelineStateEmboss_.Get(); }
-	ID3D12PipelineState* GetPipelineStateSharpen() { return graphicsPipelineStateSharpen_.Get(); }
-	ID3D12PipelineState* GetPipelineStateColorAberration() { return graphicsPipelineStateColorAberration_.Get(); }
-	ID3D12PipelineState* GetPipelineStateBarrelDistortion() { return graphicsPipelineStateBarrelDistortion_.Get(); }
-	ID3D12PipelineState* GetPipelineStateWaveDistortion() { return graphicsPipelineStateWaveDistortion_.Get(); }
-	ID3D12PipelineState* GetPipelineStatePixelation() { return graphicsPipelineStatePixelation_.Get(); }
-	ID3D12PipelineState* GetPipelineStateGlitchEffect() { return graphicsPipelineStateGlitchEffect_.Get(); }
-	ID3D12PipelineState* GetPipelineStateGaussianHorizontal() { return psoGaussianHorizontal_.Get(); }
-	ID3D12PipelineState* GetPipelineStateGaussianVertical() { return psoGaussianVertical_.Get(); }
-	ID3D12PipelineState* GetPipelineStateDamageVignette() { return graphicsPipelineStateDamageVignette_.Get(); }
 
 	// Skybox用PSOを取得
 	ID3D12PipelineState* GetPipelineStateSkybox() { return graphicsPipelineStateSkybox_.Get(); }
@@ -323,27 +302,7 @@ private:
 	// Zバッファ無効パイプライン
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateDisableZBuffer_;
 
-	// ポストエフェクト用PSO
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSobelFilter_; // Outline（SobelFilter）
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateGrayscale_; // Grayscale
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateVignette_;   // Vignette
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBoxFilter_;  // Smooting（BoxFilter）
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateGaussianFilter_;  // Smooting（GaussianFilter）
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateRadialBlur_; // RadialBlur
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBloomExtract_; // BloomExtract
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInvertColor_; // InvertColor
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSepia_;  // Sepia
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStatePosterize_; // Posterize
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateEmboss_; // Emboss
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSharpen_; // Sharpen
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateColorAberration_; // Aberration
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBarrelDistortion_; // BarrelDistortion
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateWaveDistortion_; // WaveDistortion
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStatePixelation_; // Pixelation
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateGlitchEffect_; // GlitchEffect
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> psoGaussianHorizontal_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> psoGaussianVertical_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateDamageVignette_; // DamageVignette
+
 
 	// Skybox用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkybox_;
@@ -364,7 +323,6 @@ private:
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 
-	/*Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;*/
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateOutline_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateNoCulling_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateParticle_;

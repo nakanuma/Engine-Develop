@@ -6,6 +6,7 @@
 #include <DirectXBase.h>
 #include <Object3D.h>
 #include <Sprite.h>
+#include <PipelineStateManager.h>
 
 namespace Cygnus {
 /// <summary>
@@ -36,30 +37,6 @@ struct DamageVignetteCBData{
 	float radius;		/* 赤くなる範囲の半径 */
 	float softness;		/* エッジのぼかし具合 */
 	float padding;		/* パディング */
-};
-
-/// <summary>
-/// ポストエフェクトの種類を列挙する列挙型
-/// </summary>
-enum class PostEffectType {
-	None,				/* エフェクトなし */
-	RadialBlur,			/* 放射状ブラー */
-	GrayScale,			/* グレースケール */
-	Vignette,			/* ビネット */
-	Bloom,				/* ブルーム */
-	BoxFilter,			/* ボックスフィルター */
-	GaussianFilter,		/* ガウシアンフィルター */
-	InvertColor,		/* 色反転 */
-	Sepia,				/* セピア調 */
-	Posterize,			/* ポスタリゼーション */
-	Emboss,				/* エンボス */
-	Sharpen,			/* シャープ */
-	ColorAberration,	/* 色収差 */
-	BarrelDistortion,	/* バレルディストーション */
-	WaveDistortion,		/* 波形ディストーション */
-	Pixelation,			/* ピクセル化 */
-	GlitchEffect,		/* グリッチエフェクト */
-	DamageVignette,		/* ダメージビネット */
 };
 
 // =========================================================
@@ -115,13 +92,13 @@ public:
 	/// エフェクトタイプの設定を行います。
 	/// </summary>
 	/// <param name="type">エフェクトタイプ</param>
-	void SetEffectType(PostEffectType type) { effectType_ = type; }
+	void SetEffectType(PSOType type) { effectType_ = type; }
 
 	/// <summary>
 	/// 現在のエフェクトタイプを取得します。
 	/// </summary>
 	/// <returns></returns>
-	PostEffectType GetEffectType() const { return effectType_; }
+	PSOType GetEffectType() const { return effectType_; }
 
 	/// <summary>
 	/// メインシーンのレンダーテクスチャを取得します。
@@ -215,7 +192,7 @@ private:
 	// =========================================================
 	// Member Variables
 	// =========================================================
-	PostEffectType effectType_ = PostEffectType::None;
+	PSOType effectType_ = PSOType::Default;
 
 	// 頂点・インデックスバッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer_;

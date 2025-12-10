@@ -18,6 +18,27 @@ enum class PSOType {
 	// 基本
 	Default,
 
+	// ポストエフェクト用
+	Grayscale,			/* グレースケール */
+	Vignette,			/* ビネット */
+	DamageVignette,     /* ダメージビネット */
+	BoxFilter,			/* ボックスフィルター */
+	GaussianFilter,		/* ガウシアンフィルター */
+	GaussianHorizontal, /* ガウシアンフィルター（水平） */
+	GaussianVertical,   /* ガウシアンフィルター（垂直） */
+	RadialBlur,         /* 放射状ブラー */
+	InvertColor,		/* 色反転 */
+	Sepia,				/* セピア調 */
+	Posterize,			/* ポスタリゼーション */
+	Emboss,				/* エンボス */
+	Sharpen,			/* シャープ */
+	ColorAberration,	/* 色収差 */
+	BarrelDistortion,	/* バレルディストーション */
+	WaveDistortion,		/* 波形ディストーション */
+	Pixelation,			/* ピクセル化 */
+	GlitchEffect,		/* グリッチエフェクト */
+	BloomExtract,       /* 明度抽出（ブルーム用） */
+	SobelFilter,        /* ソベルフィルター（アウトライン用） */
 };
 
 // =========================================================

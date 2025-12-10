@@ -849,10 +849,7 @@ void Cygnus::DirectXBase::CreatePipelineStateObject()
 	// DepthStencilの設定
 	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc_;
 	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	// 実際に生成
-	/*graphicsPipelineState_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState_));
-	assert(SUCCEEDED(result));*/
+	
 
 	// デフォルトのPSOを保存
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDefault = graphicsPipelineStateDesc;
@@ -911,23 +908,7 @@ void Cygnus::DirectXBase::CreatePipelineStateObject()
 	graphicsPipelineStateNoCulling_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateNoculling, IID_PPV_ARGS(&graphicsPipelineStateNoCulling_));
 
-	///
-	/// パーティクル用PSOを作成
-	/// 
 	
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateParticleDesc = graphicsPipelineStateDefault;
-	graphicsPipelineStateParticleDesc.BlendState = blendDescAdd_;
-	graphicsPipelineStateParticleDesc.pRootSignature = rootSignatureParticle_.Get(); // RootSignature
-
-	auto vsParticle = shaderManager->GetShader("Particle_VS");
-	auto psParticle = shaderManager->GetShader("Particle_PS");
-
-	graphicsPipelineStateParticleDesc.VS = {vsParticle->GetBufferPointer(), vsParticle->GetBufferSize()};                             // VertexShader
-	graphicsPipelineStateParticleDesc.PS = {psParticle->GetBufferPointer(), psParticle->GetBufferSize()}; // PixelShader
-	// 生成
-	graphicsPipelineStateParticle_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateParticleDesc, IID_PPV_ARGS(&graphicsPipelineStateParticle_));
-
 	///
 	/// Zバッファ無効用PSOを生成
 	/// 
@@ -937,255 +918,6 @@ void Cygnus::DirectXBase::CreatePipelineStateObject()
 
 	graphicsPipelineStateDisableZBuffer_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDisableZBufferDesc, IID_PPV_ARGS(&graphicsPipelineStateDisableZBuffer_));
-
-	///
-	///	SobelFilterのPSOを生成
-	/// 
-	
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateSobelDesc = graphicsPipelineStateDefault;
-
-	auto vsSobel = shaderManager->GetShader("SobelFilter_VS");
-	auto psSobel = shaderManager->GetShader("SobelFilter_PS");
-
-	graphicsPipelineStateSobelDesc.VS = {vsSobel->GetBufferPointer(), vsSobel->GetBufferSize()};
-	graphicsPipelineStateSobelDesc.PS = {psSobel->GetBufferPointer(), psSobel->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateSobelFilter_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSobelDesc, IID_PPV_ARGS(&graphicsPipelineStateSobelFilter_));
-
-	///
-	///	GrayscaleのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateGrayscaleDesc = graphicsPipelineStateDefault;
-
-	auto psGrayscale = shaderManager->GetShader("Grayscale_PS");
-	graphicsPipelineStateGrayscaleDesc.PS = {psGrayscale->GetBufferPointer(), psGrayscale->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateGrayscale_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGrayscaleDesc, IID_PPV_ARGS(&graphicsPipelineStateGrayscale_));
-
-	///
-	///	VignetteのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateVignetteDesc = graphicsPipelineStateDefault;
-
-	auto psVignette = shaderManager->GetShader("Vignette_PS");
-	graphicsPipelineStateVignetteDesc.PS = {psVignette->GetBufferPointer(), psVignette->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateVignette_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateVignetteDesc, IID_PPV_ARGS(&graphicsPipelineStateVignette_));
-
-	///
-	///	BoxFilterのPSOを生成
-	///		
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateBoxFilterDesc = graphicsPipelineStateDefault;
-
-	auto psBoxFilter = shaderManager->GetShader("BoxFilter_PS");
-	graphicsPipelineStateBoxFilterDesc.PS = {psBoxFilter->GetBufferPointer(), psBoxFilter->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateBoxFilter_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBoxFilterDesc, IID_PPV_ARGS(&graphicsPipelineStateBoxFilter_));
-
-	///
-	///	GaussianFilterのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateGaussianFilterDesc = graphicsPipelineStateDefault;
-
-	auto psGaussianFillter = shaderManager->GetShader("GaussianFilter_PS");
-	graphicsPipelineStateGaussianFilterDesc.PS = {psGaussianFillter->GetBufferPointer(), psGaussianFillter->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateGaussianFilter_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGaussianFilterDesc, IID_PPV_ARGS(&graphicsPipelineStateGaussianFilter_));
-
-	/* 水平方向のガウスぼかし */
-	auto psGaussianHorizontal = shaderManager->GetShader("GaussianHorizontal_PS");
-	graphicsPipelineStateGaussianFilterDesc.PS = { psGaussianHorizontal->GetBufferPointer(), psGaussianHorizontal->GetBufferSize() };
-	psoGaussianHorizontal_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGaussianFilterDesc, IID_PPV_ARGS(&psoGaussianHorizontal_));
-
-	/* 垂直方向のガウスぼかし */
-	auto psGaussianVertical = shaderManager->GetShader("GaussianVertical_PS");
-	graphicsPipelineStateGaussianFilterDesc.PS = { psGaussianVertical->GetBufferPointer(), psGaussianVertical->GetBufferSize() };
-	psoGaussianVertical_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGaussianFilterDesc, IID_PPV_ARGS(&psoGaussianVertical_));
-
-	///
-	///	RadialBlurのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateRadialBlurDesc = graphicsPipelineStateDefault;
-
-	auto psRadialBlur = shaderManager->GetShader("RadialBlur_PS");
-	graphicsPipelineStateRadialBlurDesc.PS = {psRadialBlur->GetBufferPointer(), psRadialBlur->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateRadialBlur_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateRadialBlurDesc, IID_PPV_ARGS(&graphicsPipelineStateRadialBlur_));
-
-	///
-	/// BloomExtractのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateBloomExtractDesc = graphicsPipelineStateDefault;
-
-	auto psBloomExtract = shaderManager->GetShader("BloomExtract_PS");
-	graphicsPipelineStateBloomExtractDesc.PS = { psBloomExtract->GetBufferPointer(), psBloomExtract->GetBufferSize() };
-
-	// 生成
-	graphicsPipelineStateBloomExtract_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBloomExtractDesc, IID_PPV_ARGS(&graphicsPipelineStateBloomExtract_));
-
-	///
-	///	InvertColorのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateInvertColorDesc = graphicsPipelineStateDefault;
-
-	auto psInvertColor = shaderManager->GetShader("InvertColor_PS");
-	graphicsPipelineStateInvertColorDesc.PS = {psInvertColor->GetBufferPointer(), psInvertColor->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateInvertColor_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInvertColorDesc, IID_PPV_ARGS(&graphicsPipelineStateInvertColor_));
-
-	///
-	///	SepiaのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateSepiaDesc = graphicsPipelineStateDefault;
-
-	auto psSepia = shaderManager->GetShader("Sepia_PS");
-	graphicsPipelineStateSepiaDesc.PS = {psSepia->GetBufferPointer(), psSepia->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateSepia_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSepiaDesc, IID_PPV_ARGS(&graphicsPipelineStateSepia_));
-
-	///
-	///	PosterizeのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStatePosterizeDesc = graphicsPipelineStateDefault;
-
-	auto psPosterize = shaderManager->GetShader("Posterize_PS");
-	graphicsPipelineStatePosterizeDesc.PS = {psPosterize->GetBufferPointer(), psPosterize->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStatePosterize_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStatePosterizeDesc, IID_PPV_ARGS(&graphicsPipelineStatePosterize_));
-
-	///
-	///	EmbossのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateEmbossDesc = graphicsPipelineStateDefault;
-
-	auto psEmboss = shaderManager->GetShader("Emboss_PS");
-	graphicsPipelineStateEmbossDesc.PS = {psEmboss->GetBufferPointer(), psEmboss->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateEmboss_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateEmbossDesc, IID_PPV_ARGS(&graphicsPipelineStateEmboss_));
-
-	///
-	///	SharpenのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateSharpenDesc = graphicsPipelineStateDefault;
-
-	auto psSharpen = shaderManager->GetShader("Sharpen_PS");
-	graphicsPipelineStateSharpenDesc.PS = {psSharpen->GetBufferPointer(), psSharpen->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateSharpen_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSharpenDesc, IID_PPV_ARGS(&graphicsPipelineStateSharpen_));
-
-	///
-	///	ColorAberrationのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateColorAberrationDesc = graphicsPipelineStateDefault;
-
-	auto psColorAberration = shaderManager->GetShader("ColorAberration_PS");
-	graphicsPipelineStateColorAberrationDesc.PS = {psColorAberration->GetBufferPointer(), psColorAberration->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateColorAberration_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateColorAberrationDesc, IID_PPV_ARGS(&graphicsPipelineStateColorAberration_));
-
-	///
-	///	BarrelDistortionのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateBarrelDistortionDesc = graphicsPipelineStateDefault;
-
-	auto psBarrelDistortion = shaderManager->GetShader("BarrelDistortion_PS");
-	graphicsPipelineStateBarrelDistortionDesc.PS = {psBarrelDistortion->GetBufferPointer(), psBarrelDistortion->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateBarrelDistortion_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBarrelDistortionDesc, IID_PPV_ARGS(&graphicsPipelineStateBarrelDistortion_));
-
-	///
-	///	WaveDistortionのPSOを生成
-	///
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateWaveDistortionDesc = graphicsPipelineStateDefault;
-
-	auto psWaveDistortion = shaderManager->GetShader("WaveDistortion_PS");
-	graphicsPipelineStateWaveDistortionDesc.PS = {psWaveDistortion->GetBufferPointer(), psWaveDistortion->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateWaveDistortion_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateWaveDistortionDesc, IID_PPV_ARGS(&graphicsPipelineStateWaveDistortion_));
-
-	///
-	/// PixelationのPSOを生成
-	///
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStatePixelationDesc = graphicsPipelineStateDefault;
-
-	auto psPixelation = shaderManager->GetShader("Pixelation_PS");
-	graphicsPipelineStatePixelationDesc.PS = {psPixelation->GetBufferPointer(), psPixelation->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStatePixelation_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStatePixelationDesc, IID_PPV_ARGS(&graphicsPipelineStatePixelation_));
-
-	///
-	/// GlitchEffectのPSOを生成
-	///
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateGlitchEffectDesc = graphicsPipelineStateDefault;
-
-	auto psGlitchEffect = shaderManager->GetShader("GlitchEffect_PS");
-	graphicsPipelineStateGlitchEffectDesc.PS = {psGlitchEffect->GetBufferPointer(), psGlitchEffect->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateGlitchEffect_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateGlitchEffectDesc, IID_PPV_ARGS(&graphicsPipelineStateGlitchEffect_));
-
-	///
-	///	DamageVignetteのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDamageVignetteDesc = graphicsPipelineStateDefault;
-
-	auto psDamageVignette = shaderManager->GetShader("DamageVignette_PS");
-	graphicsPipelineStateDamageVignetteDesc.PS = { psDamageVignette->GetBufferPointer(), psDamageVignette ->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateDamageVignette_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDamageVignetteDesc, IID_PPV_ARGS(&graphicsPipelineStateDamageVignette_));
 
 	///
 	/// SkyboxのPSOを作成
@@ -1460,10 +1192,7 @@ D3D12_RENDER_TARGET_VIEW_DESC Cygnus::DirectXBase::GetRtvDesc()
 	return rtvDesc_;
 }
 
-//ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineState()
-//{
-//	return graphicsPipelineState_.Get();
-//}
+
 
 ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineStateOutline()
 {

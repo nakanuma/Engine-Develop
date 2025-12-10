@@ -156,7 +156,156 @@ void Cygnus::PipelineStateManager::CreateBasicPSOs() {
 }
 
 void Cygnus::PipelineStateManager::CreatePostEffectPSOs() {
-	
+	// ポストエフェクト用PSO共通設定
+	PSODescriptor baseDesc;
+	baseDesc.vertexShaderName = "Object3D_VS";	// 各エフェクトごとに上書き
+	baseDesc.pixelShaderName = "Object3D_PS";	// 各エフェクトごとに上書き
+	baseDesc.rootSignature = rootSignature_;
+	baseDesc.blendDesc = blendNormal_;
+	baseDesc.rasterizerDesc = rasterizerDesc_;
+	baseDesc.depthStencilDesc = depthStencilDesc_;
+	baseDesc.inputLayout = inputLayout_;
+
+	// Grayscale
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "Grayscale_PS";
+		CreateAndRegisterPSO(PSOType::Grayscale, desc);
+	}
+
+	// Vignette
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "Vignette_PS";
+		CreateAndRegisterPSO(PSOType::Vignette, desc);
+	}
+
+	// DamageVignette
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "DamageVignette_PS";
+		CreateAndRegisterPSO(PSOType::DamageVignette, desc);
+	}
+
+	// BoxFilter
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "BoxFilter_PS";
+		CreateAndRegisterPSO(PSOType::BoxFilter, desc);
+	}
+
+	// GaussianFilter
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "GaussianFilter_PS";
+		CreateAndRegisterPSO(PSOType::GaussianFilter, desc);
+	}
+
+	// GaussianHorizontal
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "GaussianHorizontal_PS";
+		CreateAndRegisterPSO(PSOType::GaussianHorizontal, desc);
+	}
+
+	// GaussianVertical
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "GaussianVertical_PS";
+		CreateAndRegisterPSO(PSOType::GaussianVertical, desc);
+	}
+
+	// RadialBlur
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "RadialBlur_PS";
+		CreateAndRegisterPSO(PSOType::RadialBlur, desc);
+	}
+
+	// InvertColor
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "InvertColor_PS";
+		CreateAndRegisterPSO(PSOType::InvertColor, desc);
+	}
+
+	// Sepia
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "Sepia_PS";
+		CreateAndRegisterPSO(PSOType::Sepia, desc);
+	}
+
+	// Posterize
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "Posterize_PS";
+		CreateAndRegisterPSO(PSOType::Posterize, desc);
+	}
+
+	// Emboss
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "Emboss_PS";
+		CreateAndRegisterPSO(PSOType::Emboss, desc);
+	}
+
+	// Sharpen
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "Sharpen_PS";
+		CreateAndRegisterPSO(PSOType::Sharpen, desc);
+	}
+
+	// ColorAberration
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "ColorAberration_PS";
+		CreateAndRegisterPSO(PSOType::ColorAberration, desc);
+	}
+
+	// BarrelDistortion
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "BarrelDistortion_PS";
+		CreateAndRegisterPSO(PSOType::BarrelDistortion, desc);
+	}
+
+	// WaveDistortion
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "WaveDistortion_PS";
+		CreateAndRegisterPSO(PSOType::WaveDistortion, desc);
+	}
+
+	// Pixelation
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "Pixelation_PS";
+		CreateAndRegisterPSO(PSOType::Pixelation, desc);
+	}
+
+	// GlitchEffect
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "GlitchEffect_PS";
+		CreateAndRegisterPSO(PSOType::GlitchEffect, desc);
+	}
+
+	// BloomExtract
+	{
+		PSODescriptor desc = baseDesc;
+		desc.pixelShaderName = "BloomExtract_PS";
+		CreateAndRegisterPSO(PSOType::BloomExtract, desc);
+	}
+
+	// SobelFilter
+	{
+		PSODescriptor desc = baseDesc;
+		desc.vertexShaderName = "SobelFilter_VS";
+		desc.pixelShaderName = "SobelFilter_PS";
+		CreateAndRegisterPSO(PSOType::SobelFilter, desc);
+	}
 }
 
 bool Cygnus::PipelineStateManager::CreateAndRegisterPSO(PSOType type, const PSODescriptor& descriptor) { 
@@ -166,10 +315,35 @@ bool Cygnus::PipelineStateManager::CreateAndRegisterPSO(PSOType type, const PSOD
 
 std::string Cygnus::PipelineStateManager::PSOTypeToString(PSOType type) {
 	switch (type) {
-	case PSOType::Default:
-		return "Default";
+	///
+	///	基本
+	/// 
+	case PSOType::Default: return "Default";
 
-    default:
-		return "Unknown";
+	///
+	///	ポストエフェクト用
+	/// 
+	case PSOType::Grayscale: return "GrayScale";
+	case PSOType::Vignette:	return "Vignette";
+	case PSOType::DamageVignette: return "DamageVignette";
+	case PSOType::BoxFilter: return "BoxFilter";
+	case PSOType::GaussianFilter: return "GaussianFilter";
+	case PSOType::GaussianHorizontal: return "GaussianHorizontal";
+	case PSOType::GaussianVertical: return "GaussianVertical";
+	case PSOType::RadialBlur: return "RadialBlur";
+	case PSOType::InvertColor: return "InvertColor";
+	case PSOType::Sepia: return "Sepia";
+	case PSOType::Posterize: return "Posterize";
+	case PSOType::Emboss: return "Emboss";
+	case PSOType::Sharpen: return "Sharpen";
+	case PSOType::ColorAberration: return "ColorAberration";
+	case PSOType::BarrelDistortion: return "BarrelDistortion";
+	case PSOType::WaveDistortion: return "WaveDistortion";
+	case PSOType::Pixelation: return "Pixelation";
+	case PSOType::GlitchEffect: return "GlitchEffect";
+	case PSOType::BloomExtract: return "BloomExtract";
+	case PSOType::SobelFilter: return "SobelFilter";
+
+    default: return "Unknown";
     }
 }
