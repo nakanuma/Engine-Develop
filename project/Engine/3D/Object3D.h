@@ -113,14 +113,6 @@ public:
 	void Draw(const SkinCluster& skinCluster);
 
 	/// <summary>
-	/// インスタンシング描画を行います。
-	/// </summary>
-	/// <param name="structuredBuffer">構造化バッファ</param>
-	/// <param name="numInstance">インスタンス数</param>
-	/// <param name="TextureHandle">テクスチャハンドル</param>
-	void DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer, uint32_t numInstance, const uint32_t TextureHandle);
-
-	/// <summary>
 	/// シャドウマップ描画を行います。
 	/// </summary>
 	void DrawShadow();

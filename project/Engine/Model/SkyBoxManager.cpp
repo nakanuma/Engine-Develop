@@ -31,15 +31,16 @@ void Cygnus::SkyBoxManager::Update() {
 
 void Cygnus::SkyBoxManager::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
+	PipelineStateManager* psoManager = PipelineStateManager::GetInstance();
 
-	// Skybox用PSOに変更 -> Skybox描画 -> 通常PSOに変更
-	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateSkybox());
-
+	// Skybox用PSOに変更
+	dxBase->GetCommandList()->SetPipelineState(psoManager->GetPSO(PSOType::Skybox));
 	// CubeMapをバインド
 	TextureManager::SetDescriptorTable(kRootParameterIndexCubeMap, dxBase->GetCommandList(), modelSkybox_.material.textureHandle);
-
+	// 描画
 	objectSkybox_->Draw();
-	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
+	// 通常PSOに戻す
+	dxBase->GetCommandList()->SetPipelineState(psoManager->GetPSO(PSOType::Default));
 }
 
 uint32_t Cygnus::SkyBoxManager::GetEnvironmentTextureHandle() { return modelSkybox_.material.textureHandle; }

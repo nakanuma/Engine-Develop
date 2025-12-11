@@ -16,7 +16,17 @@ namespace Cygnus {
 /// </summary>
 enum class PSOType {
 	// 基本
-	Default,
+	Default,			/* 通常 */
+
+	// インスタンシング
+	InstancedObject,
+	InstancedObjectNone,
+	InstancedObjectNormal,
+	InstancedObjectAdd,
+	InstancedObjectSubtract,
+	InstancedObjectMultiply,
+	InstancedObjectScreen,
+	InstancedObjectAlpha,
 
 	// ポストエフェクト用
 	Grayscale,			/* グレースケール */
@@ -39,6 +49,10 @@ enum class PSOType {
 	GlitchEffect,		/* グリッチエフェクト */
 	BloomExtract,       /* 明度抽出（ブルーム用） */
 	SobelFilter,        /* ソベルフィルター（アウトライン用） */
+
+	// 特殊な用途
+	Skybox,				/* スカイボックス */
+	Skinning,			/* スキニング */
 };
 
 // =========================================================
@@ -93,7 +107,6 @@ public:
 	void Initialize(
 	    ID3D12Device* device, 
 		ID3D12RootSignature* rootSignature, 
-		ID3D12RootSignature* rootSignatureParticle, 
 		ID3D12RootSignature* rootSignatureInstancedObject,
 	    const D3D12_INPUT_LAYOUT_DESC& inputLayout, 
 		const D3D12_BLEND_DESC& blendNormal, 
@@ -151,9 +164,19 @@ private:
 	void CreateBasicPSOs();
 
 	/// <summary>
+	/// インスタンシング用のPSOを生成します。
+	/// </summary>
+	void CreateInstancedPSOs();
+
+	/// <summary>
 	/// ポストエフェクト用のPSOを生成します。
 	/// </summary>
 	void CreatePostEffectPSOs();
+
+	/// <summary>
+	/// 特殊な用途のPSOを生成します。
+	/// </summary>
+	void CreateSpecialPSOs();
 
 	/// <summary>
 	/// PSOを生成して登録します。
@@ -178,7 +201,6 @@ private:
 
 	// RootSignature
 	ID3D12RootSignature* rootSignature_ = nullptr;
-	ID3D12RootSignature* rootSignatureParticle_ = nullptr;
 	ID3D12RootSignature* rootSignatureInstancedObject_ = nullptr;
 
 	// デフォルト設定

@@ -47,8 +47,6 @@ void Cygnus::DirectXBase::Initialize() {
 
 	// RootSignature生成
 	CreateRootSignature();
-	// RootSignature生成(Particle用)
-	CreateRootSignatureParticle();
 	// RootSignature生成（InstancedObject用）
 	CreateRootSignatureInstancedObject();
 
@@ -73,7 +71,6 @@ void Cygnus::DirectXBase::Initialize() {
 	PipelineStateManager::GetInstance()->Initialize(
 		device_.Get(),
 		rootSignature_.Get(),
-		rootSignatureParticle_.Get(),
 		rootSignatureInstancedObject_.Get(),
 		inputLayoutDesc_,
 		blendDesc_,
@@ -431,83 +428,6 @@ void Cygnus::DirectXBase::CreateRootSignature()
 	// バイナリを元に生成
 	rootSignature_ = nullptr;
 	result = device_->CreateRootSignature(0, signatureBlob_->GetBufferPointer(), signatureBlob_->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
-	assert(SUCCEEDED(result));
-}
-
-void Cygnus::DirectXBase::CreateRootSignatureParticle()
-{
-	HRESULT result = S_FALSE;
-
-	// RootSignature作成
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
-	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-	// DescriptorRange作成
-	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-	descriptorRange[0].BaseShaderRegister = 0; // 0から始まる
-	descriptorRange[0].NumDescriptors = 1; // 数は1つ
-	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
-	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
-
-	// instancing用のDescriptorRangeを作成
-	D3D12_DESCRIPTOR_RANGE descriptorRangeForInstancing[1] = {};
-	descriptorRangeForInstancing[0].BaseShaderRegister = 0; // 0から始まる
-	descriptorRangeForInstancing[0].NumDescriptors = 1; // 数は1つ
-	descriptorRangeForInstancing[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
-	descriptorRangeForInstancing[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	// RootParameterの作成
-	D3D12_ROOT_PARAMETER rootParameters[kParticleRootParameterCount] = {};
-
-	rootParameters[kRootParameterIndexMaterial].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
-	rootParameters[kRootParameterIndexMaterial].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[kRootParameterIndexMaterial].Descriptor.ShaderRegister = 0; // レジスタ番号0とバインド
-
-	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
-	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // VertexShaderで使う
-	rootParameters[1].DescriptorTable.pDescriptorRanges = descriptorRangeForInstancing; // Tableの中身の配列を指定
-	rootParameters[1].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeForInstancing); // Tableで利用する数
-
-	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
-	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange; // Tableの中身の配列を指定
-	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数
-
-	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
-	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[3].Descriptor.ShaderRegister = 1; // レジスタ番号1を使う
-
-	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[4].Descriptor.ShaderRegister = 2;
-
-	descriptionRootSignature.pParameters = rootParameters; // ルートパラメータ配列へのポインタ
-	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
-
-	// Samplerの設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[kParticleStaticSamplerCount] = {};
-	staticSamplers[kNormalSamplerRegister].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
-	staticSamplers[kNormalSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0~1の範囲外をリピート
-	staticSamplers[kNormalSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[kNormalSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[kNormalSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
-	staticSamplers[kNormalSamplerRegister].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
-	staticSamplers[kNormalSamplerRegister].ShaderRegister = kNormalSamplerRegister;
-	staticSamplers[kNormalSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	descriptionRootSignature.pStaticSamplers = staticSamplers;
-	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
-
-	// シリアライズしてバイナリにする
-	signatureBlob_ = nullptr;
-	errorBlob_ = nullptr;
-	result = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob_, &errorBlob_);
-	if (FAILED(result)) {
-		Log(reinterpret_cast<char*>(errorBlob_->GetBufferPointer()));
-		assert(false);
-	}
-	// バイナリを元に生成
-	rootSignatureParticle_ = nullptr;
-	result = device_->CreateRootSignature(0, signatureBlob_->GetBufferPointer(), signatureBlob_->GetBufferSize(), IID_PPV_ARGS(&rootSignatureParticle_));
 	assert(SUCCEEDED(result));
 }
 
@@ -884,83 +804,7 @@ void Cygnus::DirectXBase::CreatePipelineStateObject()
 	graphicsPipelineStateBlend.BlendState = blendDescScreen_;
 	graphicsPipelineStateBlendModeScreen_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeScreen_));
-
-
-
-	// アウトライン用のCullModeだけが違うPSOを作成
-	graphicsPipelineStateDesc.RasterizerState.CullMode = D3D12_CULL_MODE_FRONT;
-	// 生成
-	graphicsPipelineStateOutline_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineStateOutline_));
-
-	// カリングを行わないPSOを作成
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateNoculling = graphicsPipelineStateDefault;
-	graphicsPipelineStateNoculling.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-
-	D3D12_DEPTH_STENCIL_DESC depthStencilDescNoCulling = depthStencilDescDefault;
-	depthStencilDescNoCulling.DepthEnable = true;
-	depthStencilDescNoCulling.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	depthStencilDescNoCulling.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-	graphicsPipelineStateNoculling.DepthStencilState = depthStencilDescNoCulling;
-
-	// 生成
-	graphicsPipelineStateNoCulling_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateNoculling, IID_PPV_ARGS(&graphicsPipelineStateNoCulling_));
-
 	
-	///
-	/// Zバッファ無効用PSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDisableZBufferDesc = graphicsPipelineStateDefault;
-	graphicsPipelineStateDisableZBufferDesc.DepthStencilState.DepthEnable = false;
-
-	graphicsPipelineStateDisableZBuffer_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDisableZBufferDesc, IID_PPV_ARGS(&graphicsPipelineStateDisableZBuffer_));
-
-	///
-	/// SkyboxのPSOを作成
-	/// 
-	
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateSkyboxDesc = graphicsPipelineStateDefault;
-
-	// 適用するShaderの設定
-	auto vsSkybox = shaderManager->GetShader("Skybox_VS");
-	auto psSkybox = shaderManager->GetShader("Skybox_PS");
-
-	graphicsPipelineStateSkyboxDesc.VS = {vsSkybox->GetBufferPointer(), vsSkybox->GetBufferSize()};
-	graphicsPipelineStateSkyboxDesc.PS = {psSkybox->GetBufferPointer(), psSkybox->GetBufferSize()};
-
-	// 適用するDepthStencilStateの設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDescSkybox = depthStencilDescDefault;
-	depthStencilDescSkybox.DepthEnable = true; // 比較はするのでDepth自体は有効
-	depthStencilDescSkybox.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 全ピクセルがz=1に出力されるので、わざわざ書き込む必要がない
-	depthStencilDescSkybox.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; // 今までと同様に比較
-
-	graphicsPipelineStateSkyboxDesc.DepthStencilState = depthStencilDescSkybox;
-
-	// 生成
-	graphicsPipelineStateSkybox_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSkyboxDesc, IID_PPV_ARGS(&graphicsPipelineStateSkybox_));
-
-	///
-	///	Skinning用PSOを作成
-	/// 
-	
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateSkinningDesc = graphicsPipelineStateDefault;
-
-	// 適用するShaderの設定
-	auto vsSkinningObject3D = shaderManager->GetShader("SkinningObject3D_VS");
-	auto psObject3D = shaderManager->GetShader("Object3D_PS");
-
-	graphicsPipelineStateSkinningDesc.VS = {vsSkinningObject3D->GetBufferPointer(), vsSkinningObject3D->GetBufferSize()};
-	graphicsPipelineStateSkinningDesc.PS = {psObject3D->GetBufferPointer(), psObject3D->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateSkinning_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateSkinningDesc, IID_PPV_ARGS(&graphicsPipelineStateSkinning_));
-
 	///
 	///	InstancedObject用PSOを作成
 	/// 
@@ -1017,21 +861,6 @@ void Cygnus::DirectXBase::CreatePipelineStateObject()
 	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateAlpha();
 	graphicsPipelineStateInstancedObjectAlpha_ = nullptr;
 	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectAlpha_));
-
-	///
-	///	深度バッファ書き込み用のPSOを生成
-	/// 
-	
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDepthWriteDesc = graphicsPipelineStateDefault;
-	// カラー書き込みを無効化
-	graphicsPipelineStateDepthWriteDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = 0;
-	// 深度ステンシル設定
-	graphicsPipelineStateDepthWriteDesc.DepthStencilState.DepthEnable = TRUE;
-	graphicsPipelineStateDepthWriteDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	graphicsPipelineStateDepthWriteDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に書き込む
-
-	graphicsPipelineStateDepthWrite_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateDepthWriteDesc, IID_PPV_ARGS(&graphicsPipelineStateDepthWrite_));
 }
 
 void Cygnus::DirectXBase::SetViewport()
@@ -1194,15 +1023,7 @@ D3D12_RENDER_TARGET_VIEW_DESC Cygnus::DirectXBase::GetRtvDesc()
 
 
 
-ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineStateOutline()
-{
-	return graphicsPipelineStateOutline_.Get();
-}
 
-ID3D12PipelineState* Cygnus::DirectXBase::GetPipelineStateNoCulling()
-{
-	return graphicsPipelineStateNoCulling_.Get(); 
-}
 
 Cygnus::DescriptorHeap* Cygnus::DirectXBase::GetDSVHeap()
 { 

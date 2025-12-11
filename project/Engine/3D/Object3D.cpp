@@ -90,25 +90,6 @@ void Cygnus::Object3D::Draw(const SkinCluster& skinCluster) {
 	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
-void Cygnus::Object3D::DrawInstancing(StructuredBuffer<ParticleForGPU>& structuredBuffer, uint32_t numInstance, const uint32_t TextureHandle) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-
-	// パーティクル用ルートシグネチャを設定
-	dxBase->GetCommandList()->SetGraphicsRootSignature(dxBase->GetRootSignatureParticle());
-	// パーティクル用PSOを設定
-	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateParticle());
-	// commandListにVBVを設定
-	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
-	// マテリアルCBufferの場所を設定
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_.resource_->GetGPUVirtualAddress());
-	// instancing用のDataを読むためにStructuredBufferのSRVを設定する
-	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(1, SRVManager::GetInstance()->descriptorHeap_.GetGPUHandle(structuredBuffer.heapIndex_));
-	// SRVのDescriptorTableの先頭を設定（Textureの設定）
-	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, dxBase->GetCommandList(), TextureHandle); // 引数で指定したテクスチャを使用する
-	// 描画を行う（DrawCall/ドローコール）
-	dxBase->GetCommandList()->DrawInstanced(UINT(model_->vertices.size()), numInstance, 0, 0);
-}
-
 void Cygnus::Object3D::DrawShadow() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 

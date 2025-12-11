@@ -15,7 +15,6 @@ Cygnus::PipelineStateManager* Cygnus::PipelineStateManager::GetInstance() {
 void Cygnus::PipelineStateManager::Initialize(
     ID3D12Device* device, 
     ID3D12RootSignature* rootSignature, 
-    ID3D12RootSignature* rootSignatureParticle, 
     ID3D12RootSignature* rootSignatureInstancedObject, 
     const D3D12_INPUT_LAYOUT_DESC& inputLayout,
     const D3D12_BLEND_DESC& blendNormal, 
@@ -31,7 +30,6 @@ void Cygnus::PipelineStateManager::Initialize(
     device_ = device;
 
     rootSignature_ = rootSignature;
-	rootSignatureParticle_ = rootSignatureParticle;
 	rootSignatureInstancedObject_ = rootSignatureInstancedObject;
 
     inputLayout_ = inputLayout;
@@ -135,8 +133,12 @@ size_t Cygnus::PipelineStateManager::GetPSOCount() const { return size_t(); }
 void Cygnus::PipelineStateManager::CreateAllStandardPSOs() {
 	// 基本的なPSOを生成
 	CreateBasicPSOs();
+	// インスタンシング用のPSOを生成
+	CreateInstancedPSOs();
 	// ポストエフェクト用のPSOを生成
 	CreatePostEffectPSOs();
+	// 特殊な用途のPSOを生成
+	CreateSpecialPSOs();
 }
 
 void Cygnus::PipelineStateManager::CreateBasicPSOs() {
@@ -155,11 +157,72 @@ void Cygnus::PipelineStateManager::CreateBasicPSOs() {
 	}
 }
 
-void Cygnus::PipelineStateManager::CreatePostEffectPSOs() {
-	// ポストエフェクト用PSO共通設定
+void Cygnus::PipelineStateManager::CreateInstancedPSOs() {
+	// PSO共通設定
 	PSODescriptor baseDesc;
-	baseDesc.vertexShaderName = "Object3D_VS";	// 各エフェクトごとに上書き
-	baseDesc.pixelShaderName = "Object3D_PS";	// 各エフェクトごとに上書き
+	baseDesc.vertexShaderName = "InstancedObject_PS";
+	baseDesc.pixelShaderName = "InstancedObject_PS";
+	baseDesc.rootSignature = rootSignatureInstancedObject_;
+	baseDesc.blendDesc = blendNormal_;
+	baseDesc.rasterizerDesc = rasterizerDesc_;
+	baseDesc.depthStencilDesc = depthStencilDesc_;
+	baseDesc.inputLayout = inputLayout_;
+
+	// 通常
+	{
+		PSODescriptor desc = baseDesc;
+		CreateAndRegisterPSO(PSOType::InstancedObject, desc);
+	}
+
+	// 各ブレンドモード
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendNone_;
+		CreateAndRegisterPSO(PSOType::InstancedObjectNone, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendNormal_;
+		CreateAndRegisterPSO(PSOType::InstancedObjectNormal, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendAdd_;
+		CreateAndRegisterPSO(PSOType::InstancedObjectAdd, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendSubtract_;
+		CreateAndRegisterPSO(PSOType::InstancedObjectSubtract, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendMultiply_;
+		CreateAndRegisterPSO(PSOType::InstancedObjectMultiply, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendScreen_;
+		CreateAndRegisterPSO(PSOType::InstancedObjectScreen, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendAlpha_;
+		CreateAndRegisterPSO(PSOType::InstancedObjectAlpha, desc);
+	}
+}
+
+void Cygnus::PipelineStateManager::CreatePostEffectPSOs() {
+	// PSO共通設定
+	PSODescriptor baseDesc;
+	baseDesc.vertexShaderName = "Object3D_VS";	// 各PSOごとに上書き
+	baseDesc.pixelShaderName = "Object3D_PS";	// 各PSOごとに上書き
 	baseDesc.rootSignature = rootSignature_;
 	baseDesc.blendDesc = blendNormal_;
 	baseDesc.rasterizerDesc = rasterizerDesc_;
@@ -308,6 +371,39 @@ void Cygnus::PipelineStateManager::CreatePostEffectPSOs() {
 	}
 }
 
+void Cygnus::PipelineStateManager::CreateSpecialPSOs() {
+	// PSO共通設定
+	PSODescriptor baseDesc;
+	baseDesc.vertexShaderName = "Object3D_VS"; // 各PSOごとに上書き
+	baseDesc.pixelShaderName = "Object3D_PS";  // 各PSOごとに上書き
+	baseDesc.rootSignature = rootSignature_;
+	baseDesc.blendDesc = blendNormal_;
+	baseDesc.rasterizerDesc = rasterizerDesc_;
+	baseDesc.depthStencilDesc = depthStencilDesc_;
+	baseDesc.inputLayout = inputLayout_;
+
+	// Skybox
+	{
+		PSODescriptor desc = baseDesc;
+		desc.vertexShaderName = "Skybox_VS";
+		desc.pixelShaderName = "Skybox_PS";
+
+		// 深度ステンシルに変更を加える
+		desc.depthStencilDesc.DepthEnable = TRUE;
+		desc.depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 全ピクセルがZ=1に出力されるため書き込み不要
+		desc.depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_EQUAL;
+
+		CreateAndRegisterPSO(PSOType::Skybox, desc);
+	}
+
+	// Skinning
+	{
+		PSODescriptor desc = baseDesc;
+		desc.vertexShaderName = "SkinningObject3D_VS";
+		CreateAndRegisterPSO(PSOType::Skinning, desc);
+	}
+}
+
 bool Cygnus::PipelineStateManager::CreateAndRegisterPSO(PSOType type, const PSODescriptor& descriptor) { 
 	std::string key = PSOTypeToString(type); 
 	return RegisterCustomPSO(key, descriptor);
@@ -319,6 +415,18 @@ std::string Cygnus::PipelineStateManager::PSOTypeToString(PSOType type) {
 	///	基本
 	/// 
 	case PSOType::Default: return "Default";
+
+	///
+	///	インスタンシング
+	/// 
+	case PSOType::InstancedObject: return "InstancedObject";
+	case PSOType::InstancedObjectNone: return "InstancedObjectNone";
+	case PSOType::InstancedObjectNormal: return "InstancedObjectNormal";
+	case PSOType::InstancedObjectAdd: return "InstancedObjectAdd";
+	case PSOType::InstancedObjectSubtract: return "InstancedObjectSubtract";
+	case PSOType::InstancedObjectMultiply: return "InstancedObjectMultiply";
+	case PSOType::InstancedObjectScreen: return "InstancedObjectScreen";
+	case PSOType::InstancedObjectAlpha: return "InstancedObjectAlpha";
 
 	///
 	///	ポストエフェクト用
@@ -343,6 +451,12 @@ std::string Cygnus::PipelineStateManager::PSOTypeToString(PSOType type) {
 	case PSOType::GlitchEffect: return "GlitchEffect";
 	case PSOType::BloomExtract: return "BloomExtract";
 	case PSOType::SobelFilter: return "SobelFilter";
+
+	///
+	///	特殊用途
+	/// 
+	case PSOType::Skybox: return "Skybox";
+	case PSOType::Skinning: return "Skinning";
 
     default: return "Unknown";
     }

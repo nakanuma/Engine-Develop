@@ -86,8 +86,6 @@ public:
 	void CreateFence();
 	// RootSignature生成
 	void CreateRootSignature();
-	// RootSignature生成(Particle用)
-	void CreateRootSignatureParticle();
 	// RootSignature生成（InstancedObject用）
 	void CreateRootSignatureInstancedObject();
 	// InputLayoutの設定
@@ -135,8 +133,6 @@ public:
 	DescriptorHeap* GetRTVHeap();
 	D3D12_RENDER_TARGET_VIEW_DESC GetRtvDesc();
 	
-	ID3D12PipelineState* GetPipelineStateOutline();
-	ID3D12PipelineState* GetPipelineStateNoCulling();
 	DescriptorHeap* GetDSVHeap();
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle(UINT index);
@@ -152,22 +148,9 @@ public:
 
 	// 通常ルートシグネチャを取得
 	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
-	// Particle用ルートシグネチャを取得
-	ID3D12RootSignature* GetRootSignatureParticle() { return rootSignatureParticle_.Get(); }
 	// InstancedObject用ルートシグネチャを取得
 	ID3D12RootSignature* GetRootSignatureInstancedObject() { return rootSignatureInstancedObject_.Get(); }
 
-	// Particle用PSOを取得
-	ID3D12PipelineState* GetPipelineStateParticle() { return graphicsPipelineStateParticle_.Get(); };
-
-	// Zバッファ無効用PSOを取得
-	ID3D12PipelineState* GetPipelineStateDisableZBuffer() { return graphicsPipelineStateDisableZBuffer_.Get(); }
-
-
-	// Skybox用PSOを取得
-	ID3D12PipelineState* GetPipelineStateSkybox() { return graphicsPipelineStateSkybox_.Get(); }
-	// Skinning用PSOを取得
-	ID3D12PipelineState* GetPipelineStateSkinning() { return graphicsPipelineStateSkinning_.Get(); }
 	// InstancedObject用PSOを取得
 	ID3D12PipelineState* GetPipelineStateInstancedObject() { return graphicsPipelineStateInstancedObject_.Get(); }
 	// InstancedObject用PSO（各BlendMode）を取得
@@ -178,8 +161,7 @@ public:
 	ID3D12PipelineState* GetPipelineStateInstancedObjectMultiply() { return graphicsPipelineStateInstancedObjectMultiply_.Get(); }
 	ID3D12PipelineState* GetPipelineStateInstancedObjectScreen() { return graphicsPipelineStateInstancedObjectScreen_.Get(); }
 	ID3D12PipelineState* GetPipelineStateInstancedObjectAlpha() { return graphicsPipelineStateInstancedObjectAlpha_.Get(); }
-	// 深度バッファ書き込み用PSOを取得
-	ID3D12PipelineState* GetPipelineStateDepthWrite() { return graphicsPipelineStateDepthWrite_.Get(); }
+
 
 	friend RTVManager;
 private:
@@ -279,7 +261,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob_;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureParticle_;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureInstancedObject_;
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[kInputElementCount];
@@ -299,15 +280,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeMultiply_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeScreen_;
 
-	// Zバッファ無効パイプライン
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateDisableZBuffer_;
-
-
-
-	// Skybox用PSO
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkybox_;
-	// Skinning用PSO
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateSkinning_;
 	// InstancedObject用PSO
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObject_;
 	// InstancedObject用PSO（各BlendMode）
@@ -318,14 +290,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectMultiply_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectScreen_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectAlpha_;
-	// 深度バッファ書き込み用PSO
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateDepthWrite_;
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateOutline_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateNoCulling_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateParticle_;
+	
 	D3D12_VIEWPORT viewport_;
 	D3D12_RECT scissorRect_;
 	Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource_;
