@@ -4,8 +4,9 @@
 #include <format>
 
 // Engine
-#include <Debugger/Logger.h>
-#include <DirectX/ShaderManager.h>
+#include <Logger.h>
+#include <ShaderManager.h>
+#include <RootSignatureManager.h>
 
 Cygnus::PipelineStateManager* Cygnus::PipelineStateManager::GetInstance() {
 	static PipelineStateManager instance;
@@ -14,8 +15,6 @@ Cygnus::PipelineStateManager* Cygnus::PipelineStateManager::GetInstance() {
 
 void Cygnus::PipelineStateManager::Initialize(
     ID3D12Device* device, 
-    ID3D12RootSignature* rootSignature, 
-    ID3D12RootSignature* rootSignatureInstancedObject, 
     const D3D12_INPUT_LAYOUT_DESC& inputLayout,
     const D3D12_BLEND_DESC& blendNormal, 
     const D3D12_BLEND_DESC& blendNone, 
@@ -29,8 +28,7 @@ void Cygnus::PipelineStateManager::Initialize(
     
     device_ = device;
 
-    rootSignature_ = rootSignature;
-	rootSignatureInstancedObject_ = rootSignatureInstancedObject;
+    rootSignature_ = RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default);
 
     inputLayout_ = inputLayout;
 	blendNormal_ = blendNormal;
@@ -43,40 +41,11 @@ void Cygnus::PipelineStateManager::Initialize(
 	rasterizerDesc_ = rasterizerDesc;
 	depthStencilDesc_ = depthStencilDesc;
 
-    // 全ての標準PSOを生成
-	CreateAllStandardPSOs();
+    // 全てのPSOを生成
+	CreateAllPSOs();
 
     // 初期化したことをログで出力
 	Cygnus::Log(std::format("PipelineStateManager initialized.\n"));
-}
-
-ID3D12PipelineState* Cygnus::PipelineStateManager::GetPSO(PSOType type) const { 
-    // タイプを文字列キーに変換してマップを探索
-    std::string key = PSOTypeToString(type); 
-    auto it = psoMap_.find(key);
-
-    // 見つからなかったらエラー
-    if (it == psoMap_.end()) {
-		Cygnus::Log(std::format("PSO not found.\n"));
-		assert(0);
-    }
-
-    // PSOを返す
-    return it->second.Get();
-}
-
-ID3D12PipelineState* Cygnus::PipelineStateManager::GetPSOByName(const std::string& name) const { 
-    // 文字列キーを使用してマップを探索
-    auto it = psoMap_.find(name);
-
-    // 見つからなかったらエラー
-	if (it == psoMap_.end()) {
-		Cygnus::Log(std::format("PSO not found.\n"));
-		assert(0);
-	}
-
-    // PSOを返す
-	return it->second.Get();
 }
 
 bool Cygnus::PipelineStateManager::RegisterCustomPSO(const std::string& name, const PSODescriptor& descriptor) { 
@@ -118,7 +87,7 @@ bool Cygnus::PipelineStateManager::RegisterCustomPSO(const std::string& name, co
 
 	// PSO生成に失敗したらエラー
 	if (FAILED(result)) {
-		Cygnus::Log(std::format("Shader not found.\n"));
+		Cygnus::Log(std::format("Failed to create PSO.\n"));
 		return false;
 		assert(0);
 	}
@@ -128,9 +97,36 @@ bool Cygnus::PipelineStateManager::RegisterCustomPSO(const std::string& name, co
 	return true;
 }
 
-size_t Cygnus::PipelineStateManager::GetPSOCount() const { return size_t(); }
+ID3D12PipelineState* Cygnus::PipelineStateManager::GetPSO(PSOType type) const {
+	// タイプを文字列キーに変換してマップを探索
+	std::string key = PSOTypeToString(type);
+	auto it = psoMap_.find(key);
 
-void Cygnus::PipelineStateManager::CreateAllStandardPSOs() {
+	// 見つからなかったらエラー
+	if (it == psoMap_.end()) {
+		Cygnus::Log(std::format("PSO not found.\n"));
+		assert(0);
+	}
+
+	// PSOを返す
+	return it->second.Get();
+}
+
+ID3D12PipelineState* Cygnus::PipelineStateManager::GetPSOByName(const std::string& name) const {
+	// 文字列キーを使用してマップを探索
+	auto it = psoMap_.find(name);
+
+	// 見つからなかったらエラー
+	if (it == psoMap_.end()) {
+		Cygnus::Log(std::format("PSO not found.\n"));
+		assert(0);
+	}
+
+	// PSOを返す
+	return it->second.Get();
+}
+
+void Cygnus::PipelineStateManager::CreateAllPSOs() {
 	// 基本的なPSOを生成
 	CreateBasicPSOs();
 	// インスタンシング用のPSOを生成
@@ -157,12 +153,68 @@ void Cygnus::PipelineStateManager::CreateBasicPSOs() {
 	}
 }
 
+void Cygnus::PipelineStateManager::CreateBlendModePSOs()
+{
+	// PSO共通設定
+	PSODescriptor baseDesc;
+	baseDesc.vertexShaderName = "Object3D_VS";
+	baseDesc.pixelShaderName = "Object3D_PS";
+	baseDesc.rootSignature = rootSignature_;
+	baseDesc.blendDesc = blendNormal_;
+	baseDesc.rasterizerDesc = rasterizerDesc_;
+	baseDesc.depthStencilDesc = depthStencilDesc_;
+	baseDesc.inputLayout = inputLayout_;
+
+	// 各ブレンドモード
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendNone_;
+		CreateAndRegisterPSO(PSOType::BlendNone, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendNormal_;
+		CreateAndRegisterPSO(PSOType::BlendNormal, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendAdd_;
+		CreateAndRegisterPSO(PSOType::BlendAdd, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendSubtract_;
+		CreateAndRegisterPSO(PSOType::BlendSubtract, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendMultiply_;
+		CreateAndRegisterPSO(PSOType::BlendMultiply, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendScreen_;
+		CreateAndRegisterPSO(PSOType::BlendScreen, desc);
+	}
+
+	{
+		PSODescriptor desc = baseDesc;
+		desc.blendDesc = blendAlpha_;
+		CreateAndRegisterPSO(PSOType::BlendAlpha, desc);
+	}
+}
+
 void Cygnus::PipelineStateManager::CreateInstancedPSOs() {
 	// PSO共通設定
 	PSODescriptor baseDesc;
-	baseDesc.vertexShaderName = "InstancedObject_PS";
+	baseDesc.vertexShaderName = "InstancedObject_VS";
 	baseDesc.pixelShaderName = "InstancedObject_PS";
-	baseDesc.rootSignature = rootSignatureInstancedObject_;
+	baseDesc.rootSignature = rootSignature_;
 	baseDesc.blendDesc = blendNormal_;
 	baseDesc.rasterizerDesc = rasterizerDesc_;
 	baseDesc.depthStencilDesc = depthStencilDesc_;
@@ -411,14 +463,19 @@ bool Cygnus::PipelineStateManager::CreateAndRegisterPSO(PSOType type, const PSOD
 
 std::string Cygnus::PipelineStateManager::PSOTypeToString(PSOType type) {
 	switch (type) {
-	///
-	///	基本
-	/// 
+	// 基本
 	case PSOType::Default: return "Default";
 
-	///
-	///	インスタンシング
-	/// 
+	// ブレンドモード
+	case PSOType::BlendNone: return "BlendNone";
+	case PSOType::BlendNormal: return "BlendNormal";
+	case PSOType::BlendAdd: return "BlendAdd";
+	case PSOType::BlendSubtract: return "BlendSubtract";
+	case PSOType::BlendMultiply: return "BlendMultiply";
+	case PSOType::BlendScreen: return "BlendScreen";
+	case PSOType::BlendAlpha: return "BlendAlpha";
+
+	// インスタンシング
 	case PSOType::InstancedObject: return "InstancedObject";
 	case PSOType::InstancedObjectNone: return "InstancedObjectNone";
 	case PSOType::InstancedObjectNormal: return "InstancedObjectNormal";
@@ -428,9 +485,7 @@ std::string Cygnus::PipelineStateManager::PSOTypeToString(PSOType type) {
 	case PSOType::InstancedObjectScreen: return "InstancedObjectScreen";
 	case PSOType::InstancedObjectAlpha: return "InstancedObjectAlpha";
 
-	///
-	///	ポストエフェクト用
-	/// 
+	// ポストエフェクト
 	case PSOType::Grayscale: return "GrayScale";
 	case PSOType::Vignette:	return "Vignette";
 	case PSOType::DamageVignette: return "DamageVignette";
@@ -452,9 +507,7 @@ std::string Cygnus::PipelineStateManager::PSOTypeToString(PSOType type) {
 	case PSOType::BloomExtract: return "BloomExtract";
 	case PSOType::SobelFilter: return "SobelFilter";
 
-	///
-	///	特殊用途
-	/// 
+	// 特殊用途
 	case PSOType::Skybox: return "Skybox";
 	case PSOType::Skinning: return "Skinning";
 

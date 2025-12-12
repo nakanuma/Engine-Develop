@@ -6,6 +6,7 @@
 #include <SRVManager.h>
 #include <TextureManager.h>
 #include <PipelineStateManager.h>
+#include <RootSignatureManager.h>
 
 using Microsoft::WRL::ComPtr;
 
@@ -169,7 +170,7 @@ void Cygnus::ShadowMapManager::CreateShadowPSO() {
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
 	ZeroMemory(&psoDesc, sizeof(psoDesc));
-	psoDesc.pRootSignature = dxBase->GetRootSignature();
+	psoDesc.pRootSignature = RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default);
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
@@ -206,7 +207,7 @@ void Cygnus::ShadowMapManager::CreateShadowSkinnedPSO() {
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
 	ZeroMemory(&psoDesc, sizeof(psoDesc));
-	psoDesc.pRootSignature = dxBase->GetRootSignature();
+	psoDesc.pRootSignature = RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default);
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},

@@ -50,7 +50,6 @@ class RTVManager;
 
 // =========================================================
 // DirectX基盤クラス
-// Todo : 現状は責任が大きすぎるので分割必須
 // =========================================================
 class DirectXBase
 {
@@ -84,10 +83,6 @@ public:
 	void CreateFinalRenderTargets();
 	// フェンス生成
 	void CreateFence();
-	// RootSignature生成
-	void CreateRootSignature();
-	// RootSignature生成（InstancedObject用）
-	void CreateRootSignatureInstancedObject();
 	// InputLayoutの設定
 	void SetInputLayout();
 	// BlendStateの設定
@@ -100,8 +95,6 @@ public:
 	D3D12_BLEND_DESC SetBlendStateAlpha();
 	// RasterizerStateの設定
 	D3D12_RASTERIZER_DESC SetRasterizerState();
-	// PSO生成
-	void CreatePipelineStateObject();
 	// Viewportの設定
 	void SetViewport();
 	// Scissorの設定
@@ -139,83 +132,11 @@ public:
 
 	ID3D12Resource* GetDepthStencilResource() { return depthStencilResource_.Get(); }
 
-	// BlendMode変更用PSOのgetter
-	ID3D12PipelineState* GetPipelineStateBlendModeNone() { return graphicsPipelineStateBlendModeNone_.Get(); };
-	ID3D12PipelineState* GetPipelineStateBlendModeAdd() { return graphicsPipelineStateBlendModeAdd_.Get(); };
-	ID3D12PipelineState* GetPipelineStateBlendModeSubtract() { return graphicsPipelineStateBlendModeSubtract_.Get(); };
-	ID3D12PipelineState* GetPipelineStateBlendModeMultiply() { return graphicsPipelineStateBlendModeMultiply_.Get(); };
-	ID3D12PipelineState* GetPipelineStateBlendModeScreen() { return graphicsPipelineStateBlendModeScreen_.Get(); };
-
-	// 通常ルートシグネチャを取得
-	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
-	// InstancedObject用ルートシグネチャを取得
-	ID3D12RootSignature* GetRootSignatureInstancedObject() { return rootSignatureInstancedObject_.Get(); }
-
-	// InstancedObject用PSOを取得
-	ID3D12PipelineState* GetPipelineStateInstancedObject() { return graphicsPipelineStateInstancedObject_.Get(); }
-	// InstancedObject用PSO（各BlendMode）を取得
-	ID3D12PipelineState* GetPipelineStateInstancedObjectNone() { return graphicsPipelineStateInstancedObjectNone_.Get(); }
-	ID3D12PipelineState* GetPipelineStateInstancedObjectNormal() { return graphicsPipelineStateInstancedObjectNormal_.Get(); }
-	ID3D12PipelineState* GetPipelineStateInstancedObjectAdd() { return graphicsPipelineStateInstancedObjectAdd_.Get(); }
-	ID3D12PipelineState* GetPipelineStateInstancedObjectSubtract() { return graphicsPipelineStateInstancedObjectSubtract_.Get(); }
-	ID3D12PipelineState* GetPipelineStateInstancedObjectMultiply() { return graphicsPipelineStateInstancedObjectMultiply_.Get(); }
-	ID3D12PipelineState* GetPipelineStateInstancedObjectScreen() { return graphicsPipelineStateInstancedObjectScreen_.Get(); }
-	ID3D12PipelineState* GetPipelineStateInstancedObjectAlpha() { return graphicsPipelineStateInstancedObjectAlpha_.Get(); }
-
-
 	friend RTVManager;
 private:
 	// =========================================================
 	// Constants
 	// =========================================================
-
-	// RootSignatureCounts
-	static constexpr uint32_t kDescriptorRangeCount = 2;	/* ディスクリプタレンジの数 */
-	static constexpr uint32_t kRootParameterCount = 17;		/* ルートパラメーターの数 */
-	static constexpr uint32_t kStaticSamplerCount = 2;		/* スタティックサンプラーの数 */
-
-	// RootSignatureCounts - Particle
-	static constexpr uint32_t kParticleRootParameterCount = 5;	/* ルートパラメーターの数 */
-	static constexpr uint32_t kParticleStaticSamplerCount = 1;	/* スタティックサンプラーの数 */
-
-	// RootSignatureCounts - InstancedObject
-	static constexpr uint32_t kInstancedObjectDescriptorRangeCount = 2;		/* ディスクリプタレンジの数 */
-	static constexpr uint32_t kInstancedObjectRootParameterCount = 17;		/* ルートパラメーターの数 */
-	static constexpr uint32_t kInstancedObjectStaticSamplerCount = 2;		/* スタティックサンプラーの数 */
-
-	static constexpr uint32_t kMaterialCBVRegister = 0;			/* マテリアル用レジスタ番号 */
-	static constexpr uint32_t kTransformCBVRegister = 0;		/* 変換行列用レジスタ番号 */
-	static constexpr uint32_t kDirectionalLightCBVRegister = 1;	/* 平行光源用レジスタ番号 */
-	static constexpr uint32_t kCameraCBVRegister = 2;			/* カメラ用レジスタ番号 */
-	static constexpr uint32_t kPointLightCBVRegister = 3;		/* 点光源用レジスタ番号 */
-	static constexpr uint32_t kSpotLightCBVRegister = 4;		/* スポットライト用レジスタ番号 */
-	static constexpr uint32_t kWaveDistortionCBVRegister = 5;	/* 波用レジスタ番号 */
-	static constexpr uint32_t kWaveGlitchEffectCBVRegister = 6;	/* グリッチエフェクト用レジスタ番号 */
-	static constexpr uint32_t kLightViewProjCBVRegister = 7;	/* ライト行列用レジスタ番号 */
-	static constexpr uint32_t kEmissiveLightCBVRegister = 8;	/* エミッシブライト用レジスタ番号 */
-	static constexpr uint32_t kAreaLightCBVRegister = 9;        /* エリアライト用レジスタ番号 */
-	static constexpr uint32_t kDamageVignetteCBVRegister = 10;	/* ダメージビネット用レジスタ番号 */
-
-	static constexpr uint32_t kRootParameterIndexMaterial = 0;			/* マテリアル用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexTransform = 1;			/* 変換行列用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexDescriptorTable = 2;	/* ディスクリプタテーブル用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexDirectionalLight = 3;	/* 平行光源用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexCamera = 4;			/* カメラ用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexStrcturedBuffer = 5;	/* ストラクチャードバッファ用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexPointLight = 6;		/* 点光源用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexSpotLight = 7;			/* スポットライト用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexCubeMap = 8;			/* キューブマップテクスチャ用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexWaveDistortion = 9;	/* 波用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexGlitchEffect = 10;		/* グリッチエフェクト用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexLightCamera = 11;		/* ライトカメラ用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexShadowMap = 12;		/* シャドウマップテクスチャ用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexLightViewProj = 13;	/* ライト行列用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexEmissiveLight = 14;	/* エミッシブライト用ルートパラメーターインデックス */
-	static constexpr uint32_t kRootParameterIndexAreaLight = 15;        /* エリアライト用ルートパラメータインデックス */
-	static constexpr uint32_t kRootParameterIndexDamageVignette = 16;	/* ダメージビネット用ルートパラメーターインデックス */
-
-	static constexpr uint32_t kNormalSamplerRegister = 0;	/* 通常テクスチャ用サンプラーのインデックス */
-	static constexpr uint32_t kShadowSamplerRegister = 1;	/* シャドウマップテクスチャ用サンプラーのインデックス */
 
 	// InputLayout
 	static constexpr uint32_t kInputElementCount = 5;			/* 入力要素の数 */
@@ -257,11 +178,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_;
 	uint64_t fenceValue_;
 	HANDLE fenceEvent_;
-	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob_;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob_;
-
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureInstancedObject_;
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[kInputElementCount];
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc_;
@@ -273,23 +189,6 @@ private:
 	D3D12_BLEND_DESC blendDescMultiply_; // kBlendModeMultiply
 	D3D12_BLEND_DESC blendDescScreen_; // kBlendModeScreen
 	D3D12_BLEND_DESC blendDescAlpha_; // kBlendModeAlpha
-	// BlendMode変更用のPSO
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeNone_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeAdd_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeSubtract_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeMultiply_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateBlendModeScreen_;
-
-	// InstancedObject用PSO
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObject_;
-	// InstancedObject用PSO（各BlendMode）
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectNone_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectNormal_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectAdd_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectSubtract_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectMultiply_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectScreen_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateInstancedObjectAlpha_;
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 

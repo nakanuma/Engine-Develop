@@ -84,30 +84,30 @@ public:
 				return distA > distB;
 			});
 
-		auto* dx = DirectXBase::GetInstance();
+		auto* cmd = DirectXBase::GetInstance()->GetCommandList();
 		auto* psoManager = PipelineStateManager::GetInstance();
 
 		// ブレンドモードに応じてPSOを変更
 		if (blendMode_ == BlendMode::None) {
-			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectNone());
+			cmd->SetPipelineState(psoManager->GetPSO(PSOType::InstancedObjectNone));
 		} else if (blendMode_ == BlendMode::Normal) {
-			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectNormal());
+			cmd->SetPipelineState(psoManager->GetPSO(PSOType::InstancedObjectNormal));
 		} else if (blendMode_ == BlendMode::Add) {
-			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectAdd());
+			cmd->SetPipelineState(psoManager->GetPSO(PSOType::InstancedObjectAdd));
 		} else if (blendMode_ == BlendMode::Subtract) {
-			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectSubtract());
+			cmd->SetPipelineState(psoManager->GetPSO(PSOType::InstancedObjectSubtract));
 		} else if (blendMode_ == BlendMode::Multiply) {
-			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectMultiply());
+			cmd->SetPipelineState(psoManager->GetPSO(PSOType::InstancedObjectMultiply));
 		} else if (blendMode_ == BlendMode::Screen) {
-			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectScreen());
+			cmd->SetPipelineState(psoManager->GetPSO(PSOType::InstancedObjectScreen));
 		} else if (blendMode_ == BlendMode::Alpha) {
-			dx->GetCommandList()->SetPipelineState(dx->GetPipelineStateInstancedObjectAlpha());
+			cmd->SetPipelineState(psoManager->GetPSO(PSOType::InstancedObjectAlpha));
 		}
 
 		// オブジェクト描画
 		object_.InstancedDraw();
 
-		dx->GetCommandList()->SetPipelineState(psoManager->GetPSO(PSOType::Default));
+		cmd->SetPipelineState(psoManager->GetPSO(PSOType::Default));
 	}
 
 	/// <summary>

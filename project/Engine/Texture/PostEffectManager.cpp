@@ -215,9 +215,9 @@ void Cygnus::PostEffectManager::EndBloom() {
 
 	isRenderingToOffscreen_ = false;
 	// 元のシーンを描画
-	DrawWithPSO(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default), bloomResultRT_);
+	DrawWithPSO(psoManager->GetPSO(PSOType::Default), bloomResultRT_);
 	// ブラー結果を加算合成
-	DrawWithPSO(dxBase->GetPipelineStateBlendModeAdd(), bloomBlurRT_);
+	DrawWithPSO(psoManager->GetPSO(PSOType::BlendAdd), bloomBlurRT_);
 	// 通常PSOに戻す
 	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 }

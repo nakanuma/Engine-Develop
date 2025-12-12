@@ -87,6 +87,7 @@
     <ClCompile Include="Engine\Texture\PostEffectManager.cpp" />
     <ClCompile Include="Engine\DirectX\ShadowMapManager.cpp" />
     <ClCompile Include="Engine\DirectX\PipelineStateManager.cpp" />
+    <ClCompile Include="Engine\DirectX\RootSignatureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BehaviourTree\BehaviorTreeEditor.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Engine\DirectX\ShadowMapManager.h" />
     <ClInclude Include="Engine\3D\LightCamera.h" />
     <ClInclude Include="Engine\DirectX\PipelineStateManager.h" />
+    <ClInclude Include="Engine\DirectX\RootSignatureManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

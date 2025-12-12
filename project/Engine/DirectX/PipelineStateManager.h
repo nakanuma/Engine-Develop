@@ -16,7 +16,16 @@ namespace Cygnus {
 /// </summary>
 enum class PSOType {
 	// 基本
-	Default,			/* 通常 */
+	Default,
+
+	// ブレンドモード
+	BlendNone,
+	BlendNormal,
+	BlendAdd,
+	BlendSubtract,
+	BlendMultiply,
+	BlendScreen,
+	BlendAlpha,
 
 	// インスタンシング
 	InstancedObject,
@@ -56,7 +65,7 @@ enum class PSOType {
 };
 
 // =========================================================
-// パイプラインステートオブジェクト管理クラス
+// PipelineStateObject管理クラス
 // =========================================================
 class PipelineStateManager {
 public:
@@ -106,8 +115,6 @@ public:
 	/// <param name="depthStencilDesc"></param>
 	void Initialize(
 	    ID3D12Device* device, 
-		ID3D12RootSignature* rootSignature, 
-		ID3D12RootSignature* rootSignatureInstancedObject,
 	    const D3D12_INPUT_LAYOUT_DESC& inputLayout, 
 		const D3D12_BLEND_DESC& blendNormal, 
 		const D3D12_BLEND_DESC& blendNone, 
@@ -119,6 +126,18 @@ public:
 		const D3D12_RASTERIZER_DESC& rasterizerDesc,
 	    const D3D12_DEPTH_STENCIL_DESC& depthStencilDesc
 	);
+
+	/// <summary>
+	/// 設定を行ったPSOを登録します。
+	/// </summary>
+	/// <param name="name">PSO識別名</param>
+	/// <param name="descriptor">PSO設定</param>
+	/// <returns>生成に成功したか</returns>
+	bool RegisterCustomPSO(const std::string& name, const PSODescriptor& descriptor);
+
+	// =========================================================
+	// Getter / Setter
+	// =========================================================
 
 	/// <summary>
 	/// PSOを取得します。
@@ -134,34 +153,25 @@ public:
 	/// <returns>PSO</returns>
 	ID3D12PipelineState* GetPSOByName(const std::string& name) const;
 
-	/// <summary>
-	/// 設定を行ったPSOを登録します。
-	/// </summary>
-	/// <param name="name">PSO識別名</param>
-	/// <param name="descriptor">PSO設定</param>
-	/// <returns>生成に成功したか</returns>
-	bool RegisterCustomPSO(const std::string& name, const PSODescriptor& descriptor);
-
-	/// <summary>
-	/// 登録されているPSOの数を取得します。
-	/// </summary>
-	/// <returns></returns>
-	size_t GetPSOCount() const;
-
 private:
 	// =========================================================
 	// Internal Methods
 	// =========================================================
 
 	/// <summary>
-	/// 全ての標準PSOを生成します。
+	/// 全てのPSOを生成します。
 	/// </summary>
-	void CreateAllStandardPSOs();
+	void CreateAllPSOs();
 
 	/// <summary>
 	/// 基本的なPSOを生成します。
 	/// </summary>
 	void CreateBasicPSOs();
+
+	/// <summary>
+	/// ブレンドモード別のPSOを生成します。
+	/// </summary>
+	void CreateBlendModePSOs();
 
 	/// <summary>
 	/// インスタンシング用のPSOを生成します。
@@ -201,7 +211,6 @@ private:
 
 	// RootSignature
 	ID3D12RootSignature* rootSignature_ = nullptr;
-	ID3D12RootSignature* rootSignatureInstancedObject_ = nullptr;
 
 	// デフォルト設定
 	D3D12_INPUT_LAYOUT_DESC inputLayout_{};

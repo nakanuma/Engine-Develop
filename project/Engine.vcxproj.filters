@@ -179,6 +179,7 @@
       <Filter>externals\imnodes</Filter>
     </ClCompile>
     <ClCompile Include="Engine\DirectX\PipelineStateManager.cpp" />
+    <ClCompile Include="Engine\DirectX\RootSignatureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -389,6 +390,7 @@
       <Filter>externals\imnodes</Filter>
     </ClInclude>
     <ClInclude Include="Engine\DirectX\PipelineStateManager.h" />
+    <ClInclude Include="Engine\DirectX\RootSignatureManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">

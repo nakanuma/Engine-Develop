@@ -6,6 +6,7 @@
 
 // Engine
 #include <PipelineStateManager.h>
+#include <RootSignatureManager.h>
 
 void Cygnus::SpriteCommon::Initialize(DirectXBase* dxBase) {
 	// 引数で受け取ってメンバ変数に記録する
@@ -48,7 +49,7 @@ void Cygnus::SpriteCommon::PostDraw() {
 	ID3D12DescriptorHeap* descriptorHeaps[] = { SRVManager::GetInstance()->descriptorHeap_.heap_.Get() };
 
 	// ルートシグネチャをセット
-	dxBase->GetCommandList()->SetGraphicsRootSignature(dxBase->GetRootSignature());
+	dxBase->GetCommandList()->SetGraphicsRootSignature(RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default));
 	// 通常PSOをセット
 	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 	// プリミティブトポロジーをセット

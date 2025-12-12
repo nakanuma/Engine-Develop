@@ -9,6 +9,7 @@
 #include <DirectXUtil.h>
 #include <RTVManager.h> 
 #include <PipelineStateManager.h>
+#include <RootSignatureManager.h>
 
 Cygnus::DirectXBase::~DirectXBase()
 {
@@ -45,11 +46,6 @@ void Cygnus::DirectXBase::Initialize() {
 	// フェンス生成
 	CreateFence();
 
-	// RootSignature生成
-	CreateRootSignature();
-	// RootSignature生成（InstancedObject用）
-	CreateRootSignatureInstancedObject();
-
 	// InputLayoutの設定
 	SetInputLayout();
 
@@ -65,13 +61,13 @@ void Cygnus::DirectXBase::Initialize() {
 	// RasterizerStateの設定
 	SetRasterizerState();
 
-	// ShaderManagerの初期化（PSO作成前に必ず行う）
+	// ShaderManagerの初期化
 	ShaderManager::GetInstance()->Initialize();
+	// RootSignatureManagerの初期化
+	RootSignatureManager::GetInstance()->Initialize(this->GetDevice());
 	// PipelineStateManagerの初期化
 	PipelineStateManager::GetInstance()->Initialize(
-		device_.Get(),
-		rootSignature_.Get(),
-		rootSignatureInstancedObject_.Get(),
+		this->GetDevice(),
 		inputLayoutDesc_,
 		blendDesc_,
 		blendDescNone_,
@@ -83,9 +79,6 @@ void Cygnus::DirectXBase::Initialize() {
 		rasterizerDesc_,
 		depthStencilDesc_
 	);
-
-	// PipelineStateObjectの生成
-	CreatePipelineStateObject();
 
 	// Viewportの設定
 	SetViewport();
@@ -266,335 +259,6 @@ void Cygnus::DirectXBase::CreateFence()
 	assert(fenceEvent_ != nullptr);
 }
 
-void Cygnus::DirectXBase::CreateRootSignature()
-{
-	HRESULT result = S_FALSE;
-
-	// RootSignature作成
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
-	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-	// DescriptorRange作成
-	D3D12_DESCRIPTOR_RANGE descriptorRange[kDescriptorRangeCount] = {};
-	// t0 : 通常テクスチャ
-	descriptorRange[0].BaseShaderRegister = 0; // 0から始まる
-	descriptorRange[0].NumDescriptors = 1; // 数は1つ
-	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
-	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
-	// t1 : structuredBuffer（用途不明）
-	descriptorRange[1].BaseShaderRegister = 1;
-	descriptorRange[1].NumDescriptors = 1;
-	descriptorRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descriptorRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	// TextureCube用に独立したDescriptorRange作成
-	D3D12_DESCRIPTOR_RANGE cubeMapRange{};
-	cubeMapRange.BaseShaderRegister = 2; // t2
-	cubeMapRange.NumDescriptors = 1;
-	cubeMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	cubeMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	// ShadowMap用に独立したDescriptorRange作成
-	D3D12_DESCRIPTOR_RANGE shadowMapRange{};
-	shadowMapRange.BaseShaderRegister = 3; // t3
-	shadowMapRange.NumDescriptors = 1;
-	shadowMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	shadowMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	// RootParameter作成。複数設定できるので配列。
-	D3D12_ROOT_PARAMETER rootParameters[kRootParameterCount] = {};
-	// Material（CBV）
-	rootParameters[kRootParameterIndexMaterial].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
-	rootParameters[kRootParameterIndexMaterial].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[kRootParameterIndexMaterial].Descriptor.ShaderRegister = kMaterialCBVRegister;
-	// TransformationMatrix（CBV）
-	rootParameters[kRootParameterIndexTransform].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
-	rootParameters[kRootParameterIndexTransform].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // VertexShaderで使う
-	rootParameters[kRootParameterIndexTransform].Descriptor.ShaderRegister = kTransformCBVRegister;
-	// DescriptorTable
-	rootParameters[kRootParameterIndexDescriptorTable].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
-	rootParameters[kRootParameterIndexDescriptorTable].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[kRootParameterIndexDescriptorTable].DescriptorTable.pDescriptorRanges = descriptorRange; // Tableの中身の配列を指定
-	rootParameters[kRootParameterIndexDescriptorTable].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数
-	// DirecitonalLight（CBV）
-	rootParameters[kRootParameterIndexDirectionalLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
-	rootParameters[kRootParameterIndexDirectionalLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[kRootParameterIndexDirectionalLight].Descriptor.ShaderRegister = kDirectionalLightCBVRegister;
-	// Camera（CBV）
-	rootParameters[kRootParameterIndexCamera].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexCamera].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexCamera].Descriptor.ShaderRegister = kCameraCBVRegister;
-
-	// StructuredBuffer
-	rootParameters[kRootParameterIndexStrcturedBuffer].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[kRootParameterIndexStrcturedBuffer].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[kRootParameterIndexStrcturedBuffer].DescriptorTable.pDescriptorRanges = &descriptorRange[0];
-	rootParameters[kRootParameterIndexStrcturedBuffer].DescriptorTable.NumDescriptorRanges = 1;
-
-	// PointLight（CBV）
-	rootParameters[kRootParameterIndexPointLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexPointLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexPointLight].Descriptor.ShaderRegister = kPointLightCBVRegister;
-
-	// SpotLight（CBV）
-	rootParameters[kRootParameterIndexSpotLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexSpotLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexSpotLight].Descriptor.ShaderRegister = kSpotLightCBVRegister;
-
-	// CubeMap
-	rootParameters[kRootParameterIndexCubeMap].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[kRootParameterIndexCubeMap].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexCubeMap].DescriptorTable.pDescriptorRanges = &cubeMapRange;
-	rootParameters[kRootParameterIndexCubeMap].DescriptorTable.NumDescriptorRanges = 1;
-
-	// WaveDistoration（CBV）
-	rootParameters[kRootParameterIndexWaveDistortion].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexWaveDistortion].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexWaveDistortion].Descriptor.ShaderRegister = kWaveDistortionCBVRegister;
-
-	// GlitchEffect（CBV）
-	rootParameters[kRootParameterIndexGlitchEffect].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexGlitchEffect].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexGlitchEffect].Descriptor.ShaderRegister = kWaveGlitchEffectCBVRegister;
-
-	// LightCameraObject（CBV）
-	rootParameters[kRootParameterIndexLightCamera].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexLightCamera].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[kRootParameterIndexLightCamera].Descriptor.ShaderRegister = 1;
-
-	// ShadowMap
-	rootParameters[kRootParameterIndexShadowMap].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[kRootParameterIndexShadowMap].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexShadowMap].DescriptorTable.pDescriptorRanges = &shadowMapRange;
-	rootParameters[kRootParameterIndexShadowMap].DescriptorTable.NumDescriptorRanges = 1;
-
-	// LightViewProj（CBV）
-	rootParameters[kRootParameterIndexLightViewProj].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexLightViewProj].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexLightViewProj].Descriptor.ShaderRegister = kLightViewProjCBVRegister;
-
-	// EmissiveLight（CBV）
-	rootParameters[kRootParameterIndexEmissiveLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexEmissiveLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexEmissiveLight].Descriptor.ShaderRegister = kEmissiveLightCBVRegister;
-
-	// AreaLight（CBV）
-	rootParameters[kRootParameterIndexAreaLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexAreaLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexAreaLight].Descriptor.ShaderRegister = kAreaLightCBVRegister;
-
-	// DamageVignette（CBV）
-	rootParameters[kRootParameterIndexDamageVignette].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexDamageVignette].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexDamageVignette].Descriptor.ShaderRegister = kDamageVignetteCBVRegister;
-
-	descriptionRootSignature.pParameters = rootParameters; // ルートパラメータ配列へのポインタ
-	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
-
-	// Samplerの設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[kStaticSamplerCount] = {};
-
-	// 通常テクスチャ用
-	staticSamplers[kNormalSamplerRegister].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
-	staticSamplers[kNormalSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0~1の範囲外をリピート
-	staticSamplers[kNormalSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[kNormalSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[kNormalSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
-	staticSamplers[kNormalSamplerRegister].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
-	staticSamplers[kNormalSamplerRegister].ShaderRegister = kNormalSamplerRegister;
-	staticSamplers[kNormalSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-
-	// シャドウマップ用比較サンプラー
-	staticSamplers[kShadowSamplerRegister].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR; // 比較サンプラー
-	staticSamplers[kShadowSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER; // 外側は白
-	staticSamplers[kShadowSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	staticSamplers[kShadowSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	staticSamplers[kShadowSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; // 典型的シャドウ判定
-	staticSamplers[kShadowSamplerRegister].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
-	staticSamplers[kShadowSamplerRegister].ShaderRegister = kShadowSamplerRegister;
-	staticSamplers[kShadowSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	descriptionRootSignature.pStaticSamplers = staticSamplers;
-	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
-
-	// シリアライズしてバイナリにする
-	signatureBlob_ = nullptr;
-	errorBlob_ = nullptr;
-	result = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob_, &errorBlob_);
-	if (FAILED(result)) {
-		Log(reinterpret_cast<char*>(errorBlob_->GetBufferPointer()));
-		assert(false);
-	}
-	// バイナリを元に生成
-	rootSignature_ = nullptr;
-	result = device_->CreateRootSignature(0, signatureBlob_->GetBufferPointer(), signatureBlob_->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
-	assert(SUCCEEDED(result));
-}
-
-void Cygnus::DirectXBase::CreateRootSignatureInstancedObject()
-{
-	HRESULT result = S_FALSE;
-
-	// RootSignature作成
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
-	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-	// DescriptorRange作成
-	D3D12_DESCRIPTOR_RANGE descriptorRange[kInstancedObjectDescriptorRangeCount] = {};
-	descriptorRange[0].BaseShaderRegister = 0;                                                   // 0から始まる
-	descriptorRange[0].NumDescriptors = 1;                                                       // 数は1つ
-	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;                              // SRVを使う
-	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
-
-	descriptorRange[1].BaseShaderRegister = 1;
-	descriptorRange[1].NumDescriptors = 1;
-	descriptorRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descriptorRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	// TextureCube用に独立したDescriptorRange作成
-	D3D12_DESCRIPTOR_RANGE cubeMapRange{};
-	cubeMapRange.BaseShaderRegister = 2; // t2
-	cubeMapRange.NumDescriptors = 1;
-	cubeMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	cubeMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	// ShadowMap用に独立したDescriptorRange作成
-	D3D12_DESCRIPTOR_RANGE shadowMapRange{};
-	shadowMapRange.BaseShaderRegister = 3; // t3
-	shadowMapRange.NumDescriptors = 1;
-	shadowMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	shadowMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	// RootParameter作成。複数設定できるので配列。
-	D3D12_ROOT_PARAMETER rootParameters[kInstancedObjectRootParameterCount] = {};
-	// Material（CBV）
-	rootParameters[kRootParameterIndexMaterial].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;    // CBVを使う
-	rootParameters[kRootParameterIndexMaterial].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[kRootParameterIndexMaterial].Descriptor.ShaderRegister = kMaterialCBVRegister;
-	// TransformationMatrix（CBV）
-	rootParameters[kRootParameterIndexTransform].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;     // CBVを使う
-	rootParameters[kRootParameterIndexTransform].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // VertexShaderで使う
-	rootParameters[kRootParameterIndexTransform].Descriptor.ShaderRegister = kTransformCBVRegister;
-	// DescriptorTable
-	rootParameters[kRootParameterIndexDescriptorTable].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;      // DescriptorTableを使う
-	rootParameters[kRootParameterIndexDescriptorTable].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;                // PixelShaderで使う
-	rootParameters[kRootParameterIndexDescriptorTable].DescriptorTable.pDescriptorRanges = descriptorRange;             // Tableの中身の配列を指定
-	rootParameters[kRootParameterIndexDescriptorTable].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数
-	// DirecitonalLight（CBV）
-	rootParameters[kRootParameterIndexDirectionalLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;    // CBVを使う
-	rootParameters[kRootParameterIndexDirectionalLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[kRootParameterIndexDirectionalLight].Descriptor.ShaderRegister = kDirectionalLightCBVRegister;
-	// Camera（CBV）
-	rootParameters[kRootParameterIndexCamera].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexCamera].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexCamera].Descriptor.ShaderRegister = kCameraCBVRegister;
-
-	// StructuredBuffer
-	rootParameters[kRootParameterIndexStrcturedBuffer].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[kRootParameterIndexStrcturedBuffer].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[kRootParameterIndexStrcturedBuffer].DescriptorTable.pDescriptorRanges = &descriptorRange[0];
-	rootParameters[kRootParameterIndexStrcturedBuffer].DescriptorTable.NumDescriptorRanges = 1;
-
-	// PointLight（CBV）
-	rootParameters[kRootParameterIndexPointLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexPointLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexPointLight].Descriptor.ShaderRegister = kPointLightCBVRegister;
-
-	// SpotLight（CBV）
-	rootParameters[kRootParameterIndexSpotLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexSpotLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexSpotLight].Descriptor.ShaderRegister = kSpotLightCBVRegister;
-
-	// CubeMap
-	rootParameters[kRootParameterIndexCubeMap].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[kRootParameterIndexCubeMap].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexCubeMap].DescriptorTable.pDescriptorRanges = &cubeMapRange;
-	rootParameters[kRootParameterIndexCubeMap].DescriptorTable.NumDescriptorRanges = 1;
-
-	// WaveDistoration（CBV）
-	rootParameters[kRootParameterIndexWaveDistortion].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexWaveDistortion].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexWaveDistortion].Descriptor.ShaderRegister = kWaveDistortionCBVRegister;
-
-	// GlitchEffect（CBV）
-	rootParameters[kRootParameterIndexGlitchEffect].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexGlitchEffect].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexGlitchEffect].Descriptor.ShaderRegister = kWaveGlitchEffectCBVRegister;
-
-	// LightCamera（CBV）
-	rootParameters[kRootParameterIndexLightCamera].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexLightCamera].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[kRootParameterIndexLightCamera].Descriptor.ShaderRegister = 1;
-
-	// ShadowMap
-	rootParameters[kRootParameterIndexShadowMap].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[kRootParameterIndexShadowMap].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexShadowMap].DescriptorTable.pDescriptorRanges = &shadowMapRange;
-	rootParameters[kRootParameterIndexShadowMap].DescriptorTable.NumDescriptorRanges = 1;
-
-	// LightViewProj（CBV）
-	rootParameters[kRootParameterIndexLightViewProj].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexLightViewProj].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexLightViewProj].Descriptor.ShaderRegister = kLightViewProjCBVRegister;
-
-	// EmissiveLight（CBV）
-	rootParameters[kRootParameterIndexEmissiveLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexEmissiveLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexEmissiveLight].Descriptor.ShaderRegister = kEmissiveLightCBVRegister;
-
-	// AreaLight（CBV）
-	rootParameters[kRootParameterIndexAreaLight].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexAreaLight].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexAreaLight].Descriptor.ShaderRegister = kAreaLightCBVRegister;
-
-	// DamageVignette（CBV）
-	rootParameters[kRootParameterIndexDamageVignette].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kRootParameterIndexDamageVignette].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[kRootParameterIndexDamageVignette].Descriptor.ShaderRegister = kDamageVignetteCBVRegister;
-
-	descriptionRootSignature.pParameters = rootParameters;             // ルートパラメータ配列へのポインタ
-	descriptionRootSignature.NumParameters = _countof(rootParameters); // 配列の長さ
-
-	// Samplerの設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[kInstancedObjectStaticSamplerCount] = {};
-
-	// 通常テクスチャ用
-	staticSamplers[kNormalSamplerRegister].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
-	staticSamplers[kNormalSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0~1の範囲外をリピート
-	staticSamplers[kNormalSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[kNormalSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[kNormalSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
-	staticSamplers[kNormalSamplerRegister].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
-	staticSamplers[kNormalSamplerRegister].ShaderRegister = kNormalSamplerRegister;
-	staticSamplers[kNormalSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-
-	// シャドウマップ用比較サンプラー
-	staticSamplers[kShadowSamplerRegister].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR; // 比較サンプラー
-	staticSamplers[kShadowSamplerRegister].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER; // 外側は白
-	staticSamplers[kShadowSamplerRegister].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	staticSamplers[kShadowSamplerRegister].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	staticSamplers[kShadowSamplerRegister].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; // 典型的シャドウ判定
-	staticSamplers[kShadowSamplerRegister].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
-	staticSamplers[kShadowSamplerRegister].ShaderRegister = kShadowSamplerRegister;
-	staticSamplers[kShadowSamplerRegister].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	descriptionRootSignature.pStaticSamplers = staticSamplers;
-	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
-
-	// シリアライズしてバイナリにする
-	signatureBlob_ = nullptr;
-	errorBlob_ = nullptr;
-	result = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob_, &errorBlob_);
-	if (FAILED(result)) {
-		Log(reinterpret_cast<char*>(errorBlob_->GetBufferPointer()));
-		assert(false);
-	}
-	// バイナリを元に生成
-	rootSignatureInstancedObject_ = nullptr;
-	result = device_->CreateRootSignature(0, signatureBlob_->GetBufferPointer(), signatureBlob_->GetBufferSize(), IID_PPV_ARGS(&rootSignatureInstancedObject_));
-	assert(SUCCEEDED(result));
-}
-
 void Cygnus::DirectXBase::SetInputLayout()
 {
 	// InputLayout
@@ -736,133 +400,6 @@ D3D12_RASTERIZER_DESC Cygnus::DirectXBase::SetRasterizerState()
 	return rasterizerDesc_;
 }
 
-void Cygnus::DirectXBase::CreatePipelineStateObject()
-{
-	HRESULT result = S_FALSE;
-
-	ShaderManager* shaderManager = ShaderManager::GetInstance();
-
-	///
-	///	デフォルトのPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	graphicsPipelineStateDesc.pRootSignature = rootSignature_.Get(); // RootSignature
-	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc_; // InputLayout
-
-	auto vs = shaderManager->GetShader("Object3D_VS");
-	auto ps = shaderManager->GetShader("Object3D_PS");
-
-	graphicsPipelineStateDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() }; // VertexShader
-	graphicsPipelineStateDesc.PS = { ps->GetBufferPointer(), ps->GetBufferSize() }; // PixelShader
-
-	graphicsPipelineStateDesc.BlendState = blendDesc_; // BlendState
-	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc_; // RasterizerState
-	// 書き込むRTVの情報
-	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	// 利用するトポロジ（形状）のタイプ。三角形
-	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	// どのように画面に色を打ち込むかの設定
-	graphicsPipelineStateDesc.SampleDesc.Count = 1;
-	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	// DepthStencilの設定
-	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc_;
-	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	
-
-	// デフォルトのPSOを保存
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDefault = graphicsPipelineStateDesc;
-	D3D12_DEPTH_STENCIL_DESC depthStencilDescDefault = depthStencilDesc_;
-
-	///
-	/// BlendMode変更用のPSOを生成
-	/// 
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateBlend = graphicsPipelineStateDesc;
-	graphicsPipelineStateBlend.DepthStencilState.DepthEnable = TRUE;
-	graphicsPipelineStateBlend.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	graphicsPipelineStateBlend.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-	//　無し
-	graphicsPipelineStateBlend.BlendState = blendDescNone_;
-	graphicsPipelineStateBlendModeNone_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeNone_));
-	//　加算
-	graphicsPipelineStateBlend.BlendState = blendDescAdd_;
-	graphicsPipelineStateBlendModeAdd_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeAdd_));
-	//　減算
-	graphicsPipelineStateBlend.BlendState = blendDescSubtract_;
-	graphicsPipelineStateBlendModeSubtract_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeSubtract_));
-	//　乗算
-	graphicsPipelineStateBlend.BlendState = blendDescMultiply_;
-	graphicsPipelineStateBlendModeMultiply_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeMultiply_));
-	//　スクリーン
-	graphicsPipelineStateBlend.BlendState = blendDescScreen_;
-	graphicsPipelineStateBlendModeScreen_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateBlend, IID_PPV_ARGS(&graphicsPipelineStateBlendModeScreen_));
-	
-	///
-	///	InstancedObject用PSOを作成
-	/// 
-	
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateInstancedObjectDesc = graphicsPipelineStateDefault;
-	graphicsPipelineStateInstancedObjectDesc.pRootSignature = rootSignatureInstancedObject_.Get();
-
-	// 適用するShaderの設定
-	auto vsInstancedObject = shaderManager->GetShader("InstancedObject_VS");
-	auto psInstancedObject = shaderManager->GetShader("InstancedObject_PS");
-
-	graphicsPipelineStateInstancedObjectDesc.VS = {vsInstancedObject->GetBufferPointer(), vsInstancedObject->GetBufferSize()};
-	graphicsPipelineStateInstancedObjectDesc.PS = {psInstancedObject->GetBufferPointer(), psInstancedObject->GetBufferSize()};
-
-	// 生成
-	graphicsPipelineStateInstancedObject_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObject_));
-
-	///
-	///	InstancedObject用PSO（各Blendmode）を作成
-	///
-	
-	/*None*/
-	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateNone();
-	graphicsPipelineStateInstancedObjectNone_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectNone_));
-
-	/*Normal*/
-	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendState();
-	graphicsPipelineStateInstancedObjectNormal_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectNormal_));
-
-	/*Add*/
-	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateAdd();
-	graphicsPipelineStateInstancedObjectAdd_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectAdd_));
-
-	/*Subtract*/
-	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateSubtract();
-	graphicsPipelineStateInstancedObjectSubtract_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectSubtract_));
-
-	/*Multiply*/
-	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateMultiply();
-	graphicsPipelineStateInstancedObjectMultiply_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectMultiply_));
-
-	/*Screen*/
-	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateScreen();
-	graphicsPipelineStateInstancedObjectScreen_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectScreen_));
-
-	/*Alpha*/
-	graphicsPipelineStateInstancedObjectDesc.BlendState = SetBlendStateAlpha();
-	graphicsPipelineStateInstancedObjectAlpha_ = nullptr;
-	result = device_->CreateGraphicsPipelineState(&graphicsPipelineStateInstancedObjectDesc, IID_PPV_ARGS(&graphicsPipelineStateInstancedObjectAlpha_));
-}
-
 void Cygnus::DirectXBase::SetViewport()
 {
 	// クライアント領域のサイズと一緒にして画面全体に表示
@@ -970,7 +507,7 @@ void Cygnus::DirectXBase::PreDraw()
 	commandList_->RSSetViewports(1, &viewport_); // Viewportを設定
 	commandList_->RSSetScissorRects(1, &scissorRect_); // Scirssorを設定
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default));
 	commandList_->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default)); // PSOを設定
 	// 形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておければ良い
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1020,10 +557,6 @@ D3D12_RENDER_TARGET_VIEW_DESC Cygnus::DirectXBase::GetRtvDesc()
 {
 	return rtvDesc_;
 }
-
-
-
-
 
 Cygnus::DescriptorHeap* Cygnus::DirectXBase::GetDSVHeap()
 { 
