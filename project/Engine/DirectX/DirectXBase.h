@@ -79,8 +79,6 @@ public:
 	void InitializeCommand();
 	// スワップチェーンの生成
 	void CreateSwapChain();
-	// レンダーターゲット生成
-	void CreateFinalRenderTargets();
 	// フェンス生成
 	void CreateFence();
 	// InputLayoutの設定
@@ -99,8 +97,6 @@ public:
 	void SetViewport();
 	// Scissorの設定
 	void SetScissor();
-	// 深度バッファ生成
-	void CreateDepthBuffer();
 
 	// フレーム開始処理
 	void BeginFrame();
@@ -123,14 +119,6 @@ public:
 
 	IDXGISwapChain4* GetSwapChain();
 	DXGI_SWAP_CHAIN_DESC1 GetSwapChainDesc();
-	DescriptorHeap* GetRTVHeap();
-	D3D12_RENDER_TARGET_VIEW_DESC GetRtvDesc();
-	
-	DescriptorHeap* GetDSVHeap();
-
-	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle(UINT index);
-
-	ID3D12Resource* GetDepthStencilResource() { return depthStencilResource_.Get(); }
 
 	friend RTVManager;
 private:
@@ -153,12 +141,6 @@ private:
 	static constexpr float kViewportMinDepth = 0.0f;	/* ビューポートの最小深度 */
 	static constexpr float kViewportMaxDepth = 1.0f;	/* ビューポートの最大深度 */
 
-	static constexpr uint32_t kDefaultDSVHeapSize = 128;	/* DSVヒープのデフォルトサイズ */
-
-	static constexpr float kDefaultClearColor[4] = {0.1f, 0.25f, 0.5f, 1.0f};	/* デフォルトの画面クリアカラー */
-
-	static constexpr size_t kBackBufferCount = 2;	/* バックバッファの数 */
-
 	// =========================================================
 	// Member Variables
 	// =========================================================
@@ -170,11 +152,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_;
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc_;
-	DescriptorHeap rtvDescriptorHeap_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> swapChainResources_[2];
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc_;
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2];
-	D3D12_RESOURCE_BARRIER barrier_;
+	
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_;
 	uint64_t fenceValue_;
 	HANDLE fenceEvent_;
@@ -195,9 +173,7 @@ private:
 	
 	D3D12_VIEWPORT viewport_;
 	D3D12_RECT scissorRect_;
-	Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource_;
-	DescriptorHeap dsvDescriptorHeap_;
-	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc_;
+
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc_;
 };
 }

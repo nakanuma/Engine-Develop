@@ -7,6 +7,7 @@
 #include <TextureManager.h>
 #include <PipelineStateManager.h>
 #include <RootSignatureManager.h>
+#include <FrameResourceManager.h>
 
 using Microsoft::WRL::ComPtr;
 
@@ -48,7 +49,7 @@ int32_t Cygnus::ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t heigh
 	device->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_PPV_ARGS(&shadowTex));
 
 	// DSVを作成
-	DescriptorHeap* dsvHeap = dxBase->GetDSVHeap();
+	DescriptorHeap* dsvHeap = FrameResourceManager::GetInstance()->GetDSVHeap();
 	uint32_t dsvIndex = dsvUseIndex_++; // このクラスでインデックスを管理
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap->GetCPUHandle(dsvIndex);
 
@@ -102,6 +103,7 @@ void Cygnus::ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle) {
 
 void Cygnus::ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
+	FrameResourceManager* frameResource = FrameResourceManager::GetInstance();
 
 	// 描画後、SRVとして使えるように遷移
 	ShadowMapManager::GetInstance()->TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -114,8 +116,8 @@ void Cygnus::ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle) {
 	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 	// バックバッファDSVに切り替え
 	UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxBase->GetRTVHandle(backBufferIndex);
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxBase->GetDSVHeap()->GetCPUHandle(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = frameResource->GetRTVHandle(backBufferIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = frameResource->GetDSVHeap()->GetCPUHandle(0);
 	dxBase->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
 

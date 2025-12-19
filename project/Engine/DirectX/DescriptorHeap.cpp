@@ -15,7 +15,7 @@ void Cygnus::DescriptorHeap::Create(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_
 	assert(SUCCEEDED(result));
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE Cygnus::DescriptorHeap::GetCPUHandle(uint32_t index) {
+D3D12_CPU_DESCRIPTOR_HANDLE Cygnus::DescriptorHeap::GetCPUHandle(uint32_t index) const {
 	// ヒープの先頭CPUアドレスを取得
 	D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = heap_->GetCPUDescriptorHandleForHeapStart();
 	// index番目のCPUアドレスに移動
@@ -23,7 +23,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE Cygnus::DescriptorHeap::GetCPUHandle(uint32_t index)
 	return handleCPU;
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Cygnus::DescriptorHeap::GetGPUHandle(uint32_t index) {
+D3D12_GPU_DESCRIPTOR_HANDLE Cygnus::DescriptorHeap::GetGPUHandle(uint32_t index) const {
 	// ヒープの先頭GPUアドレスを取得
 	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = heap_->GetGPUDescriptorHandleForHeapStart();
 	// index番目のGPUアドレスに移動

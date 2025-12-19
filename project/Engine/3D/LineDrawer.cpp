@@ -30,7 +30,7 @@ void Cygnus::LineDrawer::UpdateVertexBuffer(const std::vector<T>& vertices, Micr
 
 	// データ転送
 	T* mapped = nullptr;
-	triVertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mapped));
+	resource->Map(0, nullptr, reinterpret_cast<void**>(&mapped));
 	std::memcpy(mapped, vertices.data(), vbSize);
 	resource->Unmap(0, nullptr);
 	

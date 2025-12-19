@@ -1,6 +1,8 @@
 #include "Framework.h"
 
+// Engine
 #include <StringUtil.h>
+#include <FrameResourceManager.h>
 
 void Cygnus::Framework::Initialize() {
 	// リークチェッカー
@@ -31,7 +33,12 @@ void Cygnus::Framework::Initialize() {
 	TextureManager::Initialize(dxBase_->GetDevice(), srvManager_);
 
 	// ImGuiの初期化
-	ImguiWrapper::Initialize(dxBase_->GetDevice(), dxBase_->GetSwapChainDesc().BufferCount, dxBase_->GetRtvDesc().Format, srvManager_->descriptorHeap_.heap_.Get());
+	ImguiWrapper::Initialize(
+		dxBase_->GetDevice(), 
+		dxBase_->GetSwapChainDesc().BufferCount, 
+		FrameResourceManager::GetInstance()->GetRTVDesc().Format, 
+		srvManager_->descriptorHeap_.heap_.Get()
+	);
 
 	// SoundManagerの生成と初期化
 	soundManager_ = std::make_unique<SoundManager>();

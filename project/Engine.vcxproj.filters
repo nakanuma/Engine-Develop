@@ -180,6 +180,7 @@
     </ClCompile>
     <ClCompile Include="Engine\DirectX\PipelineStateManager.cpp" />
     <ClCompile Include="Engine\DirectX\RootSignatureManager.cpp" />
+    <ClCompile Include="Engine\DirectX\FrameResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -391,6 +392,7 @@
     </ClInclude>
     <ClInclude Include="Engine\DirectX\PipelineStateManager.h" />
     <ClInclude Include="Engine\DirectX\RootSignatureManager.h" />
+    <ClInclude Include="Engine\DirectX\FrameResourceManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">

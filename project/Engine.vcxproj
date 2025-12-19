@@ -58,6 +58,7 @@
     </ClCompile>
     <ClCompile Include="Engine\3D\LineDrawer.cpp" />
     <ClCompile Include="Engine\3D\LightCamera.cpp" />
+    <ClCompile Include="Engine\DirectX\FrameResourceManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Engine\Math\Matrix.cpp" />
     <ClCompile Include="Engine\Math\Matrix3x3.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Engine\3D\LightCamera.h" />
     <ClInclude Include="Engine\DirectX\PipelineStateManager.h" />
     <ClInclude Include="Engine\DirectX\RootSignatureManager.h" />
+    <ClInclude Include="Engine\DirectX\FrameResourceManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

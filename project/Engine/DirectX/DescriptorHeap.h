@@ -37,14 +37,14 @@ public:
 	/// </summary>
 	/// <param name="index">インデックス</param>
 	/// <returns>CPUディスクリプタハンドル</returns>
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(uint32_t index);
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(uint32_t index) const;
 
 	/// <summary>
 	/// GPUディスクリプタハンドルを取得します。
 	/// </summary>
 	/// <param name="index">インデックス</param>
 	/// <returns>GPUディスクリプタハンドル</returns>
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(uint32_t index);
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(uint32_t index) const;
 
 	// =========================================================
 	// Getter / Setter

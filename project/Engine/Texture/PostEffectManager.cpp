@@ -2,6 +2,7 @@
 
 // Engine
 #include <RTVManager.h>
+#include <FrameResourceManager.h>
 
 void Cygnus::PostEffectManager::Initialize() {
 	// 初期化済みならスキップ
@@ -227,7 +228,7 @@ void Cygnus::PostEffectManager::RestoreBackBuffer(bool resetPSO) {
 	auto cmd = dxBase->GetCommandList();
 
 	UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxBase->GetRTVHandle(backBufferIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = FrameResourceManager::GetInstance()->GetRTVHandle(backBufferIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = RTVManager::GetDSVHandle(mainSceneRT_);
 	ID3D12Resource* depthBufferResource = RTVManager::GetDepthResource(mainSceneRT_);
 

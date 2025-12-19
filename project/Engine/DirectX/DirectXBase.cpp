@@ -10,6 +10,7 @@
 #include <RTVManager.h> 
 #include <PipelineStateManager.h>
 #include <RootSignatureManager.h>
+#include <FrameResourceManager.h>
 
 Cygnus::DirectXBase::~DirectXBase()
 {
@@ -27,28 +28,18 @@ Cygnus::DirectXBase* Cygnus::DirectXBase::GetInstance()
 void Cygnus::DirectXBase::Initialize() {
 	// FPS固定初期化
 	FPSController::GetInstance()->InitializeFixFPS();
-
 	// DXGIデバイス初期化
 	InitializeDXGIDevice();
-
 	// コマンド関連初期化
 	InitializeCommand();
-
 	// スワップチェーンの生成
 	CreateSwapChain();
-
-	// レンダーターゲット生成
-	CreateFinalRenderTargets();
-
-	// 深度バッファ生成
-	CreateDepthBuffer();
-
+	// FrameResourceManagerの初期化
+	FrameResourceManager::GetInstance()->Initialize(device_.Get(), swapChain_.Get());
 	// フェンス生成
 	CreateFence();
-
 	// InputLayoutの設定
 	SetInputLayout();
-
 	// BlendStateの設定
 	SetBlendState();
 	SetBlendStateNone();
@@ -57,14 +48,17 @@ void Cygnus::DirectXBase::Initialize() {
 	SetBlendStateMultiply();
 	SetBlendStateScreen();
 	SetBlendStateAlpha();
-
 	// RasterizerStateの設定
 	SetRasterizerState();
-
 	// ShaderManagerの初期化
 	ShaderManager::GetInstance()->Initialize();
 	// RootSignatureManagerの初期化
 	RootSignatureManager::GetInstance()->Initialize(this->GetDevice());
+
+	depthStencilDesc_.DepthEnable = true;
+	depthStencilDesc_.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc_.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
 	// PipelineStateManagerの初期化
 	PipelineStateManager::GetInstance()->Initialize(
 		this->GetDevice(),
@@ -79,10 +73,8 @@ void Cygnus::DirectXBase::Initialize() {
 		rasterizerDesc_,
 		depthStencilDesc_
 	);
-
 	// Viewportの設定
 	SetViewport();
-
 	// Scissorの設定
 	SetScissor();
 }
@@ -214,35 +206,6 @@ void Cygnus::DirectXBase::CreateSwapChain()
 	result = dxgiFactory_->CreateSwapChainForHwnd(commandQueue_.Get(), Window::GetHandle(), &swapChainDesc_,
 		nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
 	assert(SUCCEEDED(result));
-}
-
-void Cygnus::DirectXBase::CreateFinalRenderTargets()
-{
-	HRESULT result = S_FALSE;
-
-	// ディスクリプタヒープの生成
-	rtvDescriptorHeap_.Create(device_.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 128, false);
-
-	// SwapChainからResourceを引っ張ってくる
-	swapChainResources_[0] = nullptr;
-	swapChainResources_[1] = nullptr;
-	result = swapChain_->GetBuffer(0, IID_PPV_ARGS(&swapChainResources_[0]));
-	assert(SUCCEEDED(result));
-	result = swapChain_->GetBuffer(1, IID_PPV_ARGS(&swapChainResources_[1]));
-	assert(SUCCEEDED(result));
-
-	// RTVの設定
-	rtvDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 出力結果をSRGBに変換して書き込む
-	rtvDesc_.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D; // 2Dのテクスチャとして書き込む
-	// ディスクリプタの先頭を取得する
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = rtvDescriptorHeap_.GetCPUHandle(0);
-	// 1つ目を作る
-	rtvHandles_[0] = rtvStartHandle;
-	device_->CreateRenderTargetView(swapChainResources_[0].Get(), &rtvDesc_, rtvHandles_[0]);
-	// 2つ目のディクリプタハンドルを得る
-	rtvHandles_[1].ptr = rtvHandles_[0].ptr + device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	// 2つ目を作る
-	device_->CreateRenderTargetView(swapChainResources_[1].Get(), &rtvDesc_, rtvHandles_[1]);
 }
 
 void Cygnus::DirectXBase::CreateFence()
@@ -420,57 +383,10 @@ void Cygnus::DirectXBase::SetScissor()
 	scissorRect_.bottom = Window::GetHeight();
 }
 
-void Cygnus::DirectXBase::CreateDepthBuffer()
-{
-	// DepthStencilTextureをウィンドウのサイズで作成
-	depthStencilResource_ = CreateDepthStencilTextureResource(device_.Get(), Window::GetWidth(), Window::GetHeight(), false);
-
-	// DSVの生成
-	dsvDescriptorHeap_.Create(device_.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, kDefaultDSVHeapSize, false);
-
-	// DSVの設定
-	dsvDesc_.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // Format。基本的にはResourceに合わせる
-	dsvDesc_.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; // 2dTexture;
-	// DSVHeapの先頭にDSVをつくる
-	device_->CreateDepthStencilView(depthStencilResource_.Get(), &dsvDesc_, dsvDescriptorHeap_.GetCPUHandle(0));
-
-	// DepthStencilStateの設定
-	// Depthの機能を有効化する
-	depthStencilDesc_.DepthEnable = true;
-	// Depthの書き込みを行わない
-	depthStencilDesc_.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	// 比較関数はLessEqual。つまり、近ければ描画される
-	depthStencilDesc_.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-}
-
 void Cygnus::DirectXBase::BeginFrame()
 {
-	HRESULT result = S_FALSE;
-
-	// これから書き込むバックバッファのインデックスを取得
-	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
-
-	// TransitionBarrierの設定
-	// 今回のバリアはTransition
-	barrier_.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	// Noneにしておく
-	barrier_.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	// バリアを張る対象のリソース。現在のバックバッファに対して行う
-	barrier_.Transition.pResource = swapChainResources_[backBufferIndex].Get();
-	// 遷移前（現在）のResourceState
-	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	// 遷移後のResourceState
-	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	// TransitionBarrierを張る
-	commandList_->ResourceBarrier(1, &barrier_);
-
-	// 描画先のRTVをとDSVを設定する
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_.GetCPUHandle(0);
-	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
-	// 指定した色で画面全体をクリアする
-	commandList_->ClearRenderTargetView(rtvHandles_[backBufferIndex], kDefaultClearColor, 0, nullptr);
-	// 指定した深度で画面全体をクリアする
-	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	// フレーム開始処理
+	FrameResourceManager::GetInstance()->BeginFrame(commandList_.Get());
 }
 
 void Cygnus::DirectXBase::EndFrame()
@@ -547,29 +463,7 @@ IDXGISwapChain4* Cygnus::DirectXBase::GetSwapChain() {
 }
 
 DXGI_SWAP_CHAIN_DESC1 Cygnus::DirectXBase::GetSwapChainDesc() {
-	return swapChainDesc_; }
-
-Cygnus::DescriptorHeap* Cygnus::DirectXBase::GetRTVHeap() {
-	return &rtvDescriptorHeap_;
-}
-
-D3D12_RENDER_TARGET_VIEW_DESC Cygnus::DirectXBase::GetRtvDesc()
-{
-	return rtvDesc_;
-}
-
-Cygnus::DescriptorHeap* Cygnus::DirectXBase::GetDSVHeap()
-{ 
-	return &dsvDescriptorHeap_;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE Cygnus::DirectXBase::GetRTVHandle(UINT index)
-{
-	if (index >= kBackBufferCount) {
-		throw std::out_of_range("GetRTVHandle: index out of range");
-	}
-
-	return rtvHandles_[index];
+	return swapChainDesc_; 
 }
 
 Cygnus::D3DResourceLeakChecker::~D3DResourceLeakChecker()
