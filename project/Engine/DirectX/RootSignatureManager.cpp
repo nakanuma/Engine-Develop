@@ -6,6 +6,7 @@
 
 // Engine
 #include <Logger.h>
+#include "CommandManager.h"
 
 Cygnus::RootSignatureManager* Cygnus::RootSignatureManager::GetInstance() {
 	static RootSignatureManager instance;

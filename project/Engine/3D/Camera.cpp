@@ -1,6 +1,9 @@
 #include "camera.h"
-#include "DirectXBase.h"
-#include "MyWindow.h"
+
+// Engine
+#include <DirectXBase.h>
+#include <MyWindow.h>
+#include <CommandManager.h>
 
 Cygnus::Camera::Camera(const Float3& argTranslate, const Float3& argRotate, float argFov) {
 	// 引数で受け取った位置、回転、視野角を設定
@@ -13,7 +16,11 @@ Cygnus::Camera::Camera(const Float3& argTranslate, const Float3& argRotate, floa
 	cameraCB_.data_->position = argTranslate;
 }
 
-void Cygnus::Camera::TransferConstantBuffer() { DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexCamera, current_->cameraCB_.resource_->GetGPUVirtualAddress()); }
+void Cygnus::Camera::TransferConstantBuffer() { 
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexCamera, current_->cameraCB_.resource_->GetGPUVirtualAddress());
+}
 
 Cygnus::Matrix Cygnus::Camera::MakeViewMatrix() {
 	// カメラのtransformからアフィン変換行列を作成

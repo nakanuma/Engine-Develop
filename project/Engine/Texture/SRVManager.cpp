@@ -1,7 +1,12 @@
 #include "SRVManager.h"
-#include "Logger.h"
-#include "StringUtil.h"
+
+// C++
 #include <cassert>
+
+// Engine
+#include <Logger.h>
+#include <StringUtil.h>
+#include <CommandManager.h>
 
 const uint32_t Cygnus::SRVManager::kMaxSRVCount = 16384;
 
@@ -42,13 +47,17 @@ void Cygnus::SRVManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12R
 }
 
 void Cygnus::SRVManager::PreDraw() {
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
 	// 描画用のDescriptorHeapの設定
 	ID3D12DescriptorHeap* descriptorHeaps[] = {descriptorHeap_.heap_.Get()};
-	dxBase_->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
+	cmd->SetDescriptorHeaps(1, descriptorHeaps);
 }
 
 void Cygnus::SRVManager::SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex) {
-	dxBase_->GetCommandList()->SetGraphicsRootDescriptorTable(RootParameterIndex, GetGPUDescriptorHandle(srvIndex));
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
+	cmd->SetGraphicsRootDescriptorTable(RootParameterIndex, GetGPUDescriptorHandle(srvIndex));
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Cygnus::SRVManager::GetCPUDescriptorHandle(uint32_t index) {

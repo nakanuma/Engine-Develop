@@ -75,12 +75,8 @@ public:
 	void Initialize();
 	// DXGIデバイス初期化
 	void InitializeDXGIDevice(bool enableDebugLayer = true);
-	// コマンド関連初期化
-	void InitializeCommand();
 	// スワップチェーンの生成
 	void CreateSwapChain();
-	// フェンス生成
-	void CreateFence();
 	// InputLayoutの設定
 	void SetInputLayout();
 	// BlendStateの設定
@@ -114,10 +110,10 @@ public:
 	
 	// デバイスの取得
 	ID3D12Device* GetDevice();
-	// コマンドリストの取得
-	ID3D12GraphicsCommandList* GetCommandList();
-
+	
+	// スワップチェーンの取得
 	IDXGISwapChain4* GetSwapChain();
+	// スワップチェーン設定の取得
 	DXGI_SWAP_CHAIN_DESC1 GetSwapChainDesc();
 
 	friend RTVManager;
@@ -147,15 +143,9 @@ private:
 	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_;
 	Microsoft::WRL::ComPtr<IDXGIAdapter4> useAdapter_;
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
+	
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_;
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc_;
-	
-	Microsoft::WRL::ComPtr<ID3D12Fence> fence_;
-	uint64_t fenceValue_;
-	HANDLE fenceEvent_;
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs_[kInputElementCount];
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc_;
@@ -170,7 +160,6 @@ private:
 
 	D3D12_RASTERIZER_DESC rasterizerDesc_;
 
-	
 	D3D12_VIEWPORT viewport_;
 	D3D12_RECT scissorRect_;
 

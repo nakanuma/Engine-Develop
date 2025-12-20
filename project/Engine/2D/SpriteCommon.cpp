@@ -1,12 +1,15 @@
 #include "SpriteCommon.h"
-#include "DirectXUtil.h"
-#include "Logger.h"
-#include "SRVManager.h"
+
+// C++
 #include <cassert>
 
 // Engine
+#include <DirectXUtil.h>
+#include <Logger.h>
+#include <SRVManager.h>
 #include <PipelineStateManager.h>
 #include <RootSignatureManager.h>
+#include <CommandManager.h>
 
 void Cygnus::SpriteCommon::Initialize(DirectXBase* dxBase) {
 	// 引数で受け取ってメンバ変数に記録する
@@ -35,27 +38,28 @@ void Cygnus::SpriteCommon::Initialize(DirectXBase* dxBase) {
 }
 
 void Cygnus::SpriteCommon::PreDraw() {
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
 	// ルートシグネチャをセット
-	dxBase_->GetCommandList()->SetGraphicsRootSignature(rootSignature_.Get());
+	cmd->SetGraphicsRootSignature(rootSignature_.Get());
 	// グラフィックスパイプラインステートをセット
-	dxBase_->GetCommandList()->SetPipelineState(graphicsPipelineState_.Get());
+	cmd->SetPipelineState(graphicsPipelineState_.Get());
 	// プリミティブトポロジーをセット
-	dxBase_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Cygnus::SpriteCommon::PostDraw() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 	ID3D12DescriptorHeap* descriptorHeaps[] = { SRVManager::GetInstance()->descriptorHeap_.heap_.Get() };
 
 	// ルートシグネチャをセット
-	dxBase->GetCommandList()->SetGraphicsRootSignature(RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default));
+	cmd->SetGraphicsRootSignature(RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default));
 	// 通常PSOをセット
-	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 	// プリミティブトポロジーをセット
-	dxBase->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// ディスクリプタヒープをセット
-	dxBase->GetCommandList()->SetDescriptorHeaps(kDescriptorHeapCount, descriptorHeaps);
+	cmd->SetDescriptorHeaps(kDescriptorHeapCount, descriptorHeaps);
 }
 
 void Cygnus::SpriteCommon::CreateRootSignature() {

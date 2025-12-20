@@ -1,11 +1,12 @@
 #include "LightManager.h"
 
+// C++
+#include <numbers>
+
 // Engine
 #include <DirectXBase.h>
 #include <LineDrawer.h>
-
-// C++
-#include <numbers>
+#include <CommandManager.h>
 
 Cygnus::LightManager* Cygnus::LightManager::GetInstance() {
 	static Cygnus::LightManager instance;
@@ -71,18 +72,18 @@ void Cygnus::LightManager::Initialize() {
 }
 
 void Cygnus::LightManager::TransferContantBuffer() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// 平行光源の定数バッファをセット
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexDirectionalLight, directionalLightCB_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexDirectionalLight, directionalLightCB_.resource_->GetGPUVirtualAddress());
 	// ポイントライトの定数バッファをセット
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexPointLight, pointLightCB_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexPointLight, pointLightCB_.resource_->GetGPUVirtualAddress());
 	// スポットライトの定数バッファをセット
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexSpotLight, spotLightsCB_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexSpotLight, spotLightsCB_.resource_->GetGPUVirtualAddress());
 	// エミッシブライトの定数バッファをセット
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexEmissiveLight, emissiveLightsCB_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexEmissiveLight, emissiveLightsCB_.resource_->GetGPUVirtualAddress());
 	// エリアライトの定数バッファをセット
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexAreaLight, areaLightsCB_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexAreaLight, areaLightsCB_.resource_->GetGPUVirtualAddress());
 }
 
 void Cygnus::LightManager::DrawDebug() {

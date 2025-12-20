@@ -1,7 +1,10 @@
 #include "Sprite.h"
-#include "DirectXUtil.h"
-#include "SpriteCommon.h"
-#include "TextureManager.h"
+
+// Engine
+#include <DirectXUtil.h>
+#include <SpriteCommon.h>
+#include <TextureManager.h>
+#include <CommandManager.h>
 
 void Cygnus::Sprite::Initialize(SpriteCommon* spriteCommon, uint32_t textureIndex) {
 	// 引数で受け取ってメンバ変数に記録する
@@ -127,18 +130,20 @@ void Cygnus::Sprite::Update() {
 }
 
 void Cygnus::Sprite::Draw() {
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
 	// VertexBufferViewを設定
-	spriteCommon_->GetDxBase()->GetCommandList()->IASetVertexBuffers(kVertexBufferSlot, kVertexBufferCount, &vertexBufferView_);
+	cmd->IASetVertexBuffers(kVertexBufferSlot, kVertexBufferCount, &vertexBufferView_);
 	// IBVを設定
-	spriteCommon_->GetDxBase()->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
+	cmd->IASetIndexBuffer(&indexBufferView_);
 	// マテリアルCBufferの場所を設定
-	spriteCommon_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(kMaterialRootParameterIndex, materialResource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kMaterialRootParameterIndex, materialResource_->GetGPUVirtualAddress());
 	// TransformatinMatrixCBufferの場所を設定
-	spriteCommon_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(kTransformRootParameterIndex, transformationMatrixResource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kTransformRootParameterIndex, transformationMatrixResource_->GetGPUVirtualAddress());
 	// SRVのDescriptorTableの先頭を設定
-	TextureManager::SetDescriptorTable(kTextureRootParameterIndex, spriteCommon_->GetDxBase()->GetCommandList(), textureIndex_);
+	TextureManager::SetDescriptorTable(kTextureRootParameterIndex, cmd, textureIndex_);
 	// 描画（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画
-	spriteCommon_->GetDxBase()->GetCommandList()->DrawIndexedInstanced(kDrawIndexCount, kDrawInstanceCount, kDrawStartIndexLocation, kDrawBaseVertexLocation, kDrawStartInstanceLocation);
+	cmd->DrawIndexedInstanced(kDrawIndexCount, kDrawInstanceCount, kDrawStartIndexLocation, kDrawBaseVertexLocation, kDrawStartInstanceLocation);
 }
 
 void Cygnus::Sprite::AdjustTextureSize() {

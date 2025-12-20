@@ -1,9 +1,13 @@
 #include "Object3D.h"
-#include "Camera.h"
-#include "SRVManager.h"
-#include <LightCamera.h>
 
+// C++
 #include <numbers>
+
+// Engine
+#include <Camera.h>
+#include <SRVManager.h>
+#include <LightCamera.h>
+#include <CommandManager.h>
 
 Cygnus::Object3D::Object3D() {
 	transform_.translate_ = kDefaultTranslate;
@@ -60,19 +64,19 @@ void Cygnus::Object3D::ScaleUV(float scaleU) {
 }
 
 void Cygnus::Object3D::Draw() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// 共通セットアップ
 	DrawSetup();
 
 	// commandListにVBVを設定
-	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
+	cmd->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
 	// 描画を行う（DrawCall/ドローコール）
-	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
 void Cygnus::Object3D::Draw(const SkinCluster& skinCluster) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// 共通セットアップ
 	DrawSetup();
@@ -83,38 +87,38 @@ void Cygnus::Object3D::Draw(const SkinCluster& skinCluster) {
 	};
 
 	// 配列を渡す（開始Slot番号、使用Slot番号、VBV配列へのポインタ）
-	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kSkinMeshVBVCount, vbvs);
+	cmd->IASetVertexBuffers(kMeshVBVStartSlot, kSkinMeshVBVCount, vbvs);
 	// PaletteのSRVを設定
-	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(kRootParameterIndexSkinPaletteSRV, skinCluster.paletteSrvHandle_.second);
+	cmd->SetGraphicsRootDescriptorTable(kRootParameterIndexSkinPaletteSRV, skinCluster.paletteSrvHandle_.second);
 	// 描画を行う（DrawCall/ドローコール）
-	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
 void Cygnus::Object3D::DrawShadow() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// 共通セットアップ
 	DrawShadowSetup();
 
 	// 頂点バッファの設定
-	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
+	cmd->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
 
 	// DrawCall
-	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
 void Cygnus::Object3D::DrawShadow(const SkinCluster& skinCluster) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// 共通セットアップ
 	DrawShadowSetup();
 
 	// 頂点バッファの設定
 	D3D12_VERTEX_BUFFER_VIEW vbvs[kSkinMeshVBVCount] = {model_->vertexBufferView, skinCluster.influenceBufferView_};
-	dxBase->GetCommandList()->IASetVertexBuffers(kMeshVBVStartSlot, kSkinMeshVBVCount, vbvs);
+	cmd->IASetVertexBuffers(kMeshVBVStartSlot, kSkinMeshVBVCount, vbvs);
 
 	// DrawCall
-	dxBase->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
+	cmd->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
 void Cygnus::Object3D::SetEmissive(const Float3& color, float intensity, float radius, float decay) {
@@ -223,7 +227,7 @@ Cygnus::Matrix Cygnus::Object3D::CalculateWorldMatrix()
 
 void Cygnus::Object3D::DrawSetup()
 {
-	auto cmd = DirectXBase::GetInstance()->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// commandListにIBVを設定
 	cmd->IASetIndexBuffer(&model_->indexBufferView);
@@ -239,7 +243,7 @@ void Cygnus::Object3D::DrawSetup()
 
 void Cygnus::Object3D::DrawShadowSetup()
 {
-	auto cmd = DirectXBase::GetInstance()->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// インデックスバッファの設定
 	cmd->IASetIndexBuffer(&model_->indexBufferView);

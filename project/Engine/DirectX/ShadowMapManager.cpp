@@ -8,6 +8,7 @@
 #include <PipelineStateManager.h>
 #include <RootSignatureManager.h>
 #include <FrameResourceManager.h>
+#include <CommandManager.h>
 
 using Microsoft::WRL::ComPtr;
 
@@ -70,9 +71,10 @@ int32_t Cygnus::ShadowMapManager::CreateShadowMap(uint32_t width, uint32_t heigh
 
 void Cygnus::ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// シャドウマップ用PSOをセット
-	dxBase->GetCommandList()->SetPipelineState(ShadowMapManager::GetInstance()->GetShadowPSO());
+	cmd->SetPipelineState(ShadowMapManager::GetInstance()->GetShadowPSO());
 
 	// Viewport / Scissor の設定
 	D3D12_VIEWPORT vp{};
@@ -82,17 +84,17 @@ void Cygnus::ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle) {
 	vp.Height = static_cast<float>(Window::GetHeight());
 	vp.MinDepth = kMinDepth;
 	vp.MaxDepth = kMaxDepth;
-	dxBase->GetCommandList()->RSSetViewports(1, &vp);
+	cmd->RSSetViewports(1, &vp);
 
 	D3D12_RECT sc{};
 	sc.left = 0;
 	sc.top = 0;
 	sc.right = static_cast<LONG>(Window::GetWidth());
 	sc.bottom = static_cast<LONG>(Window::GetHeight());
-	dxBase->GetCommandList()->RSSetScissorRects(1, &sc);
+	cmd->RSSetScissorRects(1, &sc);
 
 	// シャドウマップ書き込み前に書き込み状態に遷移
-	TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	TransitionShadowResource(cmd, shadowMapHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 	// シャドウマップDSVをセット
 	SetShadowDSV(shadowMapHandle);
@@ -104,21 +106,22 @@ void Cygnus::ShadowMapManager::BeginShadowPass(uint32_t shadowMapHandle) {
 void Cygnus::ShadowMapManager::EndShadowPass(uint32_t shadowMapHandle) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	FrameResourceManager* frameResource = FrameResourceManager::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// 描画後、SRVとして使えるように遷移
-	ShadowMapManager::GetInstance()->TransitionShadowResource(dxBase->GetCommandList(), shadowMapHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	ShadowMapManager::GetInstance()->TransitionShadowResource(cmd, shadowMapHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	// ShadowMapをバインド
-	TextureManager::SetDescriptorTable(kRootParameterIndexShadowMap, dxBase->GetCommandList(), shadowMapHandle);
+	TextureManager::SetDescriptorTable(kRootParameterIndexShadowMap, cmd, shadowMapHandle);
 	// LightCameraの定数バッファを送信（PixelShader内で使用）
 	LightCamera::GetInstance()->TransferConstantBuffer();
 
 	// バックバッファ用PSOに切り替え
-	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 	// バックバッファDSVに切り替え
 	UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = frameResource->GetRTVHandle(backBufferIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = frameResource->GetDSVHeap()->GetCPUHandle(0);
-	dxBase->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+	cmd->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
 
 int32_t Cygnus::ShadowMapManager::GetShadowSRVHandle(int32_t handle) { return shadowResources_[handle].srvIndex; }
@@ -132,20 +135,18 @@ ID3D12Resource* Cygnus::ShadowMapManager::GetShadowTexture(int32_t handle) const
 }
 
 void Cygnus::ShadowMapManager::SetShadowDSV(int32_t handle) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	ID3D12GraphicsCommandList* cmdList = dxBase->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// DSVをセット
 	auto& res = shadowResources_[handle];
-	cmdList->OMSetRenderTargets(0, nullptr, FALSE, &res.dsvHandle);
+	cmd->OMSetRenderTargets(0, nullptr, FALSE, &res.dsvHandle);
 }
 
 void Cygnus::ShadowMapManager::ClearShadowMap(int32_t handle, float clearDepth) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	ID3D12GraphicsCommandList* cmdList = dxBase->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	auto& res = shadowResources_[handle];
-	cmdList->ClearDepthStencilView(res.dsvHandle, D3D12_CLEAR_FLAG_DEPTH, clearDepth, 0, 0, nullptr);
+	cmd->ClearDepthStencilView(res.dsvHandle, D3D12_CLEAR_FLAG_DEPTH, clearDepth, 0, 0, nullptr);
 }
 
 void Cygnus::ShadowMapManager::TransitionShadowResource(ID3D12GraphicsCommandList* cmdList, int32_t handle, D3D12_RESOURCE_STATES newState) {

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\DirectX\CommandManager.cpp" />
     <ClCompile Include="Engine\Model\Animation\AnimatedModelInstance.cpp" />
     <ClCompile Include="Engine\Model\Animation\AnimationLoader.cpp" />
     <ClCompile Include="Engine\Math\Easing.cpp" />
@@ -91,6 +92,7 @@
     <ClCompile Include="Engine\DirectX\RootSignatureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\DirectX\CommandManager.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorTreeEditor.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorTree.h" />
     <ClInclude Include="Engine\BehaviourTree\BehaviorNode.h" />

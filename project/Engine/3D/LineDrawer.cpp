@@ -3,6 +3,7 @@
 // Engine
 #include <Camera.h>
 #include <ShaderManager.h>
+#include <CommandManager.h>
 
 template <typename T>
 void Cygnus::LineDrawer::UpdateVertexBuffer(const std::vector<T>& vertices, Microsoft::WRL::ComPtr<ID3D12Resource>& resource, D3D12_VERTEX_BUFFER_VIEW& vbv){
@@ -147,8 +148,7 @@ void Cygnus::LineDrawer::RegisterTracer(const Float3& start, const Float3& end, 
 }
 
 void Cygnus::LineDrawer::Draw() {
-	auto device = dxBase_->GetDevice();
-	auto cmdList = dxBase_->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	if (lineVertices_.empty() && triVertices_.empty())
 		return;
@@ -159,8 +159,8 @@ void Cygnus::LineDrawer::Draw() {
 	constMap_->WVP = viewMatrix * projectionMatrix;
 
 	// 共通セット
-	cmdList->SetGraphicsRootSignature(rootSignature_.Get());
-	cmdList->SetGraphicsRootConstantBufferView(0, constanceBuffer_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootSignature(rootSignature_.Get());
+	cmd->SetGraphicsRootConstantBufferView(0, constanceBuffer_->GetGPUVirtualAddress());
 
 	///
 	///	三角形
@@ -171,12 +171,12 @@ void Cygnus::LineDrawer::Draw() {
 		UpdateVertexBuffer(triVertices_, triVertexResource_, triVBV_);
 
 		// PSO + トポロジ設定
-		cmdList->SetPipelineState(pipelineStateTri_.Get());
-		cmdList->IASetVertexBuffers(0, 1, &triVBV_);
-		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		cmd->SetPipelineState(pipelineStateTri_.Get());
+		cmd->IASetVertexBuffers(0, 1, &triVBV_);
+		cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		// 描画
-		cmdList->DrawInstanced(static_cast<UINT>(triVertices_.size()), 1, 0, 0);
+		cmd->DrawInstanced(static_cast<UINT>(triVertices_.size()), 1, 0, 0);
 	}
 
 	///
@@ -188,12 +188,12 @@ void Cygnus::LineDrawer::Draw() {
 		UpdateVertexBuffer(lineVertices_, lineVertexResource_, lineVBV_);
 
 		// PSO + トポロジ
-		cmdList->SetPipelineState(pipelineStateLine_.Get());
-		cmdList->IASetVertexBuffers(0, 1, &lineVBV_);
-		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+		cmd->SetPipelineState(pipelineStateLine_.Get());
+		cmd->IASetVertexBuffers(0, 1, &lineVBV_);
+		cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 		// 描画
-		cmdList->DrawInstanced(static_cast<UINT>(lineVertices_.size()), 1, 0, 0);
+		cmd->DrawInstanced(static_cast<UINT>(lineVertices_.size()), 1, 0, 0);
 	}
 
 	///
@@ -205,12 +205,12 @@ void Cygnus::LineDrawer::Draw() {
 		UpdateVertexBuffer(tracerStrip_, tracerStripResource_, tracerStripVBV_);
 
 		// PSO + トポロジ
-		cmdList->SetPipelineState(pipelineStateTracer_.Get());
-		cmdList->IASetVertexBuffers(0, 1, &tracerStripVBV_);
-		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		cmd->SetPipelineState(pipelineStateTracer_.Get());
+		cmd->IASetVertexBuffers(0, 1, &tracerStripVBV_);
+		cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		// 描画
-		cmdList->DrawInstanced(static_cast<UINT>(tracerStrip_.size()), 1, 0, 0);
+		cmd->DrawInstanced(static_cast<UINT>(tracerStrip_.size()), 1, 0, 0);
 	}
 
 	// クリア

@@ -1,6 +1,10 @@
 #include "LightCamera.h"
 
+// C++
 #include <algorithm>
+
+// Engine
+#include <CommandManager.h>
 
 Cygnus::LightCamera* Cygnus::LightCamera::GetInstance() {
 	static Cygnus::LightCamera instance;
@@ -56,9 +60,9 @@ void Cygnus::LightCamera::UpdateViewProjection(const BoundingBox& sceneBB) {
 }
 
 void Cygnus::LightCamera::TransferConstantBuffer() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	cb_.data_->lightViewProj = viewProj_;
 	// ルートシグネチャに定数バッファをバインド
-	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(kRootParameterIndexCBV, cb_.resource_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexCBV, cb_.resource_->GetGPUVirtualAddress());
 }

@@ -3,6 +3,7 @@
 // Engine
 #include <RTVManager.h>
 #include <FrameResourceManager.h>
+#include <CommandManager.h>
 
 void Cygnus::PostEffectManager::Initialize() {
 	// 初期化済みならスキップ
@@ -97,7 +98,7 @@ void Cygnus::PostEffectManager::Initialize() {
 }
 
 void Cygnus::PostEffectManager::TransfarConstantBuffer() {
-	auto cmd = DirectXBase::GetInstance()->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	/* WaveDistrotion */
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexWave, waveCB_.resource_->GetGPUVirtualAddress());
@@ -116,7 +117,7 @@ void Cygnus::PostEffectManager::BeginMainScene() {
 
 void Cygnus::PostEffectManager::EndMainScene() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 	auto psoManager = PipelineStateManager::GetInstance();
 
 	// バックバッファに切り替え
@@ -191,9 +192,6 @@ void Cygnus::PostEffectManager::EndMainScene() {
 }
 
 void Cygnus::PostEffectManager::BeginBloom() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
-
 	// Bloom結果用のレンダーターゲットに切り替え
 	RTVManager::SetRenderTarget(bloomResultRT_);
 	RTVManager::ClearRTV(bloomResultRT_, kTransparentClearColor);
@@ -201,8 +199,7 @@ void Cygnus::PostEffectManager::BeginBloom() {
 }
 
 void Cygnus::PostEffectManager::EndBloom() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 	auto psoManager = PipelineStateManager::GetInstance();
 
 	// ブルーム適用箇所のみ描画されたテクスチャを使用して明度抽出
@@ -225,7 +222,7 @@ void Cygnus::PostEffectManager::EndBloom() {
 
 void Cygnus::PostEffectManager::RestoreBackBuffer(bool resetPSO) {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
-	auto cmd = dxBase->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	UINT backBufferIndex = dxBase->GetSwapChain()->GetCurrentBackBufferIndex();
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = FrameResourceManager::GetInstance()->GetRTVHandle(backBufferIndex);
@@ -254,7 +251,7 @@ void Cygnus::PostEffectManager::RestoreBackBuffer(bool resetPSO) {
 void Cygnus::PostEffectManager::RestoreDepthBufferState()
 {
 	ID3D12Resource* depthBufferResource = RTVManager::GetDepthResource(mainSceneRT_);
-	auto cmd = DirectXBase::GetInstance()->GetCommandList();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	D3D12_RESOURCE_BARRIER returnBarrier = {};
 	returnBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -268,7 +265,7 @@ void Cygnus::PostEffectManager::RestoreDepthBufferState()
 }
 
 void Cygnus::PostEffectManager::DrawWithPSO(ID3D12PipelineState* pso, uint32_t textureHandle) {
-	auto cmd = DirectXBase::GetInstance()->GetCommandList(); 
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	cmd->SetPipelineState(pso);
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
@@ -281,8 +278,6 @@ void Cygnus::PostEffectManager::DrawWithPSO(ID3D12PipelineState* pso, uint32_t t
 
 void Cygnus::PostEffectManager::ApplyEffect(ID3D12PipelineState* pso, uint32_t sourceTexture, uint32_t targetRT)
 {
-	auto cmd = DirectXBase::GetInstance()->GetCommandList();
-
 	// レンダーターゲットの設定
 	RTVManager::SetRenderTarget(targetRT);
 	RTVManager::ClearRTV(targetRT, kTransparentClearColor);

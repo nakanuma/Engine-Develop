@@ -11,11 +11,10 @@
 #include <PipelineStateManager.h>
 #include <RootSignatureManager.h>
 #include <FrameResourceManager.h>
+#include <CommandManager.h>
 
 Cygnus::DirectXBase::~DirectXBase()
 {
-	CloseHandle(fenceEvent_);
-
 	Log("Released DirectXBase\n");
 }
 
@@ -30,14 +29,12 @@ void Cygnus::DirectXBase::Initialize() {
 	FPSController::GetInstance()->InitializeFixFPS();
 	// DXGIデバイス初期化
 	InitializeDXGIDevice();
-	// コマンド関連初期化
-	InitializeCommand();
+	// CommandManagerの初期化
+	CommandManager::GetInstance()->Initialize(device_.Get());
 	// スワップチェーンの生成
 	CreateSwapChain();
 	// FrameResourceManagerの初期化
 	FrameResourceManager::GetInstance()->Initialize(device_.Get(), swapChain_.Get());
-	// フェンス生成
-	CreateFence();
 	// InputLayoutの設定
 	SetInputLayout();
 	// BlendStateの設定
@@ -168,27 +165,6 @@ void Cygnus::DirectXBase::InitializeDXGIDevice([[maybe_unused]]bool enableDebugL
 #endif
 }
 
-void Cygnus::DirectXBase::InitializeCommand()
-{
-	HRESULT result = S_FALSE;
-
-	// コマンドキューを生成する
-	commandQueue_ = nullptr;
-	D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
-	result = device_->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&commandQueue_));
-	assert(SUCCEEDED(result));
-
-	// コマンドアロケータを生成する
-	commandAllocator_ = nullptr;
-	result = device_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator_));
-	assert(SUCCEEDED(result));
-
-	// コマンドリストを生成する
-	commandList_ = nullptr;
-	result = device_->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator_.Get(), nullptr, IID_PPV_ARGS(&commandList_));
-	assert(SUCCEEDED(result));
-}
-
 void Cygnus::DirectXBase::CreateSwapChain()
 {
 	HRESULT result = S_FALSE;
@@ -203,23 +179,9 @@ void Cygnus::DirectXBase::CreateSwapChain()
 	swapChainDesc_.BufferCount = 2; // ダブルバッファ
 	swapChainDesc_.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // モニタに写したら中身を破棄
 	// コマンドキュー、ウィンドウハンドル、設定を渡して生成する
-	result = dxgiFactory_->CreateSwapChainForHwnd(commandQueue_.Get(), Window::GetHandle(), &swapChainDesc_,
+	result = dxgiFactory_->CreateSwapChainForHwnd(CommandManager::GetInstance()->GetCommandQueue(), Window::GetHandle(), &swapChainDesc_,
 		nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
 	assert(SUCCEEDED(result));
-}
-
-void Cygnus::DirectXBase::CreateFence()
-{
-	HRESULT result = S_FALSE;
-
-	// 初期値0でFenceを作る
-	fence_ = nullptr;
-	fenceValue_ = 0;
-	result = device_->CreateFence(fenceValue_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
-
-	// FenceのSignalを待つためのイベントを作成する
-	fenceEvent_ = CreateEvent(NULL, FALSE, FALSE, NULL);
-	assert(fenceEvent_ != nullptr);
 }
 
 void Cygnus::DirectXBase::SetInputLayout()
@@ -385,64 +347,45 @@ void Cygnus::DirectXBase::SetScissor()
 
 void Cygnus::DirectXBase::BeginFrame()
 {
+	// コマンド記録開始
+	CommandManager::GetInstance()->BeginRecording();
+
 	// フレーム開始処理
-	FrameResourceManager::GetInstance()->BeginFrame(commandList_.Get());
+	FrameResourceManager::GetInstance()->BeginFrame(CommandManager::GetInstance()->GetCommandList());
 }
 
 void Cygnus::DirectXBase::EndFrame()
 {
-	HRESULT result = S_FALSE;
-
 	// GPUとOSに画面の交換を行うよう通知する
 	swapChain_->Present(1, 0);
 
-	// Fenceの値を更新
-	fenceValue_++;
-	// GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
-	commandQueue_->Signal(fence_.Get(), fenceValue_);
-
-	// Fenceの値が指定したSignal値にたどり着いているか確認する
-	// GetCompletedValueの初期値はFence作成時に渡した初期値
-	if (fence_->GetCompletedValue() < fenceValue_) {
-		// 指定したSignalにたどりついていないので、たどり着くまで待つようにイベントを設定する
-		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
-		// イベント待つ
-		WaitForSingleObject(fenceEvent_, INFINITE);
-	}
-
-	// 次のフレーム用のコマンドリストを準備
-	result = commandAllocator_->Reset();
-	assert(SUCCEEDED(result));
-	result = commandList_->Reset(commandAllocator_.Get(), nullptr);
-	assert(SUCCEEDED(result));
+	// 次フレーム用にフェンス待機とコマンドリストの準備
+	CommandManager::GetInstance()->PrepareNextFrame();
 }
 
 void Cygnus::DirectXBase::PreDraw()
 {
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
 	// 描画に必要な情報をコマンドリストに積む
-	commandList_->RSSetViewports(1, &viewport_); // Viewportを設定
-	commandList_->RSSetScissorRects(1, &scissorRect_); // Scirssorを設定
+	cmd->RSSetViewports(1, &viewport_); // Viewportを設定
+	cmd->RSSetScissorRects(1, &scissorRect_); // Scirssorを設定
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default));
-	commandList_->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default)); // PSOを設定
+	cmd->SetGraphicsRootSignature(RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default));
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default)); // PSOを設定
 	// 形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておければ良い
-	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Cygnus::DirectXBase::PostDraw()
 {
 	HRESULT result = S_FALSE;
 
-	// 画面に書く処理はすべて終わり、画面に映すので、状態を遷移
-	RTVManager::ResetResourceBarrier();
+	// バックバッファをPresent状態に遷移
+	FrameResourceManager::GetInstance()->TransitionToPresent(CommandManager::GetInstance()->GetCommandList());
 
-	// コマンドリストの内容を確定させる
-	result = commandList_->Close();
-	assert(SUCCEEDED(result));
-
-	// GPUにコマンドリストの実行を行わせる
-	ID3D12CommandList* commandLists[] = { commandList_.Get() };
-	commandQueue_->ExecuteCommandLists(1, commandLists);
+	// コマンド記録終了 + 実行
+	CommandManager::GetInstance()->EndRecordingAndExecute();
 	
 	// FPS固定
 	FPSController::GetInstance()->UpdateFixFPS();
@@ -451,11 +394,6 @@ void Cygnus::DirectXBase::PostDraw()
 ID3D12Device* Cygnus::DirectXBase::GetDevice()
 {
 	return device_.Get();
-}
-
-ID3D12GraphicsCommandList* Cygnus::DirectXBase::GetCommandList()
-{
-	return commandList_.Get();
 }
 
 IDXGISwapChain4* Cygnus::DirectXBase::GetSwapChain() {

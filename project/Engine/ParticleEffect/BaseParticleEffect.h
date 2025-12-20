@@ -7,6 +7,7 @@
 #include <Engine/3D/InstancedObject.h>
 #include <Engine/ParticleEffect/IParticleEffect.h>
 #include <Engine/DirectX/PipelineStateManager.h>
+#include <CommandManager.h>
 
 namespace Cygnus {
 /// <summary>
@@ -84,7 +85,7 @@ public:
 				return distA > distB;
 			});
 
-		auto* cmd = DirectXBase::GetInstance()->GetCommandList();
+		auto* cmd = Cygnus::CommandManager::GetInstance()->GetCommandList();
 		auto* psoManager = PipelineStateManager::GetInstance();
 
 		// ブレンドモードに応じてPSOを変更

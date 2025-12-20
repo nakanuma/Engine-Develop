@@ -2,6 +2,7 @@
 
 // Engine
 #include <PipelineStateManager.h>
+#include <CommandManager.h>
 
 Cygnus::SkyBoxManager* Cygnus::SkyBoxManager::GetInstance() {
 	static SkyBoxManager instance;
@@ -30,17 +31,17 @@ void Cygnus::SkyBoxManager::Update() {
 }
 
 void Cygnus::SkyBoxManager::Draw() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
 	PipelineStateManager* psoManager = PipelineStateManager::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// Skybox用PSOに変更
-	dxBase->GetCommandList()->SetPipelineState(psoManager->GetPSO(PSOType::Skybox));
+	cmd->SetPipelineState(psoManager->GetPSO(PSOType::Skybox));
 	// CubeMapをバインド
-	TextureManager::SetDescriptorTable(kRootParameterIndexCubeMap, dxBase->GetCommandList(), modelSkybox_.material.textureHandle);
+	TextureManager::SetDescriptorTable(kRootParameterIndexCubeMap, cmd, modelSkybox_.material.textureHandle);
 	// 描画
 	objectSkybox_->Draw();
 	// 通常PSOに戻す
-	dxBase->GetCommandList()->SetPipelineState(psoManager->GetPSO(PSOType::Default));
+	cmd->SetPipelineState(psoManager->GetPSO(PSOType::Default));
 }
 
 uint32_t Cygnus::SkyBoxManager::GetEnvironmentTextureHandle() { return modelSkybox_.material.textureHandle; }

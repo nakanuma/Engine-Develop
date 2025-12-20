@@ -3,7 +3,7 @@
 // Engine
 #include <TextureManager.h>
 #include <PipelineStateManager.h>
-#include <PipelineStateManager.h>
+#include <CommandManager.h>
 
 void Cygnus::AnimatedModelInstance::Initialize(const AnimatedModelData& data) {
 	object_ = std::make_unique<Object3D>();
@@ -47,19 +47,19 @@ void Cygnus::AnimatedModelInstance::Update(float deltaTime, bool isPlaying) {
 }
 
 void Cygnus::AnimatedModelInstance::Draw() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// Skinning用PSOに変更
-	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Skinning));
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Skinning));
 	object_->Draw(data_.skinCluster);
-	dxBase->GetCommandList()->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 }
 
 void Cygnus::AnimatedModelInstance::DrawShadow() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	// 骨行列SRVのバインド
-	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(5, data_.skinCluster.paletteSrvHandle_.second);
+	cmd->SetGraphicsRootDescriptorTable(5, data_.skinCluster.paletteSrvHandle_.second);
 
 	object_->DrawShadow(data_.skinCluster);
 }

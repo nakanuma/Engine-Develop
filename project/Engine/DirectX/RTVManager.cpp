@@ -5,7 +5,7 @@
 #include <DirectXUtil.h>
 #include <TextureManager.h>
 #include <FrameResourceManager.h>
-
+#include <CommandManager.h>
 
 Cygnus::RTVManager& Cygnus::RTVManager::GetInstance() {
 	static RTVManager instance;
@@ -55,7 +55,7 @@ int32_t Cygnus::RTVManager::CreateRenderTargetTexture(uint32_t width, uint32_t h
 }
 
 void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 	FrameResourceManager* frameResource = FrameResourceManager::GetInstance();
 
 	// 元のレンダーターゲットのリソースバリアを戻す
@@ -63,7 +63,7 @@ void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle) {
 
 	// リソースバリアを書き込み可能な状態にする
 	TransitionResource(
-		dxBase->GetCommandList(),
+		cmd,
 		TextureManager::GetResource(textureHandle),
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
 		D3D12_RESOURCE_STATE_RENDER_TARGET
@@ -71,7 +71,7 @@ void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle) {
 
 	// そのテクスチャの深度情報のリソースバリアを書込み可能な状態にする
 	TransitionResource(
-		dxBase->GetCommandList(), 
+		cmd,
 		GetInstance().dsvResourceMap_[textureHandle].Get(), 
 		D3D12_RESOURCE_STATE_GENERIC_READ, 
 		D3D12_RESOURCE_STATE_DEPTH_WRITE
@@ -81,7 +81,7 @@ void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle) {
 	auto cpuHandle = frameResource->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]);
 	auto dsvHandle = frameResource->GetDSVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]);
 
-	dxBase->GetCommandList()->OMSetRenderTargets(1, &cpuHandle, false, &dsvHandle);
+	cmd->OMSetRenderTargets(1, &cpuHandle, false, &dsvHandle);
 
 	// 現在のレンダーターゲットを保存する
 	GetInstance().currentRenderTarget_ = textureHandle;
@@ -89,7 +89,7 @@ void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle) {
 
 void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle, int32_t depthSourceHandle)
 {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 	FrameResourceManager* frameResource = FrameResourceManager::GetInstance();
 
 	// 元のレンダーターゲットのリソースバリアを戻す
@@ -97,7 +97,7 @@ void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle, int32_t depthSou
 
 	// リソースバリアを書き込み可能な状態にする
 	TransitionResource(
-		dxBase->GetCommandList(),
+		cmd,
 		TextureManager::GetResource(textureHandle),
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
 		D3D12_RESOURCE_STATE_RENDER_TARGET
@@ -105,7 +105,7 @@ void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle, int32_t depthSou
 
 	// そのテクスチャの深度情報のリソースバリアを書込み可能な状態にする
 	TransitionResource(
-		dxBase->GetCommandList(),
+		cmd,
 		GetInstance().dsvResourceMap_[textureHandle].Get(),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		D3D12_RESOURCE_STATE_DEPTH_WRITE
@@ -115,14 +115,14 @@ void Cygnus::RTVManager::SetRenderTarget(int32_t textureHandle, int32_t depthSou
 	auto cpuHandle = frameResource->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]);
 	auto dsvHandle = frameResource->GetDSVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[depthSourceHandle]);
 
-	dxBase->GetCommandList()->OMSetRenderTargets(1, &cpuHandle, false, &dsvHandle);
+	cmd->OMSetRenderTargets(1, &cpuHandle, false, &dsvHandle);
 
 	// 現在のレンダーターゲットを保存する
 	GetInstance().currentRenderTarget_ = textureHandle;
 }
 
 void Cygnus::RTVManager::SetRTtoBB() {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 	FrameResourceManager* frameResource = FrameResourceManager::GetInstance();
 
 	// 元のレンダーターゲットのリソースバリアを戻す
@@ -130,7 +130,7 @@ void Cygnus::RTVManager::SetRTtoBB() {
 
 	// リソースバリアを書き込み可能な状態にする
 	TransitionResource(
-		dxBase->GetCommandList(), 
+		cmd,
 		frameResource->GetCurrentBackBufferResource(), 
 		D3D12_RESOURCE_STATE_PRESENT, 
 		D3D12_RESOURCE_STATE_RENDER_TARGET
@@ -141,7 +141,7 @@ void Cygnus::RTVManager::SetRTtoBB() {
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = frameResource->GetDSVHeap()->GetCPUHandle(0);
 
 	// レンダーターゲットをセットする
-	dxBase->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
+	cmd->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
 
 	// 現在のレンダーターゲットを保存する
 	GetInstance().currentRenderTarget_ = -1;
@@ -149,13 +149,13 @@ void Cygnus::RTVManager::SetRTtoBB() {
 
 void Cygnus::RTVManager::ResetResourceBarrier() {
 	int32_t rt = GetInstance().currentRenderTarget_;
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 	FrameResourceManager* frameResource = FrameResourceManager::GetInstance();
 
 	if (rt < 0) {
 		// バックバッファのリソースバリアを戻す
 		TransitionResource(
-			dxBase->GetCommandList(), 
+			cmd,
 			frameResource->GetCurrentBackBufferResource(), 
 			D3D12_RESOURCE_STATE_RENDER_TARGET, 
 			D3D12_RESOURCE_STATE_PRESENT
@@ -164,7 +164,7 @@ void Cygnus::RTVManager::ResetResourceBarrier() {
 	} else {
 		// レンダーテクスチャのリソースバリアを戻す
 		TransitionResource(
-			dxBase->GetCommandList(), 
+			cmd,
 			TextureManager::GetResource(rt), 
 			D3D12_RESOURCE_STATE_RENDER_TARGET, 
 			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
@@ -172,7 +172,7 @@ void Cygnus::RTVManager::ResetResourceBarrier() {
 
 		// そのテクスチャの深度情報のリソースバリアを戻す
 		TransitionResource(
-			dxBase->GetCommandList(), 
+			cmd,
 			GetInstance().dsvResourceMap_[rt].Get(),
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			D3D12_RESOURCE_STATE_GENERIC_READ
@@ -181,12 +181,12 @@ void Cygnus::RTVManager::ResetResourceBarrier() {
 }
 
 void Cygnus::RTVManager::ClearRTV(int32_t textureHandle, const Float4& clearColor) {
-	DirectXBase* dxBase = DirectXBase::GetInstance();
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
 	FrameResourceManager* frameResource = FrameResourceManager::GetInstance();
 
 	// 指定した色で画面全体をクリアする
-	dxBase->GetCommandList()->ClearRenderTargetView(frameResource->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]), &clearColor.x, 0, nullptr);
-	dxBase->GetCommandList()->ClearDepthStencilView(frameResource->GetDSVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	cmd->ClearRenderTargetView(frameResource->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]), &clearColor.x, 0, nullptr);
+	cmd->ClearDepthStencilView(frameResource->GetDSVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 
 int32_t Cygnus::RTVManager::GetDepthSRVHandle(int32_t textureHandle) { return GetInstance().depthSRVHandleMap_[textureHandle]; }
