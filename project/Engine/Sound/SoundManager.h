@@ -6,6 +6,7 @@
 #include <fstream>
 #include <wrl.h>
 #include <xaudio2.h>
+#include <unordered_map>
 #pragma comment(lib, "xaudio2.lib")
 
 namespace Cygnus {
@@ -45,7 +46,11 @@ public:
 		WAVEFORMATEX wfex;					/* 波形フォーマット */
 		std::unique_ptr<BYTE[]> pBuffer;    /* 音声バッファ */
 		unsigned int bufferSize;			/* バッファサイズ */
-		IXAudio2SourceVoice* pSourceVoice;	/* ソースボイス */
+	};
+
+	struct PlayingVoice {
+		IXAudio2SourceVoice* pSourceVoice;	/* 再生中のソースボイス */
+		std::string key;					/* 鳴らしている音の識別用キー */
 	};
 
 public:
@@ -70,31 +75,35 @@ public:
 	void Initialize();
 
 	/// <summary>
-	/// WAVファイルを読み込みます。
+	/// 音声を読み込んで登録します。
 	/// </summary>
-	/// <param name="filename">ファイル名</param>
-	/// <returns>読み込んだ音声データ</returns>
-	SoundData LoadWave(const char* filename);
+	/// <param name="filename">ファイルパス</param>
+	/// <param name="key">任意のキー</param>
+	void Load(const std::string& filename, const std::string& key);
 
 	/// <summary>
-	/// 音声データを解放します。
+	/// キー指定で音声を再生します。
 	/// </summary>
-	/// <param name="soundData">音声データ</param>
-	void Unload(SoundData& soundData);
-
-	/// <summary>
-	/// 音声データを再生します。
-	/// </summary>
-	/// <param name="soundData">音声データ</param>
-	/// <param name="loopFlag">ループフラグ</param>
+	/// <param name="key">再生する音声のキー</param>
+	/// <param name="loop">ループ再生フラグ</param>
 	/// <param name="volume">音量</param>
-	void PlayWave(SoundData& soundData, bool loopFlag = false, float volume = 1.0f);
+	void Play(const std::string& key, bool loop = false, float volume = 1.0f);
 
 	/// <summary>
-	/// 音声データの再生を停止します。
+	/// キー指定で音声を停止します。
 	/// </summary>
-	/// <param name="soundData">音声データ</param>
-	void StopWave(SoundData& soundData);
+	/// <param name="key"></param>
+	void Stop(const std::string& key);
+
+private:
+	// =========================================================
+	// Internal Methods
+	// =========================================================
+
+	/// <summary>
+	/// 再生の終了したボイスをクリアします。
+	/// </summary>
+	void ClearFinishedVoices();
 
 private:
 	// =========================================================
@@ -103,5 +112,8 @@ private:
 
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;			/* XAudio2 インターフェース */
 	IXAudio2MasteringVoice* masterVoice_;				/* マスターボイス */
+
+	std::unordered_map<std::string, std::unique_ptr<SoundData>> soundMap_; /* 音声データを全て保持するマップ */
+	std::list<IXAudio2SourceVoice*> activeVoices_;                         /* 再生中ボイスのリスト */
 };
 }

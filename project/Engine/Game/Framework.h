@@ -104,7 +104,6 @@ protected:
 	DirectXBase* dxBase_ = nullptr;									/* DirectX基盤クラス */
 	SRVManager* srvManager_ = nullptr;								/* SRV管理クラス */
 	std::unique_ptr<Cygnus::SpriteCommon> spriteCommon_ = nullptr;	/* スプライト共通処理クラス */
-	std::unique_ptr <SoundManager> soundManager_ = nullptr;			/* サウンド管理クラス */
 	AbstractSceneFactory* sceneFactory_ = nullptr;					/* シーンファクトリクラス */
 
 private:

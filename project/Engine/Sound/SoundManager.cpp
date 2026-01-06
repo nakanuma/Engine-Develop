@@ -3,7 +3,6 @@
 
 Cygnus::SoundManager* Cygnus::SoundManager::GetInstance() {
 	static SoundManager instance;
-	instance.Initialize();
 	return &instance;
 }
 
@@ -19,7 +18,10 @@ void Cygnus::SoundManager::Initialize() {
 	assert(SUCCEEDED(result));
 }
 
-Cygnus::SoundManager::SoundData Cygnus::SoundManager::LoadWave(const char* filename) {
+void Cygnus::SoundManager::Load(const std::string& filename, const std::string& key) {
+	// 既に読み込み済みならスキップ
+	if (soundMap_.find(key) != soundMap_.end()) return;
+
 	///
 	/// 1, ファイルオープン
 	///
@@ -92,58 +94,67 @@ Cygnus::SoundManager::SoundData Cygnus::SoundManager::LoadWave(const char* filen
 	file.close();
 
 	///
-	/// 4, 読み込んだ音声データをreturn
+	/// 4, 読み込んだ音声データをマップに登録
 	///
 
-	// returnする為の音声データ
-	SoundData soundData = {};
+	// 音声データを作成し、解析したデータをセット
+	auto soundData = std::make_unique<SoundData>();
 
-	soundData.wfex = format.fmt;
-	soundData.pBuffer = std::move(buffer);
-	soundData.bufferSize = data.size;
+	soundData->wfex = format.fmt;
+	soundData->pBuffer = std::move(buffer);
+	soundData->bufferSize = data.size;
 
-	return soundData;
+	soundMap_[key] = std::move(soundData);
 }
 
-void Cygnus::SoundManager::Unload(SoundData& soundData) {
-	if (soundData.pSourceVoice) {
-		soundData.pSourceVoice->DestroyVoice();
-		soundData.pSourceVoice = nullptr;
-	}
+void Cygnus::SoundManager::Play(const std::string& key, bool loop, float volume) { 
+	// 再生の終わった音をクリア
+	ClearFinishedVoices();
 
-	soundData.pBuffer.reset();
-	soundData.bufferSize = 0;
-	soundData.wfex = {};
-}
+	auto it = soundMap_.find(key); 
+	if (it == soundMap_.end()) return; // 見つからなければスキップ
 
-void Cygnus::SoundManager::PlayWave(SoundData& soundData, bool loopFlag, float volume) {
-	HRESULT result;
-
-	// 波形フォーマットを元にSourceVoiceの生成
-	result = xAudio2_->CreateSourceVoice(&soundData.pSourceVoice, &soundData.wfex);
+	SoundData& data = *(it->second);
+	
+	// 新しいソースボイスを作成
+	IXAudio2SourceVoice* pSourceVoice = nullptr;
+	HRESULT result = xAudio2_->CreateSourceVoice(&pSourceVoice, &data.wfex);
 	assert(SUCCEEDED(result));
 
 	// 再生する波形データの設定
 	XAUDIO2_BUFFER buf{};
-	buf.pAudioData = soundData.pBuffer.get();
-	buf.AudioBytes = soundData.bufferSize;
+	buf.pAudioData = data.pBuffer.get();
+	buf.AudioBytes = data.bufferSize;
 	buf.Flags = XAUDIO2_END_OF_STREAM;
-
-	// ループ設定
-	buf.LoopCount = loopFlag ? XAUDIO2_LOOP_INFINITE : 0;
+	buf.LoopCount = loop ? XAUDIO2_LOOP_INFINITE : 0; // ループ設定
 
 	// 波形データの再生
-	result = soundData.pSourceVoice->SubmitSourceBuffer(&buf);
-	result = soundData.pSourceVoice->SetVolume(volume);
-	result = soundData.pSourceVoice->Start();
+	pSourceVoice->SubmitSourceBuffer(&buf);
+	pSourceVoice->SetVolume(volume);
+	pSourceVoice->Start();
+
+	// 管理リストに追加
+	activeVoices_.push_back(pSourceVoice);
 }
 
-void Cygnus::SoundManager::StopWave(SoundData& soundData) {
-	if (soundData.pSourceVoice) {
-		// 再生を停止
-		HRESULT result = soundData.pSourceVoice->Stop();
+void Cygnus::SoundManager::Stop(const std::string& key) { 
+	for (auto* voice : activeVoices_) {
+		voice->Stop();
+	}
+}
 
-		// 音声バッファをクリア
-		result = soundData.pSourceVoice->FlushSourceBuffers();
+void Cygnus::SoundManager::ClearFinishedVoices() { 
+	auto it = activeVoices_.begin(); 
+	while (it != activeVoices_.end()) {
+		XAUDIO2_VOICE_STATE state;
+		(*it)->GetState(&state);
+
+		// 再生中のバッファが0になったら終了とみなす
+		if (state.BuffersQueued == 0) {
+			(*it)->DestroyVoice();
+			it = activeVoices_.erase(it); // リストから削除して次の要素へ
+		} else {
+			++it;
+		}
 	}
 }

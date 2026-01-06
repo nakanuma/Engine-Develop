@@ -40,9 +40,8 @@ void Cygnus::Framework::Initialize() {
 		srvManager_->descriptorHeap_.heap_.Get()
 	);
 
-	// SoundManagerの生成と初期化
-	soundManager_ = std::make_unique<SoundManager>();
-	soundManager_->Initialize();
+	// SoundManagerの初期化
+	SoundManager::GetInstance()->Initialize();
 
 	// LineDrawer初期化
 	LineDrawer::GetInstance()->Initialize();
