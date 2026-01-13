@@ -2,6 +2,12 @@
 
 #include <Matrix.h>
 
+Cygnus::Float4 Cygnus::Float4::operator+(const Float4& other) const { return {x + other.x, y + other.y, z + other.z, w + other.w}; }
+
+Cygnus::Float4 Cygnus::Float4::operator-(const Float4& other) const { return {x - other.x, y - other.y, z - other.z, w - other.w}; }
+
+Cygnus::Float4 Cygnus::Float4::operator*(float scalar) const { return {x * scalar, y * scalar, z * scalar, w * scalar}; }
+
 Cygnus::Float4 Cygnus::Float4::operator*(const Matrix& mat) {
 	return Float4(
 	    mat.r[0][0] * x + mat.r[0][1] * y + mat.r[0][2] * z + mat.r[0][3] * w, 

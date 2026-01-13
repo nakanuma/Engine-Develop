@@ -15,6 +15,10 @@ struct Float4 {
 	float z;
 	float w;
 
+	Float4 operator+(const Float4& other) const;
+	Float4 operator-(const Float4& other) const;
+	Float4 operator*(float scalar) const;
+
 	Float4 operator*(const Matrix& mat);
 	Float4& operator/=(float scalar);
 
