@@ -96,7 +96,8 @@ public:
 	/// <param name="maxV">最大値</param>
 	/// <param name="step">ステップ値</param>
 	/// <param name="manager">パラメーター管理クラス</param>
-	Parameter(const std::string& name, T* p, T minV, T maxV, T step, ParameterManager& manager) : ParameterBase(name), ptr_(p), minV_(minV), maxV_(maxV), step_(step), mgr_(manager), beforeValue_(*p) {}
+	Parameter(const std::string& name, T* p, T step, T minV, T maxV, ParameterManager& manager)
+	    : ParameterBase(name), ptr_(p), step_(step), minV_(minV), maxV_(maxV), mgr_(manager), beforeValue_(*p) {}
 
 	/// <summary>
 	/// パラメーターをImGui上で表示します。
@@ -156,6 +157,23 @@ public:
 };
 
 // =========================================================
+// セパレーター用クラス
+// =========================================================
+class ParameterSeparator : public ParameterBase {
+public:
+	ParameterSeparator() : ParameterBase("") {};
+
+	void Draw() override {
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+	}
+
+	void Save(nlohmann::json&) const override {}
+	void Load(const nlohmann::json&) override {}
+};
+
+// =========================================================
 // 複数のパラメーターをまとめて管理するクラス
 // =========================================================
 class ParameterManager {
@@ -173,7 +191,10 @@ public:
 	/// <param name="minV">最小値</param>
 	/// <param name="maxV">最大値</param>
 	/// <param name="step">ステップ値</param>
-	template<typename T> void Add(const std::string& name, T* ptr, T minV, T maxV, T step = (T)1) { params_.emplace_back(std::make_unique<Parameter<T>>(name, ptr, minV, maxV, step, *this)); }
+	template<typename T> 
+	void Add(const std::string& name, T* ptr, T step = static_cast<T>(1), T minV = static_cast<T>(0), T maxV = static_cast<T>(0)) { 
+		params_.emplace_back(std::make_unique<Parameter<T>>(name, ptr, step, minV, maxV, *this)); 
+	}
 
 	/// <summary>
 	/// 登録されたすべてのパラメーターをGUI上に描画します。
@@ -220,6 +241,11 @@ public:
 	/// </summary>
 	void ClearNeedsSave() { needsSave_ = false; }
 
+	/// <summary>
+	/// セパレーターを挿入します。
+	/// </summary>
+	void AddSeparator() { params_.emplace_back(std::make_unique<ParameterSeparator>()); }
+
 private:
 	// =========================================================
 	// Member Variables
@@ -248,7 +274,9 @@ protected:
 	/// <param name="minV">最小値</param>
 	/// <param name="maxV">最大値</param>
 	/// <param name="step">ステップ値</param>
-	template<typename T> void RegisterParam(const std::string& name, T* ptr, T minV, T maxV, T step = (T)1) { mgr_.Add(name, ptr, minV, maxV, step); }
+	template<typename T> void RegisterParam(const std::string& name, T* ptr, T step = static_cast<T>(1), T minV = static_cast<T>(0), T maxV = static_cast<T>(0)) {
+		mgr_.Add(name, ptr, step, minV, maxV); 
+	}
 
 public:
 	// =========================================================
@@ -271,6 +299,11 @@ public:
 	/// </summary>
 	/// <param name="title">ウインドウタイトル</param>
 	void DrawConfigWindow(const char* title);
+
+	/// <summary>
+	/// セパレーターの挿入を行います。
+	/// </summary>
+	void AddSeparator() { mgr_.AddSeparator(); }
 
 private:
 	/// <summary>
