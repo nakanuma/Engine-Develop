@@ -67,11 +67,25 @@ public:
 	void Draw() {
 #ifdef USE_IMGUI
 		ImNodes::SetCurrentContext(context_);
-
 		ImNodes::BeginNodeEditor();
 
 		// ノード描画
 		for (auto& node : nodes_) {
+			// 状態に応じた色の決定
+			ImColor nodeColor = ImColor(60, 60, 60); // デフォルト（グレー）
+			if(node.nodePtr) {
+				switch(node.nodePtr->GetLastStatus()) {
+					case BehaviorStatus::Success: nodeColor = ImColor(40, 200, 40); break; // 緑
+					case BehaviorStatus::Failure: nodeColor = ImColor(200, 40, 40); break; // 赤
+					case BehaviorStatus::Running: nodeColor = ImColor(255, 200, 0); break; // 黄
+				}
+			}
+
+			// ノードのタイトルバーと枠線の色を変える
+			ImNodes::PushColorStyle(ImNodesCol_TitleBar, nodeColor);
+			ImNodes::PushColorStyle(ImNodesCol_PinHovered, nodeColor);
+			ImNodes::PushColorStyle(ImNodesCol_TitleBarSelected, nodeColor);
+
 			ImNodes::BeginNode(node.id);
 
 			// タイトル
@@ -166,6 +180,7 @@ private:
 		std::string subName;               /* サブノード名 */
 		ImVec2 position;                   /* ノード位置 */
 		std::vector<uint32_t> childrenIDs; /* 子ノードのIDリスト（リンク描画に使用） */
+		BehaviorNode<AgentType>* nodePtr;  /* ノードへのポインタ */
 	};
 
 	// =========================================================
@@ -184,6 +199,7 @@ private:
 
 		NodeView view;
 		view.id = currentID++;
+		view.nodePtr = node;
 
 		// ノードタイプに応じた名前を設定
 		if (auto selector = dynamic_cast<SelectorNode<AgentType>*>(node)) {
@@ -192,9 +208,9 @@ private:
 		} else if (auto sequence = dynamic_cast<SequenceNode<AgentType>*>(node)) {
 			view.name = "Sequence";
 			view.subName = sequence->GetName();
-		} else if (auto paralell = dynamic_cast<ParallelNode<AgentType>*>(node)) {
+		} else if (auto parallel = dynamic_cast<ParallelNode<AgentType>*>(node)) {
 			view.name = "Parallel";
-			view.subName = paralell->GetName();
+			view.subName = parallel->GetName();
 		} else if (auto condition = dynamic_cast<ConditionNode<AgentType>*>(node)) {
 			view.name = "Condition";
 			view.subName = condition->GetName();

@@ -38,6 +38,28 @@ public:
 	virtual ~BehaviorNode() = default;
 
 	/// <summary>
+	/// 実行して状態を保存しつつノードの状態を返します。（Tickをラップ）
+	/// </summary>
+	/// <param name="agent"></param>
+	/// <param name="deltaTime"></param>
+	/// <returns></returns>
+	BehaviorStatus Execute(AgentType* agent, float deltaTime) {
+		lastStatus_ = Tick(agent, deltaTime);
+		return lastStatus_;
+	}
+
+	/// <summary>
+	/// 最後の状態を取得します。（エディターでの確認用）
+	/// </summary>
+	/// <returns></returns>
+	BehaviorStatus GetLastStatus() const { return lastStatus_; }
+
+	/// <summary>
+	/// 最後の状態をリセットします。
+	/// </summary>
+	void ResetStatus() { lastStatus_ = BehaviorStatus::Running; }
+
+	/// <summary>
 	/// ノードの状態を返します。
 	/// </summary>
 	/// <param name="agent">エージェントタイプ</param>
@@ -57,6 +79,7 @@ protected:
 	// =========================================================
 
 	std::string name_ = "";		/* ノード名 */
+	BehaviorStatus lastStatus_ = BehaviorStatus::Failure; /* 最後の状態を保存 */
 };
 
 /*---------------------------------------------------------------------------------*/
@@ -125,7 +148,7 @@ public:
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
 		// 登録されている子ノードを先頭から順に評価
 		for (auto& child : this->children_) {
-			BehaviorStatus status = child->Tick(agent, deltaTime);
+			BehaviorStatus status = child->Execute(agent, deltaTime);
 			// SuccessまたはRunningを返した子ノードが採用される
 			if (status != BehaviorStatus::Failure) {
 				return status;
@@ -160,7 +183,7 @@ public:
 	/// <returns>行動の状態</returns>
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
 		while (currentIndex_ < this->children_.size()) {
-			BehaviorStatus status = this->children_[currentIndex_]->Tick(agent, deltaTime);
+			BehaviorStatus status = this->children_[currentIndex_]->Execute(agent, deltaTime);
 
 			if (status == BehaviorStatus::Running) {
 				return BehaviorStatus::Running; // 今の子で止める
@@ -214,7 +237,7 @@ public:
 		bool anyRunning = false;
 
 		for (auto& child : this->children_) {
-			BehaviorStatus status = child->Tick(agent, deltaTime);
+			BehaviorStatus status = child->Execute(agent, deltaTime);
 
 			if (status == BehaviorStatus::Failure) {
 				// 1つでも失敗したら即Failureを返す
@@ -267,7 +290,7 @@ public:
 	/// <returns>行動の状態</returns>
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
 		if (child_) {
-			return child_->Tick(agent, deltaTime);
+			return child_->Execute(agent, deltaTime);
 		}
 		// 子ノードが設定されていなければ失敗
 		return BehaviorStatus::Failure;
@@ -300,7 +323,7 @@ public:
 	/// <returns>行動の状態</returns>
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
 		// 子ノードの状態を取得し、SuccessならFailure, FailureならSuccessを返す
-		BehaviorStatus status = DecoratorNodeBase<AgentType>::Tick(agent, deltaTime); // これできるか怪しい
+		BehaviorStatus status = DecoratorNodeBase<AgentType>::Execute(agent, deltaTime); // これできるか怪しい
 		return (status == BehaviorStatus::Success) ? BehaviorStatus::Failure : BehaviorStatus::Success;
 	}
 };
@@ -320,7 +343,7 @@ public:
 	/// <returns>行動の状態</returns>
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
 		// 子ノードを繰り返し実行し、常に実行中を返す
-		DecoratorNodeBase<AgentType>::Tick(agent, deltaTime); // これできるか怪しい
+		DecoratorNodeBase<AgentType>::Execute(agent, deltaTime); // これできるか怪しい
 		return BehaviorStatus::Running;
 	}
 
@@ -352,7 +375,7 @@ public:
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
 		while (true) {
 			// 子ノードを実行し、成功するまで繰り返す
-			BehaviorStatus status = DecoratorNodeBase<AgentType>::Tick(agent, deltaTime); // これできるか怪しい
+			BehaviorStatus status = DecoratorNodeBase<AgentType>::Execute(agent, deltaTime); // これできるか怪しい
 			// Successなら終了
 			if (status == BehaviorStatus::Success) {
 				return BehaviorStatus::Success;
