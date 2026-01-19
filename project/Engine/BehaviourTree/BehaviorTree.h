@@ -34,6 +34,20 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// ツリー全体の構造を複製します。
+	/// </summary>
+	/// <returns></returns>
+	std::unique_ptr<BehaviorTree<AgentType>> Clone() const {
+		if(!root_) {
+			return nullptr;
+		}
+		// ルートノードのCloneを呼び出す
+		std::unique_ptr<BehaviorNode<AgentType>> newRoot = root_->Clone();
+		// 複製されたルートを持つ新しいBehaviorTreeを作成して返す
+		return std::make_unique<BehaviorTree<AgentType>>(std::move(newRoot));
+	}
+
 	// =========================================================
 	// Getter / Setter
 	// =========================================================

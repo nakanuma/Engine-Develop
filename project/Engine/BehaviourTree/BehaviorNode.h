@@ -73,6 +73,12 @@ public:
 	/// <returns>ノード名（string）</returns>
 	const std::string& GetName() const { return name_; }
 
+	/// <summary>
+	/// 自身のコピーしたインスタンスを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const = 0;
+ 
 protected:
 	// =========================================================
 	// Member Variables
@@ -116,6 +122,16 @@ public:
 	const std::vector<std::unique_ptr<BehaviorNode<AgentType>>>& GetChildren() const { return children_; }
 
 protected:
+	/// <summary>
+	/// 子ノードのリストを再帰的にコピーします。
+	/// </summary>
+	void CloneChildrenTo(CompositeNodeBase<AgentType>* newNode) const {
+		for(const auto& child : children_) {
+			newNode->AddChild(child->Clone());
+		}
+	}
+
+protected:
 	// =========================================================
 	// Member Variables
 	// =========================================================
@@ -156,6 +172,16 @@ public:
 		}
 		// すべての子ノードがFailureを返した場合、Failureを返す
 		return BehaviorStatus::Failure;
+	}
+
+	/// <summary>
+	/// 自身のコピーしたインスタンスを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
+		auto newNode = std::make_unique<SelectorNode<AgentType>>(this->name_);
+		this->CloneChildrenTo(newNode.get());
+		return newNode;
 	}
 };
 
@@ -200,6 +226,16 @@ public:
 		// 全部成功したら
 		currentIndex_ = 0;
 		return BehaviorStatus::Success;
+	}
+
+	/// <summary>
+	/// 自身のコピーしたインスタンスを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
+		auto newNode = std::make_unique<SequenceNode<AgentType>>(this->name_);
+		this->CloneChildrenTo(newNode.get());
+		return newNode;
 	}
 
 private:
@@ -259,6 +295,16 @@ public:
 
 		return BehaviorStatus::Failure;
 	}
+
+	/// <summary>
+	/// 自身のコピーしたインスタンスを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
+		auto newNode = std::make_unique<ParallelNode<AgentType>>(this->name_);
+		this->CloneChildrenTo(newNode.get());
+		return newNode;
+	}
 };
 
 /*---------------------------------------------------------------------------------*/
@@ -296,6 +342,16 @@ public:
 		return BehaviorStatus::Failure;
 	}
 
+	/// <summary>
+	/// 保持している1つの子ノードをコピーします。
+	/// </summary>
+	/// <param name="newNode"></param>
+	void CloneChildTo(DecoratorNodeBase<AgentType>* newNode) const {
+		if(this->child_) {
+			newNode->SetChild(this->child_->Clone());
+		}
+	}
+
 protected:
 	// =========================================================
 	// Member Variables
@@ -326,6 +382,17 @@ public:
 		BehaviorStatus status = DecoratorNodeBase<AgentType>::Execute(agent, deltaTime); // これできるか怪しい
 		return (status == BehaviorStatus::Success) ? BehaviorStatus::Failure : BehaviorStatus::Success;
 	}
+
+	/// <summary>
+	/// 自身のコピーを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
+		auto newNode = std::make_unique<InverterNode<AgentType>>();
+		newNode->name_ = this->name_;
+		this->CloneChildTo(newNode.get());
+		return newNode;
+	}
 };
 
 // =========================================================
@@ -345,6 +412,17 @@ public:
 		// 子ノードを繰り返し実行し、常に実行中を返す
 		DecoratorNodeBase<AgentType>::Execute(agent, deltaTime); // これできるか怪しい
 		return BehaviorStatus::Running;
+	}
+
+	/// <summary>
+	/// 自身のコピーを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
+		auto newNode = std::make_unique<RepeaterNode<AgentType>>();
+		newNode->name_ = this->name_;
+		this->CloneChildTo(newNode.get());
+		return newNode;
 	}
 
 private:
@@ -387,6 +465,17 @@ public:
 			// Runningならそのまま返す
 			return BehaviorStatus::Running;
 		}
+	}
+
+	/// <summary>
+	/// 自身のコピーを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
+		auto newNode = std::make_unique<UntilSuccessNode<AgentType>>();
+		newNode->name_ = this->name_;
+		this->CloneChildTo(newNode.get());
+		return newNode;
 	}
 };
 
@@ -431,6 +520,14 @@ public:
 		return conditionFunc_(agent) ? BehaviorStatus::Success : BehaviorStatus::Failure;
 	}
 
+	/// <summary>
+	/// 自身のクローンを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
+		return std::make_unique<ConditionNode<AgentType>>(this->conditionFunc_, this->name_);
+	}
+
 private:
 	// =========================================================
 	// Member Variables
@@ -473,6 +570,14 @@ public:
 	/// <returns>行動の状態</returns>
 	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
 		return actionFunc_(agent, deltaTime);
+	}
+
+	/// <summary>
+	/// 自身のクローンを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
+		return std::make_unique<ActionNode<AgentType>>(this->actionFunc_, this->name_);
 	}
 
 private: 
@@ -527,6 +632,14 @@ public:
 			return BehaviorStatus::Success;
 		}
 		return BehaviorStatus::Running;
+	}
+
+	/// <summary>
+	/// 自身のクローンを返します。
+	/// </summary>
+	/// <returns></returns>
+	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
+		return std::make_unique<WaitNode<AgentType>>(this->minWaitTime_, this->maxWaitTime_, this->name_);
 	}
 
 private:

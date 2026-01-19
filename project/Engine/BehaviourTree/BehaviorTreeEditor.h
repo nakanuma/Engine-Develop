@@ -40,6 +40,11 @@ public:
 	/// </summary>
 	~BehaviorTreeEditor() {
 #ifdef USE_IMGUI
+		// ノードデータをクリア
+		nodes_.clear();
+		tree_ = nullptr;
+
+		// コンテキストを破棄
 		if (context_) {
 			ImNodes::DestroyContext(context_);
 			context_ = nullptr;
