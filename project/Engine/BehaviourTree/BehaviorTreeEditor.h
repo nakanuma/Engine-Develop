@@ -38,13 +38,19 @@ public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~BehaviorTreeEditor() {
-#ifdef USE_IMGUI
-		// ノードデータをクリア
-		nodes_.clear();
-		tree_ = nullptr;
+	~BehaviorTreeEditor() {}
 
-		// コンテキストを破棄
+	/// <summary>
+	/// 終了処理を行います。
+	/// </summary>
+	void Finalize() {
+#ifdef USE_IMGUI
+		// ImGui本体のコンテキストが既に消滅していれば、ImNodesの破棄は行わずに諦める
+		if (ImGui::GetCurrentContext() == nullptr) {
+			context_ = nullptr;
+			return;
+		}
+
 		if (context_) {
 			ImNodes::DestroyContext(context_);
 			context_ = nullptr;
