@@ -44,8 +44,12 @@ public:
 	/// <param name="deltaTime"></param>
 	/// <returns></returns>
 	BehaviorStatus Execute(AgentType* agent, float deltaTime) {
-		lastStatus_ = Tick(agent, deltaTime);
-		return lastStatus_;
+		BehaviorStatus status = Tick(agent, deltaTime);
+
+		// エージェントにノードの状態を記録させる
+		agent->SetNodeStatus(this, status);
+
+		return status;
 	}
 
 	/// <summary>
@@ -303,178 +307,6 @@ public:
 	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
 		auto newNode = std::make_unique<ParallelNode<AgentType>>(this->name_);
 		this->CloneChildrenTo(newNode.get());
-		return newNode;
-	}
-};
-
-/*---------------------------------------------------------------------------------*/
-/*----------------------------------DecoratorNode----------------------------------*/
-/*---------------------------------------------------------------------------------*/
-
-// =========================================================
-// デコレーターノード 
-// : 1つのみ子ノードを持ち、そのノードの実行結果の変化や制限を行う
-// =========================================================
-template<typename AgentType> 
-class DecoratorNodeBase : public BehaviorNode<AgentType> {
-public:
-	// =========================================================
-	// Public Methods
-	// =========================================================
-
-	/// <summary>
-	/// 子ノードをセットします。
-	/// </summary>
-	/// <param name="child">子ノード</param>
-	void SetChild(std::unique_ptr<BehaviorNode<AgentType>> child) { child_ = std::move(child); }
-
-	/// <summary>
-	/// 子ノードの状態を返します。
-	/// </summary>
-	/// <param name="agent">エージェント</param>
-	/// <param name="deltaTime">デルタタイム</param>
-	/// <returns>行動の状態</returns>
-	BehaviorStatus Tick(AgentType* agent, float deltaTime) override {
-		if (child_) {
-			return child_->Execute(agent, deltaTime);
-		}
-		// 子ノードが設定されていなければ失敗
-		return BehaviorStatus::Failure;
-	}
-
-	/// <summary>
-	/// 保持している1つの子ノードをコピーします。
-	/// </summary>
-	/// <param name="newNode"></param>
-	void CloneChildTo(DecoratorNodeBase<AgentType>* newNode) const {
-		if(this->child_) {
-			newNode->SetChild(this->child_->Clone());
-		}
-	}
-
-protected:
-	// =========================================================
-	// Member Variables
-	// =========================================================
-
-	std::unique_ptr<BehaviorNode<AgentType>> child_; /* 子ノード（1つのみ） */
-};
-
-// =========================================================
-// インバーター(反転)ノード
-// : 子ノードの成功と失敗を反転させる
-// =========================================================
-template<typename AgentType> 
-class InverterNode : public DecoratorNodeBase<AgentType> {
-public:
-	// =========================================================
-	// Public Methods
-	// =========================================================
-
-	/// <summary>
-	/// 子ノードの状態を返します。
-	/// </summary>
-	/// <param name="agent">エージェント</param>
-	/// <param name="deltaTime">デルタタイム</param>
-	/// <returns>行動の状態</returns>
-	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
-		// 子ノードの状態を取得し、SuccessならFailure, FailureならSuccessを返す
-		BehaviorStatus status = DecoratorNodeBase<AgentType>::Execute(agent, deltaTime); // これできるか怪しい
-		return (status == BehaviorStatus::Success) ? BehaviorStatus::Failure : BehaviorStatus::Success;
-	}
-
-	/// <summary>
-	/// 自身のコピーを返します。
-	/// </summary>
-	/// <returns></returns>
-	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
-		auto newNode = std::make_unique<InverterNode<AgentType>>();
-		newNode->name_ = this->name_;
-		this->CloneChildTo(newNode.get());
-		return newNode;
-	}
-};
-
-// =========================================================
-// リピーター(繰り返し)ノード
-// : 子ノードを繰り返し実行し、常に実行中を返す
-// =========================================================
-template<typename AgentType> 
-class RepeaterNode : public DecoratorNodeBase<AgentType> {
-public:
-	/// <summary>
-	/// 子ノードの状態を返します。
-	/// </summary>
-	/// <param name="agent">エージェント</param>
-	/// <param name="deltaTime">デルタタイム</param>
-	/// <returns>行動の状態</returns>
-	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
-		// 子ノードを繰り返し実行し、常に実行中を返す
-		DecoratorNodeBase<AgentType>::Execute(agent, deltaTime); // これできるか怪しい
-		return BehaviorStatus::Running;
-	}
-
-	/// <summary>
-	/// 自身のコピーを返します。
-	/// </summary>
-	/// <returns></returns>
-	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
-		auto newNode = std::make_unique<RepeaterNode<AgentType>>();
-		newNode->name_ = this->name_;
-		this->CloneChildTo(newNode.get());
-		return newNode;
-	}
-
-private:
-	// =========================================================
-	// Member Variables
-	// =========================================================
-
-	uint32_t repeatCount_ = 0; /* 繰り返し回数（現在は未使用） */
-};
-
-// =========================================================
-// アンティルサクセス(成功するまで)ノード
-// : 子ノードを成功するまで繰り返し実行する
-// =========================================================
-template<typename AgentType> 
-class UntilSuccessNode : public DecoratorNodeBase<AgentType> {
-public:
-	// =========================================================
-	// Public Methods
-	// =========================================================
-
-	/// <summary>
-	/// 子ノードの状態を返します。
-	/// </summary>
-	/// <param name="agent">エージェント</param>
-	/// <param name="deltaTime">デルタタイム</param>
-	/// <returns>行動の状態</returns>
-	BehaviorStatus Tick(AgentType* agent, float deltaTime) override { 
-		while (true) {
-			// 子ノードを実行し、成功するまで繰り返す
-			BehaviorStatus status = DecoratorNodeBase<AgentType>::Execute(agent, deltaTime); // これできるか怪しい
-			// Successなら終了
-			if (status == BehaviorStatus::Success) {
-				return BehaviorStatus::Success;
-			}
-			// Failureなら再度実行
-			if (status == BehaviorStatus::Failure) {
-				continue;
-			}
-			// Runningならそのまま返す
-			return BehaviorStatus::Running;
-		}
-	}
-
-	/// <summary>
-	/// 自身のコピーを返します。
-	/// </summary>
-	/// <returns></returns>
-	virtual std::unique_ptr<BehaviorNode<AgentType>> Clone() const override {
-		auto newNode = std::make_unique<UntilSuccessNode<AgentType>>();
-		newNode->name_ = this->name_;
-		this->CloneChildTo(newNode.get());
 		return newNode;
 	}
 };

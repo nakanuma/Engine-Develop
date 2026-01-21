@@ -73,19 +73,30 @@ public:
 	}
 
 	/// <summary>
+	/// 監視対象をセットします。
+	/// </summary>
+	/// <param name="agent"></param>
+	void SetMonitorTarget(AgentType* agent) {
+		monitorTarget_ = agent;
+	}
+
+	/// <summary>
 	/// エディターの描画処理を行います。
 	/// </summary>
 	void Draw() {
 #ifdef USE_IMGUI
 		ImNodes::SetCurrentContext(context_);
+
 		ImNodes::BeginNodeEditor();
 
 		// ノード描画
 		for (auto& node : nodes_) {
 			// 状態に応じた色の決定
 			ImColor nodeColor = ImColor(60, 60, 60); // デフォルト（グレー）
-			if(node.nodePtr) {
-				switch(node.nodePtr->GetLastStatus()) {
+			if(monitorTarget_ && node.nodePtr) {
+				BehaviorStatus status = monitorTarget_->GetNodeStatus(node.nodePtr);
+
+				switch(status) {
 					case BehaviorStatus::Success: nodeColor = ImColor(40, 200, 40); break; // 緑
 					case BehaviorStatus::Failure: nodeColor = ImColor(200, 40, 40); break; // 赤
 					case BehaviorStatus::Running: nodeColor = ImColor(255, 200, 0); break; // 黄
@@ -264,6 +275,8 @@ private:
 
 	std::vector<NodeView> nodes_;             /* 描画用ノード配列 */
 	BehaviorTree<AgentType>* tree_ = nullptr; /* 対象のビヘイビアツリー */
+
+	AgentType* monitorTarget_ = nullptr; /* 監視対象 */
 
 	ImNodesContext* context_ = nullptr;                          /* ImNodesコンテキスト */
 	std::string fileName_ = "";                                  /* 保存ファイル名 (拡張子含む) */

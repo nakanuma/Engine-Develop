@@ -30,7 +30,7 @@ public:
 	/// <returns>行動の状態</returns>
 	void Tick(AgentType* agent, float deltaTime) {
 		if (root_) {
-			root_->Tick(agent, deltaTime);
+			root_->Execute(agent, deltaTime);
 		}
 	}
 
