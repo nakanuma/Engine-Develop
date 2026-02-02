@@ -77,3 +77,40 @@ LRESULT Cygnus::Window::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lp
 	// 標準のメッセージ処理を行う
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
+
+void Cygnus::Window::ToggleFullscreen()
+{
+	isFullscreen = !isFullscreen;
+
+	if(isFullscreen) {
+		// 現在のウィンドウ位置を保存
+		GetWindowRect(hwnd, &windowRect);
+
+		// スタイルを枠無しに変更
+		SetWindowLongPtr(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+
+		// モニターの情報を取得
+		HMONITOR hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+		MONITORINFO monitorInfo = {sizeof(monitorInfo)};
+		GetMonitorInfo(hMonitor, &monitorInfo);
+
+		// 画面全体にリサイズ
+		SetWindowPos(hwnd, HWND_TOP,
+			monitorInfo.rcMonitor.left,
+			monitorInfo.rcMonitor.top,
+			monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left,
+			monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top,
+			SWP_FRAMECHANGED | SWP_NOACTIVATE);
+	} else {
+		// スタイルを標準に戻す
+		SetWindowLongPtr(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+
+		// 保存していた位置・サイズに復元
+		SetWindowPos(hwnd, HWND_TOP,
+			windowRect.left,
+			windowRect.top,
+			windowRect.right - windowRect.left,
+			windowRect.bottom - windowRect.top,
+			SWP_FRAMECHANGED | SWP_NOACTIVATE);
+	}
+}

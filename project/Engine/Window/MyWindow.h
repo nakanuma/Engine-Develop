@@ -64,6 +64,17 @@ public:
 	/// <returns>結果</returns>
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
+	/// <summary>
+	/// フルスクリーンモード切り替えを行います。
+	/// </summary>
+	static void ToggleFullscreen();
+
+	/// <summary>
+	/// フルスクリーンかどうかを取得します。
+	/// </summary>
+	/// <returns></returns>
+	static bool IsFullscreen() { return isFullscreen; }
+
 private:
 	// =========================================================
 	// Constants
@@ -80,5 +91,8 @@ private:
 	inline static HWND hwnd;					/* ウィンドウハンドル */
 
 	inline static WNDCLASS wc{};				/* ウィンドウクラス */
+
+	inline static bool isFullscreen = false;		/* フルスクリーン切り替えフラグ */
+	inline static RECT windowRect = {0, 0, 0, 0};	/* ウィンドウモード時の位置保存用 */
 };
 }
