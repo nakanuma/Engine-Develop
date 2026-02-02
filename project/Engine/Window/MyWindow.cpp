@@ -1,6 +1,8 @@
 #include "MyWindow.h"
 #include "ImguiWrapper.h"
 
+#include <DirectXBase.h>
+
 #pragma comment(lib, "winmm.lib")
 
 void Cygnus::Window::Create(LPCWSTR windowTitle, uint32_t width, uint32_t height) {
@@ -67,6 +69,26 @@ LRESULT Cygnus::Window::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lp
 
 	// メッセージに応じてゲーム固有の処理を行う
 	switch (msg) {
+	case WM_SYSCOMMAND:
+		// Altキー単体押しでメニューモードに入るのを防ぐ
+		if((wparam & 0xFFF0) == SC_KEYMENU){
+			return 0;
+		}
+		break;
+
+	case WM_KEYDOWN:
+		// F11で切り替え
+		if((wparam == VK_F11)) {
+			ToggleFullscreen();
+			return 0;
+		}
+		break;
+
+	case WM_SIZE:
+		// バックバッファのリサイズ処理を行う
+
+		return 0;
+
 		// ウィンドウが破壊された
 	case WM_DESTROY:
 		// OSに対して、アプリの終了を伝える
