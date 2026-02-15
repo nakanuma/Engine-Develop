@@ -45,10 +45,6 @@ public:
 	/// <returns></returns>
 	BehaviorStatus Execute(AgentType* agent, float deltaTime) {
 		BehaviorStatus status = Tick(agent, deltaTime);
-
-		// エージェントにノードの状態を記録させる
-		agent->SetNodeStatus(this, status);
-
 		return status;
 	}
 
