@@ -103,6 +103,7 @@ public:
 	/// パラメーターをImGui上で表示します。
 	/// </summary>
 	void Draw() override {
+	#ifdef USE_IMGUI
 		bool changed = false;
 
 		if constexpr (std::is_integral<T>::value) {
@@ -126,6 +127,7 @@ public:
 			}
 			beforeValue_ = *ptr_; // 更新
 		}
+	#endif
 	}
 
 	/// <summary>
@@ -164,9 +166,11 @@ public:
 	ParameterSeparator() : ParameterBase("") {};
 
 	void Draw() override {
+	#ifdef USE_IMGUI
 		ImGui::Spacing();
 		ImGui::Separator();
 		ImGui::Spacing();
+	#endif
 	}
 
 	void Save(nlohmann::json&) const override {}
