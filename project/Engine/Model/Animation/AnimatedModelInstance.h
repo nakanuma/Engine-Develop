@@ -105,6 +105,12 @@ public:
 	/// <returns>スケール（Float3）</returns>
 	Float3& GetScale() { return object_->transform_.scale_; }
 
+	/// <summary>
+	/// トランスフォームを取得します。
+	/// </summary>
+	/// <returns></returns>
+	Transform& GetTransform() { return object_->transform_; }
+
 	// =========================================================
 	// Member Variables
 	// =========================================================
