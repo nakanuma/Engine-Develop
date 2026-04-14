@@ -12,7 +12,7 @@ void Cygnus::Framework::Initialize() {
 
 	// ゲームウィンドウの生成
 	window_ = std::make_unique<Window>();
-	window_->Create(L"ファクトリコイル", kWindowWidth, kWindowHeight);
+	window_->Create(L"Application", kWindowWidth, kWindowHeight);
 
 	// DirectX初期化処理
 	dxBase_ = DirectXBase::GetInstance();
