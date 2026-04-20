@@ -4,9 +4,9 @@
 // C++ Includes
 // ---------------------------------------------------------
 #include <Windows.h>
+#include <XInput.h>
 #include <vector>
 #include <wrl.h>
-#include <XInput.h>
 #define DIRECTINPUT_VERSON 0x0800 // DirectInputのバージョン指定
 #include <dinput.h>
 
@@ -29,28 +29,28 @@ public:
 	/// ゲームパッドの種類
 	/// </summary>
 	enum class PadType {
-		DirectInput,					/* DirectInput */
-		XInput,							/* XInput */
+		DirectInput, /* DirectInput */
+		XInput,      /* XInput */
 	};
 
 	/// <summary>
 	/// ゲームパッドの状態
 	/// </summary>
 	union State {
-		XINPUT_STATE xInput;			/* XInput用 */
-		DIJOYSTATE2 directInput;		/* DirectInput用 */
+		XINPUT_STATE xInput;     /* XInput用 */
+		DIJOYSTATE2 directInput; /* DirectInput用 */
 	};
 
 	/// <summary>
 	/// ゲームパッド入力を管理する構造体
 	/// </summary>
 	struct Joystick {
-		ComPtr<IDirectInputDevice8> device;		/* DirectInputデバイス */
-		int32_t deadZoneL;						/* デッドゾーン左スティック */
-		int32_t deadZoneR;						/* デッドゾーン右スティック */
-		PadType type;							/* ゲームパッドの種類 */
-		State state;							/* 現在の状態 */
-		State statePre;							/* 前回の状態 */
+		ComPtr<IDirectInputDevice8> device; /* DirectInputデバイス */
+		int32_t deadZoneL;                  /* デッドゾーン左スティック */
+		int32_t deadZoneR;                  /* デッドゾーン右スティック */
+		PadType type;                       /* ゲームパッドの種類 */
+		State state;                        /* 現在の状態 */
+		State statePre;                     /* 前回の状態 */
 	};
 
 public:
@@ -143,33 +143,51 @@ public:
 	/// <param name="deadZoneR">デッドゾーン右スティック</param>
 	void SetJoystickDeadZone(int32_t stickNo, int32_t deadZoneL, int32_t deadZoneR);
 
+	/// <summary>
+	/// ボタンの押下をチェック
+	/// </summary>
+	/// <param name="stickNo"></param>
+	/// <param name="buttonMask"></param>
+	/// <returns></returns>
+	bool IsPressButton(int32_t stickNo, WORD buttonMask) const;
+
+	/// <summary>
+	/// ボタンのトリガーをチェック
+	/// </summary>
+	/// <param name="stickNo"></param>
+	/// <param name="buttonMask"></param>
+	/// <returns></returns>
+	bool IsTriggerButton(int32_t stickNo, WORD buttonMask) const;
+
 private:
 	// =========================================================
 	// Constants
 	// =========================================================
-	static constexpr size_t kKeyArraySize = 256;	/* キーボード状態配列のサイズ */
+	static constexpr size_t kKeyArraySize = 256; /* キーボード状態配列のサイズ */
 
-	static constexpr BYTE kMouseButtonPressMask = 0x80;	/* マウスボタンの状態チェックに使用するビットマスク */
-	static constexpr int32_t kMouseIndexMin = 0;	/* マウスボタンの最小インデックス */
-	static constexpr int32_t kMouseIndexMax = 3;	/* マウスボタンの最大インデックス */
+	static constexpr BYTE kMouseButtonPressMask = 0x80; /* マウスボタンの状態チェックに使用するビットマスク */
+	static constexpr int32_t kMouseIndexMin = 0;        /* マウスボタンの最小インデックス */
+	static constexpr int32_t kMouseIndexMax = 3;        /* マウスボタンの最大インデックス */
 
 	// =========================================================
 	// Member Variables
 	// =========================================================
-	
-	ComPtr<IDirectInput8> directInput_;			/* DirectInputインターフェース */
-	ComPtr<IDirectInputDevice8> keyboard_;		/* キーボードデバイス */
-	ComPtr<IDirectInputDevice8> mouse_;			/* マウスデバイス */
 
-	std::vector<Joystick> joysticks_;			/* ジョイスティックデバイス */
+	ComPtr<IDirectInput8> directInput_;    /* DirectInputインターフェース */
+	ComPtr<IDirectInputDevice8> keyboard_; /* キーボードデバイス */
+	ComPtr<IDirectInputDevice8> mouse_;    /* マウスデバイス */
 
-	BYTE key_[kKeyArraySize] = {};				/* 現在のキー状態 */
-	BYTE keyPre_[kKeyArraySize] = {};			/* 前回のキー状態 */
+	std::vector<Joystick> joysticks_; /* ジョイスティックデバイス */
+	XINPUT_STATE joyState_;           /* 現在の状態 */
+	XINPUT_STATE joyStatePre_;        /* 前フレームの状態 */
 
-	POINT mousePosition_;						/* マウスの位置 */
-	DIMOUSESTATE2 mouseState_ = {};				/* 現在のマウス状態 */
-	DIMOUSESTATE2 mouseStatePre_ = {};			/* 前回のマウス状態 */
+	BYTE key_[kKeyArraySize] = {};    /* 現在のキー状態 */
+	BYTE keyPre_[kKeyArraySize] = {}; /* 前回のキー状態 */
 
-	Window* window_ = nullptr;					/* ウィンドウクラス */
+	POINT mousePosition_;              /* マウスの位置 */
+	DIMOUSESTATE2 mouseState_ = {};    /* 現在のマウス状態 */
+	DIMOUSESTATE2 mouseStatePre_ = {}; /* 前回のマウス状態 */
+
+	Window* window_ = nullptr; /* ウィンドウクラス */
 };
-}
+} // namespace Cygnus

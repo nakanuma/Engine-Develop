@@ -59,7 +59,7 @@ void Cygnus::Input::Initialize(Window* window) {
 
 void Cygnus::Input::Update() {
 	HRESULT result;
-
+#pragma region キーボード入力処理
 	// 前回のキー入力を保存
 	memcpy(keyPre_, key_, sizeof(key_));
 
@@ -67,7 +67,9 @@ void Cygnus::Input::Update() {
 	result = keyboard_->Acquire();
 	// 全キーの入力状態を取得する
 	result = keyboard_->GetDeviceState(sizeof(key_), key_);
+#pragma endregion 
 
+#pragma region マウス入力処理
 	// マウス情報の取得開始
 	result = mouse_->Acquire();
 
@@ -80,6 +82,17 @@ void Cygnus::Input::Update() {
 	// マウス位置の更新
 	GetCursorPos(&mousePosition_);
 	ScreenToClient(window_->GetHandle(), &mousePosition_);
+#pragma endregion
+
+#pragma region コントローラー入力処理
+	//前フレームの状態を保存
+	joyStatePre_ = joyState_;
+	// 0番目のコントローラーの状態を取得
+	if (XInputGetState(0, &joyState_) != ERROR_SUCCESS) {
+		// 接続されていない場合はゼロクリア
+		memset(&joyState_, 0, sizeof(joyState_));
+	}
+#pragma endregion
 }
 
 bool Cygnus::Input::PushKey(BYTE keyNumber) {
@@ -191,4 +204,16 @@ void Cygnus::Input::SetJoystickDeadZone(int32_t stickNo, int32_t deadZoneL, int3
 	// 左右スティックのデッドゾーンを設定
 	joystick.deadZoneL = deadZoneL;
 	joystick.deadZoneR = deadZoneR;
+}
+
+bool Cygnus::Input::IsPressButton(int32_t stickNo, WORD buttonMask) const { 
+	// 現在ボタンを押しているかを返す
+	return (joyState_.Gamepad.wButtons && buttonMask) != 0; 
+}
+
+bool Cygnus::Input::IsTriggerButton(int32_t stickNo, WORD buttonMask) const { 
+	bool current = (joyState_.Gamepad.wButtons & buttonMask) != 0; 
+	bool previous = (joyStatePre_.Gamepad.wButtons & buttonMask) != 0;
+	// 押した瞬間のフレームのみtrueを返す
+	return current && !previous;
 }
