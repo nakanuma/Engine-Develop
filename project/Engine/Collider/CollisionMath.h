@@ -79,6 +79,14 @@ public:
 	/// <returns>衝突していたらtrue</returns>
 	static bool IsSeparatedByAxis(const Float3& axis, const OBBCollider* obbA, const OBBCollider* obbB);
 
+	/// <summary>
+	/// OBB同士の最も重なりが小さい軸を探索（押し戻し用）
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns></returns>
+	static Float3 CalculatePushBackOBBvsOBB(const Cygnus::OBBCollider* a, const Cygnus::OBBCollider* b);
+
 private:
 	// =========================================================
 	// Constants

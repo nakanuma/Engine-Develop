@@ -131,3 +131,60 @@ bool Cygnus::CollisionMath::IsSeparatedByAxis(const Float3& axis, const OBBColli
 	// 分離軸が存在すればfalse
 	return centerDist > (rA + rB);
 }
+
+Cygnus::Float3 Cygnus::CollisionMath::CalculatePushBackOBBvsOBB(const Cygnus::OBBCollider* a, const Cygnus::OBBCollider* b) { 
+	// 判定すべき全15軸
+	std::vector<Float3> axes;
+	axes.push_back(a->GetXAxis());
+	axes.push_back(a->GetYAxis());
+	axes.push_back(a->GetZAxis());
+	axes.push_back(b->GetXAxis());
+	axes.push_back(b->GetYAxis());
+	axes.push_back(b->GetZAxis());
+
+	// 外積軸
+	for (int i = 0; i < 3; ++i) {
+		Float3 axisA = (i == 0) ? a->GetXAxis() : (i == 1) ? a->GetYAxis() : a->GetZAxis();
+		for (int j = 0; j < 3; ++j) {
+			Float3 axisB = (j == 0) ? b->GetXAxis() : (j == 1) ? b->GetYAxis() : b->GetZAxis();
+			Float3 cross = Float3::Cross(axisA, axisB);
+			if (Float3::LengthSq(cross) > 1e-6f) {
+				axes.push_back(Float3::Normalize(cross));
+			}
+		}
+	}
+
+	float minOverlap = FLT_MAX;
+	Float3 pushAxis = {0, 0, 0};
+
+	for (const auto& axis : axes) {
+		// 重なり量を計算
+		float rA = 
+			fabsf(Float3::Dot(axis, a->GetXAxis()) * a->GetSize().x) + 
+			fabsf(Float3::Dot(axis, a->GetYAxis()) * a->GetSize().y) +
+		    fabsf(Float3::Dot(axis, a->GetZAxis()) * a->GetSize().z);
+
+		float rB = 
+			fabsf(Float3::Dot(axis, b->GetXAxis()) * b->GetSize().x) + 
+			fabsf(Float3::Dot(axis, b->GetYAxis()) * b->GetSize().y) +
+		    fabsf(Float3::Dot(axis, b->GetZAxis()) * b->GetSize().z);
+
+		float dist = fabsf(Float3::Dot(b->GetCenter() - a->GetCenter(), axis));
+		float overlap = (rA + rB) - dist;
+
+		if (overlap <= 0.0f) return {0, 0, 0};
+
+		if (overlap < minOverlap) {
+			minOverlap = overlap;
+			pushAxis = axis;
+		}
+	}
+
+	// 押し戻す向きの補正（aをbから遠ざける方向)
+	Float3 centerDir = a->GetCenter() - b->GetCenter();
+	if (Float3::Dot(centerDir, pushAxis) < 0) {
+		pushAxis = pushAxis * -1.0f;
+	}
+
+	return pushAxis * minOverlap;
+}
