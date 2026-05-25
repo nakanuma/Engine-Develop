@@ -2,7 +2,7 @@
 
 #include <Camera.h>
 
-Cygnus::Float3 MathUtil::WorldToScreen(const Cygnus::Float3& worldPosition) { 
+Cygnus::Float3 Cygnus::MathUtil::WorldToScreen(const Cygnus::Float3& worldPosition) { 
 	// ビュー射影行列を取得
 	Cygnus::Matrix worldViewProjMatrix = Cygnus::Camera::GetCurrent()->GetViewProjectionMatrix();
 	// ワールド->クリップへの座標変換
