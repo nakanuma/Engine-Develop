@@ -182,6 +182,7 @@
     <ClCompile Include="Engine\DirectX\RootSignatureManager.cpp" />
     <ClCompile Include="Engine\DirectX\FrameResourceManager.cpp" />
     <ClCompile Include="Engine\DirectX\CommandManager.cpp" />
+    <ClCompile Include="Engine\Math\MathUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -395,6 +396,7 @@
     <ClInclude Include="Engine\DirectX\RootSignatureManager.h" />
     <ClInclude Include="Engine\DirectX\FrameResourceManager.h" />
     <ClInclude Include="Engine\DirectX\CommandManager.h" />
+    <ClInclude Include="Engine\Math\MathUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">

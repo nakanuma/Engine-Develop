@@ -90,6 +90,7 @@
     <ClCompile Include="Engine\DirectX\ShadowMapManager.cpp" />
     <ClCompile Include="Engine\DirectX\PipelineStateManager.cpp" />
     <ClCompile Include="Engine\DirectX\RootSignatureManager.cpp" />
+    <ClCompile Include="Engine\Math\MathUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\DirectX\CommandManager.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="Engine\DirectX\PipelineStateManager.h" />
     <ClInclude Include="Engine\DirectX\RootSignatureManager.h" />
     <ClInclude Include="Engine\DirectX\FrameResourceManager.h" />
+    <ClInclude Include="Engine\Math\MathUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
