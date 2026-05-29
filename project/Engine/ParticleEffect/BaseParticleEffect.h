@@ -153,11 +153,26 @@ protected:
 		billboardMatrix_.r[3][1] = 0.0f;
 		billboardMatrix_.r[3][2] = 0.0f;
 
-		size_t numParticles = particles_.size();
-		// パーティクルが無ければ早期リターン
-		if (numParticles == 0)
-			return;
+		const size_t numParticles = particles_.size();
 
+		// 前フレームから減った差分だけをクリアする
+		if (numParticles < prevNumParticles_) {
+			for (size_t i = numParticles; i < prevNumParticles_; ++i) {
+				object_.gTransformationMatrices_.data_[i].WVP = Matrix();
+				object_.gTransformationMatrices_.data_[i].World = Matrix();
+				object_.gTransformationMatrices_.data_[i].WorldInverseTranspose = Matrix();
+				object_.gTransformationMatrices_.data_[i].color = {0.0f, 0.0f, 0.0f, 0.0f};
+			}
+		}
+
+		// パーティクルが無ければ終了
+		if (numParticles == 0) {
+			prevNumParticles_ = 0;
+			object_.UpdateMatrix();
+			return;
+		}
+
+		// 生存パーティクル更新
 		for (size_t i = 0; i < numParticles; ++i) {
 			const auto& p = particles_[i];
 
@@ -165,6 +180,7 @@ protected:
 			Matrix rotMat = Matrix::Rotation(p.transform.rotate_);
 			Matrix tlsMat = Matrix::Translation(p.transform.translate_);
 
+			// ビルボード処理
 			// 各軸に対してビルボード行列を使用するかチェック
 			bool shouldBillBoard = false;
 			if (isBillboard_[0] && isBillboard_[1] && isBillboard_[2]) {
@@ -208,17 +224,8 @@ protected:
 			object_.gTransformationMatrices_.data_[i].color = p.color;
 		}
 
-		// 前フレームとのパーティクル数の差分を取って必要な無効化だけを行う
-		static size_t prevNumParticles = 0;
-		if (numParticles < prevNumParticles)
-			// 不要分を無効化
-			for (size_t i = numParticles; i < prevNumParticles; ++i) {
-				object_.gTransformationMatrices_.data_[i].WVP = Matrix();
-				object_.gTransformationMatrices_.data_[i].World = Matrix();
-				object_.gTransformationMatrices_.data_[i].WorldInverseTranspose = Matrix();
-				object_.gTransformationMatrices_.data_[i].color = { 0.0f, 0.0f, 0.0f, 0.0f };
-			}
-		prevNumParticles = numParticles;
+		// 今回の生存数をメンバ変数に記憶して次フレームへ
+		prevNumParticles_ = numParticles;
 
 		object_.UpdateMatrix();
 	}
@@ -235,5 +242,7 @@ protected:
 
 	std::vector<ParticleType> particles_;							/* パーティクルコンテナ */
 	Matrix billboardMatrix_;										/* ビルボード行列 */
+
+	size_t prevNumParticles_ = 0; /* 前フレームのパーティクル数 */
 };
 }
