@@ -64,13 +64,6 @@ void Cygnus::SoundManager::Load(const std::string& filename, const std::string& 
 	// Dataチャンクの読み込み
 	ChunkHeader data;
 	file.read((char*)&data, sizeof(data));
-	// JUNKチャンクを検出した場合
-	if (strncmp(data.id, "JUNK", 4) == 0) {
-		// 読み取り位置をJUNKチャンクの終わりまで進める
-		file.seekg(data.size, std::ios_base::cur);
-		// 再読み込み
-		file.read((char*)&data, sizeof(data));
-	}
 
 	// 不要なチャンクをスキップするループ
 	while (strncmp(data.id, "data", 4) != 0) {
@@ -133,13 +126,18 @@ void Cygnus::SoundManager::Play(const std::string& key, bool loop, float volume)
 	pSourceVoice->SetVolume(volume);
 	pSourceVoice->Start();
 
-	// 管理リストに追加
-	activeVoices_.push_back(pSourceVoice);
+	// キーとボイスをペアにして管理リストに追加
+	PlayingVoice playingVoice;
+	playingVoice.pSourceVoice = pSourceVoice;
+	playingVoice.key = key;
+	activeVoices_.push_back(playingVoice);
 }
 
 void Cygnus::SoundManager::Stop(const std::string& key) { 
-	for (auto* voice : activeVoices_) {
-		voice->Stop();
+	for (auto& voice : activeVoices_) {
+		if (voice.key == key) {
+			voice.pSourceVoice->Stop();
+		}
 	}
 }
 
@@ -147,11 +145,11 @@ void Cygnus::SoundManager::ClearFinishedVoices() {
 	auto it = activeVoices_.begin(); 
 	while (it != activeVoices_.end()) {
 		XAUDIO2_VOICE_STATE state;
-		(*it)->GetState(&state);
+		it->pSourceVoice->GetState(&state);
 
 		// 再生中のバッファが0になったら終了とみなす
 		if (state.BuffersQueued == 0) {
-			(*it)->DestroyVoice();
+			it->pSourceVoice->DestroyVoice();
 			it = activeVoices_.erase(it); // リストから削除して次の要素へ
 		} else {
 			++it;

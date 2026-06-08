@@ -114,6 +114,6 @@ private:
 	IXAudio2MasteringVoice* masterVoice_;				/* マスターボイス */
 
 	std::unordered_map<std::string, std::unique_ptr<SoundData>> soundMap_; /* 音声データを全て保持するマップ */
-	std::list<IXAudio2SourceVoice*> activeVoices_;                         /* 再生中ボイスのリスト */
+	std::list<PlayingVoice> activeVoices_;                         /* 再生中ボイスのリスト */
 };
 }
