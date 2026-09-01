@@ -87,6 +87,25 @@ public:
 	/// <returns></returns>
 	static Float3 CalculatePushBackOBBvsOBB(const Cygnus::OBBCollider* a, const Cygnus::OBBCollider* b);
 
+	/// <summary>
+	/// 点Cから線分ABへの最短距離の自乗を計算
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <param name="c"></param>
+	/// <returns></returns>
+	static float SqDistanceSegmentToPoint(const Cygnus::Float3& a, const Cygnus::Float3& b, const Cygnus::Float3& c);
+
+	/// <summary>
+	/// 線分ABと半径radiusの球の当たり判定
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <param name="center"></param>
+	/// <param name="radius"></param>
+	/// <returns></returns>
+	static bool IsSegmentIntersectSphere(const Cygnus::Float3& a, const Cygnus::Float3& b, const Cygnus::Float3& center, float radius);
+
 private:
 	// =========================================================
 	// Constants
