@@ -37,6 +37,11 @@ public:
 	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// デバッグ表示を行います。
+	/// </summary>
+	void Debug();
+
 	// =========================================================
 	// Getter / Setter
 	// =========================================================
@@ -46,6 +51,24 @@ public:
 	/// </summary>
 	/// <returns>テクスチャハンドル</returns>
 	uint32_t GetEnvironmentTextureHandle();
+
+	/// <summary>
+	/// 位置を設定します。
+	/// </summary>
+	/// <param name="translate"></param>
+	void SetTranslate(const Cygnus::Float3& translate) { objectSkybox_->transform_.translate_ = translate; }
+
+	/// <summary>
+	/// 回転を設定します。
+	/// </summary>
+	/// <param name="rotate"></param>
+	void SetRotate(const Cygnus::Float3& rotate) { objectSkybox_->transform_.rotate_ = rotate; }
+
+	/// <summary>
+	/// 色を設定します。
+	/// </summary>
+	/// <param name="color"></param>
+	void SetColor(const Cygnus::Float4& color) { objectSkybox_->materialCB_.data_->color = color; }
 
 private:
 	// =========================================================
