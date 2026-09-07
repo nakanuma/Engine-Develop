@@ -126,9 +126,19 @@ void Cygnus::LineDrawer::RegisterTracer(const Float3& start, const Float3& end, 
 		return; // 長さ0なら描画しない
 	dir = Float3(dir.x / len, dir.y / len, dir.z / len);
 
-	// カメラに対して垂直なオフセット方向を求める
-	Float3 up = { 0.0f, 1.0f, 0.0f };
-	Float3 side = Float3::Normalize(Float3::Cross(up, dir));
+	// カメラの前方向を取得してビルボード化
+	Matrix viewMatrix = Camera::GetCurrent()->MakeViewMatrix();
+	// ビュー行列の3列目（Z軸）からカメラの視点方向を取り出す
+	Float3 camViewDir = Float3::Normalize({viewMatrix.r[0][2], viewMatrix.r[1][2], viewMatrix.r[2][2]});
+
+	// カメラの視点方向と線分の方向の外積から、カメラに正面を向く横オフセット方向を求める
+	Float3 side = Float3::Normalize(Float3::Cross(camViewDir, dir));
+
+	// カメラと線分が完全に並行になった場合のガード
+	if(Float3::Length(side) < 0.001f) {
+		Float3 up = {0.0f, 1.0f, 0.0f};
+		side = Float3::Normalize(Float3::Cross(up, dir));
+	}
 	Float3 offset = side * (thickness * kTracerThicknessHalf);
 
 	// 四角形の4頂点
