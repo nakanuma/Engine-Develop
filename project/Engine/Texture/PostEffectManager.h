@@ -58,6 +58,7 @@ public:
 	/// メインシーンのレンダリングを開始します。（全ての3Dオブジェクトをレンダーテクスチャに描画する前に呼ぶ）
 	/// </summary>
 	void BeginMainScene();
+	void BeginMainSceneKeepDepth();
 
 	/// <summary>
 	/// メインシーンのレンダリングを終了します。
@@ -83,6 +84,14 @@ public:
 	/// デプスバッファのリソースステートを読み取り状態に戻します。（直接バックバッファへ描画した後に使用）
 	/// </summary>
 	void RestoreDepthBufferState();
+
+	void DrawSSAO();
+
+	void DrawComposite();
+
+	void BeginDepthPrepass();
+
+	void ClearSSAO();
 
 	// =========================================================
 	// Getter / Setter
@@ -188,6 +197,8 @@ private:
 	static constexpr uint32_t kRootParameterIndexWave = 9;				/* WaveDistortionCBV用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexGlitch = 10;			/* GlitchEffectCBV用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexDamageVignette = 16;	/* DamageVignetteCBV用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexDepth = 17; /* 深度テクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexSSAO = 18; /* SSAOテクスチャ用ルートパラメーターインデックス */
 
 	// =========================================================
 	// Member Variables
@@ -214,6 +225,8 @@ private:
 public:
 	// レンダーターゲット
 	uint32_t mainSceneRT_ = 0;			/* メインシーン描画用テクスチャ */
+	int32_t ssaoResultRT_ = 0; 
+
 	uint32_t bloomResultRT_ = 0;		/* ブルーム適用箇所テクスチャ */
 	uint32_t bloomExtractRT_ = 0;		/* ブルーム抽出結果テクスチャ */
 	uint32_t bloomHorizontalRT_ = 0;

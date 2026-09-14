@@ -125,6 +125,18 @@ public:
 	/// <returns>RTV設定</returns>
 	D3D12_RENDER_TARGET_VIEW_DESC GetRTVDesc() const { return rtvDesc_; }
 
+	/*/// <summary>
+	/// Depth SRVインデックスを取得
+	/// </summary>
+	/// <returns></returns>
+	uint32_t GetDepthSRVIndex() const { return depthSRVIndex_; }
+
+	/// <summary>
+	/// Depth SRVインデックスを設定（初期化順序の問題でFrameworkで生成したインデックスをこのクラスに渡す用）
+	/// </summary>
+	/// <param name="index"></param>
+	void SetDepthSRVIndex(uint32_t index) { depthSRVIndex_ = index; }*/
+
 private:
 	// =========================================================
 	// Internal Methods
@@ -185,6 +197,9 @@ private:
 
 	// 現在のバックバッファインデックス
 	UINT currentBackBufferIndex_ = 0;
+
+	// Depth SRV用Index
+	/*uint32_t depthSRVIndex_ = 0;*/
 };
 }
 

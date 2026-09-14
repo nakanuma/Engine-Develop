@@ -22,6 +22,16 @@ void Cygnus::Framework::Initialize() {
 	srvManager_ = SRVManager::GetInstance();
 	srvManager_->Initialize(dxBase_);
 
+	//// Depth BufferをSRVとして登録
+	//uint32_t depthSRVIndex = srvManager_->Allocate();
+	//srvManager_->CreateSRVforTexture2D(
+	//	depthSRVIndex,
+	//	FrameResourceManager::GetInstance()->GetDepthStencilResource(),
+	//	DXGI_FORMAT_R24_UNORM_X8_TYPELESS,
+	//	1
+	//);
+	//FrameResourceManager::GetInstance()->SetDepthSRVIndex(depthSRVIndex);
+
 	// 入力デバイスの生成と初期化
 	Input::GetInstance()->Initialize(window_.get());
 

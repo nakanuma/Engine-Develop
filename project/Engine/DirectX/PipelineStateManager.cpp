@@ -151,6 +151,21 @@ void Cygnus::PipelineStateManager::CreateBasicPSOs() {
 
 		CreateAndRegisterPSO(PSOType::Default, desc);
 	}
+
+	// ポストエフェクトPSO
+	{
+		PSODescriptor desc;
+		desc.vertexShaderName = "PostEffect_VS";
+		desc.pixelShaderName = "PostEffect_PS";
+		desc.rootSignature = rootSignature_;
+		desc.blendDesc = blendNormal_;
+		desc.rasterizerDesc = rasterizerDesc_;
+		desc.depthStencilDesc.DepthEnable = FALSE;
+		desc.depthStencilDesc.StencilEnable = FALSE;
+		desc.inputLayout = inputLayout_;
+
+		CreateAndRegisterPSO(PSOType::PostEffect, desc);
+	}
 }
 
 void Cygnus::PipelineStateManager::CreateBlendModePSOs()
@@ -421,6 +436,36 @@ void Cygnus::PipelineStateManager::CreatePostEffectPSOs() {
 		desc.pixelShaderName = "SobelFilter_PS";
 		CreateAndRegisterPSO(PSOType::SobelFilter, desc);
 	}
+
+	// SSAO
+	{
+		PSODescriptor desc = baseDesc;
+		desc.vertexShaderName = "PostEffect_VS";
+		desc.pixelShaderName = "SSAO_PS";
+		desc.depthStencilDesc.DepthEnable = FALSE;
+		desc.depthStencilDesc.StencilEnable = FALSE;
+		CreateAndRegisterPSO(PSOType::SSAO, desc);
+	}
+
+	// Composite
+	{
+		PSODescriptor desc = baseDesc;
+		desc.vertexShaderName = "PostEffect_VS";
+		desc.pixelShaderName = "Composite_PS";
+		desc.depthStencilDesc.DepthEnable = FALSE;
+		desc.depthStencilDesc.StencilEnable = FALSE;
+		CreateAndRegisterPSO(PSOType::Composite, desc);
+	}
+
+	// DepthOnly
+	{
+		PSODescriptor desc = baseDesc;
+		desc.vertexShaderName = "Object3D_VS";
+		desc.pixelShaderName = "DepthOnly_PS";
+		// カラーを書き込まない
+		desc.blendDesc.RenderTarget[0].RenderTargetWriteMask = 0;
+		CreateAndRegisterPSO(PSOType::DepthOnly, desc);
+	}
 }
 
 void Cygnus::PipelineStateManager::CreateSpecialPSOs() {
@@ -506,6 +551,9 @@ std::string Cygnus::PipelineStateManager::PSOTypeToString(PSOType type) {
 	case PSOType::GlitchEffect: return "GlitchEffect";
 	case PSOType::BloomExtract: return "BloomExtract";
 	case PSOType::SobelFilter: return "SobelFilter";
+	case PSOType::SSAO: return "SSAO";
+	case PSOType::Composite: return "Composite";
+	case PSOType::DepthOnly: return "DepthOnly";
 
 	// 特殊用途
 	case PSOType::Skybox: return "Skybox";

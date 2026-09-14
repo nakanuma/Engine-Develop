@@ -4,6 +4,7 @@
 #include <RTVManager.h>
 #include <FrameResourceManager.h>
 #include <CommandManager.h>
+#include <RootSignatureManager.h>
 
 void Cygnus::PostEffectManager::Initialize() {
 	// 初期化済みならスキップ
@@ -14,6 +15,8 @@ void Cygnus::PostEffectManager::Initialize() {
 
 	// レンダーターゲット作成
 	mainSceneRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
+	ssaoResultRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {1.0f, 1.0f, 1.0f, 1.0f});
+
 	bloomResultRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
 	bloomExtractRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
 	bloomHorizontalRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
@@ -115,6 +118,12 @@ void Cygnus::PostEffectManager::BeginMainScene() {
 	isRenderingToOffscreen_ = true;
 }
 
+void Cygnus::PostEffectManager::BeginMainSceneKeepDepth()
+{
+	RTVManager::SetRenderTarget(mainSceneRT_);
+	isRenderingToOffscreen_ = true;
+}
+
 void Cygnus::PostEffectManager::EndMainScene() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	auto cmd = CommandManager::GetInstance()->GetCommandList();
@@ -124,71 +133,71 @@ void Cygnus::PostEffectManager::EndMainScene() {
 	RTVManager::SetRTtoBB();
 	isRenderingToOffscreen_ = false;
 
-	// エフェクトPSOを選択
-	ID3D12PipelineState* pso = nullptr;
-	switch (effectType_) {
-	case PSOType::Default:
-		pso = psoManager->GetPSO(PSOType::Default);
-		break;
+	//// エフェクトPSOを選択
+	//ID3D12PipelineState* pso = nullptr;
+	//switch (effectType_) {
+	//case PSOType::Default:
+	//	pso = psoManager->GetPSO(PSOType::PostEffect);
+	//	break;
 
-	case PSOType::Grayscale:
-		pso = psoManager->GetPSO(PSOType::Grayscale);
-		break;
-	case PSOType::Vignette:
-		pso = psoManager->GetPSO(PSOType::Vignette);
-		break;
-	case PSOType::BoxFilter:
-		pso = psoManager->GetPSO(PSOType::BoxFilter);
-		break;
-	case PSOType::GaussianFilter:
-		pso = psoManager->GetPSO(PSOType::GaussianFilter);
-		break;
-	case PSOType::RadialBlur:
-		pso = psoManager->GetPSO(PSOType::RadialBlur);
-		break;
-	case PSOType::InvertColor:
-		pso = psoManager->GetPSO(PSOType::InvertColor);
-		break;
-	case PSOType::Sepia:
-		pso = psoManager->GetPSO(PSOType::Sepia);
-		break;
-	case PSOType::Posterize:
-		pso = psoManager->GetPSO(PSOType::Posterize);
-		break;
-	case PSOType::Emboss:
-		pso = psoManager->GetPSO(PSOType::Emboss);
-		break;
-	case PSOType::Sharpen:
-		pso = psoManager->GetPSO(PSOType::Sharpen);
-		break;
-	case PSOType::ColorAberration:
-		pso = psoManager->GetPSO(PSOType::ColorAberration);
-		break;
-	case PSOType::BarrelDistortion:
-		pso = psoManager->GetPSO(PSOType::BarrelDistortion);
-		break;
-	case PSOType::WaveDistortion:
-		pso = psoManager->GetPSO(PSOType::WaveDistortion);
-		break;
-	case PSOType::Pixelation:
-		pso = psoManager->GetPSO(PSOType::Pixelation);
-		break;
-	case PSOType::GlitchEffect:
-		pso = psoManager->GetPSO(PSOType::GlitchEffect);
-		break;
-	case PSOType::DamageVignette:
-		pso = psoManager->GetPSO(PSOType::DamageVignette);
-		break;
-	default:
-		pso = psoManager->GetPSO(PSOType::Default);
-		break;
-	}
+	//case PSOType::Grayscale:
+	//	pso = psoManager->GetPSO(PSOType::Grayscale);
+	//	break;
+	//case PSOType::Vignette:
+	//	pso = psoManager->GetPSO(PSOType::Vignette);
+	//	break;
+	//case PSOType::BoxFilter:
+	//	pso = psoManager->GetPSO(PSOType::BoxFilter);
+	//	break;
+	//case PSOType::GaussianFilter:
+	//	pso = psoManager->GetPSO(PSOType::GaussianFilter);
+	//	break;
+	//case PSOType::RadialBlur:
+	//	pso = psoManager->GetPSO(PSOType::RadialBlur);
+	//	break;
+	//case PSOType::InvertColor:
+	//	pso = psoManager->GetPSO(PSOType::InvertColor);
+	//	break;
+	//case PSOType::Sepia:
+	//	pso = psoManager->GetPSO(PSOType::Sepia);
+	//	break;
+	//case PSOType::Posterize:
+	//	pso = psoManager->GetPSO(PSOType::Posterize);
+	//	break;
+	//case PSOType::Emboss:
+	//	pso = psoManager->GetPSO(PSOType::Emboss);
+	//	break;
+	//case PSOType::Sharpen:
+	//	pso = psoManager->GetPSO(PSOType::Sharpen);
+	//	break;
+	//case PSOType::ColorAberration:
+	//	pso = psoManager->GetPSO(PSOType::ColorAberration);
+	//	break;
+	//case PSOType::BarrelDistortion:
+	//	pso = psoManager->GetPSO(PSOType::BarrelDistortion);
+	//	break;
+	//case PSOType::WaveDistortion:
+	//	pso = psoManager->GetPSO(PSOType::WaveDistortion);
+	//	break;
+	//case PSOType::Pixelation:
+	//	pso = psoManager->GetPSO(PSOType::Pixelation);
+	//	break;
+	//case PSOType::GlitchEffect:
+	//	pso = psoManager->GetPSO(PSOType::GlitchEffect);
+	//	break;
+	//case PSOType::DamageVignette:
+	//	pso = psoManager->GetPSO(PSOType::DamageVignette);
+	//	break;
+	//default:
+	//	pso = psoManager->GetPSO(PSOType::Default);
+	//	break;
+	//}
 
-	// エフェクト適用してバックバッファに適用
-	DrawWithPSO(pso, mainSceneRT_);
+	//// エフェクト適用してバックバッファに適用
+	//DrawWithPSO(pso, mainSceneRT_);
 
-	// 通常PSOに戻す
-	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
+	//// 通常PSOに戻す
+	//cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
 }
 
 void Cygnus::PostEffectManager::BeginBloom() {
@@ -273,6 +282,7 @@ void Cygnus::PostEffectManager::DrawWithPSO(ID3D12PipelineState* pso, uint32_t t
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
 	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, textureHandle);
+	TextureManager::SetDescriptorTable(kRootParameterIndexDepth, cmd, RTVManager::GetDepthSRVHandle(textureHandle));
 	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
 }
 
@@ -284,4 +294,63 @@ void Cygnus::PostEffectManager::ApplyEffect(ID3D12PipelineState* pso, uint32_t s
 
 	// 指定したPSOで描画
 	DrawWithPSO(pso, sourceTexture);
+}
+
+void Cygnus::PostEffectManager::DrawSSAO()
+{
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
+	RTVManager::SetRenderTarget(ssaoResultRT_);
+
+	auto psoManager = PipelineStateManager::GetInstance();
+
+	DrawWithPSO(psoManager->GetPSO(PSOType::SSAO), mainSceneRT_);
+}
+
+void Cygnus::PostEffectManager::DrawComposite()
+{
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
+	RTVManager::SetRTtoBB();
+
+	auto psoManager = PipelineStateManager::GetInstance();
+
+	cmd->SetPipelineState(psoManager->GetPSO(PSOType::Composite));
+
+	cmd->IASetVertexBuffers(0, 1, &vbView_);
+	cmd->IASetIndexBuffer(&ibView_);
+
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexMaterial, materialCB_->GetGPUVirtualAddress());
+
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexTransform, transformCB_->GetGPUVirtualAddress());
+
+	// Scene Texture -> t0
+	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, mainSceneRT_);
+	
+	// SSAO Texture -> t5
+	TextureManager::SetDescriptorTable(kRootParameterIndexSSAO, cmd, ssaoResultRT_);
+
+	cmd->DrawIndexedInstanced(kDrawIndexedCount, kInstancedCount, 0, 0, 0);
+}
+
+void Cygnus::PostEffectManager::BeginDepthPrepass()
+{
+	RTVManager::SetRenderTarget(mainSceneRT_);
+	RTVManager::ClearDepth(mainSceneRT_);
+
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
+	cmd->SetGraphicsRootSignature(RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default));
+
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::DepthOnly));
+
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+void Cygnus::PostEffectManager::ClearSSAO()
+{
+	RTVManager::SetRenderTarget(ssaoResultRT_);
+
+	Float4 clearColor = {1.0f, 1.0f, 1.0f, 1.0f};
+	RTVManager::ClearRTV(ssaoResultRT_, clearColor);
 }

@@ -117,6 +117,8 @@ public:
 	/// </summary>
 	void DrawShadow();
 
+	void DrawDepthOnly();
+
 	/// <summary>
 	/// スキンアニメーションのシャドウマップ描画を行います。
 	/// </summary>
@@ -150,6 +152,8 @@ public:
 	/// エミッシブライト（エリアライト）としてLightManagerに登録します。
 	/// </summary>
 	void UpdateEmissiveAreaLight();
+
+	void SetSSAOTextureHandle(int32_t handle){ssaoTextureHandle_ = handle;}
 
 	// =========================================================
 	// Member Variables
@@ -195,6 +199,8 @@ private:
 
 	LightManager::AreaLightType emissiveAreaLightType_ = LightManager::AreaLightType::RectAngle;
 
+	int32_t ssaoTextureHandle_ = -1;
+
 	// =========================================================
 	// Constants
 	// =========================================================
@@ -203,6 +209,8 @@ private:
 	static constexpr uint32_t kRootParameterIndexTexture = 2;			/* テクスチャ用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexSkinPaletteSRV = 5;	/* スキンアニメーションSRV用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexShadowCBV = 11;		/* シャドウマッピングWVP用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexDepth = 17; /* 深度テクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexSSAO = 18; /* SSAOテクスチャ用ルートパラメーターインデックス */
 
 	static constexpr uint32_t kMeshVBVStartSlot = 0;	/* メッシュ頂点バッファの開始スロット */
 	static constexpr uint32_t kMeshVBVCount = 1;		/* VBVの数 */

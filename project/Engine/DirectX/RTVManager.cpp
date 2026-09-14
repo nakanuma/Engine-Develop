@@ -189,6 +189,21 @@ void Cygnus::RTVManager::ClearRTV(int32_t textureHandle, const Float4& clearColo
 	cmd->ClearDepthStencilView(frameResource->GetDSVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 
+void Cygnus::RTVManager::ClearDepth(int32_t textureHandle)
+{
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+	FrameResourceManager* frameResource = FrameResourceManager::GetInstance();
+
+	cmd->ClearDepthStencilView(
+		frameResource->GetDSVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]),
+		D3D12_CLEAR_FLAG_DEPTH,
+		1.0f,
+		0,
+		0,
+		nullptr
+	);
+}
+
 int32_t Cygnus::RTVManager::GetDepthSRVHandle(int32_t textureHandle) { return GetInstance().depthSRVHandleMap_[textureHandle]; }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Cygnus::RTVManager::GetDSVHandle(uint32_t textureHandle)

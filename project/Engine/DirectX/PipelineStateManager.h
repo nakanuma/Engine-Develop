@@ -17,6 +17,8 @@ namespace Cygnus {
 enum class PSOType {
 	// 基本
 	Default,
+	// ポストエフェクト
+	PostEffect,
 
 	// ブレンドモード
 	BlendNone,
@@ -58,6 +60,9 @@ enum class PSOType {
 	GlitchEffect,		/* グリッチエフェクト */
 	BloomExtract,       /* 明度抽出（ブルーム用） */
 	SobelFilter,        /* ソベルフィルター（アウトライン用） */
+	SSAO,				/* SSAO */
+	Composite,			/* Composite */
+	DepthOnly,			/* Depth Prepass */
 
 	// 特殊な用途
 	Skybox,				/* スカイボックス */

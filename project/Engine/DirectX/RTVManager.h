@@ -70,6 +70,12 @@ public:
 	static void ClearRTV(int32_t textureHandle, const Float4& clearColor = {0.1f, 0.25f, 0.5f, 1.0f});
 
 	/// <summary>
+	/// Depthのみクリアします。
+	/// </summary>
+	/// <param name="textureHandle"></param>
+	static void ClearDepth(int32_t textureHandle);
+
+	/// <summary>
 	/// デプスステンシルビュー（DSV）ハンドルを取得します。
 	/// </summary>
 	/// <param name="textureHandle">テクスチャハンドル</param>

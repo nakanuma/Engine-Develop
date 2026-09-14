@@ -140,6 +140,20 @@ void Cygnus::RootSignatureManager::CreateDefaultRootSignature()
 	shadowMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	shadowMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	// DepthBuffer用に独立したDescriptorRange作成
+	D3D12_DESCRIPTOR_RANGE depthRange{};
+	depthRange.BaseShaderRegister = 4;
+	depthRange.NumDescriptors = 1;
+	depthRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	depthRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	// SSAO用に独立したDescriptorRange作成
+	D3D12_DESCRIPTOR_RANGE ssaoRange{};
+	ssaoRange.BaseShaderRegister = 5;
+	ssaoRange.NumDescriptors = 1;
+	ssaoRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	ssaoRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 	// RootParameter作成
 	desc.rootParameters.resize(kDefaultRootParameterCount);
 
@@ -231,6 +245,18 @@ void Cygnus::RootSignatureManager::CreateDefaultRootSignature()
 	desc.rootParameters[kRootParameterIndexDamageVignette].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	desc.rootParameters[kRootParameterIndexDamageVignette].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	desc.rootParameters[kRootParameterIndexDamageVignette].Descriptor.ShaderRegister = kDamageVignetteCBVRegister;
+
+	// [17] DepthBuffer
+	desc.rootParameters[kRootParameterIndexDepth].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	desc.rootParameters[kRootParameterIndexDepth].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	desc.rootParameters[kRootParameterIndexDepth].DescriptorTable.pDescriptorRanges = &depthRange;
+	desc.rootParameters[kRootParameterIndexDepth].DescriptorTable.NumDescriptorRanges = 1;
+
+	// [18] SSAO
+	desc.rootParameters[kRootParameterIndexSSAO].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	desc.rootParameters[kRootParameterIndexSSAO].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	desc.rootParameters[kRootParameterIndexSSAO].DescriptorTable.pDescriptorRanges = &ssaoRange;
+	desc.rootParameters[kRootParameterIndexSSAO].DescriptorTable.NumDescriptorRanges = 1;
 
 	// StaticSampler作成
 	desc.staticSamplers.resize(kDefaultStaticSamplerCount);

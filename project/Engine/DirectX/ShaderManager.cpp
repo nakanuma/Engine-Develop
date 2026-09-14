@@ -36,6 +36,10 @@ void Cygnus::ShaderManager::Initialize() {
 	LoadShader("Object3D_VS", L"resources/Shaders/Object3D.VS.hlsl", L"vs_6_0");
 	LoadShader("Object3D_PS", L"resources/Shaders/Object3D.PS.hlsl", L"ps_6_0");
 
+	// PostEffect
+	LoadShader("PostEffect_VS", L"resources/Shaders/PostEffect.VS.hlsl", L"vs_6_0");
+	LoadShader("PostEffect_PS", L"resources/Shaders/PostEffect.PS.hlsl", L"ps_6_0");
+
 	// Sprite
 	LoadShader("Sprite_VS", L"resources/Shaders/Sprite.VS.hlsl", L"vs_6_0");
 	LoadShader("Sprite_PS", L"resources/Shaders/Sprite.PS.hlsl", L"ps_6_0");
@@ -116,6 +120,13 @@ void Cygnus::ShaderManager::Initialize() {
 	LoadShader("ShadowMap_VS", L"resources/Shaders/ShadowMap.VS.hlsl", L"vs_6_0");
 	// ShadowMap(Skinning)
 	LoadShader("ShadowMapSkinned_VS", L"resources/Shaders/ShadowMapSkinned.VS.hlsl", L"vs_6_0");
+
+	// SSAO
+	LoadShader("SSAO_PS", L"resources/Shaders/SSAO.PS.hlsl", L"ps_6_0");
+	// Composite
+	LoadShader("Composite_PS", L"resources/Shaders/Composite.PS.hlsl", L"ps_6_0");
+	// DepthOnly
+	LoadShader("DepthOnly_PS", L"resources/Shaders/DepthOnly.PS.hlsl", L"ps_6_0");
 }
 
 void Cygnus::ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) {

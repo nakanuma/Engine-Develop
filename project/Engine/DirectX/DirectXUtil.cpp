@@ -31,7 +31,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Cygnus::CreateDepthStencilTextureResource
 	resourceDesc.Height = height;                                 // Textureの高さ
 	resourceDesc.MipLevels = 1;                                   // mipmapの数
 	resourceDesc.DepthOrArraySize = 1;                            // 奥行き or 配列Textureの配列数
-	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;          // DepthStencilとして利用可能なフォーマット
+	resourceDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;			  // SSAO用に、SRVとしてTYPLESSで読めるように変更
 	resourceDesc.SampleDesc.Count = 1;                            // サンプリングカウント。1固定
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;  // 2次元
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL; /// DepthStencilとして使う通知

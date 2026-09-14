@@ -134,7 +134,7 @@ private:
 	
 	// Default用定数
 	static constexpr uint32_t kDefaultDescriptorRangeCount = 2;		/* ディスクリプタレンジの数 */
-	static constexpr uint32_t kDefaultRootParameterCount = 17;		/* ルートパラメーターの数 */
+	static constexpr uint32_t kDefaultRootParameterCount = 19;		/* ルートパラメーターの数 */
 	static constexpr uint32_t kDefaultStaticSamplerCount = 2;		/* スタティックサンプラーの数 */
 
 	// レジスタ番号定数
@@ -169,10 +169,14 @@ private:
 	static constexpr uint32_t kRootParameterIndexEmissiveLight = 14;	/* エミッシブライト用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexAreaLight = 15;        /* エリアライト用ルートパラメータインデックス */
 	static constexpr uint32_t kRootParameterIndexDamageVignette = 16;	/* ダメージビネット用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexDepth = 17; /* 深度テクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexSSAO = 18; /* SSAOテクスチャ用ルートパラメーターインデックス */
 
 	// サンプラーレジスタ定数
 	static constexpr uint32_t kNormalSamplerRegister = 0;	/* 通常テクスチャ用サンプラーのインデックス */
 	static constexpr uint32_t kShadowSamplerRegister = 1;	/* シャドウマップテクスチャ用サンプラーのインデックス */
+	static constexpr uint32_t kDepthSRVRegister = 4; /* 深度テクスチャ用レジスタ番号 */
+	static constexpr uint32_t kSSAOSRVRegister = 5; /* SSAOテクスチャ用レジスタ番号 */
 
 	// =========================================================
 	// Member Variables

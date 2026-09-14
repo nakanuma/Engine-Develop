@@ -8,6 +8,9 @@
 #include <SRVManager.h>
 #include <LightCamera.h>
 #include <CommandManager.h>
+#include <FrameResourceManager.h>
+#include <PipelineStateManager.h>
+#include <RootSignatureManager.h>
 
 Cygnus::Object3D::Object3D() {
 	transform_.translate_ = kDefaultTranslate;
@@ -104,6 +107,32 @@ void Cygnus::Object3D::DrawShadow() {
 	cmd->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
 
 	// DrawCall
+	cmd->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
+}
+
+void Cygnus::Object3D::DrawDepthOnly()
+{
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
+	// DepthOnly用PSO
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::DepthOnly));
+	
+	// Root Signature
+	cmd->SetGraphicsRootSignature(RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default));
+
+	// WVPのみセット
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
+
+	// IBV
+	cmd->IASetIndexBuffer(&model_->indexBufferView);
+
+	// VBV
+	cmd->IASetVertexBuffers(kMeshVBVStartSlot, kMeshVBVCount, &model_->vertexBufferView);
+
+	// Primitive topology
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Draw
 	cmd->DrawIndexedInstanced(static_cast<UINT>(model_->indices.size()), 1, 0, 0, 0);
 }
 
@@ -239,6 +268,10 @@ void Cygnus::Object3D::DrawSetup()
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexWVP, wvpCB_.resource_->GetGPUVirtualAddress());
 	// SRVのDescriptorTableの先頭を設定（Textureの設定）
 	TextureManager::SetDescriptorTable(kRootParameterIndexTexture, cmd, model_->material.textureHandle); // モデルデータに格納されたテクスチャを使用する
+	
+	if(ssaoTextureHandle_ >= 0) {
+		TextureManager::SetDescriptorTable(kRootParameterIndexSSAO, cmd, ssaoTextureHandle_);
+	}
 }
 
 void Cygnus::Object3D::DrawShadowSetup()

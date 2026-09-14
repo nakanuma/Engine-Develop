@@ -133,6 +133,11 @@ uint32_t Cygnus::TextureManager::CreateSRV(ID3D12Resource* targetResource, DXGI_
 	return SRVManager::GetInstance()->Allocate();
 }
 
+uint32_t Cygnus::TextureManager::GetSRVIndex(int textureHandle)
+{
+	return 0;
+}
+
 DirectX::ScratchImage Cygnus::TextureManager::LoadTexture(const std::string& filePath) {
 	HRESULT result = S_FALSE;
 

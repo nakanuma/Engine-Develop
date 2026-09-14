@@ -8,6 +8,7 @@
 #include <MyWindow.h>
 #include <Logger.h>
 #include <DirectXUtil.h>
+#include <Texture/SRVManager.h>
 
 Cygnus::FrameResourceManager* Cygnus::FrameResourceManager::GetInstance() {
 	static FrameResourceManager instance;

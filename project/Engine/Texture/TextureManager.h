@@ -125,6 +125,11 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(const std::string& filePath) { return textureDatas_[filePath].srvHandleGPU; }
 
 	/// <summary>
+	/// テクスチャハンドルからSRVインデックスを取得します
+	/// </summary>
+	static uint32_t GetSRVIndex(int textureHandle);
+
+	/// <summary>
 	/// コピー禁止
 	/// </summary>
 	TextureManager() = default;
