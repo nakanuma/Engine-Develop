@@ -43,7 +43,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Cygnus::CreateDepthStencilTextureResource
 	// 深度値のクリア設定
 	D3D12_CLEAR_VALUE depthClearValue{};
 	depthClearValue.DepthStencil.Depth = 1.0f;              // 1.0f(最大値)でクリア
-	depthClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // フォーマット。Resourceと合わせる
+	depthClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // DSVとして使用するフォーマット
 
 	// Resourceの設定
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
@@ -51,7 +51,9 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Cygnus::CreateDepthStencilTextureResource
 	    &heapProperties,                                                                  // Heapの設定
 	    D3D12_HEAP_FLAG_NONE,                                                             // Heapの特殊な設定。特になし
 	    &resourceDesc,                                                                    // Resourceの設定
-	    isReading ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_DEPTH_WRITE, // 深度値を書き込む状態にしておく
+	    isReading 
+		? D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE 
+		: D3D12_RESOURCE_STATE_DEPTH_WRITE,
 	    &depthClearValue,                                                                 // Clear最適値
 	    IID_PPV_ARGS(&resource));                                                         // 作成するResourceポインタへのポインタ
 	assert(SUCCEEDED(hr));

@@ -86,7 +86,7 @@ public:
 	/// <param name="height">高さ</param>
 	/// <param name="clearColor">クリアカラー</param>
 	/// <returns>テクスチャハンドル</returns>
-	static int CreateEmptyTexture(uint32_t width, uint32_t height, Float4 clearColor = {0.1f, 0.25f, 0.5f, 1.0f});
+	static int CreateEmptyTexture(uint32_t width, uint32_t height, Float4 clearColor = {0.1f, 0.25f, 0.5f, 1.0f}, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 
 	/// <summary>
 	/// テクスチャリソースを取得します。

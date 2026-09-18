@@ -14,7 +14,7 @@ void Cygnus::PostEffectManager::Initialize() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// レンダーターゲット作成
-	mainSceneRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
+	mainSceneRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {0.0f, 0.0f, 0.0f, 1.0f}, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	ssaoResultRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), {1.0f, 1.0f, 1.0f, 1.0f});
 
 	bloomResultRT_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight(), kTransparentClearColor);
@@ -115,12 +115,22 @@ void Cygnus::PostEffectManager::BeginMainScene() {
 	// オフスクリーンレンダーターゲットに切り替え
 	RTVManager::SetRenderTarget(mainSceneRT_);
 	RTVManager::ClearRTV(mainSceneRT_);
+
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	isRenderingToOffscreen_ = true;
 }
 
 void Cygnus::PostEffectManager::BeginMainSceneKeepDepth()
 {
 	RTVManager::SetRenderTarget(mainSceneRT_);
+
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+	cmd->SetPipelineState(PipelineStateManager::GetInstance()->GetPSO(PSOType::Default));
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	isRenderingToOffscreen_ = true;
 }
 
@@ -130,7 +140,7 @@ void Cygnus::PostEffectManager::EndMainScene() {
 	auto psoManager = PipelineStateManager::GetInstance();
 
 	// バックバッファに切り替え
-	RTVManager::SetRTtoBB();
+	/*RTVManager::SetRTtoBB();*/
 	isRenderingToOffscreen_ = false;
 
 	//// エフェクトPSOを選択
@@ -243,7 +253,7 @@ void Cygnus::PostEffectManager::RestoreBackBuffer(bool resetPSO) {
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	barrier.Transition.pResource = depthBufferResource;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
 	cmd->ResourceBarrier(1, &barrier);
@@ -268,7 +278,7 @@ void Cygnus::PostEffectManager::RestoreDepthBufferState()
 	returnBarrier.Transition.pResource = depthBufferResource;
 	returnBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	returnBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-	returnBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
+	returnBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
 	cmd->ResourceBarrier(1, &returnBarrier);
 }
@@ -300,6 +310,10 @@ void Cygnus::PostEffectManager::DrawSSAO()
 {
 	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
+	// mainSceneRT_のDepthをSRVとして読む
+	RTVManager::TransitionDepthToShaderResource(mainSceneRT_);
+
+	// SSAOの出力先
 	RTVManager::SetRenderTarget(ssaoResultRT_);
 
 	auto psoManager = PipelineStateManager::GetInstance();
@@ -335,7 +349,7 @@ void Cygnus::PostEffectManager::DrawComposite()
 
 void Cygnus::PostEffectManager::BeginDepthPrepass()
 {
-	RTVManager::SetRenderTarget(mainSceneRT_);
+	RTVManager::SetDepthOnlyRenderTarget(mainSceneRT_); // Depthだけを使用する
 	RTVManager::ClearDepth(mainSceneRT_);
 
 	auto cmd = CommandManager::GetInstance()->GetCommandList();

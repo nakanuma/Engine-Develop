@@ -37,7 +37,7 @@ public:
 	/// <param name="height">高さ</param>
 	/// <param name="clearColor">クリアカラー</param>
 	/// <returns>テクスチャハンドル</returns>
-	static int32_t CreateRenderTargetTexture(uint32_t width, uint32_t height, const Float4& clearColor = {0.1f, 0.25f, 0.5f, 1.0f});
+	static int32_t CreateRenderTargetTexture(uint32_t width, uint32_t height, const Float4& clearColor = {0.1f, 0.25f, 0.5f, 1.0f}, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 
 	/// <summary>
 	/// レンダーターゲットを設定します。
@@ -96,6 +96,16 @@ public:
 	/// <returns>深度リソース</returns>
 	static ID3D12Resource* GetDepthResource(uint32_t textureHandle);
 
+	static void SetDepthOnlyRenderTarget(int32_t textureHandle);
+
+	static void TransitionDepthToShaderResource(int32_t textureHandle);
+
+	/// <summary>
+	/// Depthを変更しない
+	/// </summary>
+	/// <param name="textureHandle"></param>
+	static void SetRenderTargetKeepDepth(int32_t textureHandle);
+
 private:
 	// =========================================================
 	// Member Variables
@@ -108,5 +118,7 @@ private:
 
 	std::unordered_map<int32_t, Microsoft::WRL::ComPtr<ID3D12Resource>> dsvResourceMap_;	/* デプスステンシルビュー（DSV）リソースマップ */
 	std::unordered_map<int32_t, int32_t> depthSRVHandleMap_;								/* デプスシェンシルビュー（DSV）シェーダリソースビュー（SRV）ハンドルマップ */
+
+	std::unordered_map<int32_t, D3D12_CPU_DESCRIPTOR_HANDLE> dsvHandleMap_; // DSVインデックス管理用
 };
 }

@@ -81,7 +81,7 @@ void Cygnus::TextureManager::SetDescriptorTable(UINT rootParamIndex, ID3D12Graph
 
 const DirectX::TexMetadata& Cygnus::TextureManager::GetMetaData(uint32_t textureHandle) { return GetInstance().texMetadata_[textureHandle]; }
 
-int Cygnus::TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, Float4 clearColor) {
+int Cygnus::TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, Float4 clearColor, DXGI_FORMAT format) {
 	// テクスチャ読み込みの最大値に達した場合、ログを出力
 	if (SRVManager::GetInstance()->GetIndex() >= kMaxTextureValue) {
 		Log(std::format("Maximum texture loading has been reached.\n"));
@@ -91,7 +91,7 @@ int Cygnus::TextureManager::CreateEmptyTexture(uint32_t width, uint32_t height, 
 	DirectX::TexMetadata metadata;
 	metadata.width = width;
 	metadata.height = height;
-	metadata.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	metadata.format = format;
 	metadata.mipLevels = 1;
 	metadata.arraySize = 1;
 	metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
@@ -190,7 +190,8 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Cygnus::TextureManager::CreateTextureReso
 		heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;  // プロセッサの近くに配置
 	}
 	D3D12_CLEAR_VALUE clearValue = {
-	    DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {clearColor.x, clearColor.y, clearColor.z, clearColor.w}
+	    metadata.format, 
+		{clearColor.x, clearColor.y, clearColor.z, clearColor.w}
     };
 
 	// Resourceを生成する
