@@ -6,6 +6,7 @@
 #include <TextureManager.h>
 #include <FrameResourceManager.h>
 #include <CommandManager.h>
+#include <Logger.h>
 
 Cygnus::RTVManager& Cygnus::RTVManager::GetInstance() {
 	static RTVManager instance;
@@ -291,4 +292,245 @@ void Cygnus::RTVManager::SetRenderTargetKeepDepth(int32_t textureHandle)
 	);
 
 	GetInstance().currentRenderTarget_ = textureHandle;
+}
+
+void Cygnus::RTVManager::SetCubeMapRenderTarget(int32_t textureHandle, uint32_t mipLevel, uint32_t face)
+{
+	assert(face < 6);
+
+	ID3D12Resource* resource = TextureManager::GetInstance().GetResource(textureHandle);
+
+	assert(resource != nullptr);
+
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance().GetMetaData(textureHandle);
+
+	assert(metadata.IsCubemap());
+	assert(mipLevel < metadata.mipLevels);
+
+	/* Face × Mip を識別するキー */
+	int64_t key = 
+		(static_cast<int64_t>(textureHandle) << 32) | 
+		(static_cast<int64_t>(mipLevel) << 8) |
+		static_cast<int64_t>(face);
+
+	/* RTVがまだ存在しなければ作成 */
+	auto it = GetInstance().cubeMapRTVHandleMap_.find(key);
+
+	if(it == GetInstance().cubeMapRTVHandleMap_.end()) {
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = FrameResourceManager::GetInstance()->GetRTVHeap()->GetCPUHandle(GetInstance().rtvIndex_);
+
+		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+
+		rtvDesc.Format = metadata.format;
+		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+
+		rtvDesc.Texture2DArray.MipSlice = mipLevel;
+		rtvDesc.Texture2DArray.FirstArraySlice = face;
+		rtvDesc.Texture2DArray.ArraySize = 1;
+		rtvDesc.Texture2DArray.PlaneSlice = 0;
+
+		DirectXBase::GetInstance()->GetDevice()->CreateRenderTargetView(
+			resource, 
+			&rtvDesc, 
+			rtvHandle
+		);
+
+		GetInstance().cubeMapRTVHandleMap_[key] = rtvHandle;
+
+		GetInstance().rtvIndex_++;
+
+		it = GetInstance().cubeMapRTVHandleMap_.find(key);
+	}
+
+	// Face × Mip のサブリソース番号
+	uint32_t subresource = mipLevel + face * static_cast<uint32_t>(metadata.mipLevels);
+
+	/* CubeMap全体をRT状態へ */
+	D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = resource;
+	barrier.Transition.Subresource = subresource;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+	CommandManager::GetInstance()->GetCommandList()->ResourceBarrier(1, &barrier);
+
+	/* レンダーターゲット設定 */
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = it->second;
+
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetInstance().cubeMapDSVHandleMap_.at(textureHandle);
+
+	ID3D12Resource* depthResource = GetInstance().cubeMapDepthResourceMap_.at(textureHandle).Get();
+
+	TransitionResource(
+		CommandManager::GetInstance()->GetCommandList(),
+		depthResource,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE
+	);
+
+	CommandManager::GetInstance()->GetCommandList()->OMSetRenderTargets(
+		1, 
+		&rtvHandle, 
+		FALSE, 
+		&dsvHandle
+	);
+
+	/*GetInstance().currentRenderTarget_ = textureHandle;*/
+
+	Log(std::format(
+		"SetCubeMapRenderTarget: handle={}, mip={}, face={}, subresource={}\n",
+		textureHandle,
+		mipLevel,
+		face,
+		subresource
+	));
+}
+
+void Cygnus::RTVManager::ResetCubeMapResourceBarrier(int32_t textureHandle, uint32_t mipLevel, uint32_t face)
+{
+	assert(face < 6);
+
+	ID3D12Resource* resource = TextureManager::GetInstance().GetResource(textureHandle);
+
+	assert(resource != nullptr);
+
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance().GetMetaData(textureHandle);
+
+	assert(metadata.IsCubemap());
+
+	// Face × Mip のサブリソース番号
+	uint32_t subresource = mipLevel + face * static_cast<uint32_t>(metadata.mipLevels);
+
+	D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = resource;
+	barrier.Transition.Subresource = subresource;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+
+	CommandManager::GetInstance()->GetCommandList()->ResourceBarrier(1, &barrier);
+
+	ID3D12Resource* depthResource = GetInstance().cubeMapDepthResourceMap_.at(textureHandle).Get();
+
+	TransitionResource(
+		CommandManager::GetInstance()->GetCommandList(),
+		depthResource,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+	);
+
+	Log(std::format(
+		"ResetCubeMapResourceBarrier: handle={}, mip={}, face={}, subresource={}\n",
+		textureHandle,
+		mipLevel,
+		face,
+		subresource
+	));
+}
+
+void Cygnus::RTVManager::ClearCubeMapRTV(int32_t textureHandle, uint32_t mipLevel, uint32_t face, const Float4& clearColor)
+{
+	assert(face < 6);
+
+	ID3D12Resource* resource = TextureManager::GetInstance().GetResource(textureHandle);
+
+	assert(resource != nullptr);
+
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance().GetMetaData(textureHandle);
+
+	assert(metadata.IsCubemap());
+	assert(mipLevel < metadata.mipLevels);
+
+	/* Face × Mip を識別するキー */
+	int64_t key =
+		(static_cast<int64_t>(textureHandle) << 32) |
+		(static_cast<int64_t>(mipLevel) << 8) |
+		static_cast<int64_t>(face);
+
+	auto it = GetInstance().cubeMapRTVHandleMap_.find(key);
+
+	assert(it != GetInstance().cubeMapRTVHandleMap_.end());
+
+	FLOAT color[] = {
+		clearColor.x,
+		clearColor.y,
+		clearColor.z,
+		clearColor.w
+	};
+
+	CommandManager::GetInstance()->GetCommandList()->ClearRenderTargetView(
+		it->second,
+		color,
+		0,
+		nullptr
+	);
+}
+
+void Cygnus::RTVManager::CreateCubeMapDepth(int32_t textureHandle, uint32_t width, uint32_t height)
+{
+	assert(textureHandle >= 0);
+	assert(width > 0);
+	assert(height > 0);
+
+	// CubeMap専用DepthResource
+	GetInstance().cubeMapDepthResourceMap_[textureHandle] = 
+		CreateDepthStencilTextureResource(DirectXBase::GetInstance()->GetDevice(), width, height, true);
+
+	ID3D12Resource* depthResource = GetInstance().cubeMapDepthResourceMap_[textureHandle].Get();
+
+	assert(depthResource != nullptr);
+
+	// DSV descriptor
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Texture2D.MipSlice = 0;
+
+	// DSV heapから確保
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = FrameResourceManager::GetInstance()->GetDSVHeap()->GetCPUHandle(GetInstance().rtvIndex_);
+
+	DirectXBase::GetInstance()->GetDevice()->CreateDepthStencilView(depthResource, &dsvDesc, dsvHandle);
+
+	GetInstance().cubeMapDSVHandleMap_[textureHandle] = dsvHandle;
+
+	Log(std::format(
+		"CreateCubeMapDepth: handle={}, width={}, height={}\n",
+		textureHandle,
+		width,
+		height
+	));
+}
+
+void Cygnus::RTVManager::ClearRenderTargetOnly(int32_t textureHandle, const Float4& clearColor)
+{
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
+	auto rtvHandle = GetInstance().rtvHandleMap_.at(textureHandle);
+
+	cmd->ClearRenderTargetView(
+		FrameResourceManager::GetInstance()->GetRTVHeap()->GetCPUHandle(GetInstance().rtvHandleMap_[textureHandle]),
+		&clearColor.x, 
+		0, 
+		nullptr
+	);
+}
+
+void Cygnus::RTVManager::ClearCubeMapDepth(int32_t textureHandle)
+{
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
+	auto it = GetInstance().cubeMapDSVHandleMap_.find(textureHandle);
+	if(it == GetInstance().cubeMapDSVHandleMap_.end()) return;
+
+	cmd->ClearDepthStencilView(
+		it->second,
+		D3D12_CLEAR_FLAG_DEPTH,
+		1.0f, 
+		0,
+		0,
+		nullptr
+	);
 }

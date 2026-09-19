@@ -39,6 +39,22 @@ struct DamageVignetteCBData{
 	float padding;		/* パディング */
 };
 
+/// <summary>
+/// HDR調整用
+/// </summary>
+struct PostEffectParameter
+{
+	float exposure;
+	float padding[3];
+};
+
+struct CubeMapMipParameter
+{
+	float texelSizeX;
+	float texelSizeY;
+	float padding[2];
+};
+
 // =========================================================
 // ポストエフェクト管理クラス
 // =========================================================
@@ -93,6 +109,12 @@ public:
 
 	void ClearSSAO();
 
+	void ClearMainSceneColor();
+
+	void GenerateCubeMapMip(int32_t cubeMapHandle, uint32_t sourceMip, uint32_t sourceFace, uint32_t destinationMip);
+
+	void InitializeCubeMapMipSRV(int32_t cubeMapHandle);
+
 	// =========================================================
 	// Getter / Setter
 	// =========================================================
@@ -123,6 +145,8 @@ public:
 	ConstBuffer<WaveCBData> waveCB_;						/* 波形ディストーション用定数バッファ */
 	ConstBuffer<GlitchCBData> glitchCB_;					/* グリッチエフェクト用定数バッファ */
 	ConstBuffer<DamageVignetteCBData> damageVignetteCB_;	/* ダメージビネット用定数バッファ */
+	ConstBuffer<PostEffectParameter> postEffectParameterCB_; // HDR調整用
+	ConstBuffer<CubeMapMipParameter> cubeMapMipParameterCB_;
 
 private:
 	// =========================================================
@@ -199,6 +223,8 @@ private:
 	static constexpr uint32_t kRootParameterIndexDamageVignette = 16;	/* DamageVignetteCBV用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexDepth = 17; /* 深度テクスチャ用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexSSAO = 18; /* SSAOテクスチャ用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterPostEffect = 19; // HDR調整用
+	static constexpr uint32_t kRootParameterCubeMapMip = 20; // CubeMapMip用
 
 	// =========================================================
 	// Member Variables
@@ -221,6 +247,8 @@ private:
 
 	bool initialized_ = false;            // 初期化済みフラグ
 	bool isRenderingToOffscreen_ = false; // オフスクリーン描画中フラグ
+
+	uint32_t cubeMapMipSRVHandles_[6][9]{};
 
 public:
 	// レンダーターゲット

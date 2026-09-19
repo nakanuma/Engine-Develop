@@ -70,7 +70,15 @@ public:
 	/// <param name="color"></param>
 	void SetColor(const Cygnus::Float4& color) { objectSkybox_->materialCB_.data_->color = color; }
 
-private:
+	void SetEnvironmentTextureHandle(int32_t handle) { 
+		Log(std::format(
+			"SkyBox SetEnvironmentTextureHandle: {}\n",
+			handle
+		));
+		environmentTextureHandle_ = handle; 
+	}
+
+public:
 	// =========================================================
 	// Constants
 	// =========================================================
@@ -82,5 +90,7 @@ private:
 	// =========================================================
 	ModelManager::ModelData modelSkybox_;			/* スカイボックスモデルデータ */
 	std::unique_ptr<Object3D> objectSkybox_;		/* スカイボックスオブジェクト */
+
+	int32_t environmentTextureHandle_ = -1;
 };
 }

@@ -258,6 +258,11 @@ void Cygnus::RootSignatureManager::CreateDefaultRootSignature()
 	desc.rootParameters[kRootParameterIndexSSAO].DescriptorTable.pDescriptorRanges = &ssaoRange;
 	desc.rootParameters[kRootParameterIndexSSAO].DescriptorTable.NumDescriptorRanges = 1;
 
+	// [19] HDR用
+	desc.rootParameters[kRootParameterPostEffect].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	desc.rootParameters[kRootParameterPostEffect].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	desc.rootParameters[kRootParameterPostEffect].Descriptor.ShaderRegister = kPostEffectCBVRegister;
+	
 	// StaticSampler作成
 	desc.staticSamplers.resize(kDefaultStaticSamplerCount);
 

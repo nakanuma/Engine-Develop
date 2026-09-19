@@ -89,6 +89,18 @@ public:
 	static int CreateEmptyTexture(uint32_t width, uint32_t height, Float4 clearColor = {0.1f, 0.25f, 0.5f, 1.0f}, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 
 	/// <summary>
+	/// Cubemap用の空テクスチャを作成します。
+	/// </summary>
+	/// <param name="width"></param>
+	/// <param name="height"></param>
+	/// <param name="mipLevels"></param>
+	/// <param name="format"></param>
+	/// <returns></returns>
+	static int CreateCubeMapTexture(uint32_t width, uint32_t height, uint32_t mipLevels, DXGI_FORMAT format = DXGI_FORMAT_R16G16B16A16_FLOAT, Float4 clearColor = {0.0f, 0.0f, 0.0f, 1.0f});
+
+	static uint32_t CreateCubeMapMipSRV(int32_t textureHandle, uint32_t mipLevel, uint32_t face);
+
+	/// <summary>
 	/// テクスチャリソースを取得します。
 	/// </summary>
 	/// <param name="textureHandle">テクスチャハンドル</param>

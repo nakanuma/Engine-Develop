@@ -20,7 +20,7 @@ void Cygnus::Camera::TransferConstantBuffer() {
 	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexCamera, current_->cameraCB_.resource_->GetGPUVirtualAddress());
-}
+}                     
 
 Cygnus::Matrix Cygnus::Camera::MakeViewMatrix() {
 	// カメラのtransformからアフィン変換行列を作成
@@ -30,6 +30,29 @@ Cygnus::Matrix Cygnus::Camera::MakeViewMatrix() {
 }
 
 Cygnus::Matrix Cygnus::Camera::MakePerspectiveFovMatrix() {
+	float aspectRatio;
+
+	if(isCubeMapCamera_) {
+		aspectRatio = 1.0f;
+	} else {
+		aspectRatio = static_cast<float>(Window::GetWidth()) / static_cast<float>(Window::GetHeight());
+	}
+
 	// 透視投影行列を生成して返す
-	return Matrix::PerspectiveFovLH(fov_, static_cast<float>(Window::GetWidth()) / static_cast<float>(Window::GetHeight()), nearZ_, farZ_);
+	return Matrix::PerspectiveFovLH(
+		fov_, 
+		aspectRatio, 
+		nearZ_, 
+		farZ_
+	);
+}
+
+Cygnus::Matrix Cygnus::Camera::MakeCubeMapPerspectiveFovMatrix()
+{
+	return Matrix::PerspectiveFovLH(
+		PIf / 2.0f,
+		1.0f,
+		nearZ_,
+		farZ_
+	);
 }

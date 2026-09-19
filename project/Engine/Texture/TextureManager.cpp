@@ -167,6 +167,17 @@ DirectX::ScratchImage Cygnus::TextureManager::LoadTexture(const std::string& fil
 Microsoft::WRL::ComPtr<ID3D12Resource> Cygnus::TextureManager::CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata, bool isRenderTarget, Float4 clearColor) {
 	HRESULT result = S_FALSE;
 
+	assert(metadata.mipLevels > 0);
+	assert(metadata.mipLevels <= D3D12_REQ_MIP_LEVELS);
+
+	Log(std::format(
+		"CreateTextureResource: width={}, height={}, arraySize={}, mipLevels={}\n",
+		metadata.width,
+		metadata.height,
+		metadata.arraySize,
+		metadata.mipLevels
+	));
+
 	// metadataを基にResourceの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Width = UINT(metadata.width);                             // Textureの幅
@@ -203,6 +214,12 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Cygnus::TextureManager::CreateTextureReso
 	    isRenderTarget ? D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE : D3D12_RESOURCE_STATE_GENERIC_READ, // 初回のResourceState
 	    isRenderTarget ? &clearValue : nullptr,                                                          // Clear最適値
 	    IID_PPV_ARGS(&resource));                                                                        // 作成するResourceポインタへのポインタ
+		
+	Log(std::format(
+		"CreateCommittedResource result = 0x{:08X}\n",
+		static_cast<uint32_t>(result)
+	));
+
 	assert(SUCCEEDED(result));
 
 	return std::move(resource);
@@ -237,4 +254,108 @@ void Cygnus::TextureManager::UploadTextureData(ID3D12Resource* texture, const Di
 			assert(SUCCEEDED(result));
 		}
 	}
+}
+
+int Cygnus::TextureManager::CreateCubeMapTexture(uint32_t width, uint32_t height, uint32_t mipLevels, DXGI_FORMAT format, Float4 clearColor)
+{
+	assert(width > 0);
+	assert(height > 0);
+	assert(mipLevels > 0);
+	assert(mipLevels <= D3D12_REQ_MIP_LEVELS);
+
+	DirectX::TexMetadata metadata{};
+
+	metadata.width = width;
+	metadata.height = height;
+	metadata.depth = 1;
+	metadata.arraySize = 6;
+	metadata.mipLevels = mipLevels;
+	metadata.format = format;
+	metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
+	metadata.miscFlags = DirectX::TEX_MISC_TEXTURECUBE;
+
+	assert(metadata.mipLevels == mipLevels);
+
+	uint32_t textureIndex = SRVManager::GetInstance()->GetIndex();
+
+	GetInstance().texMetadata_[textureIndex] = metadata;
+
+	Log(std::format(
+		"After texMetadata copy: mipLevels={}\n",
+		GetInstance().texMetadata_[textureIndex].mipLevels
+	));
+
+	Microsoft::WRL::ComPtr<ID3D12Resource>& targetResource =
+		GetInstance().texResources_[textureIndex];
+
+	targetResource =
+		TextureManager::CreateTextureResource(
+			DirectXBase::GetInstance()->GetDevice(),
+			metadata,
+			true,
+			clearColor
+		);
+
+	assert(targetResource != nullptr);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+
+	srvDesc.Format = metadata.format;
+	srvDesc.Shader4ComponentMapping =
+		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	srvDesc.ViewDimension =
+		D3D12_SRV_DIMENSION_TEXTURECUBE;
+
+	srvDesc.TextureCube.MostDetailedMip = 0;
+	srvDesc.TextureCube.MipLevels =
+		static_cast<UINT>(metadata.mipLevels);
+
+	srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+
+	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(
+		targetResource.Get(),
+		&srvDesc,
+		SRVManager::GetInstance()
+		->descriptorHeap_
+		.GetCPUHandle(textureIndex)
+	);
+
+	return SRVManager::GetInstance()->Allocate();
+}
+
+uint32_t Cygnus::TextureManager::CreateCubeMapMipSRV(int32_t textureHandle, uint32_t mipLevel, uint32_t face)
+{
+	assert(textureHandle >= 0);
+	assert(face < 6);
+
+	ID3D12Resource* resource = GetInstance().texResources_[textureHandle].Get();
+
+	assert(resource != nullptr);
+
+	const DirectX::TexMetadata& metadata = GetInstance().texMetadata_[textureHandle];
+
+	assert(metadata.IsCubemap());
+	assert(mipLevel < metadata.mipLevels);
+
+	// SRVを確保
+	uint32_t srvIndex = SRVManager::GetInstance()->Allocate();
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = metadata.format;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+	srvDesc.Texture2DArray.MostDetailedMip = mipLevel;
+	srvDesc.Texture2DArray.MipLevels = 1;
+	srvDesc.Texture2DArray.FirstArraySlice = face;
+	srvDesc.Texture2DArray.ArraySize = 1;
+	srvDesc.Texture2DArray.PlaneSlice = 0;
+
+	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(
+		resource,
+		&srvDesc,
+		SRVManager::GetInstance()->descriptorHeap_.GetCPUHandle(srvIndex)
+	);
+
+	return srvIndex;
 }

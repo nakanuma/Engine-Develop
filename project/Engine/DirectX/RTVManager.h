@@ -106,6 +106,37 @@ public:
 	/// <param name="textureHandle"></param>
 	static void SetRenderTargetKeepDepth(int32_t textureHandle);
 
+	/// <summary>
+	/// CubeMap用のレンダーターゲットを設定します。
+	/// </summary>
+	/// <param name="textureHandle"></param>
+	/// <param name="mipLevel"></param>
+	/// <param name="face"></param>
+	static void SetCubeMapRenderTarget(int32_t textureHandle, uint32_t mipLevel, uint32_t face);
+
+	/// <summary>
+	/// Cubemapの指定したMip・Faceをシェーダーリソース状態へ戻します。
+	/// </summary>
+	/// <param name="textureHandle"></param>
+	/// <param name="mipLevel"></param>
+	/// <param name="face"></param>
+	static void ResetCubeMapResourceBarrier(int32_t textureHandle, uint32_t mipLevel, uint32_t face);
+
+	/// <summary>
+	/// Cubemapの指定したMip・Faceをクリアします。
+	/// </summary>
+	/// <param name="textureHandle"></param>
+	/// <param name="mipLevel"></param>
+	/// <param name="face"></param>
+	/// <param name="clearColor"></param>
+	static void ClearCubeMapRTV(int32_t textureHandle, uint32_t mipLevel, uint32_t face, const Float4& clearColor = {0.0f, 0.0f, 0.0f, 1.0f});
+
+	static void CreateCubeMapDepth(int32_t textureHandle, uint32_t width, uint32_t height);
+
+	static void ClearRenderTargetOnly(int32_t textureHandle, const Float4& clearColor = {0.0f, 0.0f, 0.0f, 1.0f});
+
+	static void ClearCubeMapDepth(int32_t textureHandle);
+
 private:
 	// =========================================================
 	// Member Variables
@@ -120,5 +151,11 @@ private:
 	std::unordered_map<int32_t, int32_t> depthSRVHandleMap_;								/* デプスシェンシルビュー（DSV）シェーダリソースビュー（SRV）ハンドルマップ */
 
 	std::unordered_map<int32_t, D3D12_CPU_DESCRIPTOR_HANDLE> dsvHandleMap_; // DSVインデックス管理用
+
+	std::unordered_map<int64_t, D3D12_CPU_DESCRIPTOR_HANDLE> cubeMapRTVHandleMap_; // Cubemap用RTV管理
+
+	std::unordered_map<int32_t, Microsoft::WRL::ComPtr<ID3D12Resource>> cubeMapDepthResourceMap_;
+
+	std::unordered_map<int32_t, D3D12_CPU_DESCRIPTOR_HANDLE> cubeMapDSVHandleMap_;
 };
 }

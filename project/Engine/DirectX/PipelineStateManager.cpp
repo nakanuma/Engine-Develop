@@ -504,6 +504,34 @@ void Cygnus::PipelineStateManager::CreatePostEffectPSOs() {
 		desc.numRenderTargets = 0; // カラーRTは使用しない
 		CreateAndRegisterPSO(PSOType::DepthOnly, desc);
 	}
+
+	// CubeMapMip
+	{
+		PSODescriptor desc = baseDesc;
+		desc.vertexShaderName = "CubeMapMip_VS";
+		desc.pixelShaderName = "CubeMapMip_PS";
+
+		desc.depthStencilDesc.DepthEnable = FALSE;
+		desc.depthStencilDesc.StencilEnable = FALSE;
+
+		desc.rtvFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+		CreateAndRegisterPSO(PSOType::CubeMapMip, desc);
+	}
+
+	// CubeMapPrefilter
+	{
+		PSODescriptor desc = baseDesc;
+		desc.vertexShaderName = "CubeMapPrefilter_VS";
+		desc.pixelShaderName = "CubeMapPrefilter_PS";
+
+		desc.depthStencilDesc.DepthEnable = FALSE;
+		desc.depthStencilDesc.StencilEnable = FALSE;
+
+		desc.rtvFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+		CreateAndRegisterPSO(PSOType::CubeMapPrefilter, desc);
+	}
 }
 
 void Cygnus::PipelineStateManager::CreateSpecialPSOs() {
@@ -524,9 +552,9 @@ void Cygnus::PipelineStateManager::CreateSpecialPSOs() {
 		desc.pixelShaderName = "Skybox_PS";
 
 		// 深度ステンシルに変更を加える
-		desc.depthStencilDesc.DepthEnable = TRUE;
+		desc.depthStencilDesc.DepthEnable = FALSE;
 		desc.depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 全ピクセルがZ=1に出力されるため書き込み不要
-		desc.depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_EQUAL;
+		/*desc.depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_EQUAL;*/
 
 		desc.rtvFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
@@ -594,8 +622,10 @@ std::string Cygnus::PipelineStateManager::PSOTypeToString(PSOType type) {
 	case PSOType::SSAO: return "SSAO";
 	case PSOType::Composite: return "Composite";
 	case PSOType::DepthOnly: return "DepthOnly";
+	case PSOType::CubeMapMip: return "CubeMapMip";
+	case PSOType::CubeMapPrefilter: return "CubeMapPrefilter";
 
-		// 特殊用途
+	// 特殊用途
 	case PSOType::Skybox: return "Skybox";
 	case PSOType::Skinning: return "Skinning";
 

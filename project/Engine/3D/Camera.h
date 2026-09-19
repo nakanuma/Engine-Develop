@@ -48,6 +48,12 @@ public:
 	/// <returns>パースペクティブFOV行列</returns>
 	Matrix MakePerspectiveFovMatrix();
 
+	/// <summary>
+	/// CybeMap用の投影行列を生成します。
+	/// </summary>
+	/// <returns></returns>
+	Matrix MakeCubeMapPerspectiveFovMatrix();
+
 	// =========================================================
 	// Getter / Setter
 	// =========================================================
@@ -87,6 +93,7 @@ public:
 	float fov_;									/* 視野角 */
 	float nearZ_ = 0.1f, farZ_ = 1000.0f;		/* ニアクリップ距離、ファークリップ距離 */
 
+	bool isCubeMapCamera_ = false;
 private:
 	inline static Camera* current_;				/* 現在のカメラ */
 	ConstBuffer<CameraCBData> cameraCB_;		/* カメラ用定数バッファ */

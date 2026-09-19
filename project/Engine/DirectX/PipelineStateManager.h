@@ -63,6 +63,8 @@ enum class PSOType {
 	SSAO,				/* SSAO */
 	Composite,			/* Composite */
 	DepthOnly,			/* Depth Prepass */
+	CubeMapMip,			/* Mip生成用 */
+	CubeMapPrefilter,
 
 	// 特殊な用途
 	Skybox,				/* スカイボックス */

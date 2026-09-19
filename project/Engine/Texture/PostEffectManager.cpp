@@ -98,6 +98,12 @@ void Cygnus::PostEffectManager::Initialize() {
 	damageVignetteCB_.data_->intensity = kDamageIntensityInitial;
 	damageVignetteCB_.data_->radius = kDamageRadiusInitial;
 	damageVignetteCB_.data_->softness = kDamageSoftnessInitial;
+
+	// HDR調整用
+	postEffectParameterCB_.data_->exposure = 0.0f;
+
+	cubeMapMipParameterCB_.data_->texelSizeX = 1.0f / 512.0f;
+	cubeMapMipParameterCB_.data_->texelSizeY = 1.0f / 512.0f;
 }
 
 void Cygnus::PostEffectManager::TransfarConstantBuffer() {
@@ -109,6 +115,8 @@ void Cygnus::PostEffectManager::TransfarConstantBuffer() {
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexGlitch, glitchCB_.resource_->GetGPUVirtualAddress());
 	/* DamageVignette */
 	cmd->SetGraphicsRootConstantBufferView(kRootParameterIndexDamageVignette, damageVignetteCB_.resource_->GetGPUVirtualAddress());
+	// HDR調整用
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterPostEffect, postEffectParameterCB_.resource_->GetGPUVirtualAddress());
 }
 
 void Cygnus::PostEffectManager::BeginMainScene() {
@@ -331,6 +339,8 @@ void Cygnus::PostEffectManager::DrawComposite()
 
 	cmd->SetPipelineState(psoManager->GetPSO(PSOType::Composite));
 
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterPostEffect, postEffectParameterCB_.resource_->GetGPUVirtualAddress());
+
 	cmd->IASetVertexBuffers(0, 1, &vbView_);
 	cmd->IASetIndexBuffer(&ibView_);
 
@@ -367,4 +377,60 @@ void Cygnus::PostEffectManager::ClearSSAO()
 
 	Float4 clearColor = {1.0f, 1.0f, 1.0f, 1.0f};
 	RTVManager::ClearRTV(ssaoResultRT_, clearColor);
+}
+
+void Cygnus::PostEffectManager::ClearMainSceneColor()
+{
+	RTVManager::ClearRenderTargetOnly(mainSceneRT_, { 0.0f, 0.0f, 0.0f, 1.0f });
+}
+
+void Cygnus::PostEffectManager::GenerateCubeMapMip(int32_t cubeMapHandle, uint32_t sourceMip, uint32_t sourceFace, uint32_t destinationMip)
+{
+	auto cmd = CommandManager::GetInstance()->GetCommandList();
+
+	/* Mipサイズ */
+
+	uint32_t sourceSize = 512 >> sourceMip;
+
+	cubeMapMipParameterCB_.data_->texelSizeX = 1.0f / static_cast<float>(sourceSize);
+	cubeMapMipParameterCB_.data_->texelSizeY = 1.0f / static_cast<float>(sourceSize);
+
+	/* 定数バッファ設定 */
+
+	cmd->SetGraphicsRootConstantBufferView(kRootParameterPostEffect, cubeMapMipParameterCB_.resource_->GetGPUVirtualAddress());
+
+	/* Mip生成用PSO */
+
+	PipelineStateManager* psoManager = PipelineStateManager::GetInstance();
+
+	cmd->SetPipelineState(psoManager->GetPSO(PSOType::CubeMapMip));
+	cmd->SetGraphicsRootSignature(RootSignatureManager::GetInstance()->GetRootSignature(RootSignatureType::Default));
+	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	/* Source SRV */
+
+	uint32_t sourceSRV = cubeMapMipSRVHandles_[sourceFace][sourceMip];
+
+	TextureManager::SetDescriptorTable(2, cmd, sourceSRV);
+
+	// 描画先Mip
+	RTVManager::SetCubeMapRenderTarget(cubeMapHandle, destinationMip, sourceFace);
+
+	cmd->IASetVertexBuffers(0, 1, &vbView_);
+
+	cmd->IASetIndexBuffer(&ibView_);
+
+	cmd->DrawIndexedInstanced(kIndexCount, 1, 0, 0, 0);
+
+	// 描画先mipをSRVへ
+	RTVManager::ResetCubeMapResourceBarrier(cubeMapHandle, destinationMip, sourceFace);
+}
+
+void Cygnus::PostEffectManager::InitializeCubeMapMipSRV(int32_t cubeMapHandle)
+{
+	for(uint32_t face = 0; face < 6; ++face) {
+		for(uint32_t mip = 0; mip < 9; ++mip) {
+			cubeMapMipSRVHandles_[face][mip] = TextureManager::CreateCubeMapMipSRV(cubeMapHandle, mip, face);
+		}
+	}
 }

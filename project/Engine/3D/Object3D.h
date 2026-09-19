@@ -26,9 +26,12 @@ public:
 		int32_t useEnvironmentMap;				/* 環境マップ使用フラグ */
 		float padding[2];						/* パディング */
 		Matrix uvTransform;						/* UV変換行列 */
-		float shininess;						/* 光沢 */
+
+		float shininess;						/* 旧来の光沢 */
+		float roughness;						/* PBR粗さ */
+		float metallic;							/* PBR金属度 */
 		float environmentStrength;				/* 環境マップの影響度 */
-		float padding2[2];						/* パディング */
+
 		Float3 emissiveColor;					/* 発光色 */
 		float emissiveIntensity;				/* 発光強度 */
 	};
@@ -208,6 +211,7 @@ private:
 	static constexpr uint32_t kRootParameterIndexWVP = 1;				/* WVP用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexTexture = 2;			/* テクスチャ用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexSkinPaletteSRV = 5;	/* スキンアニメーションSRV用ルートパラメーターインデックス */
+	static constexpr uint32_t kRootParameterIndexCubeMap = 8;			/* キューブマップテクスチャ用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexShadowCBV = 11;		/* シャドウマッピングWVP用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexDepth = 17; /* 深度テクスチャ用ルートパラメーターインデックス */
 	static constexpr uint32_t kRootParameterIndexSSAO = 18; /* SSAOテクスチャ用ルートパラメーターインデックス */
@@ -222,7 +226,7 @@ private:
 	static constexpr Float3 kDefaultScale = { 1.0f, 1.0f, 1.0f };		/* デフォルトのスケール */
 	static constexpr Float4 kDefaultColor = { 1.0f, 1.0f, 1.0f, 1.0f };	/* デフォルトカラー */
 	static constexpr float kDefaultShinniness = 50.0f;					/* デフォルトの光沢 */
-	static constexpr float kDefaultEnvironmentStrength = 1.0f;			/* デフォルトの環境反射強度 */
+	static constexpr float kDefaultEnvironmentStrength = 0.1f;			/* デフォルトの環境反射強度 */
 
 	static constexpr float kDefaultUVScale = 1.0f;	/* UVスケーリングを行わないスケール */
 

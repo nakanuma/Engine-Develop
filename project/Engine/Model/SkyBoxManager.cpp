@@ -4,6 +4,7 @@
 #include <PipelineStateManager.h>
 #include <CommandManager.h>
 #include <ImguiWrapper.h>
+#include <Logger.h>
 
 Cygnus::SkyBoxManager* Cygnus::SkyBoxManager::GetInstance() {
 	static SkyBoxManager instance;
@@ -37,10 +38,18 @@ void Cygnus::SkyBoxManager::Draw() {
 	PipelineStateManager* psoManager = PipelineStateManager::GetInstance();
 	auto cmd = CommandManager::GetInstance()->GetCommandList();
 
+	uint32_t environmentHandle = GetEnvironmentTextureHandle();
+
+	Log(std::format(
+		"SkyBox Draw: environmentHandle={}, modelTextureHandle={}\n",
+		environmentHandle,
+		modelSkybox_.material.textureHandle
+	));
+
 	// Skybox用PSOに変更
 	cmd->SetPipelineState(psoManager->GetPSO(PSOType::Skybox));
 	// CubeMapをバインド
-	TextureManager::SetDescriptorTable(kRootParameterIndexCubeMap, cmd, modelSkybox_.material.textureHandle);
+	TextureManager::SetDescriptorTable(kRootParameterIndexCubeMap, cmd, environmentHandle);
 	// 描画
 	objectSkybox_->Draw();
 	// 通常PSOに戻す
@@ -68,4 +77,10 @@ void Cygnus::SkyBoxManager::Debug() {
 #endif
 }
 
-uint32_t Cygnus::SkyBoxManager::GetEnvironmentTextureHandle() { return modelSkybox_.material.textureHandle; }
+uint32_t Cygnus::SkyBoxManager::GetEnvironmentTextureHandle() { 
+	if(environmentTextureHandle_ >= 0) {
+		return static_cast<uint32_t>(environmentTextureHandle_);
+	}
+
+	return modelSkybox_.material.textureHandle;
+}

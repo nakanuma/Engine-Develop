@@ -11,6 +11,7 @@
 #include <FrameResourceManager.h>
 #include <PipelineStateManager.h>
 #include <RootSignatureManager.h>
+#include <SkyBoxManager.h>
 
 Cygnus::Object3D::Object3D() {
 	transform_.translate_ = kDefaultTranslate;
@@ -27,6 +28,10 @@ Cygnus::Object3D::Object3D() {
 	materialCB_.data_->uvTransform = Matrix::Identity();
 	// 光沢を初期化
 	materialCB_.data_->shininess = kDefaultShinniness;
+	// PBR粗さの初期化
+	materialCB_.data_->roughness = 0.5f;
+	// PBR金属度の初期化
+	materialCB_.data_->metallic = 0.0f;
 	// 環境反射の強度を初期化
 	materialCB_.data_->environmentStrength = kDefaultEnvironmentStrength;
 	// 発光色を初期化
@@ -271,6 +276,12 @@ void Cygnus::Object3D::DrawSetup()
 	
 	if(ssaoTextureHandle_ >= 0) {
 		TextureManager::SetDescriptorTable(kRootParameterIndexSSAO, cmd, ssaoTextureHandle_);
+	}
+
+	// EnvironmentMap
+	if(materialCB_.data_->useEnvironmentMap) {
+		uint32_t environmentTextureHandle = SkyBoxManager::GetInstance()->GetEnvironmentTextureHandle();
+		TextureManager::SetDescriptorTable(kRootParameterIndexCubeMap, cmd, environmentTextureHandle);
 	}
 }
 

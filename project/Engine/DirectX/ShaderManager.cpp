@@ -127,6 +127,14 @@ void Cygnus::ShaderManager::Initialize() {
 	LoadShader("Composite_PS", L"resources/Shaders/Composite.PS.hlsl", L"ps_6_0");
 	// DepthOnly
 	LoadShader("DepthOnly_PS", L"resources/Shaders/DepthOnly.PS.hlsl", L"ps_6_0");
+
+	// CubeMapMip
+	LoadShader("CubeMapMip_VS", L"resources/Shaders/CubeMapMip.VS.hlsl", L"vs_6_0");
+	LoadShader("CubeMapMip_PS", L"resources/Shaders/CubeMapMip.PS.hlsl", L"ps_6_0");
+
+	// CubeMapPrefilter
+	LoadShader("CubeMapPrefilter_VS", L"resources/Shaders/CubeMapPrefilter.VS.hlsl", L"vs_6_0");
+	LoadShader("CubeMapPrefilter_PS", L"resources/Shaders/CubeMapPrefilter.PS.hlsl", L"ps_6_0");
 }
 
 void Cygnus::ShaderManager::LoadShader(const std::string& name, const std::wstring& path, const wchar_t* profile) {
